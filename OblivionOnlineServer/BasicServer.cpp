@@ -30,6 +30,7 @@ bool bServerAlive;
 SOCKET clients[MAXCLIENTS];
 char acSendBuffer[512];
 PlayerStatus Players[MAXCLIENTS];
+bool Connected[MAXCLIENTS];
 FILE *easylog;
 
 // Prototypes
@@ -45,6 +46,19 @@ int main()
 	long rc;
 	bool bSendPackage;
 	char acReadBuffer[512];
+	for(int i=0; i<MAXCLIENTS; i++)
+	{
+		Players[i].PosX = 0;
+		Players[i].PosY = 0;
+		Players[i].PosZ = -196;
+		Players[i].RotX = 0;
+		Players[i].RotY = 0;
+		Players[i].RotZ = 0;
+		Players[i].CellID = 0;
+		Players[i].Health = 1;
+
+		Connected[i] = false;
+	}
 
 	SOCKET acceptSocket;
 	SOCKADDR_IN addr;
@@ -134,6 +148,7 @@ int main()
 					printf("Accepted new connection #(%d) from %s:%u\n",LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					fprintf(easylog,"Accepted new connection #(%d) from %s:%u\n",LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					fprintf(easylog,"We now have %d connections\n",TotalClients);
+					Connected[LocalPlayer] = true;
 					break;
 				}
 			}
