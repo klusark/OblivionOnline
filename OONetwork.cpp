@@ -1,0 +1,184 @@
+/*
+
+Copyright 2007 Joseph Pearson aka chessmaster42 and Julian aka masterfreek64
+
+This file is part of OblivionOnline.
+
+    OblivionOnline is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    OblivionOnline is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "main.h"
+#include "OONetwork.h"
+#include "OOPacketHandler.h"
+
+bool NetPlayerPosUpdate(PlayerStatus *Player,int PlayerID)
+{
+	OOPkgPosUpdate pkgBuf;
+	char *SendBuf;
+	pkgBuf.etypeID = OOPPosUpdate;
+	pkgBuf.Flags = 1 | 2;
+	pkgBuf.fPosX = Player->PosX;
+	pkgBuf.fPosY = Player->PosY;
+	pkgBuf.fPosZ = Player->PosZ;
+	pkgBuf.fRotX = Player->RotX;
+	pkgBuf.fRotY = Player->RotY;
+	pkgBuf.fRotZ = Player->RotZ;
+	pkgBuf.refID = PlayerID;
+	SendBuf = (char *)malloc(sizeof(OOPkgPosUpdate));
+	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgPosUpdate));
+	send(ServerSocket,SendBuf,sizeof(OOPkgPosUpdate),0);
+	free(SendBuf);
+	return true;
+}
+
+bool NetWelcome()
+{
+	OOPkgWelcome pkgBuf;
+	char *SendBuf;
+	pkgBuf.etypeID = OOPWelcome;
+	pkgBuf.Flags = 0;
+	pkgBuf.PlayerID = 0;
+	pkgBuf.wVersion = MAKEWORD(MAIN_VERSION,SUB_VERSION);
+	pkgBuf.guidOblivionOnline = gcOOGUID;
+	SendBuf = (char *)malloc(sizeof(OOPkgWelcome));
+	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgWelcome));
+	send(ServerSocket,SendBuf,sizeof(OOPkgWelcome),0);
+	free(SendBuf);
+	return true;
+}
+
+bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool bIsInterior)
+{
+	OOPkgZone pkgBuf;
+	char *SendBuf;
+	pkgBuf.etypeID = OOPZone;
+	if (!bIsInterior)
+	{
+		pkgBuf.Flags = 1 | 2 | 4; //Player and Actor | Exterior
+	}else{
+		pkgBuf.Flags = 1 | 2; //Player and Actor | Interior
+	}
+	pkgBuf.fPosX = Player->PosX;
+	pkgBuf.fPosY = Player->PosY;
+	pkgBuf.fPosZ = Player->PosZ;
+	pkgBuf.fRotX = Player->RotX;
+	pkgBuf.fRotY = Player->RotY;
+	pkgBuf.fRotZ = Player->RotZ;
+	strcpy(pkgBuf.ZoneName, ZoneName);
+	pkgBuf.cellID = Player->CellID;
+	pkgBuf.refID = PlayerID;
+	SendBuf = (char *)malloc(sizeof(OOPkgZone));
+	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgZone));
+	send(ServerSocket,SendBuf,sizeof(OOPkgZone),0);
+	free(SendBuf);
+	return true;
+}
+
+bool NetChat(char *Message)
+{
+	OOPkgChat pkgBuf;
+	char *SendBuf;
+	void *MessageDest;
+	pkgBuf.etypeID = OOPChat;
+	pkgBuf.Length = strlen(Message);
+	pkgBuf.Flags = 0;
+	SendBuf = (char *)malloc(sizeof(OOPkgChat)+pkgBuf.Length);
+	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgChat));
+	MessageDest=(SendBuf+sizeof(OOPkgChat));
+	memcpy(MessageDest,Message,pkgBuf.Length);
+	send(ServerSocket,SendBuf,sizeof(OOPkgChat)+pkgBuf.Length+1,0);
+	free(SendBuf);
+	return true;
+}
+
+bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate)
+{
+	char *SendBuf;
+	if (FullUpdate)
+	{
+		OOPkgFullStatUpdate pkgBuf;
+		pkgBuf.etypeID = OOPFullStatUpdate;
+		pkgBuf.Flags = 1 | 2;
+		pkgBuf.Agility = Player->Agility;
+		pkgBuf.Encumbrance = Player->Encumbrance;
+		pkgBuf.Endurance = Player->Endurance;
+		pkgBuf.Intelligence = Player->Intelligence;
+		pkgBuf.Luck = Player->Luck;
+		pkgBuf.Personality = Player->Personality;
+		pkgBuf.Speed = Player->Speed;
+		pkgBuf.Strength = Player->Strength;
+		pkgBuf.Willpower = Player->Willpower;
+		pkgBuf.Health = Player->Health;
+		pkgBuf.Magika = Player->Magika;
+		pkgBuf.Fatigue = Player->Fatigue;
+		pkgBuf.TimeStamp = Player->Time;
+		pkgBuf.refID = PlayerID;
+		SendBuf = (char *)malloc(sizeof(OOPkgFullStatUpdate));
+		memcpy(SendBuf,&pkgBuf,sizeof(OOPkgFullStatUpdate));
+		send(ServerSocket,SendBuf,sizeof(OOPkgFullStatUpdate),0);
+	}else{
+		OOPkgStatUpdate pkgBuf;
+		pkgBuf.etypeID = OOPStatUpdate;
+		pkgBuf.Flags = 1 | 2;
+		pkgBuf.Health = Player->Health;
+		pkgBuf.Magika = Player->Magika;
+		pkgBuf.Fatigue = Player->Fatigue;
+		pkgBuf.TimeStamp = Player->Time;
+		pkgBuf.refID = PlayerID;
+		SendBuf = (char *)malloc(sizeof(OOPkgStatUpdate));
+		memcpy(SendBuf,&pkgBuf,sizeof(OOPkgStatUpdate));
+		send(ServerSocket,SendBuf,sizeof(OOPkgStatUpdate),0);
+	}
+	free(SendBuf);
+	return true;
+}
+
+bool NetReadBuffer(char *acReadBuffer)
+{
+	OOPacketType ePacketType = SelectType(acReadBuffer);
+
+	switch (ePacketType)
+	{
+	case OOPWelcome:
+		OOPWelcome_Handler(acReadBuffer);
+		break;
+	case OOPPosUpdate:
+		OOPPosUpdate_Handler(acReadBuffer);
+		break;
+	case OOPZone:	
+		OOPZone_Handler(acReadBuffer);
+		break;
+	case OOPChat:
+		OOPChat_Handler(acReadBuffer);
+		break;
+	case OOPEvent:
+		OOPEvent_Handler(acReadBuffer);
+		break;
+	case OOPEventRegister:
+		OOPEventRegister_Handler(acReadBuffer);
+		break;
+	case OOPFullStatUpdate:
+		OOPFullStatUpdate_Handler(acReadBuffer);
+		break;
+	case OOPStatUpdate:	
+		OOPStatUpdate_Handler(acReadBuffer);
+		break;
+	case OOPTimeUpdate:
+		OOPTimeUpdate_Handler(acReadBuffer);
+		break;
+	default: 
+		break;
+	}
+	return true;
+}
