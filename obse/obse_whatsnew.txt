@@ -1,0 +1,105 @@
+0012 : Official plugin support, race attribute and skill functions, some climate and weather functions, enable effect item functions for ScriptEffects, add SetNthEIScript and SetNthEIScriptName, Get/SetSpellExplodesWithNoTarget, GetScript, RemoveScript, SetScript
+
+0011: Skill experience functions, AddFullEffectItem, RunBatchScript, global collision setting functions, more console commands, ModName and AppendName and several defect fixes
+- fixes GetBaseObject
+- IsArmor, IsBook, IsContainer and IsSoulGem no longer require the passed object ID
+- CopyAllEffectItems, CopyNthEffectItem and RemoveNthEffectItem no longer need a cloned form as a target
+- Adds con_SaveINI, con_QuitGame and con_TGM
+
+0010: Magic effect, book, model path manipulation, more console commands, menu input functions, math functions
+
+- update game setting/ini file functions to work with unsigned and boolean types
+- buffered input functions, useful for menus or other text input
+- fix some potential thread-safety issues
+- patch the RefID wraparound bug in 1.1.511 and 1.2.214 (note that the number will keep going up, but with OBSE installed it will wrap from 0xFFFFFFFF to 0xFF000000 properly)
+- fix Is* functions, allow passing arguments that are not considered 'inventory items'
+- replace local magic effect list with access to oblivion's internal list
+- actually seed the random number generator (doh)
+- fix internal access to form list for 1.2.214
+- calculate fps via average frametime (calculated via GetTickCount) over 20 frames
+- log version of OBSE, version of Oblivion in obse.log
+- change resource version number to 0.0.10.1 to allow for more precision when releasing intermediate versions without ticking the major version number
+- include NSIS script for modders that want an installer
+
+0009e: Compatibility with patch 1.2.0.416
+
+0009d: Compatibility with CS 1.2.0.404
+
+0009c: Compatibility with CS 1.2
+
+0009b: Compatibility with patch 1.2
+
+0009a: Bugfix release, fixes flow control functions and a potential SetModel crash
+
+0009: Individual GetValue functions, Set/ModValue functions, Beta Flow Control functions, new HTML command documentation
+- adds 114 functions: 70 provide completely new functionality
+- fix bug looping over magic effects
+- fix bug in GetMIV Poison to accurately return if the object is poison or not
+
+0008: GetEquippedObjectValue, GetEquippedCurrentValue, GetMagicItemValue, GetMagicEffectValue, GetMagicEffectCodeValue, MagicItemHasEffect, MagicItemHasEffectCode, GetNumMouseButtonsPressed, GetMouseButtonPress.
+
+- added Enchantment value to the Object Value functions to return a ref to any enchantment on an object
+- fix bug where equipment functions didn't manage rings correctly. The ring slots now return whatever ring is worn on that side, regardless of the form's declaration as a left or right ring slot.
+- fix bug with signed mouse movement
+- fix fake mouse keycode
+
+
+0007: GetOV Values: QuestItem, Poison, Food, unofficial oldblivion support, editor font changes
+
+- fix bug with GetOV ArmorType
+- fix bug with IngredientItem decoding affecting GetOV weight and value
+- integrate changes from Timeslip
+- reimplement editor font changing code so it works on win2k, add font picker dialog
+
+0006: Item Value functions, Item type functions, Class functions, HasSpell, ModActorValue2
+
+- more form structures and class decoding
+- fix bug with GetEquippedObject not returning an object that is damaged where another non-damaged object is the the inventory.
+
+0005: fixing math functions, DirectInput, GetOBSEVersion, console commands
+
+- converted to VS2005
+- compiles under VS Express
+- add timeslip's math fns, rename old fns
+- add many new CRCs
+- more form structures, a few game objects also
+- update rand function to use mersenne twister
+- add DirectInput hooking functions, disallow modification of ESC and ` keys
+
+0004: PrintToConsole, Get/SetActiveSpell, GetParentCell, math functions, alpha release
+
+Implemented PrintToConsole, Get/SetActiveSpell, GetParentCell, several math functions. Alpha release version, OK to use in released mods.
+
+- all RTTI structures
+- many form structures defined
+- testing dynamic form creation
+- improve dll loader sync for editor
+- added Utilities file with analysis utils
+
+0003: GetEquipmentSlotType. determining how inventory items are stored along with their extra data
+
+Implemented GetEquipmentSlotType. Fixed floating point return types for all functions. Considered an alpha release candidate.
+
+- fix script result type
+- pad opcodes out to 1400
+- get equipment command
+
+0002: first useful commands
+
+Implemented GetNumItems, GetInventoryType and IsKeyPressed.
+
+- dynamic_cast support
+- form access (no data yet)
+- extra data list access
+- more virtual functions documented
+- class hiearchy
+- minor code reorg
+- extra data types
+- container access
+- variable name cleanup
+- input commands
+- inventory commands
+
+0001: first release
+
+Simple proof of concept demo.
