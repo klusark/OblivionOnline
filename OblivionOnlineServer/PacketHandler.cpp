@@ -140,9 +140,20 @@ bool OOPStatUpdate_Handler(char *Packet,short LocalPlayer)
 {
 	char *SendBuf;
 	OOPkgStatUpdate InPkgBuf;
+	OOPkgStatUpdate OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgStatUpdate));
+	if (InPkgBuf.refID < MAXCLIENTS)
+	{
+		OutPkgBuf.etypeID = InPkgBuf.etypeID;
+		OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
+		OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
+		OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
+		Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
+		Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
+		Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
+	}
 	SendBuf = (char *)malloc(sizeof(OOPkgStatUpdate));
-	memcpy(SendBuf,&InPkgBuf,sizeof(OOPkgStatUpdate));
+	memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgStatUpdate));
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
 		send(clients[cx],SendBuf,sizeof(OOPkgStatUpdate),0);
