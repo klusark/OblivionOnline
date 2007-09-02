@@ -35,6 +35,7 @@ This file is part of OblivionOnline.
 	exception; this exception also makes it possible to release a modified version which carries 
 	forward this exception.
 */
+
 #ifndef main_h
 #define main_h
 
