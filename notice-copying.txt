@@ -1,0 +1,17 @@
+Hello folks,
+
+this is the OblivionOnline Multiplayer Mod for Oblivion. Thank you for visiting our repository. At the moment OO is released under the GNU GPL . We think about releasing the server under the affero GPL.
+
+It is an OBSE plugin , and both dinamically and statically links against OBSE source code.
+
+The exception to the GPL allows you to do so. 
+
+OBSE is not licenced under a specific licence , although a few Terms and COnditions apply when using it.
+We call this the OBSE licence 
+
+OBSEs copyright notice is here :
+Oblivion Script Extender
+Authors: Ian Patterson (ianpatt), Stephen Abel (behippo)
+Contributors: Timeslip, The J
+
+it's webpage is : http://obse.silverlock.org/

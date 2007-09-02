@@ -35,7 +35,6 @@ This file is part of OblivionOnline.
 	exception; this exception also makes it possible to release a modified version which carries 
 	forward this exception.
 */
-
 #include "main.h"
 #include "OONetwork.h"
 
