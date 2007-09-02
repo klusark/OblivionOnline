@@ -172,7 +172,8 @@ int main()
 					fprintf(easylog,"Client %d closed the Connection\n",LocalPlayer);
 					fprintf(easylog,"We now have %d connections\n",TotalClients);
 					closesocket(clients[LocalPlayer]); 
-					clients[LocalPlayer]=INVALID_SOCKET; 
+					clients[LocalPlayer]=INVALID_SOCKET;
+					Connected[LocalPlayer] = false;
 				} 
 				else
 				{
