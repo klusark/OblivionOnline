@@ -148,7 +148,6 @@ int main()
 					printf("Accepted new connection #(%d) from %s:%u\n",LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					fprintf(easylog,"Accepted new connection #(%d) from %s:%u\n",LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					fprintf(easylog,"We now have %d connections\n",TotalClients);
-					Connected[LocalPlayer] = true;
 					break;
 				}
 			}
@@ -210,7 +209,8 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer)
 	switch (ePacketType)
 	{
 	case OOPWelcome:
-		OOPWelcome_Handler(acReadBuffer,LocalPlayer);
+		if (!Connected[LocalPlayer])
+			OOPWelcome_Handler(acReadBuffer,LocalPlayer);
 		break;
 	case OOPPosUpdate:
 		OOPPosUpdate_Handler(acReadBuffer,LocalPlayer);

@@ -20,8 +20,11 @@ This file is part of OblivionOnline.
 
 #include "PacketHandler.h"
 #include "BasicServer.h"
+extern bool Connected[MAXCLIENTS];
 bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 {
+	if (Connected[LocalPlayer])
+		return true;
 	OOPkgWelcome InPkgBuf;
 	OOPkgWelcome OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
@@ -41,6 +44,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			send(clients[LocalPlayer],SendBuf,sizeof(OOPkgWelcome),0);
 			printf("Welcoming Player%2d\n",LocalPlayer);
 			free(SendBuf);
+			Connected[LocalPlayer] = true;
 		}
 		else
 		{
