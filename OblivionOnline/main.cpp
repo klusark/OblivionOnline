@@ -336,7 +336,7 @@ bool Cmd_MPSyncStat_Execute (COMMAND_ARGS)
 			if (!Players[LocalPlayer].bInitialSet)
 			{
 				// Set HP to initial value
-				sprintf(tempLine, "player.setav Health %i", (int)PlayersInitial[LocalPlayer].Health);
+				sprintf(tempLine, "player.forceav Health %i", (int)PlayersInitial[LocalPlayer].Health);
 				RunScriptLine(tempLine, true);
 				Players[LocalPlayer].bInitialSet = true;
 			}else{
