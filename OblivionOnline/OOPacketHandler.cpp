@@ -76,15 +76,14 @@ bool OOPZone_Handler(char *Packet)
 
 	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
 	{
-		OtherPlayer = InPkgBuf.refID;
-		Players[OtherPlayer].PosX = InPkgBuf.fPosX;
-		Players[OtherPlayer].PosY = InPkgBuf.fPosY;
-		Players[OtherPlayer].PosZ = InPkgBuf.fPosZ;
-		Players[OtherPlayer].RotX = InPkgBuf.fRotX;
-		Players[OtherPlayer].RotY = InPkgBuf.fRotY;
-		Players[OtherPlayer].RotZ = InPkgBuf.fRotZ;
-		Players[OtherPlayer].CellID = InPkgBuf.cellID;
-		strcpy(Players[OtherPlayer].Zone, InPkgBuf.ZoneName);
+		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
+		Players[InPkgBuf.refID].PosY = InPkgBuf.fPosY;
+		Players[InPkgBuf.refID].PosZ = InPkgBuf.fPosZ;
+		Players[InPkgBuf.refID].RotX = InPkgBuf.fRotX;
+		Players[InPkgBuf.refID].RotY = InPkgBuf.fRotY;
+		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
+		Players[InPkgBuf.refID].CellID = InPkgBuf.cellID;
+		strcpy(Players[InPkgBuf.refID].Zone, InPkgBuf.ZoneName);
 	}
 	return true;
 }
@@ -121,19 +120,18 @@ bool OOPFullStatUpdate_Handler(char *Packet)
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
 	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
 	{
-		OtherPlayer = InPkgBuf.refID;
-		Players[OtherPlayer].Agility = InPkgBuf.Agility;
-		Players[OtherPlayer].Encumbrance = InPkgBuf.Encumbrance;
-		Players[OtherPlayer].Endurance = InPkgBuf.Endurance;
-		Players[OtherPlayer].Intelligence = InPkgBuf.Intelligence;
-		Players[OtherPlayer].Luck = InPkgBuf.Luck;
-		Players[OtherPlayer].Personality = InPkgBuf.Personality;
-		Players[OtherPlayer].Speed = InPkgBuf.Speed;
-		Players[OtherPlayer].Strength = InPkgBuf.Strength;
-		Players[OtherPlayer].Willpower = InPkgBuf.Willpower;
-		Players[OtherPlayer].Health = InPkgBuf.Health;
-		Players[OtherPlayer].Magika = InPkgBuf.Magika;
-		Players[OtherPlayer].Fatigue = InPkgBuf.Fatigue;
+		Players[InPkgBuf.refID].Agility = InPkgBuf.Agility;
+		Players[InPkgBuf.refID].Encumbrance = InPkgBuf.Encumbrance;
+		Players[InPkgBuf.refID].Endurance = InPkgBuf.Endurance;
+		Players[InPkgBuf.refID].Intelligence = InPkgBuf.Intelligence;
+		Players[InPkgBuf.refID].Luck = InPkgBuf.Luck;
+		Players[InPkgBuf.refID].Personality = InPkgBuf.Personality;
+		Players[InPkgBuf.refID].Speed = InPkgBuf.Speed;
+		Players[InPkgBuf.refID].Strength = InPkgBuf.Strength;
+		Players[InPkgBuf.refID].Willpower = InPkgBuf.Willpower;
+		Players[InPkgBuf.refID].Health = InPkgBuf.Health;
+		Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
+		Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
 	}
 	return true;
 }
@@ -144,10 +142,14 @@ bool OOPStatUpdate_Handler(char *Packet)
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgStatUpdate));
 	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
 	{
-		OtherPlayer = InPkgBuf.refID;
-		Players[OtherPlayer].Health = InPkgBuf.Health;
-		Players[OtherPlayer].Magika = InPkgBuf.Magika;
-		Players[OtherPlayer].Fatigue = InPkgBuf.Fatigue;
+		Players[InPkgBuf.refID].Health += InPkgBuf.Health;
+		Players[InPkgBuf.refID].Magika += InPkgBuf.Magika;
+		Players[InPkgBuf.refID].Fatigue += InPkgBuf.Fatigue;
+		//Temp
+		char tempData[64];
+		sprintf(tempData, "Health change: %i", InPkgBuf.Health);
+		Console_Print(tempData);
+		//End Temp
 	}
 	return true;
 }
