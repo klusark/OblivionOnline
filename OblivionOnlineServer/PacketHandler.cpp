@@ -151,8 +151,7 @@ bool OOPStatUpdate_Handler(char *Packet,short LocalPlayer)
 	//End Temp
 	if (InPkgBuf.refID < MAXCLIENTS)
 	{
-		printf("Client valid");
-		OutPkgBuf.etypeID = InPkgBuf.etypeID;
+		OutPkgBuf.etypeID = OOPStatUpdate;
 		OutPkgBuf.refID = InPkgBuf.refID;
 		OutPkgBuf.Flags = InPkgBuf.Flags;
 		OutPkgBuf.TimeStamp = InPkgBuf.TimeStamp;
