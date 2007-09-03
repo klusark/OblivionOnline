@@ -92,7 +92,7 @@ int OO_Initialize()
 		PlayersInitial[i].RotY = 0;
 		PlayersInitial[i].RotZ = 0;
 		PlayersInitial[i].CellID = 0;
-		PlayersInitial[i].Health = 42;
+		PlayersInitial[i].Health = 1;
 		PlayersInitial[i].bStatsInitialized = false;
 
 		SpawnID[i] = 0;

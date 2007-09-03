@@ -157,6 +157,11 @@ bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate)
 		SendBuf = (char *)malloc(sizeof(OOPkgStatUpdate));
 		memcpy(SendBuf,&pkgBuf,sizeof(OOPkgStatUpdate));
 		send(ServerSocket,SendBuf,sizeof(OOPkgStatUpdate),0);
+		//Temp
+		char tempData[64];
+		sprintf(tempData, "Player %u with HP of %i", pkgBuf.refID, pkgBuf.Health);
+		Console_Print(tempData);
+		//End Temp
 	}
 	free(SendBuf);
 	return true;
