@@ -151,7 +151,7 @@ bool OOPStatUpdate_Handler(char *Packet,short LocalPlayer)
 	sprintf(tempData, "Client %u HP is now %i\n", InPkgBuf.refID, InPkgBuf.Health);
 	printf(tempData);
 	//End Temp
-	if (InPkgBuf.refID < MAXCLIENTS)
+	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
 	{
 		OutPkgBuf.etypeID = InPkgBuf.etypeID;
 		OutPkgBuf.refID = InPkgBuf.refID;
@@ -163,14 +163,14 @@ bool OOPStatUpdate_Handler(char *Packet,short LocalPlayer)
 		Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
 		Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
 		Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
+		SendBuf = (char *)malloc(sizeof(OOPkgStatUpdate));
+		memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgStatUpdate));
+		for(int cx=0;cx<MAXCLIENTS;cx++)
+		{
+			send(clients[cx],SendBuf,sizeof(OOPkgStatUpdate),0);
+		}
+		free(SendBuf);
 	}
-	SendBuf = (char *)malloc(sizeof(OOPkgStatUpdate));
-	memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgStatUpdate));
-	for(int cx=0;cx<MAXCLIENTS;cx++)
-	{
-		send(clients[cx],SendBuf,sizeof(OOPkgStatUpdate),0);
-	}
-	free(SendBuf);
 	return true;
 }
 bool OOPTimeUpdate_Handler(char *Packet,short LocalPlayer)
