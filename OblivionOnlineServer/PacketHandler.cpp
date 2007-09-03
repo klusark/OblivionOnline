@@ -147,12 +147,11 @@ bool OOPStatUpdate_Handler(char *Packet,short LocalPlayer)
 	OOPkgStatUpdate OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgStatUpdate));
 	//Temp
-	char tempData[64];
-	sprintf(tempData, "Client %u HP is now %i\n", InPkgBuf.refID, InPkgBuf.Health);
-	printf(tempData);
+	printf("Client %u HP is now %i\n", InPkgBuf.refID, InPkgBuf.Health);
 	//End Temp
 	if (InPkgBuf.refID < MAXCLIENTS)
 	{
+		printf("Client valid");
 		OutPkgBuf.etypeID = InPkgBuf.etypeID;
 		OutPkgBuf.refID = InPkgBuf.refID;
 		OutPkgBuf.Flags = InPkgBuf.Flags;
