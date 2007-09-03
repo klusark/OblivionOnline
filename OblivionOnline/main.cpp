@@ -260,6 +260,9 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 			{
 				NetStatUpdate(&Players[actorNumber], actorNumber, true);
 			}
+		}else{
+			if (actorNumber == -2)
+				Console_Print("Cannot update, only one player is connected");
 		}
 	}
 	return true;
@@ -297,6 +300,9 @@ bool Cmd_MPSendStat_Execute (COMMAND_ARGS)
 			{
 				NetStatUpdate(&Players[actorNumber], actorNumber, false);
 			}
+		}else{
+			if (actorNumber == -2)
+				Console_Print("Cannot update, only one player is connected");
 		}
 	}
 	return true;
