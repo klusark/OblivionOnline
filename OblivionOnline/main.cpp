@@ -276,11 +276,8 @@ bool Cmd_MPSendStat_Execute (COMMAND_ARGS)
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
 		int actorNumber = GetActorID(ActorBuf->refID);
-		Console_Print("IsActor");
-
 		if (actorNumber != -1)
 		{
-			Console_Print("Valid actor");
 			if (ActorBuf->refID == 20)
 				actorNumber = LocalPlayer;
 			Players[actorNumber].Health = ActorBuf->GetActorValue(8);
