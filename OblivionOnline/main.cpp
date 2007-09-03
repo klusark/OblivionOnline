@@ -585,7 +585,7 @@ static CommandInfo kMPSendWorldCommand =
 
 static CommandInfo kMPSendFullStatCommand =
 {
-	"MPSendStat",
+	"MPSendFullStat",
 	"MPSFS",
 	0,
 	"Send all stats of calling ref",
