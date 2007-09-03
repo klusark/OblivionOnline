@@ -140,11 +140,6 @@ bool OOPStatUpdate_Handler(char *Packet)
 {
 	OOPkgStatUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgStatUpdate));
-	//Temp
-	char tempData[64];
-	sprintf(tempData, "Stat packet from %u with HP of %i", InPkgBuf.refID, InPkgBuf.Health);
-	Console_Print(tempData);
-	//End Temp
 	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
 	{
 		Players[InPkgBuf.refID].Health += InPkgBuf.Health;
