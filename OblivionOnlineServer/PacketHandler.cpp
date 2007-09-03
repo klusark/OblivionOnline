@@ -146,6 +146,11 @@ bool OOPStatUpdate_Handler(char *Packet,short LocalPlayer)
 	OOPkgStatUpdate InPkgBuf;
 	OOPkgStatUpdate OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgStatUpdate));
+	//Temp
+	char tempData[64];
+	sprintf(tempData, "Client %u HP is now %i\n", InPkgBuf.refID, InPkgBuf.Health);
+	printf(tempData);
+	//End Temp
 	if (InPkgBuf.refID < MAXCLIENTS)
 	{
 		OutPkgBuf.etypeID = InPkgBuf.etypeID;
