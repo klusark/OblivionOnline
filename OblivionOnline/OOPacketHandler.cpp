@@ -138,6 +138,7 @@ bool OOPFullStatUpdate_Handler(char *Packet)
 
 bool OOPStatUpdate_Handler(char *Packet)
 {
+	Console_Print("Stat packet received");
 	OOPkgStatUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgStatUpdate));
 	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
