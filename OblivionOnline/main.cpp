@@ -224,7 +224,7 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 		Actor *ActorBuf = (Actor *)thisObj;
 		int actorNumber = GetActorID(ActorBuf->refID);
 
-		if (actorNumber != -1)
+		if (actorNumber != -1 && actorNumber != -2)
 		{
 			Players[actorNumber].Strength = ActorBuf->GetActorValue(0);
 			Players[actorNumber].Intelligence = ActorBuf->GetActorValue(1);
@@ -276,7 +276,7 @@ bool Cmd_MPSendStat_Execute (COMMAND_ARGS)
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
 		int actorNumber = GetActorID(ActorBuf->refID);
-		if (actorNumber != -1)
+		if (actorNumber != -1 && actorNumber != -2)
 		{
 			if (ActorBuf->refID == 20)
 				actorNumber = LocalPlayer;

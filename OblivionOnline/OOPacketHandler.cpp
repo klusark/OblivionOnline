@@ -140,16 +140,16 @@ bool OOPStatUpdate_Handler(char *Packet)
 {
 	OOPkgStatUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgStatUpdate));
+	//Temp
+	char tempData2[64];
+	sprintf(tempData2, "Client %u Health change: %i", InPkgBuf.refID, InPkgBuf.Health);
+	Console_Print(tempData2);
+	//End Temp
 	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
 	{
 		Players[InPkgBuf.refID].Health += InPkgBuf.Health;
 		Players[InPkgBuf.refID].Magika += InPkgBuf.Magika;
 		Players[InPkgBuf.refID].Fatigue += InPkgBuf.Fatigue;
-		//Temp
-		char tempData2[64];
-		sprintf(tempData2, "Health change: %i", InPkgBuf.Health);
-		Console_Print(tempData2);
-		//End Temp
 	}
 	return true;
 }
