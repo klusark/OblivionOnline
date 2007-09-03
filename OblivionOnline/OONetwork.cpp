@@ -194,7 +194,7 @@ bool NetReadBuffer(char *acReadBuffer)
 	case OOPFullStatUpdate:
 		OOPFullStatUpdate_Handler(acReadBuffer);
 		break;
-	case OOPStatUpdate:	
+	case OOPStatUpdate:
 		OOPStatUpdate_Handler(acReadBuffer);
 		break;
 	case OOPTimeUpdate:
