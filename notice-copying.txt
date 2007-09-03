@@ -14,4 +14,4 @@ Oblivion Script Extender
 Authors: Ian Patterson (ianpatt), Stephen Abel (behippo)
 Contributors: Timeslip, The J
 
-it's webpage is : http://obse.silverlock.org/
+its webpage is : http://obse.silverlock.org/
