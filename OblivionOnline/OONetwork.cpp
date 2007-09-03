@@ -55,7 +55,16 @@ bool NetPlayerPosUpdate(PlayerStatus *Player,int PlayerID)
 	pkgBuf.refID = PlayerID;
 	SendBuf = (char *)malloc(sizeof(OOPkgPosUpdate));
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgPosUpdate));
-	send(ServerSocket,SendBuf,sizeof(OOPkgPosUpdate),0);
+	while(true)
+	{
+		if (!bSendBusy)
+		{
+			bSendBusy = true;
+			send(ServerSocket,SendBuf,sizeof(OOPkgPosUpdate),0);
+			bSendBusy = false;
+			break;
+		}
+	}
 	free(SendBuf);
 	return true;
 }
@@ -71,7 +80,16 @@ bool NetWelcome()
 	pkgBuf.guidOblivionOnline = gcOOGUID;
 	SendBuf = (char *)malloc(sizeof(OOPkgWelcome));
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgWelcome));
-	send(ServerSocket,SendBuf,sizeof(OOPkgWelcome),0);
+	while(true)
+	{
+		if (!bSendBusy)
+		{
+			bSendBusy = true;
+			send(ServerSocket,SendBuf,sizeof(OOPkgWelcome),0);
+			bSendBusy = false;
+			break;
+		}
+	}
 	free(SendBuf);
 	return true;
 }
@@ -98,7 +116,16 @@ bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool bIsInt
 	pkgBuf.refID = PlayerID;
 	SendBuf = (char *)malloc(sizeof(OOPkgZone));
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgZone));
-	send(ServerSocket,SendBuf,sizeof(OOPkgZone),0);
+	while(true)
+	{
+		if (!bSendBusy)
+		{
+			bSendBusy = true;
+			send(ServerSocket,SendBuf,sizeof(OOPkgZone),0);
+			bSendBusy = false;
+			break;
+		}
+	}
 	free(SendBuf);
 	return true;
 }
@@ -115,7 +142,16 @@ bool NetChat(char *Message)
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgChat));
 	MessageDest=(SendBuf+sizeof(OOPkgChat));
 	memcpy(MessageDest,Message,pkgBuf.Length);
-	send(ServerSocket,SendBuf,sizeof(OOPkgChat)+pkgBuf.Length+1,0);
+	while(true)
+	{
+		if (!bSendBusy)
+		{
+			bSendBusy = true;
+			send(ServerSocket,SendBuf,sizeof(OOPkgChat)+pkgBuf.Length+1,0);
+			bSendBusy = false;
+			break;
+		}
+	}
 	free(SendBuf);
 	return true;
 }
@@ -144,7 +180,16 @@ bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate)
 		pkgBuf.refID = PlayerID;
 		SendBuf = (char *)malloc(sizeof(OOPkgFullStatUpdate));
 		memcpy(SendBuf,&pkgBuf,sizeof(OOPkgFullStatUpdate));
-		send(ServerSocket,SendBuf,sizeof(OOPkgFullStatUpdate),0);
+		while(true)
+		{
+			if (!bSendBusy)
+			{
+				bSendBusy = true;
+				send(ServerSocket,SendBuf,sizeof(OOPkgFullStatUpdate),0);
+				bSendBusy = false;
+				break;
+			}
+		}
 	}else{
 		OOPkgStatUpdate pkgBuf;
 		pkgBuf.etypeID = OOPStatUpdate;
@@ -156,7 +201,16 @@ bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate)
 		pkgBuf.refID = PlayerID;
 		SendBuf = (char *)malloc(sizeof(OOPkgStatUpdate));
 		memcpy(SendBuf,&pkgBuf,sizeof(OOPkgStatUpdate));
-		send(ServerSocket,SendBuf,sizeof(OOPkgStatUpdate),0);
+		while(true)
+		{
+			if (!bSendBusy)
+			{
+				bSendBusy = true;
+				send(ServerSocket,SendBuf,sizeof(OOPkgStatUpdate),0);
+				bSendBusy = false;
+				break;
+			}
+		}
 		//Temp
 		char tempData[64];
 		sprintf(tempData, "Player %u with HP of %i", pkgBuf.refID, pkgBuf.Health);

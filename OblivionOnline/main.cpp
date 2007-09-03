@@ -45,6 +45,7 @@ IDebugLog gLog("OblivionOnline.log");
 bool bIsConnected = false;
 int LocalPlayer;
 int OtherPlayer;
+bool bSendBusy = false;
 
 UInt32 SpawnID[MAXCLIENTS];
 
