@@ -146,9 +146,13 @@ bool OOPStatUpdate_Handler(char *Packet,short LocalPlayer)
 	OOPkgStatUpdate InPkgBuf;
 	OOPkgStatUpdate OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgStatUpdate));
+	printf("Stat from %u with HP of %i\n", InPkgBuf.refID, InPkgBuf.Health);
 	if (InPkgBuf.refID < MAXCLIENTS)
 	{
 		OutPkgBuf.etypeID = InPkgBuf.etypeID;
+		OutPkgBuf.refID = InPkgBuf.refID;
+		OutPkgBuf.Flags = InPkgBuf.Flags;
+		OutPkgBuf.TimeStamp = InPkgBuf.TimeStamp;
 		OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
 		OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
 		OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
