@@ -83,13 +83,14 @@ struct PlayerStatus : ActorStatus
 struct DataQueue
 {
 	char *SendData[QUEUELENGTH];
+	int Size[QUEUELENGTH];
 	int Iterator;
 	int Length;
 };
 
 extern IDebugLog gLog;
 extern bool bIsConnected;
-extern bool bServerBusy;
+extern bool bSendBusy;
 extern int LocalPlayer;
 extern int OtherPlayer;
 extern DataQueue SendQueue;

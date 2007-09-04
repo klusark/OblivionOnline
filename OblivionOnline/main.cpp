@@ -43,7 +43,7 @@ This file is part of OblivionOnline.
 IDebugLog gLog("OblivionOnline.log");
 
 bool bIsConnected = false;
-bool bServerBusy = false;
+bool bSendBusy = false;
 int LocalPlayer;
 int OtherPlayer;
 DataQueue SendQueue;
@@ -116,11 +116,40 @@ DWORD WINAPI RecvThread(LPVOID Params)
 
 DWORD WINAPI SendThread(LPVOID Params)
 {
-	int rc;
+	//Initialize the queue data
+	int Size = 0;
+	SendQueue.Iterator = 0;
+	SendQueue.Length = 0;
+	for(int i=0; i<QUEUELENGTH; i++)
+	{
+		SendQueue.SendData[i] = NULL;
+		SendQueue.Size[i] = 0;
+	}
 
+	Console_Print("SendThread intialized");
+
+	//Begin the send loop
 	while(1)
 	{
-		//if (bSeverBusy)
+		Sleep(20);
+		while(SendQueue.SendData[0])
+		{
+			//Send out our data from the front of the queue
+			send(ServerSocket, SendQueue.SendData[0], SendQueue.Size[0], 0);
+
+			//Clean up the data slot
+			free(SendQueue.SendData[0]);
+			SendQueue.SendData[0] = NULL;
+			SendQueue.Size[0] = 0;
+			SendQueue.Length--;
+
+			//Shift the rest of the queue towards the front
+			for(int i=1; i<SendQueue.Length; i++)
+			{
+				if (SendQueue.SendData[i])
+					SendQueue.SendData[i-1] = SendQueue.SendData[i];
+			}
+		}
 	}
 }
 
