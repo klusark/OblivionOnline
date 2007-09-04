@@ -108,8 +108,7 @@ bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool bIsInt
 	pkgBuf.refID = PlayerID;
 	SendBuf = (char *)malloc(sizeof(OOPkgZone));
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgZone));
-	/*
-	for(int i=0; i<100; i++)
+	while(1)
 	{
 		if (SendQueue.Length < QUEUELENGTH)
 		{
@@ -117,13 +116,10 @@ bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool bIsInt
 			SendQueue.SendData[SendQueue.Length-1] = SendBuf;
 			SendQueue.Size[SendQueue.Length-1] = sizeof(OOPkgZone);
 			break;
-		}else{
-			Console_Print("Queue is full");
 		}
 	}
-	*/
-	send(ServerSocket,SendBuf,sizeof(OOPkgZone),0);
-	free(SendBuf);
+	//send(ServerSocket,SendBuf,sizeof(OOPkgZone),0);
+	//free(SendBuf);
 	return true;
 }
 
