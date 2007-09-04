@@ -35,20 +35,30 @@ This file is part of OblivionOnline.
 	exception; this exception also makes it possible to release a modified version which carries 
 	forward this exception.
 */
+//perhaps a template. DO NOT USE stdext:::hash_map. It is such bullshit....+
+//not to be used yet
 #pragma once
 typedef void * ObjectPointer;
 typedef char * (*NameFunction) (ObjectPointer obj);
 typedef void (*ReleaseFunction) (ObjectPointer obj);
-typedef char * (*HashFunction) (char *Name,size_t size);
+typedef char *(*HashFunction) (char *Name,size_t size);
 struct HashEntry
 {
 	HashEntry *nxt; //In case of hash collision
 	void *obj;
 };
-struct HashTable
+class HashTable
 {
+public:
+   HashTable(NameFunction namef,size_t ElementSize,int size , HashFunction hashf);
+   int HashInsert(ObjectPointer obj);
+   int HashRemove(ObjectPointer obj);
+   ~HashTable(HashMemory s);
+   ObjectPointer Get(char*name);
+private:
 	NameFunction name;
-	ReleaseFunction release;
+	// ReleaseFunction release; //not rly needed, we use sizeof... 
+	size_t ElementSize; // when we free something
 	HashFunction hash;
 	unsigned int size;
 	HashEntry **hashtable;
@@ -56,10 +66,3 @@ struct HashTable
 
 
 typedef HashTable * HashMemory;
-
-extern HashMemory HashCreate(NameFunction namef,ReleaseFunction releasef,int size , HashFunction hashf);
-extern int HashInsert(HashMemory s,ObjectPointer obj);
-extern int HashRemove(HashMemory s,ObjectPointer obj);
-extern void HashRelease(HashMemory s);
-extern ObjectPointer Hash_Get(HashMemory s,char*name);
-

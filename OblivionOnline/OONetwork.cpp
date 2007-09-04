@@ -55,6 +55,7 @@ bool NetPlayerPosUpdate(PlayerStatus *Player,int PlayerID)
 	pkgBuf.refID = PlayerID;
 	SendBuf = (char *)malloc(sizeof(OOPkgPosUpdate));
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgPosUpdate));
+	/*
 	while(1)
 	{
 		if (SendQueue.Length < QUEUELENGTH)
@@ -64,9 +65,10 @@ bool NetPlayerPosUpdate(PlayerStatus *Player,int PlayerID)
 			SendQueue.Size[SendQueue.Length-1] = sizeof(OOPkgPosUpdate);
 			break;
 		}
-	}
-	//send(ServerSocket,SendBuf,sizeof(OOPkgPosUpdate),0);
-	//free(SendBuf);
+	} */
+	send(ServerSocket,SendBuf,sizeof(OOPkgPosUpdate),0);
+
+	free(SendBuf);
 	return true;
 }
 

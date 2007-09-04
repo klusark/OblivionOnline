@@ -57,6 +57,7 @@ HANDLE hSendThread;
 
 PlayerStatus Players[MAXCLIENTS];
 
+DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received. Only used with 
 // Prototypes
 extern void RunScriptLine(const char *buf, bool IsTemp);
 extern int GetActorID(UInt32 refID);
@@ -183,7 +184,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 		{
 			_MESSAGE("Successfully Connected");
 			hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
-			hSendThread = CreateThread(NULL,NULL,SendThread,NULL,NULL,NULL);
+			//hSendThread = CreateThread(NULL,NULL,SendThread,NULL,NULL,NULL);
 			if(!NetWelcome()) return true;
 			bIsConnected = true;
 			Console_Print("Oblivion connected to server");

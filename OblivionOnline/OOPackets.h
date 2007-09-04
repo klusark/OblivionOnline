@@ -141,3 +141,4 @@ inline OOPacketType SelectType(char *Packet)
 {
 	return *((OOPacketType *)Packet);
 }
+#define PACKET_COUNT 9

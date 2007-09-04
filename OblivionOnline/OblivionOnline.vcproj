@@ -326,10 +326,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\OOHashTable.h"
-				>
-			</File>
-			<File
 				RelativePath=".\OONetwork.h"
 				>
 			</File>
@@ -344,6 +340,10 @@
 		</Filter>
 		<File
 			RelativePath=".\exports.def"
+			>
+		</File>
+		<File
+			RelativePath=".\OOHashTable.h"
 			>
 		</File>
 	</Files>
