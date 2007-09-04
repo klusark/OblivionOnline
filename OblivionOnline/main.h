@@ -50,7 +50,7 @@ This file is part of OblivionOnline.
 #define MAXCLIENTS 2
 
 #define MAIN_VERSION 2
-#define SUB_VERSION 1 // Beta 1 for release 2
+#define SUB_VERSION 1 // change this with EVERY release
 
 #define QUEUELENGTH 20
 
@@ -87,7 +87,6 @@ struct DataQueue
 	int Iterator;
 	int Length;
 };
-
 extern IDebugLog gLog;
 extern bool bIsConnected;
 extern bool bSendBusy;

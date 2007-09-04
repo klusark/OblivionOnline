@@ -38,3 +38,7 @@ This file is part of OblivionOnline.
 
 #pragma once 
 #include "OOPackets.h"
+
+#define NET_POSUPDATE_RESEND 30
+//Really , we do not need that so often...
+#define NET_FULLSTATUPDATE_RESEND 10000

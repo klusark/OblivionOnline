@@ -204,14 +204,24 @@ bool Cmd_MPSendPos_Execute (COMMAND_ARGS)
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
 		Players[LocalPlayer].RefID = ActorBuf->refID;
-		Players[LocalPlayer].CellID = ActorBuf->parentCell->refID;
 		Players[LocalPlayer].PosX = ActorBuf->posX;
 		Players[LocalPlayer].PosY = ActorBuf->posY;
 		Players[LocalPlayer].PosZ = ActorBuf->posZ;
 		Players[LocalPlayer].RotX = ActorBuf->rotX;
 		Players[LocalPlayer].RotY = ActorBuf->rotY;
 		Players[LocalPlayer].RotZ = ActorBuf->rotZ;
-		NetPlayerPosUpdate(&Players[LocalPlayer], LocalPlayer);
+		if(Players[LocalPlayer].CellID == ActorBuf->parentCell->refID) //No need to zone
+		{
+			NetPlayerPosUpdate(&Players[LocalPlayer], LocalPlayer); 
+		}
+		else
+		{
+			char ZoneBuf[64];
+			sprintf(ZoneBuf,"63s",ActorBuf->parentCell->GetEditorName());
+			NetPlayerZone(&Players[LocalPlayer],ZoneBuf,LocalPlayer,(thisObj->parentCell->flags0 % 2)); 
+			//TODO .  Update the last parameter to checkt the worldspace--
+			Players[LocalPlayer].CellID = ActorBuf->parentCell->refID; // update last cell
+		}
 	}
 	return true;
 }
@@ -273,7 +283,7 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 			Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
 			Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
 			Players[actorNumber].Encumbrance = ActorBuf->GetActorValue(11);
-
+			
 			// Check to see if we're trying to send the NPC default values
 			if (Players[actorNumber].Personality != 1)
 			{

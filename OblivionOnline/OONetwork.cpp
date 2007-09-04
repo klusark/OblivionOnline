@@ -40,35 +40,50 @@ This file is part of OblivionOnline.
 #include "OONetwork.h"
 #include "OOPacketHandler.h"
 
+//PACKET HAS TIME CHECKING
 bool NetPlayerPosUpdate(PlayerStatus *Player,int PlayerID)
 {
+	static PlayerStatus LastPlayer;
+	
 	OOPkgPosUpdate pkgBuf;
+	DWORD tickBuf;
 	char *SendBuf;
-	pkgBuf.etypeID = OOPPosUpdate;
-	pkgBuf.Flags = 1 | 2;
-	pkgBuf.fPosX = Player->PosX;
-	pkgBuf.fPosY = Player->PosY;
-	pkgBuf.fPosZ = Player->PosZ;
-	pkgBuf.fRotX = Player->RotX;
-	pkgBuf.fRotY = Player->RotY;
-	pkgBuf.fRotZ = Player->RotZ;
-	pkgBuf.refID = PlayerID;
-	SendBuf = (char *)malloc(sizeof(OOPkgPosUpdate));
-	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgPosUpdate));
-	/*
-	while(1)
+	//The first check is faster , so we do it first . Also it is more likely to be sent twice
+	tickBuf=GetTickCount();
+	if((tickBuf - PacketTime[OOPPosUpdate]) > NET_POSUPDATE_RESEND) //just send it every 30 ms 
 	{
-		if (SendQueue.Length < QUEUELENGTH)
+		if(memcmp(&LastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
 		{
-			SendQueue.Length++;
-			SendQueue.SendData[SendQueue.Length-1] = SendBuf;
-			SendQueue.Size[SendQueue.Length-1] = sizeof(OOPkgPosUpdate);
-			break;
+				memcpy(&LastPlayer,Player,sizeof(PlayerStatus));
+				pkgBuf.etypeID = OOPPosUpdate;
+				pkgBuf.Flags = 1 | 2;
+				pkgBuf.fPosX = Player->PosX;
+				pkgBuf.fPosY = Player->PosY;
+				pkgBuf.fPosZ = Player->PosZ;
+				pkgBuf.fRotX = Player->RotX;
+				pkgBuf.fRotY = Player->RotY;
+				pkgBuf.fRotZ = Player->RotZ;
+				pkgBuf.refID = PlayerID;
+				/* //Old Netcode - not really working,  freezes game when queue overflows
+				while(1)
+				{
+					if (SendQueue.Length < QUEUELENGTH)
+					{
+						SendQueue.Length++;
+						SendQueue.SendData[SendQueue.Length-1] = SendBuf;
+						SendQueue.Size[SendQueue.Length-1] = sizeof(OOPkgPosUpdate);
+						break;
+					}
+				} */
+			
+		
+		
+			
+			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgPosUpdate),0);
+			PacketTime[OOPPosUpdate] = tickBuf;
 		}
-	} */
-	send(ServerSocket,SendBuf,sizeof(OOPkgPosUpdate),0);
-
-	free(SendBuf);
+	}
+	
 	return true;
 }
 
@@ -87,7 +102,7 @@ bool NetWelcome()
 	free(SendBuf);
 	return true;
 }
-
+//NEARLY NEVER OOCURS , no need for that
 bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool bIsInterior)
 {
 	OOPkgZone pkgBuf;
@@ -110,21 +125,11 @@ bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool bIsInt
 	pkgBuf.refID = PlayerID;
 	SendBuf = (char *)malloc(sizeof(OOPkgZone));
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgZone));
-	while(1)
-	{
-		if (SendQueue.Length < QUEUELENGTH)
-		{
-			SendQueue.Length++;
-			SendQueue.SendData[SendQueue.Length-1] = SendBuf;
-			SendQueue.Size[SendQueue.Length-1] = sizeof(OOPkgZone);
-			break;
-		}
-	}
-	//send(ServerSocket,SendBuf,sizeof(OOPkgZone),0);
+	send(ServerSocket,SendBuf,sizeof(OOPkgZone),0);
 	//free(SendBuf);
 	return true;
 }
-
+//Instant transfer is ok 
 bool NetChat(char *Message)
 {
 	OOPkgChat pkgBuf;
@@ -141,32 +146,40 @@ bool NetChat(char *Message)
 	free(SendBuf);
 	return true;
 }
-
+//this should really be controlled. Full stat synch only every 10 seconds or more and double send control
 bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate)
 {
 	char *SendBuf;
+	DWORD tickBuf;
+	tickBuf=GetTickCount();
+	
 	if (FullUpdate)
 	{
-		OOPkgFullStatUpdate pkgBuf;
-		pkgBuf.etypeID = OOPFullStatUpdate;
-		pkgBuf.Flags = 1 | 2;
-		pkgBuf.Agility = Player->Agility;
-		pkgBuf.Encumbrance = Player->Encumbrance;
-		pkgBuf.Endurance = Player->Endurance;
-		pkgBuf.Intelligence = Player->Intelligence;
-		pkgBuf.Luck = Player->Luck;
-		pkgBuf.Personality = Player->Personality;
-		pkgBuf.Speed = Player->Speed;
-		pkgBuf.Strength = Player->Strength;
-		pkgBuf.Willpower = Player->Willpower;
-		pkgBuf.Health = Player->Health;
-		pkgBuf.Magika = Player->Magika;
-		pkgBuf.Fatigue = Player->Fatigue;
-		pkgBuf.TimeStamp = Player->Time;
-		pkgBuf.refID = PlayerID;
-		SendBuf = (char *)malloc(sizeof(OOPkgFullStatUpdate));
-		memcpy(SendBuf,&pkgBuf,sizeof(OOPkgFullStatUpdate));
-		send(ServerSocket,SendBuf,sizeof(OOPkgFullStatUpdate),0);
+		if((tickBuf - PacketTime[OOPFullStatUpdate]) > NET_FULLSTATUPDATE_RESEND)
+		{
+			//optimize this , atm we only check it here just before sending
+			OOPkgFullStatUpdate pkgBuf;
+			pkgBuf.etypeID = OOPFullStatUpdate;
+			pkgBuf.Flags = 1 | 2;
+			pkgBuf.Agility = Player->Agility;
+			pkgBuf.Encumbrance = Player->Encumbrance;
+			pkgBuf.Endurance = Player->Endurance;
+			pkgBuf.Intelligence = Player->Intelligence;
+			pkgBuf.Luck = Player->Luck;
+			pkgBuf.Personality = Player->Personality;
+			pkgBuf.Speed = Player->Speed;
+			pkgBuf.Strength = Player->Strength;
+			pkgBuf.Willpower = Player->Willpower;
+			pkgBuf.Health = Player->Health;
+			pkgBuf.Magika = Player->Magika;
+			pkgBuf.Fatigue = Player->Fatigue;
+			pkgBuf.TimeStamp = Player->Time;
+			pkgBuf.refID = PlayerID;
+			//SendBuf = (char *)malloc(sizeof(OOPkgFullStatUpdate));
+			//memcpy(SendBuf,&pkgBuf,sizeof(OOPkgFullStatUpdate));
+			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgFullStatUpdate),0);
+			PacketTime[OOPFullStatUpdate] = tickBuf;
+		}
 	}else{
 		OOPkgStatUpdate pkgBuf;
 		pkgBuf.etypeID = OOPStatUpdate;
