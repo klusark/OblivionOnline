@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="shift_jis"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="OblivionOnline"
 	ProjectGUID="{D4DDA734-7E93-4581-8F82-32BB738F69FE}"
 	RootNamespace="obse_plugin_example"
@@ -62,6 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="ws2_32.lib"
 				LinkIncremental="2"
 				ModuleDefinitionFile="exports.def"
 				GenerateDebugInformation="true"
@@ -154,6 +155,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				UpdateFileHashes="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -321,6 +323,10 @@
 			>
 			<File
 				RelativePath=".\main.h"
+				>
+			</File>
+			<File
+				RelativePath=".\OOHashTable.h"
 				>
 			</File>
 			<File

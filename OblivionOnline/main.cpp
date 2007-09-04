@@ -38,7 +38,7 @@ This file is part of OblivionOnline.
 
 #include "main.h"
 #include "OONetwork.h"
-
+#include <hash_map>
 // Global variables
 IDebugLog gLog("OblivionOnline.log");
 
@@ -67,6 +67,7 @@ extern bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool
 extern bool NetChat(char *Message);
 extern bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate);
 extern bool NetReadBuffer(char *acReadBuffer);
+
 
 int OO_Initialize()
 {

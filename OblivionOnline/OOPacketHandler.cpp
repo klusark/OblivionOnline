@@ -99,7 +99,7 @@ bool OOPChat_Handler(char *Packet)
 	}
 	MessageDest[InPkgBuf.Length] = '\0';
 	char chatScript[1024];
-	sprintf(chatScript, "Message \"\%s\", %s", MessageDest);
+	sprintf(chatScript, "Message \"%s\", %s", MessageDest);
 	RunScriptLine(chatScript, true);
 	return true;
 }
