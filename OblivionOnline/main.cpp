@@ -43,17 +43,19 @@ This file is part of OblivionOnline.
 IDebugLog gLog("OblivionOnline.log");
 
 bool bIsConnected = false;
+bool bServerBusy = false;
 int LocalPlayer;
 int OtherPlayer;
-bool bSendBusy = false;
+DataQueue SendQueue;
 
 UInt32 SpawnID[MAXCLIENTS];
+UInt32 MarkerID[MAXCLIENTS];
 
 SOCKET ServerSocket;
 HANDLE hRecvThread;
+HANDLE hSendThread;
 
 PlayerStatus Players[MAXCLIENTS];
-PlayerStatus PlayersInitial[MAXCLIENTS];
 
 // Prototypes
 extern void RunScriptLine(const char *buf, bool IsTemp);
@@ -86,15 +88,6 @@ int OO_Initialize()
 		Players[i].CellID = 0;
 		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
-		PlayersInitial[i].PosX = 0;
-		PlayersInitial[i].PosY = 0;
-		PlayersInitial[i].PosZ = -196;
-		PlayersInitial[i].RotX = 0;
-		PlayersInitial[i].RotY = 0;
-		PlayersInitial[i].RotZ = 0;
-		PlayersInitial[i].CellID = 0;
-		PlayersInitial[i].Health = 1;
-		PlayersInitial[i].bStatsInitialized = false;
 
 		SpawnID[i] = 0;
 	}
@@ -117,8 +110,17 @@ DWORD WINAPI RecvThread(LPVOID Params)
 	while(1)
 	{
 		rc = recv(ServerSocket,buf,512,0);
-		//Console_Print("Received data");
 		NetReadBuffer(buf);
+	}
+}
+
+DWORD WINAPI SendThread(LPVOID Params)
+{
+	int rc;
+
+	while(1)
+	{
+		//if (bSeverBusy)
 	}
 }
 
@@ -151,6 +153,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 		{
 			_MESSAGE("Successfully Connected");
 			hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
+			hSendThread = CreateThread(NULL,NULL,SendThread,NULL,NULL,NULL);
 			if(!NetWelcome()) return true;
 			bIsConnected = true;
 			Console_Print("Oblivion connected to server");
@@ -239,22 +242,6 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 			Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
 			Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
 			Players[actorNumber].Encumbrance = ActorBuf->GetActorValue(11);
-			if (!Players[actorNumber].bStatsInitialized)
-			{
-				PlayersInitial[actorNumber].Strength = ActorBuf->GetActorValue(0);
-				PlayersInitial[actorNumber].Intelligence = ActorBuf->GetActorValue(1);
-				PlayersInitial[actorNumber].Willpower = ActorBuf->GetActorValue(2);
-				PlayersInitial[actorNumber].Agility = ActorBuf->GetActorValue(3);
-				PlayersInitial[actorNumber].Speed = ActorBuf->GetActorValue(4);
-				PlayersInitial[actorNumber].Endurance = ActorBuf->GetActorValue(5);
-				PlayersInitial[actorNumber].Personality = ActorBuf->GetActorValue(6);
-				PlayersInitial[actorNumber].Luck = ActorBuf->GetActorValue(7);
-				PlayersInitial[actorNumber].Health = ActorBuf->GetActorValue(8);
-				PlayersInitial[actorNumber].Magika = ActorBuf->GetActorValue(9);
-				PlayersInitial[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
-				PlayersInitial[actorNumber].Encumbrance = ActorBuf->GetActorValue(11);
-				PlayersInitial[actorNumber].bStatsInitialized = true;
-			}
 
 			// Check to see if we're trying to send the NPC default values
 			if (Players[actorNumber].Personality != 1)
@@ -287,14 +274,6 @@ bool Cmd_MPSendStat_Execute (COMMAND_ARGS)
 			Players[actorNumber].Health = ActorBuf->GetActorValue(8);
 			Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
 			Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
-			if (!Players[actorNumber].bStatsInitialized)
-			{
-				PlayersInitial[actorNumber].Health = ActorBuf->GetActorValue(8);
-				PlayersInitial[actorNumber].Magika = ActorBuf->GetActorValue(9);
-				PlayersInitial[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
-				Players[actorNumber].bStatsInitialized = true;
-				Console_Print("Stat's initialized");
-			}
 
 			// Check to see if we're trying to send the NPC default values
 			if (Players[actorNumber].Personality != 1)
@@ -333,26 +312,6 @@ bool Cmd_MPSyncStat_Execute (COMMAND_ARGS)
 	if (thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-/*
-		char tempLine[64];
-		if (Players[LocalPlayer].bStatsInitialized)
-		{
-			if (!Players[LocalPlayer].bInitialSet)
-			{
-				// Set HP to initial value
-				sprintf(tempLine, "player.forceav Health %i", (int)PlayersInitial[LocalPlayer].Health);
-				RunScriptLine(tempLine, true);
-				Players[LocalPlayer].bInitialSet = true;
-			}else{
-				// Mod HP by difference between internal and ingame values
-				int hpDiff = (int)Players[LocalPlayer].Health - (int)ActorBuf->GetActorValue(8);
-				sprintf(tempLine, "player.modav Health %i", hpDiff);
-				RunScriptLine(tempLine, true);
-			}
-		}else{
-			Console_Print("Cannot sync stats, no stats have been initialized");
-		}
-*/
 	}
 	return true;
 }
@@ -517,11 +476,6 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 			if (!SpawnID[i])
 			{
 				SpawnID[i] = actorNumber;
-				//Temp
-				char tempData[64];
-				sprintf(tempData, "Spawned ID: %u", SpawnID[i]);
-				Console_Print(tempData);
-				//End Temp
 				break;
 			}
 		}
