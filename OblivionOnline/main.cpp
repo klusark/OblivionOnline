@@ -141,7 +141,6 @@ DWORD WINAPI SendThread(LPVOID Params)
 			free(SendQueue.SendData[0]);
 			SendQueue.SendData[0] = NULL;
 			SendQueue.Size[0] = 0;
-			SendQueue.Length--;
 
 			//Shift the rest of the queue towards the front
 			for(int i=1; i<SendQueue.Length; i++)
@@ -149,6 +148,7 @@ DWORD WINAPI SendThread(LPVOID Params)
 				if (SendQueue.SendData[i])
 					SendQueue.SendData[i-1] = SendQueue.SendData[i];
 			}
+			SendQueue.Length--;
 		}
 	}
 }

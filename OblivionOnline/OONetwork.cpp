@@ -55,16 +55,14 @@ bool NetPlayerPosUpdate(PlayerStatus *Player,int PlayerID)
 	pkgBuf.refID = PlayerID;
 	SendBuf = (char *)malloc(sizeof(OOPkgPosUpdate));
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgPosUpdate));
-	for(int i=0; i<100; i++)
+	while(1)
 	{
 		if (SendQueue.Length < QUEUELENGTH)
 		{
 			SendQueue.Length++;
 			SendQueue.SendData[SendQueue.Length-1] = SendBuf;
-			SendQueue.Size[SendQueue.Length-1] = sizeof(OOPkgWelcome);
+			SendQueue.Size[SendQueue.Length-1] = sizeof(OOPkgPosUpdate);
 			break;
-		}else{
-			Console_Print("Queue is full");
 		}
 	}
 	//send(ServerSocket,SendBuf,sizeof(OOPkgPosUpdate),0);
@@ -110,6 +108,20 @@ bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool bIsInt
 	pkgBuf.refID = PlayerID;
 	SendBuf = (char *)malloc(sizeof(OOPkgZone));
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgZone));
+	/*
+	for(int i=0; i<100; i++)
+	{
+		if (SendQueue.Length < QUEUELENGTH)
+		{
+			SendQueue.Length++;
+			SendQueue.SendData[SendQueue.Length-1] = SendBuf;
+			SendQueue.Size[SendQueue.Length-1] = sizeof(OOPkgZone);
+			break;
+		}else{
+			Console_Print("Queue is full");
+		}
+	}
+	*/
 	send(ServerSocket,SendBuf,sizeof(OOPkgZone),0);
 	free(SendBuf);
 	return true;
