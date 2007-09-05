@@ -187,7 +187,6 @@ bool Cmd_MPSendPos_Execute (COMMAND_ARGS)
 			{
 				NetPlayerPosUpdate(&Players[LocalPlayer], LocalPlayer); 
 			}else{
-				Console_Print("Exterior, changed");
 				Players[LocalPlayer].bIsInInterior = false;
 				Players[LocalPlayer].CellID = ActorBuf->parentCell->worldSpace->refID;
 				NetPlayerZone(&Players[LocalPlayer], LocalPlayer, false);
@@ -294,58 +293,68 @@ bool Cmd_MPSyncTime_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 {
-	if (OtherPlayer == LocalPlayer)
+	int playerNumber = 0;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
+	if (playerNumber == LocalPlayer)
 	{
 		*result = 0;
 		return true;
 	}
-	*result = Players[OtherPlayer].PosX;
+	*result = Players[playerNumber].PosX;
 	return true;
 }
 
 bool Cmd_MPGetPosY_Execute (COMMAND_ARGS)
 {
-	if (OtherPlayer == LocalPlayer)
+	int playerNumber = 0;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
+	if (playerNumber == LocalPlayer)
 	{
 		*result = 0;
 		return true;
 	}
-	*result = Players[OtherPlayer].PosY;
+	*result = Players[playerNumber].PosY;
 	return true;
 }
 
 bool Cmd_MPGetPosZ_Execute (COMMAND_ARGS)
 {
-	if (OtherPlayer == LocalPlayer)
+	int playerNumber = 0;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
+	if (playerNumber == LocalPlayer)
 	{
 		*result = -196;
 		return true;
 	}
-	*result = Players[OtherPlayer].PosZ;
+	*result = Players[playerNumber].PosZ;
 	return true;
 }
 
 bool Cmd_MPGetRotZ_Execute (COMMAND_ARGS)
 {
-	if (OtherPlayer == LocalPlayer)
+	int playerNumber = 0;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
+	if (playerNumber == LocalPlayer)
 	{
 		*result = 0;
 		return true;
 	}
-	*result = Players[OtherPlayer].RotZ;
+	*result = Players[playerNumber].RotZ;
 	return true;
 }
 
 bool Cmd_MPGetCell_Execute (COMMAND_ARGS)
 {
+	int playerNumber = 0;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
 	UInt32* refResult = (UInt32*)result;
 	*refResult = 0;
-	if (OtherPlayer == LocalPlayer)
+	if (playerNumber == LocalPlayer)
 	{
 		*result = 0;
 		return true;
 	}
-	*refResult = Players[OtherPlayer].CellID;
+	*refResult = Players[playerNumber].CellID;
 	return true;
 }
 
@@ -357,51 +366,27 @@ bool Cmd_MPGetTime_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetDay_Execute (COMMAND_ARGS)
 {
-	if (OtherPlayer == LocalPlayer)
-	{
-		*result = 0;
-		return true;
-	}
-	*result = Players[OtherPlayer].Day;
+	*result = Players[LocalPlayer].Day;
 	return true;
 }
 
 bool Cmd_MPGetMonth_Execute (COMMAND_ARGS)
 {
-	if (OtherPlayer == LocalPlayer)
-	{
-		*result = 0;
-		return true;
-	}
-	*result = Players[OtherPlayer].Month;
+	*result = Players[LocalPlayer].Month;
 	return true;
 }
 
 bool Cmd_MPGetYear_Execute (COMMAND_ARGS)
 {
-	if (OtherPlayer == LocalPlayer)
-	{
-		*result = 0;
-		return true;
-	}
-	*result = Players[OtherPlayer].Year;
+	*result = Players[LocalPlayer].Year;
 	return true;
 }
 
 bool Cmd_MPGetWorldspace_Execute (COMMAND_ARGS)
 {
-	if (OtherPlayer == LocalPlayer)
-	{
-		Console_Print("Only one player is connected, cannot get IsInInterior");
-		return true;
-	}
-	//Temp
-	if (Players[OtherPlayer].bIsInInterior)
-		Console_Print("Other player moved to interior");
-	else
-		Console_Print("Other player moved to exterior");
-	//End Temp
-	*result = (int)Players[OtherPlayer].bIsInInterior;
+	int playerNumber = 0;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
+	*result = (int)Players[playerNumber].bIsInInterior;
 	return true;
 }
 
@@ -420,6 +405,12 @@ bool Cmd_MPGetStat_Execute (COMMAND_ARGS)
 		float statAmount = GetStat(ActorBuf, statNumber);
 		*result = statAmount;
 	}
+	return true;
+}
+
+bool Cmd_MPGetOtherPlayer_Execute (COMMAND_ARGS)
+{
+	*result = OtherPlayer;
 	return true;
 }
 
@@ -550,8 +541,8 @@ static CommandInfo kMPGetPosXCommand =
 	0,
 	"Gets other players X position",
 	0,		// requires parent obj
-	0,		// doesn't have params
-	NULL,	// no param table
+	1,		// has 1 param
+	kParams_OneInt,	// one int
 	Cmd_MPGetPosX_Execute
 };
 
@@ -562,8 +553,8 @@ static CommandInfo kMPGetPosYCommand =
 	0,
 	"Gets other players Y position",
 	0,		// requires parent obj
-	0,		// doesn't have params
-	NULL,	// no param table
+	1,		// has 1 param
+	kParams_OneInt,	// one int
 	Cmd_MPGetPosY_Execute
 };
 
@@ -574,8 +565,8 @@ static CommandInfo kMPGetPosZCommand =
 	0,
 	"Gets other players Z position",
 	0,		// requires parent obj
-	0,		// doesn't have params
-	NULL,	// no param table
+	1,		// has 1 param
+	kParams_OneInt,	// one int
 	Cmd_MPGetPosZ_Execute
 };
 
@@ -586,8 +577,8 @@ static CommandInfo kMPGetRotZCommand =
 	0,
 	"Gets other players Z rotation",
 	0,		// requires parent obj
-	0,		// doesn't have params
-	NULL,	// no param table
+	1,		// has 1 param
+	kParams_OneInt,	// one int
 	Cmd_MPGetRotZ_Execute
 };
 
@@ -598,8 +589,8 @@ static CommandInfo kMPGetCellCommand =
 	0,
 	"Gets other players cell",
 	0,		// requires parent obj
-	0,		// doesn't have params
-	NULL,	// no param table
+	1,		// has 1 param
+	kParams_OneInt,	// one int
 	Cmd_MPGetCell_Execute
 };
 
@@ -608,7 +599,7 @@ static CommandInfo kMPGetTimeCommand =
 	"MPGetTime",
 	"MPGTM",
 	0,
-	"Gets other players time",
+	"Gets players time",
 	0,		// requires parent obj
 	0,		// doesn't have params
 	NULL,	// no param table
@@ -620,7 +611,7 @@ static CommandInfo kMPGetDayCommand =
 	"MPGetDay",
 	"MPGDY",
 	0,
-	"Gets other players day",
+	"Gets players day",
 	0,		// requires parent obj
 	0,		// doesn't have params
 	NULL,	// no param table
@@ -632,7 +623,7 @@ static CommandInfo kMPGetMonthCommand =
 	"MPGetMonth",
 	"MPGMN",
 	0,
-	"Gets other players month",
+	"Gets players month",
 	0,		// requires parent obj
 	0,		// doesn't have params
 	NULL,	// no param table
@@ -644,7 +635,7 @@ static CommandInfo kMPGetYearCommand =
 	"MPGetYear",
 	"MPGYR",
 	0,
-	"Gets other players year",
+	"Gets players year",
 	0,		// requires parent obj
 	0,		// doesn't have params
 	NULL,	// no param table
@@ -656,10 +647,10 @@ static CommandInfo kMPGetWorldspaceCommand =
 	"MPGetWorldspace",
 	"MPGW",
 	0,
-	"Get worldspace of other player",
+	"Get IsInInterior of other player",
 	0,		// requires parent obj
-	0,		// doesn't have params
-	NULL,	// no param table
+	1,		// has one param
+	kParams_OneInt,	// int param table
 	Cmd_MPGetWorldspace_Execute
 };
 
@@ -673,6 +664,18 @@ static CommandInfo kMPGetStatCommand =
 	1,		// has 1 param
 	kParams_OneInt,	// int param table
 	Cmd_MPGetStat_Execute
+};
+
+static CommandInfo kMPGetOtherPlayer =
+{
+	"MPGetOtherPlayer",
+	"MPGOP",
+	0,
+	"Gets other player number",
+	0,		// requires parent obj
+	0,		// doesn't have params
+	NULL,	// no param table
+	Cmd_MPGetOtherPlayer_Execute
 };
 
 static CommandInfo kMPGetSpawnedRefCommand =
@@ -769,6 +772,7 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPGetYearCommand);
 	obse->RegisterCommand(&kMPGetWorldspaceCommand);
 	obse->RegisterCommand(&kMPGetStatCommand);
+	obse->RegisterCommand(&kMPGetOtherPlayer);
 	obse->RegisterCommand(&kMPGetSpawnedRefCommand);
 
 	//Misc.
