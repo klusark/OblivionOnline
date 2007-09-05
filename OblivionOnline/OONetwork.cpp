@@ -47,6 +47,11 @@ bool OOPEvent_Handler(char *Packet);
 bool OOPEventRegister_Handler(char *Packet);
 bool OOPFullStatUpdate_Handler(char *Packet);
 bool OOPTimeUpdate_Handler(char *Packet);
+bool OOPPlayerList_Handler(char *Packet);
+
+//----------------------------------
+//--Begin Incoming packet handlers--
+//----------------------------------
 
 bool NetWelcome()
 {
@@ -113,7 +118,7 @@ bool NetChat(char *Message)
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgChat));
 	MessageDest=(SendBuf+sizeof(OOPkgChat));
 	memcpy(MessageDest,Message,pkgBuf.Length);
-	send(ServerSocket,SendBuf,sizeof(OOPkgChat)+pkgBuf.Length+1,0);
+	send(ServerSocket,SendBuf,sizeof(OOPkgChat)+pkgBuf.Length,0);
 	free(SendBuf);
 	return true;
 }
@@ -180,6 +185,9 @@ bool NetReadBuffer(char *acReadBuffer)
 	case OOPTimeUpdate:
 		OOPTimeUpdate_Handler(acReadBuffer);
 		break;
+	case OOPPlayerList:
+		OOPPlayerList_Handler(acReadBuffer);
+		break;
 	default: 
 		break;
 	}
@@ -206,21 +214,22 @@ bool OOPActorUpdate_Handler(char *Packet)
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgActorUpdate));
 	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
 	{
-		OtherPlayer = InPkgBuf.refID;
-		Players[OtherPlayer].PosX = InPkgBuf.fPosX;
-		Players[OtherPlayer].PosY = InPkgBuf.fPosY;
-		Players[OtherPlayer].PosZ = InPkgBuf.fPosZ;
-		Players[OtherPlayer].RotX = InPkgBuf.fRotX;
-		Players[OtherPlayer].RotY = InPkgBuf.fRotY;
-		Players[OtherPlayer].RotZ = InPkgBuf.fRotZ;
-		Players[OtherPlayer].CellID = InPkgBuf.CellID;
-		Players[OtherPlayer].Health += InPkgBuf.Health;
-		Players[OtherPlayer].Magika += InPkgBuf.Magika;
-		Players[OtherPlayer].Fatigue += InPkgBuf.Fatigue;
+		OtherPlayer = InPkgBuf.refID;	//to be removed when 3+ players supported
+
+		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
+		Players[InPkgBuf.refID].PosY = InPkgBuf.fPosY;
+		Players[InPkgBuf.refID].PosZ = InPkgBuf.fPosZ;
+		Players[InPkgBuf.refID].RotX = InPkgBuf.fRotX;
+		Players[InPkgBuf.refID].RotY = InPkgBuf.fRotY;
+		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
+		Players[InPkgBuf.refID].CellID = InPkgBuf.CellID;
+		Players[InPkgBuf.refID].Health += InPkgBuf.Health;
+		Players[InPkgBuf.refID].Magika += InPkgBuf.Magika;
+		Players[InPkgBuf.refID].Fatigue += InPkgBuf.Fatigue;
 		if (InPkgBuf.Flags & 4) //Is in an exterior?
-			Players[OtherPlayer].bIsInInterior = false;
+			Players[InPkgBuf.refID].bIsInInterior = false;
 		else
-			Players[OtherPlayer].bIsInInterior = true;
+			Players[InPkgBuf.refID].bIsInInterior = true;
 	}
 	return true;
 }
@@ -278,5 +287,17 @@ bool OOPTimeUpdate_Handler(char *Packet)
 	OOPkgTimeUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgTimeUpdate));
 	Players[LocalPlayer].Time = InPkgBuf.Hours + (float)InPkgBuf.Minutes / 60.0 + (float)InPkgBuf.Seconds / 3600.0;
+	return true;
+}
+
+bool OOPPlayerList_Handler(char *Packet)
+{
+	OOPkgPlayerList InPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgPlayerList));
+	int PlayerList[MAXCLIENTS];
+	for(int i=0; i<InPkgBuf.TotalPlayers; i++)
+	{
+		PlayerList[i] = (int)Packet[i+sizeof(OOPkgPlayerList)];
+	}
 	return true;
 }

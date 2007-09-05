@@ -163,25 +163,30 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 	if(thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-		Players[LocalPlayer].RefID = ActorBuf->refID;
-		Players[LocalPlayer].PosX = ActorBuf->posX;
-		Players[LocalPlayer].PosY = ActorBuf->posY;
-		Players[LocalPlayer].PosZ = ActorBuf->posZ;
-		Players[LocalPlayer].RotX = ActorBuf->rotX;
-		Players[LocalPlayer].RotY = ActorBuf->rotY;
-		Players[LocalPlayer].RotZ = ActorBuf->rotZ;
-		Players[LocalPlayer].Health = ActorBuf->GetActorValue(8);
-		Players[LocalPlayer].Magika = ActorBuf->GetActorValue(9);
-		Players[LocalPlayer].Fatigue = ActorBuf->GetActorValue(10);
-		if(ActorBuf->parentCell->worldSpace)
+		int actorNumber = GetActorID(ActorBuf->refID);
+
+		if (actorNumber != -1 && actorNumber != -2)
 		{
-			Players[LocalPlayer].bIsInInterior = false;
-			Players[LocalPlayer].CellID = ActorBuf->parentCell->worldSpace->refID;
-		}else{
-			Players[LocalPlayer].bIsInInterior = true;
-			Players[LocalPlayer].CellID = ActorBuf->parentCell->refID;
+			Players[LocalPlayer].RefID = ActorBuf->refID;
+			Players[LocalPlayer].PosX = ActorBuf->posX;
+			Players[LocalPlayer].PosY = ActorBuf->posY;
+			Players[LocalPlayer].PosZ = ActorBuf->posZ;
+			Players[LocalPlayer].RotX = ActorBuf->rotX;
+			Players[LocalPlayer].RotY = ActorBuf->rotY;
+			Players[LocalPlayer].RotZ = ActorBuf->rotZ;
+			Players[LocalPlayer].Health = ActorBuf->GetActorValue(8);
+			Players[LocalPlayer].Magika = ActorBuf->GetActorValue(9);
+			Players[LocalPlayer].Fatigue = ActorBuf->GetActorValue(10);
+			if(ActorBuf->parentCell->worldSpace)
+			{
+				Players[LocalPlayer].bIsInInterior = false;
+				Players[LocalPlayer].CellID = ActorBuf->parentCell->worldSpace->refID;
+			}else{
+				Players[LocalPlayer].bIsInInterior = true;
+				Players[LocalPlayer].CellID = ActorBuf->parentCell->refID;
+			}
+			NetActorUpdate(&Players[LocalPlayer], LocalPlayer);
 		}
-		NetActorUpdate(&Players[LocalPlayer], LocalPlayer); 
 	}
 	return true;
 }
