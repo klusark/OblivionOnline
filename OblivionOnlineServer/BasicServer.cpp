@@ -31,7 +31,9 @@ SOCKET clients[MAXCLIENTS];
 char acSendBuffer[512];
 PlayerStatus Players[MAXCLIENTS];
 bool Connected[MAXCLIENTS];
+unsigned short serverPort = 0;
 FILE *easylog;
+FILE *serverSettings;
 
 // Prototypes
 int StartNet(void);
@@ -67,6 +69,19 @@ int main()
 	
 	easylog = fopen("Log.txt","w");
 
+	serverSettings = fopen("ServerSettings.ini","r");
+	if (serverSettings)
+	{
+		char portLine[100];
+		fgets(portLine, 100, serverSettings);
+		sscanf(portLine, "Port %u", &serverPort);
+		if (!serverPort || serverPort < 1024)
+			serverPort = PORT;
+		printf("Opening on port %u\n", serverPort);
+	}
+	else
+		serverPort = PORT;
+
 	// start WinSock
 	rc=StartNet();
 	// create Socket
@@ -84,7 +99,7 @@ int main()
 
 	memset(&addr,0,sizeof(SOCKADDR_IN));
 	addr.sin_family=AF_INET;
-	addr.sin_port=htons(PORT);
+	addr.sin_port=htons(serverPort);
 	addr.sin_addr.s_addr=INADDR_ANY;
 	rc=bind(acceptSocket,(SOCKADDR*)&addr,sizeof(SOCKADDR_IN));
 	if(rc==SOCKET_ERROR)
@@ -252,7 +267,7 @@ void info( void *arg )
 	memset(&local,0,sizeof(SOCKADDR_IN));
     local.sin_family=AF_INET; //Address family
     local.sin_addr.s_addr=INADDR_ANY; //Wild card IP address
-    local.sin_port=htons((u_short)41804); //port to use
+    local.sin_port=htons(serverPort-1); //port to use
 	rcs=bind(server,(SOCKADDR*)&local,sizeof(SOCKADDR_IN));
 		if(rcs==SOCKET_ERROR)
 	{
