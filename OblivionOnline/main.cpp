@@ -174,9 +174,13 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		Players[LocalPlayer].Magika = ActorBuf->GetActorValue(9);
 		Players[LocalPlayer].Fatigue = ActorBuf->GetActorValue(10);
 		if(ActorBuf->parentCell->worldSpace)
+		{
 			Players[LocalPlayer].bIsInInterior = false;
-		else
+			Players[LocalPlayer].CellID = ActorBuf->parentCell->worldSpace->refID;
+		}else{
 			Players[LocalPlayer].bIsInInterior = true;
+			Players[LocalPlayer].CellID = ActorBuf->parentCell->refID;
+		}
 		NetActorUpdate(&Players[LocalPlayer], LocalPlayer); 
 	}
 	return true;

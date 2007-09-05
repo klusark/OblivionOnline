@@ -218,13 +218,9 @@ bool OOPActorUpdate_Handler(char *Packet)
 		Players[OtherPlayer].Magika += InPkgBuf.Magika;
 		Players[OtherPlayer].Fatigue += InPkgBuf.Fatigue;
 		if (InPkgBuf.Flags & 4) //Is in an exterior?
-		{
 			Players[OtherPlayer].bIsInInterior = false;
-			Console_Print("Other player is in an exterior");
-		}else{
+		else
 			Players[OtherPlayer].bIsInInterior = true;
-			Console_Print("Other player is in an interior");
-		}
 	}
 	return true;
 }
