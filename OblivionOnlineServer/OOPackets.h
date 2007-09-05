@@ -16,11 +16,29 @@ This file is part of OblivionOnline.
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+	Linking OblivionOnline statically or dynamically with other modules is making a combined work based
+	on OblivionOnline. Thus, the terms and conditions of the GNU General Public License cover 
+	the whole combination.
+
+    In addition, as a special exception, the copyright holders of  OblivionOnline give you permission to 
+	combine OblivionOnline program with free software programs or libraries that are released under
+	the GNU LGPL and with code included in the standard release of Oblivion Script Extender by Ian Patterson (OBSE)
+	under the OBSE license (or modified versions of such code, with unchanged license). You may copy and distribute such a system 
+	following the terms of the GNU GPL for  OblivionOnline and the licenses of the other code concerned,
+	provided that you include the source code of that other code when and as the GNU GPL
+	requires distribution of source code.
+
+	Note that people who make modified versions of  OblivionOnline are not obligated to grant this special exception
+	for their modified versions; it is their choice whether to do so. 
+	The GNU General Public License gives permission to release a modified version without this
+	exception; this exception also makes it possible to release a modified version which carries 
+	forward this exception.
 */
 
-#pragma once
+#ifndef OOPackets_h
+#define OOPackets_h
 
-/* defines for Flags */
 const GUID gcOOGUID = 
 { 0x2b09e144, 0x4976, 0x44f6, { 0xaa, 0x8f, 0xb6, 0x27, 0x99, 0x24, 0x32, 0xaf } }; // so we can copy it over later
 enum OOPacketType
@@ -65,10 +83,9 @@ struct OOPkgZone
 {
 	OOPacketType etypeID;
 	short Flags;	//1 - Exterior Cell 
-	char ZoneName[128]; // \0 terminated string containing the Zone if it is an interior , or the Worldspace if it is an exterior
 	float fPosX,fPosY,fPosZ;
 	float fRotX,fRotY,fRotZ;
-	UInt32 cellID;	// It is the reference ID of the current cell
+	UInt32 cellID;	// It is the reference ID of the current cell / worldspace
 	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
 };
 struct OOPkgChat //THIS PACKAGE IS NOT DIRECTLY MAPPED , but has to be converted
@@ -115,7 +132,7 @@ struct OOPkgStatUpdate	// This package is for quick HP, MP, Fatigue updates
 struct OOPkgTimeUpdate
 {
 	OOPacketType etypeID;
-	short Flage;	// none so far
+	short Flags;	// 1 - time request
 	unsigned int Hours, Minutes, Seconds;
 };
 #pragma pack(pop)
@@ -123,3 +140,8 @@ inline OOPacketType SelectType(char *Packet)
 {
 	return *((OOPacketType *)Packet);
 }
+
+//Total packet types
+#define PACKET_COUNT 9
+
+#endif
