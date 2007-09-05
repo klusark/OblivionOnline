@@ -256,68 +256,118 @@ bool Cmd_MPSyncTime_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 {
-	int playerNumber = 0;
-	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
-	if (playerNumber == LocalPlayer)
+	if (!thisObj)
 	{
-		*result = 0;
+		Console_Print("Error, no reference given for MPGetPosX");
 		return true;
 	}
-	*result = Players[playerNumber].PosX;
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		int actorNumber = GetActorID(ActorBuf->refID);
+
+		if (actorNumber != -1 && actorNumber != -2)
+		{
+			*result = Players[actorNumber].PosX;
+		}else{
+			//Console_Print("Error: Couldn't find actor for MPGetPosX");
+			*result = 0;
+		}
+	}
 	return true;
 }
 
 bool Cmd_MPGetPosY_Execute (COMMAND_ARGS)
 {
-	int playerNumber = 0;
-	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
-	if (playerNumber == LocalPlayer)
+	if (!thisObj)
 	{
-		*result = 0;
+		Console_Print("Error, no reference given for MPGetPosY");
 		return true;
 	}
-	*result = Players[playerNumber].PosY;
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		int actorNumber = GetActorID(ActorBuf->refID);
+
+		if (actorNumber != -1 && actorNumber != -2)
+		{
+			*result = Players[actorNumber].PosY;
+		}else{
+			//Console_Print("Error: Couldn't find actor for MPGetPosY");
+			*result = 0;
+		}
+	}
 	return true;
 }
 
 bool Cmd_MPGetPosZ_Execute (COMMAND_ARGS)
 {
-	int playerNumber = 0;
-	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
-	if (playerNumber == LocalPlayer)
+	if (!thisObj)
 	{
-		*result = -196;
+		Console_Print("Error, no reference given for MPGetPosZ");
 		return true;
 	}
-	*result = Players[playerNumber].PosZ;
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		int actorNumber = GetActorID(ActorBuf->refID);
+
+		if (actorNumber != -1 && actorNumber != -2)
+		{
+			*result = Players[actorNumber].PosZ;
+		}else{
+			//Console_Print("Error: Couldn't find actor for MPGetPosZ");
+			*result = -196;
+		}
+	}
 	return true;
 }
 
 bool Cmd_MPGetRotZ_Execute (COMMAND_ARGS)
 {
-	int playerNumber = 0;
-	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
-	if (playerNumber == LocalPlayer)
+	if (!thisObj)
 	{
-		*result = 0;
+		Console_Print("Error, no reference given for MPGetRotZ");
 		return true;
 	}
-	*result = Players[playerNumber].RotZ;
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		int actorNumber = GetActorID(ActorBuf->refID);
+
+		if (actorNumber != -1 && actorNumber != -2)
+		{
+			//Now convert the angle from radians to degrees
+			float angleDegrees = Players[actorNumber].RotZ * (180.0/3.1415);
+			*result = angleDegrees;
+		}else{
+			//Console_Print("Error: Couldn't find actor for MPGetRotZ");
+			*result = 0;
+		}
+	}
 	return true;
 }
 
 bool Cmd_MPGetCell_Execute (COMMAND_ARGS)
 {
-	int playerNumber = 0;
-	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
-	UInt32* refResult = (UInt32*)result;
-	*refResult = 0;
-	if (playerNumber == LocalPlayer)
+	if (!thisObj)
 	{
-		*result = 0;
+		Console_Print("Error, no reference given for MPGetCell");
 		return true;
 	}
-	*refResult = Players[playerNumber].CellID;
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		int actorNumber = GetActorID(ActorBuf->refID);
+
+		if (actorNumber != -1 && actorNumber != -2)
+		{
+			UInt32* refResult = (UInt32*)result;
+			*refResult = Players[actorNumber].CellID;
+		}else{
+			//Console_Print("Error: Couldn't find actor for MPGetCell");
+		}
+	}
 	return true;
 }
 
@@ -347,9 +397,23 @@ bool Cmd_MPGetYear_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 {
-	int playerNumber = 0;
-	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
-	*result = (int)Players[playerNumber].bIsInInterior;
+	if (!thisObj)
+	{
+		Console_Print("Error, no reference given for MPGetIsInInterior");
+		return true;
+	}
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		int actorNumber = GetActorID(ActorBuf->refID);
+
+		if (actorNumber != -1 && actorNumber != -2)
+		{
+			*result = (int)Players[actorNumber].bIsInInterior;
+		}else{
+			//Console_Print("Error: Couldn't find actor for MPGetIsInInterior");
+		}
+	}
 	return true;
 }
 
@@ -379,14 +443,13 @@ bool Cmd_MPGetOtherPlayer_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetSpawnedRef_Execute (COMMAND_ARGS)
 {
-	UInt32* refResult = (UInt32*)result;
-	*refResult = 0;
 	int spawnNumber = 0;
 	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &spawnNumber)) return true;
 	for(int i=0; i<MAXCLIENTS; i++)
 	{
 		if (spawnNumber == i)
 		{
+			UInt32* refResult = (UInt32*)result;
 			*refResult = SpawnID[i];
 			return true;
 		}
@@ -410,6 +473,11 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 			if (!SpawnID[i])
 			{
 				SpawnID[i] = actorNumber;
+				//Temp
+				char tempData[64];
+				sprintf(tempData, "Spawn %i ID: %u", i, SpawnID[i]);
+				Console_Print(tempData);
+				//End Temp
 				break;
 			}
 		}
@@ -492,8 +560,8 @@ static CommandInfo kMPGetPosXCommand =
 	0,
 	"Gets other players X position",
 	0,		// requires parent obj
-	1,		// has 1 param
-	kParams_OneInt,	// one int
+	0,		// has no param
+	NULL,	// has no param table
 	Cmd_MPGetPosX_Execute
 };
 
@@ -504,8 +572,8 @@ static CommandInfo kMPGetPosYCommand =
 	0,
 	"Gets other players Y position",
 	0,		// requires parent obj
-	1,		// has 1 param
-	kParams_OneInt,	// one int
+	0,		// has no param
+	NULL,	// has no param table
 	Cmd_MPGetPosY_Execute
 };
 
@@ -516,8 +584,8 @@ static CommandInfo kMPGetPosZCommand =
 	0,
 	"Gets other players Z position",
 	0,		// requires parent obj
-	1,		// has 1 param
-	kParams_OneInt,	// one int
+	0,		// has no param
+	NULL,	// has no param table
 	Cmd_MPGetPosZ_Execute
 };
 
@@ -528,8 +596,8 @@ static CommandInfo kMPGetRotZCommand =
 	0,
 	"Gets other players Z rotation",
 	0,		// requires parent obj
-	1,		// has 1 param
-	kParams_OneInt,	// one int
+	0,		// has no param
+	NULL,	// has no param table
 	Cmd_MPGetRotZ_Execute
 };
 
@@ -540,8 +608,8 @@ static CommandInfo kMPGetCellCommand =
 	0,
 	"Gets other players cell",
 	0,		// requires parent obj
-	1,		// has 1 param
-	kParams_OneInt,	// one int
+	0,		// has no param
+	NULL,	// has no param table
 	Cmd_MPGetCell_Execute
 };
 
@@ -600,8 +668,8 @@ static CommandInfo kMPGetIsInInteriorCommand =
 	0,
 	"Get IsInInterior of other player",
 	0,		// requires parent obj
-	1,		// has one param
-	kParams_OneInt,	// int param table
+	0,		// doesn't have params
+	NULL,	// no param table
 	Cmd_MPGetIsInInterior_Execute
 };
 
@@ -710,7 +778,7 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	//Data sync
 	obse->RegisterCommand(&kMPSyncTimeCommand);
 
-	//Data sending
+	//Data injecting
 	obse->RegisterCommand(&kMPGetPosXCommand);
 	obse->RegisterCommand(&kMPGetPosYCommand);
 	obse->RegisterCommand(&kMPGetPosZCommand);
