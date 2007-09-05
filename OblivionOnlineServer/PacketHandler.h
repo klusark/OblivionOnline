@@ -18,15 +18,17 @@ This file is part of OblivionOnline.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#ifndef PacketHandler_h
+#define PacketHandler_h
+
 #include "BasicServer.h"
 #include "OOPackets.h"
 extern bool OOPWelcome_Handler(char *Packet,short LocalPlayer);
-extern bool OOPPosUpdate_Handler(char *Packet,short LocalPlayer);
-extern bool OOPZone_Handler(char *Packet,short LocalPlayer);
+extern bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer);
 extern bool OOPChat_Handler(char *Packet,short LocalPlayer);
 extern bool OOPEvent_Handler(char *Packet,short LocalPlayer);
 extern bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer);
-extern bool OOPStatUpdate_Handler(char *Packet,short LocalPlayer);
 extern bool OOPEventRegister_Handler(char *Packet,short LocalPlayer);
 extern bool OOPTimeUpdate_Handler(char *Packet,short LocalPlayer);
+
+#endif

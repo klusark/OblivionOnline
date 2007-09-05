@@ -39,6 +39,8 @@ FILE *serverSettings;
 int StartNet(void);
 int ScanBuffer(char *acReadBuffer, short LocalPlayer);
 void info( void * );
+
+//Main entry procedure
 int main()
 {
 	_beginthread(info,0,(void*)1);
@@ -228,11 +230,8 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer)
 		if (!Connected[LocalPlayer])
 			OOPWelcome_Handler(acReadBuffer,LocalPlayer);
 		break;
-	case OOPPosUpdate:
-		OOPPosUpdate_Handler(acReadBuffer,LocalPlayer);
-		break;
-	case OOPZone:	
-		OOPZone_Handler(acReadBuffer,LocalPlayer);
+	case OOPActorUpdate:
+		OOPActorUpdate_Handler(acReadBuffer,LocalPlayer);
 		break;
 	case OOPChat:
 		OOPChat_Handler(acReadBuffer,LocalPlayer);
@@ -245,9 +244,6 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer)
 		break;
 	case OOPFullStatUpdate:
 		OOPFullStatUpdate_Handler(acReadBuffer,LocalPlayer);
-		break;
-	case OOPStatUpdate:	
-		OOPStatUpdate_Handler(acReadBuffer,LocalPlayer);
 		break;
 	default: 
 		OOPTimeUpdate_Handler(acReadBuffer,LocalPlayer);

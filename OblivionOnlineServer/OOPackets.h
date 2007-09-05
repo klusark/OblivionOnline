@@ -44,13 +44,11 @@ const GUID gcOOGUID =
 enum OOPacketType
 {
 	OOPWelcome = 0,		//Send to synchronise versions , 
-	OOPPosUpdate,		//Sends a position of actors , objects and players
-	OOPZone,			//A player,actor or object changes zone.
+	OOPActorUpdate,		//Sends a position of actors , objects and players
 	OOPChat,			//Someone sends a chat message
 	OOPEvent,			//An Event is triggered by a plugin
 	OOPEventRegister,	//An Event is registered, server only
 	OOPFullStatUpdate,	//Send all actor, mob, player stats
-	OOPStatUpdate,		//Just send HP, MP, and Fatigue
 	OOPTimeUpdate		//Send the time to all clients
 };
 #pragma pack(push,1)
@@ -71,21 +69,14 @@ static const GUID OO =
 { 0x2b09e144, 0x4976, 0x44f6, { 0xaa, 0x8f, 0xb6, 0x27, 0x99, 0x24, 0x32, 0xaf } };
 - I googled it and it is unique:) - and it is a GUID
 */
-struct OOPkgPosUpdate
+struct OOPkgActorUpdate
 {
 	OOPacketType etypeID;
-	short Flags;	// will be declared as enum or defines soon. atm it is 1 - player 2 - actor ( 3 equals both , aka player) 
+	short Flags;	//1 - player 2 - actor 4 - Exterior
 	float fPosX,fPosY,fPosZ;
 	float fRotX,fRotY,fRotZ;
-	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
-};
-struct OOPkgZone
-{
-	OOPacketType etypeID;
-	short Flags;	//1 - Exterior Cell 
-	float fPosX,fPosY,fPosZ;
-	float fRotX,fRotY,fRotZ;
-	UInt32 cellID;	// It is the reference ID of the current cell / worldspace
+	int Health, Magika, Fatigue;
+	UInt32 CellID;	// It is the reference ID of the current location
 	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
 };
 struct OOPkgChat //THIS PACKAGE IS NOT DIRECTLY MAPPED , but has to be converted
@@ -121,14 +112,6 @@ struct OOPkgFullStatUpdate // This package is for full stat updates
 	float TimeStamp;	// This is so that the server can sort data
 	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
 };
-struct OOPkgStatUpdate	// This package is for quick HP, MP, Fatigue updates
-{
-	OOPacketType etypeID;
-	short Flags; 	//1 - player, 2 - actor ( 3 equals both , aka player)
-	int Health, Magika, Fatigue;
-	float TimeStamp;	// This is so that the server can sort data
-	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
-};
 struct OOPkgTimeUpdate
 {
 	OOPacketType etypeID;
@@ -142,6 +125,6 @@ inline OOPacketType SelectType(char *Packet)
 }
 
 //Total packet types
-#define PACKET_COUNT 9
+#define PACKET_COUNT 7
 
 #endif

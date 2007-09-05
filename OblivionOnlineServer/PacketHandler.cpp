@@ -20,7 +20,9 @@ This file is part of OblivionOnline.
 
 #include "PacketHandler.h"
 #include "BasicServer.h"
+
 extern bool Connected[MAXCLIENTS];
+
 bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 {
 	if (Connected[LocalPlayer])
@@ -70,32 +72,34 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	}
 	return true;
 }
-bool OOPPosUpdate_Handler(char *Packet,short LocalPlayer)
+bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 {
-	char *SendBuf;
-	OOPkgPosUpdate InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgPosUpdate));
-	SendBuf = (char *)malloc(sizeof(OOPkgPosUpdate));
-	memcpy(SendBuf,&InPkgBuf,sizeof(OOPkgPosUpdate));
-	for(int cx=0;cx<MAXCLIENTS;cx++)
+	OOPkgActorUpdate InPkgBuf;
+	OOPkgActorUpdate OutPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgActorUpdate));
+	if (InPkgBuf.refID < MAXCLIENTS)
 	{
-		send(clients[cx],SendBuf,sizeof(OOPkgPosUpdate),0);
+		OutPkgBuf.etypeID = OOPActorUpdate;
+		OutPkgBuf.refID = InPkgBuf.refID;
+		OutPkgBuf.CellID = InPkgBuf.CellID;
+		OutPkgBuf.Flags = InPkgBuf.Flags;
+		OutPkgBuf.fPosX = InPkgBuf.fPosX;
+		OutPkgBuf.fPosY = InPkgBuf.fPosY;
+		OutPkgBuf.fPosZ = InPkgBuf.fPosZ;
+		OutPkgBuf.fRotX = InPkgBuf.fRotX;
+		OutPkgBuf.fRotY = InPkgBuf.fRotY;
+		OutPkgBuf.fRotZ = InPkgBuf.fRotZ;
+		OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
+		OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
+		OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
+		Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
+		Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
+		Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
+		for(int cx=0;cx<MAXCLIENTS;cx++)
+		{
+			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
+		}
 	}
-	free(SendBuf);
-	return true;
-}
-bool OOPZone_Handler(char *Packet,short LocalPlayer)
-{
-	char *SendBuf;
-	OOPkgZone InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgZone));
-	SendBuf = (char *)malloc(sizeof(OOPkgZone));
-	memcpy(SendBuf,&InPkgBuf,sizeof(OOPkgZone));
-	for(int cx=0;cx<MAXCLIENTS;cx++)
-	{
-		send(clients[cx],SendBuf,sizeof(OOPkgZone),0);
-	}
-	free(SendBuf);
 	return true;
 }
 bool OOPChat_Handler(char *Packet,short LocalPlayer)
@@ -123,57 +127,21 @@ bool OOPEvent_Handler(char *Packet,short LocalPlayer)
 }
 bool OOPEventRegister_Handler(char *Packet,short LocalPlayer)
 {
-	//CHEATER:::: phear ---- also ignored
+	//EVENTS ARE IGNORED UNTIL PLUGIN SYSTEM IS THERE
 	return true;
 }
 bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 {
-	char *SendBuf;
 	OOPkgFullStatUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
-	SendBuf = (char *)malloc(sizeof(OOPkgFullStatUpdate));
-	memcpy(SendBuf,&InPkgBuf,sizeof(OOPkgFullStatUpdate));
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
-		send(clients[cx],SendBuf,sizeof(OOPkgFullStatUpdate),0);
-	}
-	free(SendBuf);
-	return true;
-}
-bool OOPStatUpdate_Handler(char *Packet,short LocalPlayer)
-{
-	char *SendBuf;
-	OOPkgStatUpdate InPkgBuf;
-	OOPkgStatUpdate OutPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgStatUpdate));
-	//Temp
-	printf("Client %u HP is now %i\n", InPkgBuf.refID, InPkgBuf.Health);
-	//End Temp
-	if (InPkgBuf.refID < MAXCLIENTS)
-	{
-		OutPkgBuf.etypeID = OOPStatUpdate;
-		OutPkgBuf.refID = InPkgBuf.refID;
-		OutPkgBuf.Flags = InPkgBuf.Flags;
-		OutPkgBuf.TimeStamp = InPkgBuf.TimeStamp;
-		OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
-		OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
-		OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
-		Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
-		Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
-		Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
-		SendBuf = (char *)malloc(sizeof(OOPkgStatUpdate));
-		memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgStatUpdate));
-		for(int cx=0;cx<MAXCLIENTS;cx++)
-		{
-			send(clients[cx],SendBuf,sizeof(OOPkgStatUpdate),0);
-		}
-		free(SendBuf);
+		send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgFullStatUpdate),0);
 	}
 	return true;
 }
 bool OOPTimeUpdate_Handler(char *Packet,short LocalPlayer)
 {
-	char *SendBuf;
 	time_t ServerTime;
 	OOPkgTimeUpdate OutPkgBuf;
 
@@ -182,17 +150,9 @@ bool OOPTimeUpdate_Handler(char *Packet,short LocalPlayer)
 	OutPkgBuf.Seconds = (int)ServerTime % 60;
 	OutPkgBuf.Minutes = (int)(ServerTime / 60) % 60;
 	OutPkgBuf.Hours = (int)(ServerTime / 3600) % 24;
-	//Temp - Disables Time sync for testing
-	OutPkgBuf.Seconds = 0;
-	OutPkgBuf.Minutes = 0;
-	OutPkgBuf.Hours = 10;
-	//End Temp
-	SendBuf = (char *)malloc(sizeof(OOPkgTimeUpdate));
-	memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgTimeUpdate));
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
-		send(clients[cx],SendBuf,sizeof(OOPkgTimeUpdate),0);
+		send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgTimeUpdate),0);
 	}
-	free(SendBuf);
 	return true;
 }

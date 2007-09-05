@@ -30,8 +30,8 @@ This file is part of OblivionOnline.
 #define MAXCLIENTS 2
 #define PORT 41805
 
-#define MAIN_VERSION 2
-#define SUB_VERSION 1	//Beta 1 for release 2
+#define MAIN_VERSION 3
+#define SUB_VERSION 4	//Beta 1 for release 2
 #define UInt32 unsigned long
 
 struct ObjectStatus
@@ -40,7 +40,6 @@ struct ObjectStatus
 	float RotX,RotY,RotZ;
 	UInt32 RefID;
 	UInt32 CellID;
-	char Zone[128];
 };
 
 struct ActorStatus : ObjectStatus
