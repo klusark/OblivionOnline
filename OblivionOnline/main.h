@@ -50,8 +50,8 @@ This file is part of OblivionOnline.
 
 #define MAXCLIENTS 2
 
-#define MAIN_VERSION 2
-#define SUB_VERSION 1 // change this with EVERY release
+#define MAIN_VERSION 3
+#define SUB_VERSION 4 // change this with EVERY release
 
 struct ObjectStatus
 {

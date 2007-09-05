@@ -38,7 +38,16 @@ This file is part of OblivionOnline.
 
 #include "main.h"
 #include "OONetwork.h"
-#include "OOPacketHandler.h"
+
+//Prototypes
+extern void RunScriptLine(const char *buf, bool IsTemp);
+bool OOPWelcome_Handler(char *Packet);
+bool OOPActorUpdate_Handler(char *Packet);
+bool OOPChat_Handler(char *Packet);
+bool OOPEvent_Handler(char *Packet);
+bool OOPEventRegister_Handler(char *Packet);
+bool OOPFullStatUpdate_Handler(char *Packet);
+bool OOPTimeUpdate_Handler(char *Packet);
 
 bool NetWelcome()
 {
@@ -56,55 +65,40 @@ bool NetWelcome()
 	return true;
 }
 
-bool NetPlayerPosUpdate(PlayerStatus *Player,int PlayerID)
+bool NetActorUpdate(PlayerStatus *Player,int PlayerID)
 {
 	static PlayerStatus LastPlayer;
 	
-	OOPkgPosUpdate pkgBuf;
+	OOPkgActorUpdate pkgBuf;
 	DWORD tickBuf;
 	char *SendBuf;
 	//The first check is faster , so we do it first . Also it is more likely to be sent twice
 	tickBuf=GetTickCount();
-	if((tickBuf - PacketTime[OOPPosUpdate]) > NET_POSUPDATE_RESEND) //just send it every 30 ms 
+	if((tickBuf - PacketTime[OOPActorUpdate]) > NET_POSUPDATE_RESEND) //just send it every 30 ms 
 	{
 		if(memcmp(&LastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
 		{
 			memcpy(&LastPlayer,Player,sizeof(PlayerStatus));
-			pkgBuf.etypeID = OOPPosUpdate;
-			pkgBuf.Flags = 1 | 2;
+			pkgBuf.etypeID = OOPActorUpdate;
+			if(Player->bIsInInterior)
+				pkgBuf.Flags = 1 | 2;
+			else
+				pkgBuf.Flags = 1 | 2 | 4;
 			pkgBuf.fPosX = Player->PosX;
 			pkgBuf.fPosY = Player->PosY;
 			pkgBuf.fPosZ = Player->PosZ;
 			pkgBuf.fRotX = Player->RotX;
 			pkgBuf.fRotY = Player->RotY;
 			pkgBuf.fRotZ = Player->RotZ;
+			pkgBuf.CellID = Player->CellID;
 			pkgBuf.refID = PlayerID;
-			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgPosUpdate),0);
-			PacketTime[OOPPosUpdate] = tickBuf;
+			pkgBuf.Health = Player->Health;
+			pkgBuf.Magika = Player->Magika;
+			pkgBuf.Fatigue = Player->Fatigue;
+			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgActorUpdate),0);
+			PacketTime[OOPActorUpdate] = tickBuf;
 		}
 	}
-	return true;
-}
-
-bool NetPlayerZone(PlayerStatus *Player,int PlayerID, bool bIsInterior)
-{
-	OOPkgZone pkgBuf;
-	pkgBuf.etypeID = OOPZone;
-	if (!bIsInterior)
-	{
-		pkgBuf.Flags = 1; //Exterior
-	}else{
-		pkgBuf.Flags = 0; //Interior
-	}
-	pkgBuf.fPosX = Player->PosX;
-	pkgBuf.fPosY = Player->PosY;
-	pkgBuf.fPosZ = Player->PosZ;
-	pkgBuf.fRotX = Player->RotX;
-	pkgBuf.fRotY = Player->RotY;
-	pkgBuf.fRotZ = Player->RotZ;
-	pkgBuf.cellID = Player->CellID;
-	pkgBuf.refID = PlayerID;
-	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgZone),0);
 	return true;
 }
 
@@ -125,50 +119,40 @@ bool NetChat(char *Message)
 	return true;
 }
 
-bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate)
+bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID)
 {
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
 	
-	if (FullUpdate)
+	// If we have a full update, don't send it too quickly
+	if((tickBuf - PacketTime[OOPFullStatUpdate]) > NET_FULLSTATUPDATE_RESEND)
 	{
-		// If we have a full update, don't send it too quickly
-		if((tickBuf - PacketTime[OOPFullStatUpdate]) > NET_FULLSTATUPDATE_RESEND)
-		{
-			OOPkgFullStatUpdate pkgBuf;
-			pkgBuf.etypeID = OOPFullStatUpdate;
-			pkgBuf.Flags = 1 | 2;
-			pkgBuf.Agility = Player->Agility;
-			pkgBuf.Encumbrance = Player->Encumbrance;
-			pkgBuf.Endurance = Player->Endurance;
-			pkgBuf.Intelligence = Player->Intelligence;
-			pkgBuf.Luck = Player->Luck;
-			pkgBuf.Personality = Player->Personality;
-			pkgBuf.Speed = Player->Speed;
-			pkgBuf.Strength = Player->Strength;
-			pkgBuf.Willpower = Player->Willpower;
-			pkgBuf.Health = Player->Health;
-			pkgBuf.Magika = Player->Magika;
-			pkgBuf.Fatigue = Player->Fatigue;
-			pkgBuf.TimeStamp = Player->Time;
-			pkgBuf.refID = PlayerID;
-			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgFullStatUpdate),0);
-			PacketTime[OOPFullStatUpdate] = tickBuf;
-		}
-	}else{
-		// Partial update is fine to send instantly
-		OOPkgStatUpdate pkgBuf;
-		pkgBuf.etypeID = OOPStatUpdate;
+		OOPkgFullStatUpdate pkgBuf;
+		pkgBuf.etypeID = OOPFullStatUpdate;
 		pkgBuf.Flags = 1 | 2;
+		pkgBuf.Agility = Player->Agility;
+		pkgBuf.Encumbrance = Player->Encumbrance;
+		pkgBuf.Endurance = Player->Endurance;
+		pkgBuf.Intelligence = Player->Intelligence;
+		pkgBuf.Luck = Player->Luck;
+		pkgBuf.Personality = Player->Personality;
+		pkgBuf.Speed = Player->Speed;
+		pkgBuf.Strength = Player->Strength;
+		pkgBuf.Willpower = Player->Willpower;
 		pkgBuf.Health = Player->Health;
 		pkgBuf.Magika = Player->Magika;
 		pkgBuf.Fatigue = Player->Fatigue;
 		pkgBuf.TimeStamp = Player->Time;
 		pkgBuf.refID = PlayerID;
-		send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgStatUpdate),0);
+		send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgFullStatUpdate),0);
+		PacketTime[OOPFullStatUpdate] = tickBuf;
 	}
 	return true;
 }
+
+//---------------------------
+//--End Outgoing Handlers----
+//---------------------------
 
 bool NetReadBuffer(char *acReadBuffer)
 {
@@ -179,11 +163,8 @@ bool NetReadBuffer(char *acReadBuffer)
 	case OOPWelcome:
 		OOPWelcome_Handler(acReadBuffer);
 		break;
-	case OOPPosUpdate:
-		OOPPosUpdate_Handler(acReadBuffer);
-		break;
-	case OOPZone:	
-		OOPZone_Handler(acReadBuffer);
+	case OOPActorUpdate:
+		OOPActorUpdate_Handler(acReadBuffer);
 		break;
 	case OOPChat:
 		OOPChat_Handler(acReadBuffer);
@@ -197,14 +178,106 @@ bool NetReadBuffer(char *acReadBuffer)
 	case OOPFullStatUpdate:
 		OOPFullStatUpdate_Handler(acReadBuffer);
 		break;
-	case OOPStatUpdate:
-		OOPStatUpdate_Handler(acReadBuffer);
-		break;
 	case OOPTimeUpdate:
 		OOPTimeUpdate_Handler(acReadBuffer);
 		break;
 	default: 
 		break;
 	}
+	return true;
+}
+
+//---------------------------
+//--Begin Incoming Handlers--
+//---------------------------
+
+bool OOPWelcome_Handler(char *Packet)
+{
+	OOPkgWelcome InPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
+	sscanf(InPkgBuf.NickName, "Player%2d", &LocalPlayer);
+	_MESSAGE("Received Player ID %u",LocalPlayer);
+	Console_Print(InPkgBuf.NickName);
+	return true;
+}
+
+bool OOPActorUpdate_Handler(char *Packet)
+{
+	OOPkgActorUpdate InPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgActorUpdate));
+	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
+	{
+		OtherPlayer = InPkgBuf.refID;
+		Players[OtherPlayer].PosX = InPkgBuf.fPosX;
+		Players[OtherPlayer].PosY = InPkgBuf.fPosY;
+		Players[OtherPlayer].PosZ = InPkgBuf.fPosZ;
+		Players[OtherPlayer].RotX = InPkgBuf.fRotX;
+		Players[OtherPlayer].RotY = InPkgBuf.fRotY;
+		Players[OtherPlayer].RotZ = InPkgBuf.fRotZ;
+		Players[OtherPlayer].CellID = InPkgBuf.CellID;
+		Players[OtherPlayer].Health += InPkgBuf.Health;
+		Players[OtherPlayer].Magika += InPkgBuf.Magika;
+		Players[OtherPlayer].Fatigue += InPkgBuf.Fatigue;
+		if (InPkgBuf.Flags & 4) //Is in an interior?
+			Players[OtherPlayer].bIsInInterior = true;
+		else
+			Players[OtherPlayer].bIsInInterior = false;
+	}
+	return true;
+}
+
+bool OOPChat_Handler(char *Packet)
+{
+	OOPkgChat InPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgChat));
+	char MessageDest[1024] = "\0";
+	for(int i=0; i<InPkgBuf.Length; i++)
+	{
+		MessageDest[i] = Packet[i+sizeof(OOPkgChat)];
+	}
+	MessageDest[InPkgBuf.Length] = '\0';
+	char chatScript[1024];
+	sprintf(chatScript, "Message \"%s\", %s", MessageDest);
+	RunScriptLine(chatScript, true);
+	return true;
+}
+
+bool OOPEvent_Handler(char *Packet)
+{
+	return true;
+}
+
+bool OOPEventRegister_Handler(char *Packet)
+{
+	return true;
+}
+
+bool OOPFullStatUpdate_Handler(char *Packet)
+{
+	OOPkgFullStatUpdate InPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
+	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
+	{
+		Players[InPkgBuf.refID].Agility = InPkgBuf.Agility;
+		Players[InPkgBuf.refID].Encumbrance = InPkgBuf.Encumbrance;
+		Players[InPkgBuf.refID].Endurance = InPkgBuf.Endurance;
+		Players[InPkgBuf.refID].Intelligence = InPkgBuf.Intelligence;
+		Players[InPkgBuf.refID].Luck = InPkgBuf.Luck;
+		Players[InPkgBuf.refID].Personality = InPkgBuf.Personality;
+		Players[InPkgBuf.refID].Speed = InPkgBuf.Speed;
+		Players[InPkgBuf.refID].Strength = InPkgBuf.Strength;
+		Players[InPkgBuf.refID].Willpower = InPkgBuf.Willpower;
+		Players[InPkgBuf.refID].Health = InPkgBuf.Health;
+		Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
+		Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
+	}
+	return true;
+}
+
+bool OOPTimeUpdate_Handler(char *Packet)
+{
+	OOPkgTimeUpdate InPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgTimeUpdate));
+	Players[LocalPlayer].Time = InPkgBuf.Hours + (float)InPkgBuf.Minutes / 60.0 + (float)InPkgBuf.Seconds / 3600.0;
 	return true;
 }

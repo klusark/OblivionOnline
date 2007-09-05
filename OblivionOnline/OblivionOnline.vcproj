@@ -313,10 +313,6 @@
 				RelativePath=".\OONetwork.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\OOPacketHandler.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Headers"
@@ -331,10 +327,6 @@
 			</File>
 			<File
 				RelativePath=".\OONetwork.h"
-				>
-			</File>
-			<File
-				RelativePath=".\OOPacketHandler.h"
 				>
 			</File>
 			<File

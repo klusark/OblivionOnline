@@ -61,11 +61,11 @@ DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.
 extern void RunScriptLine(const char *buf, bool IsTemp);
 extern int GetActorID(UInt32 refID);
 extern float GetStat(Actor *ActorBuf, int statNum);
-extern bool NetPlayerPosUpdate(PlayerStatus *Player,int PlayerID);
+
+extern bool NetActorUpdate(PlayerStatus *Player,int PlayerID);
 extern bool NetWelcome();
-extern bool NetPlayerZone(PlayerStatus *Player,int PlayerID, bool bIsInterior);
 extern bool NetChat(char *Message);
-extern bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate);
+extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID);
 extern bool NetReadBuffer(char *acReadBuffer);
 
 
@@ -153,11 +153,11 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 	return true;
 }
 
-bool Cmd_MPSendPos_Execute (COMMAND_ARGS)
+bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 {
 	if (!thisObj)
 	{
-		Console_Print("Error, no reference given for MPSendPos");
+		Console_Print("Error, no reference given for MPSendActor");
 		return true;
 	}
 	if(thisObj->IsActor())
@@ -170,28 +170,14 @@ bool Cmd_MPSendPos_Execute (COMMAND_ARGS)
 		Players[LocalPlayer].RotX = ActorBuf->rotX;
 		Players[LocalPlayer].RotY = ActorBuf->rotY;
 		Players[LocalPlayer].RotZ = ActorBuf->rotZ;
-		if (!ActorBuf->parentCell->worldSpace)	//is the actor in an interior
-		{
-			if(Players[LocalPlayer].CellID == ActorBuf->parentCell->refID) //No need to zone
-			{
-				NetPlayerPosUpdate(&Players[LocalPlayer], LocalPlayer); 
-			}else{
-				Players[LocalPlayer].bIsInInterior = true;
-				Players[LocalPlayer].CellID = ActorBuf->parentCell->refID;
-				NetPlayerZone(&Players[LocalPlayer], LocalPlayer, true);
-			}
-		}
+		Players[LocalPlayer].Health = ActorBuf->GetActorValue(8);
+		Players[LocalPlayer].Magika = ActorBuf->GetActorValue(9);
+		Players[LocalPlayer].Fatigue = ActorBuf->GetActorValue(10);
+		if(ActorBuf->parentCell->worldSpace)
+			Players[LocalPlayer].bIsInInterior = false;
 		else
-		{
-			if(Players[LocalPlayer].CellID == ActorBuf->parentCell->worldSpace->refID) //No need to zone
-			{
-				NetPlayerPosUpdate(&Players[LocalPlayer], LocalPlayer); 
-			}else{
-				Players[LocalPlayer].bIsInInterior = false;
-				Players[LocalPlayer].CellID = ActorBuf->parentCell->worldSpace->refID;
-				NetPlayerZone(&Players[LocalPlayer], LocalPlayer, false);
-			}
-		}
+			Players[LocalPlayer].bIsInInterior = true;
+		NetActorUpdate(&Players[LocalPlayer], LocalPlayer); 
 	}
 	return true;
 }
@@ -226,37 +212,7 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 			// Check to see if we're trying to send the NPC default values
 			if (Players[actorNumber].Personality != 1)
 			{
-				NetStatUpdate(&Players[actorNumber], actorNumber, true);
-			}
-		}else{
-			if (actorNumber == -2)
-				Console_Print("Cannot update, only one player is connected");
-		}
-	}
-	return true;
-}
-
-bool Cmd_MPSendStat_Execute (COMMAND_ARGS)
-{
-	if (!thisObj)
-	{
-		Console_Print("Error, no reference given for MPSendStat");
-		return true;
-	}
-	if (thisObj->IsActor())
-	{
-		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
-		if (actorNumber != -1 && actorNumber != -2)
-		{
-			Players[actorNumber].Health = ActorBuf->GetActorValue(8);
-			Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
-			Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
-
-			// Check to see if we're trying to send the NPC default values
-			if (Players[actorNumber].Personality != 1)
-			{
-				NetStatUpdate(&Players[actorNumber], actorNumber, false);
+				NetFullStatUpdate(&Players[actorNumber], actorNumber);
 			}
 		}else{
 			if (actorNumber == -2)
@@ -472,16 +428,16 @@ static CommandInfo kMPConnectCommand =
 	Cmd_MPConnect_Execute
 };
 
-static CommandInfo kMPSendPosCommand =
+static CommandInfo kMPSendActorCommand =
 {
-	"MPSendPos",
+	"MPSendActor",
 	"MPSP",
 	0,
-	"Sends local player's pos to server",
+	"Sends local player's data to server",
 	0,		// requires parent obj
 	0,		// doesn't have params
 	NULL,	// no param table
-	Cmd_MPSendPos_Execute
+	Cmd_MPSendActor_Execute
 };
 
 static CommandInfo kMPSendFullStatCommand =
@@ -494,18 +450,6 @@ static CommandInfo kMPSendFullStatCommand =
 	0,		// doesn't have params
 	NULL,	// no param table
 	Cmd_MPSendFullStat_Execute
-};
-
-static CommandInfo kMPSendStatCommand =
-{
-	"MPSendStat",
-	"MPSST",
-	0,
-	"Sends basic stats (HP, MP, Fatigue)",
-	0,		// requires parent obj
-	0,		// doesn't have params
-	NULL,	// no param table
-	Cmd_MPSendStat_Execute
 };
 
 static CommandInfo kMPSendChatCommand =
@@ -750,9 +694,8 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPConnectCommand);
 
 	//Data sending
-	obse->RegisterCommand(&kMPSendPosCommand);
+	obse->RegisterCommand(&kMPSendActorCommand);
 	obse->RegisterCommand(&kMPSendFullStatCommand);
-	obse->RegisterCommand(&kMPSendStatCommand);
 	obse->RegisterCommand(&kMPSendChatCommand);
 
 	//Data sync
