@@ -132,9 +132,9 @@ bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate)
 	
 	if (FullUpdate)
 	{
+		// If we have a full update, don't send it too quickly
 		if((tickBuf - PacketTime[OOPFullStatUpdate]) > NET_FULLSTATUPDATE_RESEND)
 		{
-			//optimize this , atm we only check it here just before sending
 			OOPkgFullStatUpdate pkgBuf;
 			pkgBuf.etypeID = OOPFullStatUpdate;
 			pkgBuf.Flags = 1 | 2;
@@ -156,6 +156,7 @@ bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate)
 			PacketTime[OOPFullStatUpdate] = tickBuf;
 		}
 	}else{
+		// Partial update is fine to send instantly
 		OOPkgStatUpdate pkgBuf;
 		pkgBuf.etypeID = OOPStatUpdate;
 		pkgBuf.Flags = 1 | 2;

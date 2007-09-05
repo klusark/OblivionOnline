@@ -249,8 +249,6 @@ bool Cmd_MPSendStat_Execute (COMMAND_ARGS)
 		int actorNumber = GetActorID(ActorBuf->refID);
 		if (actorNumber != -1 && actorNumber != -2)
 		{
-			if (ActorBuf->refID == 20)
-				actorNumber = LocalPlayer;
 			Players[actorNumber].Health = ActorBuf->GetActorValue(8);
 			Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
 			Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
