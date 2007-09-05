@@ -92,9 +92,9 @@ bool NetPlayerZone(PlayerStatus *Player,int PlayerID, bool bIsInterior)
 	pkgBuf.etypeID = OOPZone;
 	if (!bIsInterior)
 	{
-		pkgBuf.Flags = 1 | 2 | 4; //Player and Actor | Exterior
+		pkgBuf.Flags = 1; //Exterior
 	}else{
-		pkgBuf.Flags = 1 | 2; //Player and Actor | Interior
+		pkgBuf.Flags = 0; //Interior
 	}
 	pkgBuf.fPosX = Player->PosX;
 	pkgBuf.fPosY = Player->PosY;

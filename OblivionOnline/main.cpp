@@ -170,19 +170,24 @@ bool Cmd_MPSendPos_Execute (COMMAND_ARGS)
 		Players[LocalPlayer].RotX = ActorBuf->rotX;
 		Players[LocalPlayer].RotY = ActorBuf->rotY;
 		Players[LocalPlayer].RotZ = ActorBuf->rotZ;
-		if(Players[LocalPlayer].CellID == ActorBuf->parentCell->refID) //No need to zone
+		if (!ActorBuf->parentCell->worldSpace)	//is the actor in an interior
 		{
-			NetPlayerPosUpdate(&Players[LocalPlayer], LocalPlayer); 
-		}
-		else
-		{
-			Players[LocalPlayer].CellID = ActorBuf->parentCell->refID;
-			if (!ActorBuf->parentCell->worldSpace)	//is the actor in an interior
+			if(Players[LocalPlayer].CellID == ActorBuf->parentCell->refID) //No need to zone
 			{
+				NetPlayerPosUpdate(&Players[LocalPlayer], LocalPlayer); 
+			}else{
 				Players[LocalPlayer].bIsInInterior = true;
 				Players[LocalPlayer].CellID = ActorBuf->parentCell->refID;
 				NetPlayerZone(&Players[LocalPlayer], LocalPlayer, true);
+			}
+		}
+		else
+		{
+			if(Players[LocalPlayer].CellID == ActorBuf->parentCell->worldSpace->refID) //No need to zone
+			{
+				NetPlayerPosUpdate(&Players[LocalPlayer], LocalPlayer); 
 			}else{
+				Console_Print("Exterior, changed");
 				Players[LocalPlayer].bIsInInterior = false;
 				Players[LocalPlayer].CellID = ActorBuf->parentCell->worldSpace->refID;
 				NetPlayerZone(&Players[LocalPlayer], LocalPlayer, false);
@@ -387,10 +392,16 @@ bool Cmd_MPGetWorldspace_Execute (COMMAND_ARGS)
 {
 	if (OtherPlayer == LocalPlayer)
 	{
-		*result = 0;
+		Console_Print("Only one player is connected, cannot get IsInInterior");
 		return true;
 	}
-	*result = Players[OtherPlayer].bIsInInterior;
+	//Temp
+	if (Players[OtherPlayer].bIsInInterior)
+		Console_Print("Other player moved to interior");
+	else
+		Console_Print("Other player moved to exterior");
+	//End Temp
+	*result = (int)Players[OtherPlayer].bIsInInterior;
 	return true;
 }
 

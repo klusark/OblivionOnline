@@ -83,6 +83,14 @@ bool OOPZone_Handler(char *Packet)
 		Players[InPkgBuf.refID].RotY = InPkgBuf.fRotY;
 		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
 		Players[InPkgBuf.refID].CellID = InPkgBuf.cellID;
+		if (InPkgBuf.Flags)
+		{
+			Console_Print("Received move to exterior");
+			Players[InPkgBuf.refID].bIsInInterior = false;
+		}else{
+			Console_Print("Received move to interior");
+			Players[InPkgBuf.refID].bIsInInterior = true;
+		}
 	}
 	return true;
 }
