@@ -345,14 +345,6 @@ bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 	int playerNumber = 0;
 	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
 	*result = (int)Players[playerNumber].bIsInInterior;
-	//Temp
-	char tempData[64];
-	if (!Players[playerNumber].bIsInInterior)
-		sprintf(tempData, "Player %i is in an exterior", playerNumber);
-	else
-		sprintf(tempData, "Player %i is in an interior", playerNumber);
-	Console_Print(tempData);
-	//End Temp
 	return true;
 }
 
