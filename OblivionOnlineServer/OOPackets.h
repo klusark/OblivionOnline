@@ -49,7 +49,8 @@ enum OOPacketType
 	OOPEvent,			//An Event is triggered by a plugin
 	OOPEventRegister,	//An Event is registered, server only
 	OOPFullStatUpdate,	//Send all actor, mob, player stats
-	OOPTimeUpdate		//Send the time to all clients
+	OOPTimeUpdate,		//Send the time to all clients
+	OOPPlayerList		//Contains a list of connected players
 };
 #pragma pack(push,1)
 struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE IT HAS TO WORK WITH ALL VERSIONS!!!!
@@ -118,6 +119,14 @@ struct OOPkgTimeUpdate
 	short Flags;	// 1 - time request
 	unsigned int Hours, Minutes, Seconds;
 };
+struct OOPkgPlayerList
+{
+	OOPacketType etypeID;
+	short Flags;	// none so far
+	unsigned short TotalPlayers;	//Total players connected
+	//The actual player list will be attached to the end of the packet
+	//1 byte per player connected (so each player # can be from 0-255)
+};
 #pragma pack(pop)
 inline OOPacketType SelectType(char *Packet)
 {
@@ -125,6 +134,6 @@ inline OOPacketType SelectType(char *Packet)
 }
 
 //Total packet types
-#define PACKET_COUNT 7
+#define PACKET_COUNT 8
 
 #endif

@@ -95,6 +95,13 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
 		Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
 		Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
+		//Temp
+		if (OutPkgBuf.Health != 0)
+		{
+			printf("Player %i HP: %i (change of %i)\n", InPkgBuf.refID,
+				Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
+		}
+		//End Temp
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
 			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
@@ -154,5 +161,26 @@ bool OOPTimeUpdate_Handler(char *Packet,short LocalPlayer)
 	{
 		send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgTimeUpdate),0);
 	}
+	return true;
+}
+bool OOPPlayerList_Handler(char *Packet,short LocalPlayer)
+{
+	char *SendBuf;
+	OOPkgPlayerList OutPkgBuf;
+	OutPkgBuf.etypeID = OOPPlayerList;
+	SendBuf = (char *)malloc(sizeof(OOPkgPlayerList) + MAXCLIENTS);
+	memcpy(SendBuf, &OutPkgBuf, sizeof(OOPkgPlayerList));
+	for(int cx=0; cx<MAXCLIENTS; cx++)
+	{
+		if (Connected[cx])
+			SendBuf[cx + sizeof(OOPkgPlayerList)] = cx;
+		else
+			SendBuf[cx + sizeof(OOPkgPlayerList)] = 255;
+	}
+	for(int cx=0;cx<MAXCLIENTS;cx++)
+	{
+		send(clients[cx],SendBuf,sizeof(OOPkgPlayerList),0);
+	}
+	free(SendBuf);
 	return true;
 }
