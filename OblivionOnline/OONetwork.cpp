@@ -40,53 +40,6 @@ This file is part of OblivionOnline.
 #include "OONetwork.h"
 #include "OOPacketHandler.h"
 
-//PACKET HAS TIME CHECKING
-bool NetPlayerPosUpdate(PlayerStatus *Player,int PlayerID)
-{
-	static PlayerStatus LastPlayer;
-	
-	OOPkgPosUpdate pkgBuf;
-	DWORD tickBuf;
-	char *SendBuf;
-	//The first check is faster , so we do it first . Also it is more likely to be sent twice
-	tickBuf=GetTickCount();
-	if((tickBuf - PacketTime[OOPPosUpdate]) > NET_POSUPDATE_RESEND) //just send it every 30 ms 
-	{
-		if(memcmp(&LastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
-		{
-				memcpy(&LastPlayer,Player,sizeof(PlayerStatus));
-				pkgBuf.etypeID = OOPPosUpdate;
-				pkgBuf.Flags = 1 | 2;
-				pkgBuf.fPosX = Player->PosX;
-				pkgBuf.fPosY = Player->PosY;
-				pkgBuf.fPosZ = Player->PosZ;
-				pkgBuf.fRotX = Player->RotX;
-				pkgBuf.fRotY = Player->RotY;
-				pkgBuf.fRotZ = Player->RotZ;
-				pkgBuf.refID = PlayerID;
-				/* //Old Netcode - not really working,  freezes game when queue overflows
-				while(1)
-				{
-					if (SendQueue.Length < QUEUELENGTH)
-					{
-						SendQueue.Length++;
-						SendQueue.SendData[SendQueue.Length-1] = SendBuf;
-						SendQueue.Size[SendQueue.Length-1] = sizeof(OOPkgPosUpdate);
-						break;
-					}
-				} */
-			
-		
-		
-			
-			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgPosUpdate),0);
-			PacketTime[OOPPosUpdate] = tickBuf;
-		}
-	}
-	
-	return true;
-}
-
 bool NetWelcome()
 {
 	OOPkgWelcome pkgBuf;
@@ -102,11 +55,40 @@ bool NetWelcome()
 	free(SendBuf);
 	return true;
 }
-//NEARLY NEVER OOCURS , no need for that
+
+bool NetPlayerPosUpdate(PlayerStatus *Player,int PlayerID)
+{
+	static PlayerStatus LastPlayer;
+	
+	OOPkgPosUpdate pkgBuf;
+	DWORD tickBuf;
+	char *SendBuf;
+	//The first check is faster , so we do it first . Also it is more likely to be sent twice
+	tickBuf=GetTickCount();
+	if((tickBuf - PacketTime[OOPPosUpdate]) > NET_POSUPDATE_RESEND) //just send it every 30 ms 
+	{
+		if(memcmp(&LastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
+		{
+			memcpy(&LastPlayer,Player,sizeof(PlayerStatus));
+			pkgBuf.etypeID = OOPPosUpdate;
+			pkgBuf.Flags = 1 | 2;
+			pkgBuf.fPosX = Player->PosX;
+			pkgBuf.fPosY = Player->PosY;
+			pkgBuf.fPosZ = Player->PosZ;
+			pkgBuf.fRotX = Player->RotX;
+			pkgBuf.fRotY = Player->RotY;
+			pkgBuf.fRotZ = Player->RotZ;
+			pkgBuf.refID = PlayerID;
+			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgPosUpdate),0);
+			PacketTime[OOPPosUpdate] = tickBuf;
+		}
+	}
+	return true;
+}
+
 bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool bIsInterior)
 {
 	OOPkgZone pkgBuf;
-	char *SendBuf;
 	pkgBuf.etypeID = OOPZone;
 	if (!bIsInterior)
 	{
@@ -123,13 +105,10 @@ bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool bIsInt
 	strcpy(pkgBuf.ZoneName, ZoneName);
 	pkgBuf.cellID = Player->CellID;
 	pkgBuf.refID = PlayerID;
-	SendBuf = (char *)malloc(sizeof(OOPkgZone));
-	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgZone));
-	send(ServerSocket,SendBuf,sizeof(OOPkgZone),0);
-	//free(SendBuf);
+	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgZone),0);
 	return true;
 }
-//Instant transfer is ok 
+
 bool NetChat(char *Message)
 {
 	OOPkgChat pkgBuf;
@@ -146,10 +125,9 @@ bool NetChat(char *Message)
 	free(SendBuf);
 	return true;
 }
-//this should really be controlled. Full stat synch only every 10 seconds or more and double send control
+
 bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate)
 {
-	char *SendBuf;
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
 	
@@ -175,8 +153,6 @@ bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate)
 			pkgBuf.Fatigue = Player->Fatigue;
 			pkgBuf.TimeStamp = Player->Time;
 			pkgBuf.refID = PlayerID;
-			//SendBuf = (char *)malloc(sizeof(OOPkgFullStatUpdate));
-			//memcpy(SendBuf,&pkgBuf,sizeof(OOPkgFullStatUpdate));
 			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgFullStatUpdate),0);
 			PacketTime[OOPFullStatUpdate] = tickBuf;
 		}
@@ -189,16 +165,8 @@ bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate)
 		pkgBuf.Fatigue = Player->Fatigue;
 		pkgBuf.TimeStamp = Player->Time;
 		pkgBuf.refID = PlayerID;
-		SendBuf = (char *)malloc(sizeof(OOPkgStatUpdate));
-		memcpy(SendBuf,&pkgBuf,sizeof(OOPkgStatUpdate));
-		send(ServerSocket,SendBuf,sizeof(OOPkgStatUpdate),0);
-		//Temp
-		char tempData[64];
-		sprintf(tempData, "Player %u with HP of %i", pkgBuf.refID, pkgBuf.Health);
-		Console_Print(tempData);
-		//End Temp
+		send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgStatUpdate),0);
 	}
-	free(SendBuf);
 	return true;
 }
 
@@ -238,11 +206,5 @@ bool NetReadBuffer(char *acReadBuffer)
 	default: 
 		break;
 	}
-	return true;
-}
-
-bool NetSendQueue(char *SendBuf, int Length)
-{
-
 	return true;
 }

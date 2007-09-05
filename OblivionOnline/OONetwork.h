@@ -36,9 +36,14 @@ This file is part of OblivionOnline.
 	forward this exception.
 */
 
-#pragma once 
+#ifndef OONetwork_h
+#define OONetwork_h
+
 #include "OOPackets.h"
 
+//Update times for packets (in milliseconds)
 #define NET_POSUPDATE_RESEND 30
-//Really , we do not need that so often...
 #define NET_FULLSTATUPDATE_RESEND 10000
+#define NET_TIMEUPDATE_RESEND 1000
+
+#endif

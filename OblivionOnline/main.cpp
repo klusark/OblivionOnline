@@ -39,25 +39,24 @@ This file is part of OblivionOnline.
 #include "main.h"
 #include "OONetwork.h"
 #include <hash_map>
+
 // Global variables
 IDebugLog gLog("OblivionOnline.log");
 
 bool bIsConnected = false;
-bool bSendBusy = false;
 int LocalPlayer;
 int OtherPlayer;
-DataQueue SendQueue;
 
 UInt32 SpawnID[MAXCLIENTS];
 UInt32 MarkerID[MAXCLIENTS];
 
 SOCKET ServerSocket;
 HANDLE hRecvThread;
-HANDLE hSendThread;
 
 PlayerStatus Players[MAXCLIENTS];
 
-DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received. Only used with 
+DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.
+
 // Prototypes
 extern void RunScriptLine(const char *buf, bool IsTemp);
 extern int GetActorID(UInt32 refID);
@@ -92,8 +91,8 @@ int OO_Initialize()
 		Players[i].bStatsInitialized = false;
 
 		SpawnID[i] = 0;
+		MarkerID[i] = 0;
 	}
-
 	return rc;
 }
 
@@ -116,54 +115,15 @@ DWORD WINAPI RecvThread(LPVOID Params)
 	}
 }
 
-DWORD WINAPI SendThread(LPVOID Params)
-{
-	//Initialize the queue data
-	int Size = 0;
-	SendQueue.Iterator = 0;
-	SendQueue.Length = 0;
-	for(int i=0; i<QUEUELENGTH; i++)
-	{
-		SendQueue.SendData[i] = NULL;
-		SendQueue.Size[i] = 0;
-	}
-
-	Console_Print("SendThread intialized");
-
-	//Begin the send loop
-	while(1)
-	{
-		Sleep(20);
-		while(SendQueue.SendData[0])
-		{
-			//Send out our data from the front of the queue
-			send(ServerSocket, SendQueue.SendData[0], SendQueue.Size[0], 0);
-
-			//Clean up the data slot
-			free(SendQueue.SendData[0]);
-			SendQueue.SendData[0] = NULL;
-			SendQueue.Size[0] = 0;
-
-			//Shift the rest of the queue towards the front
-			for(int i=1; i<SendQueue.Length; i++)
-			{
-				if (SendQueue.SendData[i])
-					SendQueue.SendData[i-1] = SendQueue.SendData[i];
-			}
-			SendQueue.Length--;
-		}
-	}
-}
-
 //-----------------------------
 //---Begin Command Functions---
 //-----------------------------
 
 bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 {
-	_MESSAGE("Connecting \n");
 	if(!bIsConnected)
 	{
+		_MESSAGE("Connecting \n");
 		OO_Initialize();
 		SOCKADDR_IN ServerAddr;
 		FILE *Realmlist = fopen("realmlist.wth","r");
@@ -184,7 +144,6 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 		{
 			_MESSAGE("Successfully Connected");
 			hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
-			//hSendThread = CreateThread(NULL,NULL,SendThread,NULL,NULL,NULL);
 			if(!NetWelcome()) return true;
 			bIsConnected = true;
 			Console_Print("Oblivion connected to server");
@@ -197,7 +156,7 @@ bool Cmd_MPSendPos_Execute (COMMAND_ARGS)
 {
 	if (!thisObj)
 	{
-		Console_Print("Error, no reference given for command");
+		Console_Print("Error, no reference given for MPSendPos");
 		return true;
 	}
 	if(thisObj->IsActor())
@@ -217,7 +176,7 @@ bool Cmd_MPSendPos_Execute (COMMAND_ARGS)
 		else
 		{
 			char ZoneBuf[64];
-			sprintf(ZoneBuf,"63s",ActorBuf->parentCell->GetEditorName());
+			sprintf(ZoneBuf,"%s",ActorBuf->parentCell->GetEditorName());
 			NetPlayerZone(&Players[LocalPlayer],ZoneBuf,LocalPlayer,(thisObj->parentCell->flags0 % 2)); 
 			//TODO .  Update the last parameter to checkt the worldspace--
 			Players[LocalPlayer].CellID = ActorBuf->parentCell->refID; // update last cell
@@ -230,7 +189,7 @@ bool Cmd_MPSendWorld_Execute (COMMAND_ARGS)
 {
 	if (!thisObj)
 	{
-		Console_Print("Error, no reference given for command");
+		Console_Print("Error, no reference given for MPSendWorld");
 		return true;
 	}
 	if(thisObj->IsActor())
@@ -261,7 +220,7 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 {
 	if (!thisObj)
 	{
-		Console_Print("Error, no reference given for command");
+		Console_Print("Error, no reference given for MPSendFullStat");
 		return true;
 	}
 	if (thisObj->IsActor())
@@ -339,20 +298,15 @@ bool Cmd_MPSendChat_Execute (COMMAND_ARGS)
 
 bool Cmd_MPSyncTime_Execute (COMMAND_ARGS)
 {
-	send(ServerSocket, "TIME", 4, 0);
-	return true;
-}
-
-bool Cmd_MPSyncStat_Execute (COMMAND_ARGS)
-{
-	if (!thisObj)
+	OOPkgTimeUpdate pkgBuf;
+	DWORD tickBuf;
+	tickBuf=GetTickCount();
+	if((tickBuf - PacketTime[OOPTimeUpdate]) > NET_TIMEUPDATE_RESEND)
 	{
-		Console_Print("Error, no reference given for command");
-		return true;
-	}
-	if (thisObj->IsActor())
-	{
-		Actor *ActorBuf = (Actor *)thisObj;
+		pkgBuf.etypeID = OOPTimeUpdate;
+		pkgBuf.Flags = 1;	//1 means blank data (i.e. requesting time from server)
+		send(ServerSocket, (char *)&pkgBuf, sizeof(OOPkgTimeUpdate), 0);
+		PacketTime[OOPTimeUpdate] = tickBuf;
 	}
 	return true;
 }
@@ -471,7 +425,7 @@ bool Cmd_MPGetStat_Execute (COMMAND_ARGS)
 	int statNumber = 0;
 	if (!thisObj)
 	{
-		Console_Print("Error, no reference given for command");
+		Console_Print("Error, no reference given for MPGetStat");
 		return true;
 	}
 	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &statNumber)) return true;
@@ -505,7 +459,7 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 {
 	if (!thisObj)
 	{
-		Console_Print("Error, no reference given for command");
+		Console_Print("Error, no reference given for MPSpawned");
 		return true;
 	}
 	if (thisObj->IsActor())
@@ -628,18 +582,6 @@ static CommandInfo kMPSyncTimeCommand =
 	0,		// doesn't have params
 	NULL,	// no param table
 	Cmd_MPSyncTime_Execute
-};
-
-static CommandInfo kMPSyncStatCommand =
-{
-	"MPSyncStat",
-	"MPSYST",
-	0,
-	"Set's calling ref's stat to the stored stats",
-	0,		// requires parent obj
-	0,		// doesn't have params
-	NULL,	// no param table
-	Cmd_MPSyncStat_Execute
 };
 
 static CommandInfo kMPGetPosXCommand =
@@ -856,17 +798,20 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 
 	obse->SetOpcodeBase(0x2000);
 
+	//Connection commands
 	obse->RegisterCommand(&kMPConnectCommand);
 
+	//Data sending
 	obse->RegisterCommand(&kMPSendPosCommand);
 	obse->RegisterCommand(&kMPSendWorldCommand);
 	obse->RegisterCommand(&kMPSendFullStatCommand);
 	obse->RegisterCommand(&kMPSendStatCommand);
 	obse->RegisterCommand(&kMPSendChatCommand);
 
+	//Data sync
 	obse->RegisterCommand(&kMPSyncTimeCommand);
-	obse->RegisterCommand(&kMPSyncStatCommand);
 
+	//Data sending
 	obse->RegisterCommand(&kMPGetPosXCommand);
 	obse->RegisterCommand(&kMPGetPosYCommand);
 	obse->RegisterCommand(&kMPGetPosZCommand);
@@ -880,10 +825,13 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPGetStatCommand);
 	obse->RegisterCommand(&kMPGetSpawnedRefCommand);
 
+	//Misc.
 	obse->RegisterCommand(&kMPSpawnedCommand);
 
+	//Debug commands
 	obse->RegisterCommand(&kMPGetMyChecksumCommand);
 
+	_MESSAGE("Done loading OO Commands");
 	return true;
 }
 

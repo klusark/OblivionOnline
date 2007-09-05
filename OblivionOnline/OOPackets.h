@@ -36,9 +36,9 @@ This file is part of OblivionOnline.
 	forward this exception.
 */
 
-#pragma once
+#ifndef OOPackets_h
+#define OOPackets_h
 
-/* defines for Flags */
 const GUID gcOOGUID = 
 { 0x2b09e144, 0x4976, 0x44f6, { 0xaa, 0x8f, 0xb6, 0x27, 0x99, 0x24, 0x32, 0xaf } }; // so we can copy it over later
 enum OOPacketType
@@ -133,7 +133,7 @@ struct OOPkgStatUpdate	// This package is for quick HP, MP, Fatigue updates
 struct OOPkgTimeUpdate
 {
 	OOPacketType etypeID;
-	short Flage;	// none so far
+	short Flags;	// none so far
 	unsigned int Hours, Minutes, Seconds;
 };
 #pragma pack(pop)
@@ -141,4 +141,8 @@ inline OOPacketType SelectType(char *Packet)
 {
 	return *((OOPacketType *)Packet);
 }
+
+//Total packet types
 #define PACKET_COUNT 9
+
+#endif

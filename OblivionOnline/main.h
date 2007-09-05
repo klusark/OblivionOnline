@@ -47,12 +47,11 @@ This file is part of OblivionOnline.
 #include "obse/ParamInfos.h"
 #include "obse/GameObjects.h"
 #include "OONetwork.h"
+
 #define MAXCLIENTS 2
 
 #define MAIN_VERSION 2
 #define SUB_VERSION 1 // change this with EVERY release
-
-#define QUEUELENGTH 20
 
 struct ObjectStatus
 {
@@ -80,22 +79,12 @@ struct PlayerStatus : ActorStatus
 	int Day, Month, Year;
 };
 
-struct DataQueue
-{
-	char *SendData[QUEUELENGTH];
-	int Size[QUEUELENGTH];
-	int Iterator;
-	int Length;
-};
 extern IDebugLog gLog;
 extern bool bIsConnected;
-extern bool bSendBusy;
 extern int LocalPlayer;
 extern int OtherPlayer;
-extern DataQueue SendQueue;
 extern SOCKET ServerSocket;
 extern HANDLE hRecvThread;
-extern HANDLE hSendThread;
 extern PlayerStatus Players[MAXCLIENTS];
 extern UInt32 SpawnID[MAXCLIENTS];
 extern UInt32 MarkerID[MAXCLIENTS];
