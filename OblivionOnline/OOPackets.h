@@ -83,10 +83,9 @@ struct OOPkgZone
 {
 	OOPacketType etypeID;
 	short Flags;	//1 - Exterior Cell 
-	char ZoneName[128]; // \0 terminated string containing the Zone if it is an interior , or the Worldspace if it is an exterior
 	float fPosX,fPosY,fPosZ;
 	float fRotX,fRotY,fRotZ;
-	UInt32 cellID;	// It is the reference ID of the current cell
+	UInt32 cellID;	// It is the reference ID of the current cell / worldspace
 	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
 };
 struct OOPkgChat //THIS PACKAGE IS NOT DIRECTLY MAPPED , but has to be converted
@@ -133,7 +132,7 @@ struct OOPkgStatUpdate	// This package is for quick HP, MP, Fatigue updates
 struct OOPkgTimeUpdate
 {
 	OOPacketType etypeID;
-	short Flags;	// none so far
+	short Flags;	// 1 - time request
 	unsigned int Hours, Minutes, Seconds;
 };
 #pragma pack(pop)

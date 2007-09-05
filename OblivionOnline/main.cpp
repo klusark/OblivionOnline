@@ -63,7 +63,7 @@ extern int GetActorID(UInt32 refID);
 extern float GetStat(Actor *ActorBuf, int statNum);
 extern bool NetPlayerPosUpdate(PlayerStatus *Player,int PlayerID);
 extern bool NetWelcome();
-extern bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool bIsInterior);
+extern bool NetPlayerZone(PlayerStatus *Player,int PlayerID, bool bIsInterior);
 extern bool NetChat(char *Message);
 extern bool NetStatUpdate(PlayerStatus *Player, int PlayerID, bool FullUpdate);
 extern bool NetReadBuffer(char *acReadBuffer);
@@ -89,6 +89,7 @@ int OO_Initialize()
 		Players[i].CellID = 0;
 		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
+		Players[i].bIsInInterior = true;
 
 		SpawnID[i] = 0;
 		MarkerID[i] = 0;
@@ -175,42 +176,17 @@ bool Cmd_MPSendPos_Execute (COMMAND_ARGS)
 		}
 		else
 		{
-			char ZoneBuf[64];
-			sprintf(ZoneBuf,"%s",ActorBuf->parentCell->GetEditorName());
-			NetPlayerZone(&Players[LocalPlayer],ZoneBuf,LocalPlayer,(thisObj->parentCell->flags0 % 2)); 
-			//TODO .  Update the last parameter to checkt the worldspace--
-			Players[LocalPlayer].CellID = ActorBuf->parentCell->refID; // update last cell
-		}
-	}
-	return true;
-}
-
-bool Cmd_MPSendWorld_Execute (COMMAND_ARGS)
-{
-	if (!thisObj)
-	{
-		Console_Print("Error, no reference given for MPSendWorld");
-		return true;
-	}
-	if(thisObj->IsActor())
-	{
-		Actor *ActorBuf = (Actor *)thisObj;
-		Players[LocalPlayer].RefID = ActorBuf->refID;
-		Players[LocalPlayer].PosX = ActorBuf->posX;
-		Players[LocalPlayer].PosY = ActorBuf->posY;
-		Players[LocalPlayer].PosZ = ActorBuf->posZ;
-		Players[LocalPlayer].RotX = ActorBuf->rotX;
-		Players[LocalPlayer].RotY = ActorBuf->rotY;
-		Players[LocalPlayer].RotZ = ActorBuf->rotZ;
-		if (!ActorBuf->parentCell->worldSpace)
-		{
 			Players[LocalPlayer].CellID = ActorBuf->parentCell->refID;
-			strcpy(Players[LocalPlayer].Zone, "");
-			NetPlayerZone(&Players[LocalPlayer], Players[LocalPlayer].Zone, LocalPlayer, true);
-		}else{
-			Players[LocalPlayer].CellID = ActorBuf->parentCell->worldSpace->refID;
-			strcpy(Players[LocalPlayer].Zone, ActorBuf->parentCell->worldSpace->GetEditorName());
-			NetPlayerZone(&Players[LocalPlayer], Players[LocalPlayer].Zone, LocalPlayer, false);
+			if (!ActorBuf->parentCell->worldSpace)	//is the actor in an interior
+			{
+				Players[LocalPlayer].bIsInInterior = true;
+				Players[LocalPlayer].CellID = ActorBuf->parentCell->refID;
+				NetPlayerZone(&Players[LocalPlayer], LocalPlayer, true);
+			}else{
+				Players[LocalPlayer].bIsInInterior = false;
+				Players[LocalPlayer].CellID = ActorBuf->parentCell->worldSpace->refID;
+				NetPlayerZone(&Players[LocalPlayer], LocalPlayer, false);
+			}
 		}
 	}
 	return true;
@@ -409,14 +385,12 @@ bool Cmd_MPGetYear_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetWorldspace_Execute (COMMAND_ARGS)
 {
-	char testSum[128];
-	strcpy(testSum, Players[OtherPlayer].Zone);
-	int checkSum = 0;
-	for(int i=0; i<strlen(testSum); i++)
+	if (OtherPlayer == LocalPlayer)
 	{
-		checkSum += int(testSum[i]);
+		*result = 0;
+		return true;
 	}
-	*result = checkSum;
+	*result = Players[OtherPlayer].bIsInInterior;
 	return true;
 }
 
@@ -478,20 +452,6 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 	return true;
 }
 
-bool Cmd_MPGetMyChecksum_Execute (COMMAND_ARGS)
-{
-	char testData[128];
-	strcpy(testData, Players[LocalPlayer].Zone);
-	int checkSum = 0;
-	for(int i=0; i<strlen(testData); i++)
-	{
-		checkSum += int(testData[i]);
-	}
-	sprintf(testData, "Checksum: %i", checkSum);
-	Console_Print(testData);
-	return true;
-}
-
 //---------------------------
 //---End Command Functions---
 //---------------------------
@@ -522,18 +482,6 @@ static CommandInfo kMPSendPosCommand =
 	0,		// doesn't have params
 	NULL,	// no param table
 	Cmd_MPSendPos_Execute
-};
-
-static CommandInfo kMPSendWorldCommand =
-{
-	"MPSendWorld",
-	"MPSW",
-	0,
-	"Send worldspace of calling ref",
-	0,		// requires parent obj
-	0,		// doesn't have params
-	NULL,	// no param table
-	Cmd_MPSendWorld_Execute
 };
 
 static CommandInfo kMPSendFullStatCommand =
@@ -740,18 +688,6 @@ static CommandInfo kMPSpawnedCommand =
 	Cmd_MPSpawned_Execute
 };
 
-static CommandInfo kMPGetMyChecksumCommand =
-{
-	"MPGetMyChecksum",
-	"MPGMCS",
-	0,
-	"Prints player's worldspace checksum to the console",
-	0,		// requires parent obj
-	0,		// doesn't have params
-	NULL,	// no param table
-	Cmd_MPGetMyChecksum_Execute
-};
-
 //-----------------------------
 //---End Command Enumeration---
 //-----------------------------
@@ -778,7 +714,7 @@ bool OBSEPlugin_Query(const OBSEInterface * obse, PluginInfo * info)
 
 		if(obse->oblivionVersion != OBLIVION_VERSION)
 		{
-			_ERROR("incorrect Oblivion version (got %08X need %08X)", obse->oblivionVersion, OBLIVION_VERSION);
+			_ERROR("Incorrect Oblivion version (got %08X need %08X)", obse->oblivionVersion, OBLIVION_VERSION);
 			return false;
 		}
 	}
@@ -803,7 +739,6 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 
 	//Data sending
 	obse->RegisterCommand(&kMPSendPosCommand);
-	obse->RegisterCommand(&kMPSendWorldCommand);
 	obse->RegisterCommand(&kMPSendFullStatCommand);
 	obse->RegisterCommand(&kMPSendStatCommand);
 	obse->RegisterCommand(&kMPSendChatCommand);
@@ -829,7 +764,6 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPSpawnedCommand);
 
 	//Debug commands
-	obse->RegisterCommand(&kMPGetMyChecksumCommand);
 
 	_MESSAGE("Done loading OO Commands");
 	return true;

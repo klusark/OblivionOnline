@@ -83,7 +83,6 @@ bool OOPZone_Handler(char *Packet)
 		Players[InPkgBuf.refID].RotY = InPkgBuf.fRotY;
 		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
 		Players[InPkgBuf.refID].CellID = InPkgBuf.cellID;
-		strcpy(Players[InPkgBuf.refID].Zone, InPkgBuf.ZoneName);
 	}
 	return true;
 }

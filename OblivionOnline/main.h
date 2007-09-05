@@ -59,7 +59,6 @@ struct ObjectStatus
 	float RotX,RotY,RotZ;
 	UInt32 RefID;
 	UInt32 CellID;
-	char Zone[128];
 };
 
 struct ActorStatus : ObjectStatus
@@ -71,6 +70,7 @@ struct ActorStatus : ObjectStatus
 
 	bool bStatsInitialized;
 	bool bInitialSet;
+	bool bIsInInterior;
 };
 
 struct PlayerStatus : ActorStatus

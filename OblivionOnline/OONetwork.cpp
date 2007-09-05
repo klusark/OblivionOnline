@@ -86,7 +86,7 @@ bool NetPlayerPosUpdate(PlayerStatus *Player,int PlayerID)
 	return true;
 }
 
-bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool bIsInterior)
+bool NetPlayerZone(PlayerStatus *Player,int PlayerID, bool bIsInterior)
 {
 	OOPkgZone pkgBuf;
 	pkgBuf.etypeID = OOPZone;
@@ -102,7 +102,6 @@ bool NetPlayerZone(PlayerStatus *Player,char *ZoneName,int PlayerID, bool bIsInt
 	pkgBuf.fRotX = Player->RotX;
 	pkgBuf.fRotY = Player->RotY;
 	pkgBuf.fRotZ = Player->RotZ;
-	strcpy(pkgBuf.ZoneName, ZoneName);
 	pkgBuf.cellID = Player->CellID;
 	pkgBuf.refID = PlayerID;
 	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgZone),0);
