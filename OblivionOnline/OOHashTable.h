@@ -37,8 +37,8 @@ This file is part of OblivionOnline.
 */
 //perhaps a template. DO NOT USE stdext:::hash_map. It is such bullshit....+
 //not to be used yet
-#pragma once
-typedef void * ObjectPointer;
+//bobjr777 doesnt think we need this code
+/*typedef void * ObjectPointer;
 typedef char * (*NameFunction) (ObjectPointer obj);
 typedef void (*ReleaseFunction) (ObjectPointer obj);
 typedef char *(*HashFunction) (char *Name,size_t size);
@@ -64,5 +64,53 @@ private:
 	HashEntry **hashtable;
 }
 
-
 typedef HashTable * HashMemory;
+*/
+#pragma once
+struct pair{
+	char * key;
+	char * value;
+}slot[90];
+int find_slot(char * key)
+{
+	int i;
+	i = hashs(key,90) % 90;
+	// search until we either find the key, or find an empty slot.
+	while (slot[i].key && slot[i].key != key){
+		i = (i + 1) % 90;
+	}
+	return i;
+}
+char * lookup(char * key)
+{
+	int i;
+	i = find_slot(key);
+	if (slot[i].value)  // key is in table
+		return slot[i].value;
+	else                     // key is not in table
+		return "not found";
+}
+int set(char * key, char * value)
+{
+	int i;
+	i = find_slot(key);
+	if (slot[i].key)
+		slot[i].value = value;
+	else{
+         slot[i].key = key;
+         slot[i].value = value;
+	}
+	return 1;
+}
+unsigned int hashs(char* str, unsigned int len)
+{
+   unsigned int hash = 5381;
+   unsigned int i    = 0;
+
+   for(i = 0; i < len; str++, i++)
+   {
+      hash = ((hash << 5) + hash) + (*str);
+   }
+
+   return hash;
+}
