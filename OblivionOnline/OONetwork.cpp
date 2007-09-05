@@ -36,7 +36,6 @@ This file is part of OblivionOnline.
 	forward this exception.
 */
 
-#include "main.h"
 #include "OONetwork.h"
 
 //Prototypes
@@ -71,8 +70,6 @@ bool NetActorUpdate(PlayerStatus *Player,int PlayerID)
 	
 	OOPkgActorUpdate pkgBuf;
 	DWORD tickBuf;
-	char *SendBuf;
-	//The first check is faster , so we do it first . Also it is more likely to be sent twice
 	tickBuf=GetTickCount();
 	if((tickBuf - PacketTime[OOPActorUpdate]) > NET_POSUPDATE_RESEND) //just send it every 30 ms 
 	{
@@ -81,9 +78,11 @@ bool NetActorUpdate(PlayerStatus *Player,int PlayerID)
 			memcpy(&LastPlayer,Player,sizeof(PlayerStatus));
 			pkgBuf.etypeID = OOPActorUpdate;
 			if(Player->bIsInInterior)
+			{
 				pkgBuf.Flags = 1 | 2;
-			else
+			}else{
 				pkgBuf.Flags = 1 | 2 | 4;
+			}
 			pkgBuf.fPosX = Player->PosX;
 			pkgBuf.fPosY = Player->PosY;
 			pkgBuf.fPosZ = Player->PosZ;
@@ -218,10 +217,14 @@ bool OOPActorUpdate_Handler(char *Packet)
 		Players[OtherPlayer].Health += InPkgBuf.Health;
 		Players[OtherPlayer].Magika += InPkgBuf.Magika;
 		Players[OtherPlayer].Fatigue += InPkgBuf.Fatigue;
-		if (InPkgBuf.Flags & 4) //Is in an interior?
-			Players[OtherPlayer].bIsInInterior = true;
-		else
+		if (InPkgBuf.Flags & 4) //Is in an exterior?
+		{
 			Players[OtherPlayer].bIsInInterior = false;
+			Console_Print("Other player is in an exterior");
+		}else{
+			Players[OtherPlayer].bIsInInterior = true;
+			Console_Print("Other player is in an interior");
+		}
 	}
 	return true;
 }

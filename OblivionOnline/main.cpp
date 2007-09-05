@@ -336,11 +336,19 @@ bool Cmd_MPGetYear_Execute (COMMAND_ARGS)
 	return true;
 }
 
-bool Cmd_MPGetWorldspace_Execute (COMMAND_ARGS)
+bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 {
 	int playerNumber = 0;
 	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &playerNumber)) return true;
 	*result = (int)Players[playerNumber].bIsInInterior;
+	//Temp
+	char tempData[64];
+	if (!Players[playerNumber].bIsInInterior)
+		sprintf(tempData, "Player %i is in an exterior", playerNumber);
+	else
+		sprintf(tempData, "Player %i is in an interior", playerNumber);
+	Console_Print(tempData);
+	//End Temp
 	return true;
 }
 
@@ -584,16 +592,16 @@ static CommandInfo kMPGetYearCommand =
 	Cmd_MPGetYear_Execute
 };
 
-static CommandInfo kMPGetWorldspaceCommand =
+static CommandInfo kMPGetIsInInteriorCommand =
 {
-	"MPGetWorldspace",
-	"MPGW",
+	"MPGetIsInInterior",
+	"MPGIII",
 	0,
 	"Get IsInInterior of other player",
 	0,		// requires parent obj
 	1,		// has one param
 	kParams_OneInt,	// int param table
-	Cmd_MPGetWorldspace_Execute
+	Cmd_MPGetIsInInterior_Execute
 };
 
 static CommandInfo kMPGetStatCommand =
@@ -711,7 +719,7 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPGetDayCommand);
 	obse->RegisterCommand(&kMPGetMonthCommand);
 	obse->RegisterCommand(&kMPGetYearCommand);
-	obse->RegisterCommand(&kMPGetWorldspaceCommand);
+	obse->RegisterCommand(&kMPGetIsInInteriorCommand);
 	obse->RegisterCommand(&kMPGetStatCommand);
 	obse->RegisterCommand(&kMPGetOtherPlayer);
 	obse->RegisterCommand(&kMPGetSpawnedRefCommand);

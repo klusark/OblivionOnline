@@ -40,6 +40,7 @@ This file is part of OblivionOnline.
 #define OONetwork_h
 
 #include "OOPackets.h"
+#include "main.h"
 
 //Update times for packets (in milliseconds)
 #define NET_POSUPDATE_RESEND 30
