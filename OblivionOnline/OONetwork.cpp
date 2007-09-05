@@ -214,7 +214,11 @@ bool OOPActorUpdate_Handler(char *Packet)
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgActorUpdate));
 	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
 	{
-		OtherPlayer = InPkgBuf.refID;	//to be removed when 3+ players supported
+		if(!PlayerConnected[InPkgBuf.refID])
+		{
+			TotalPlayers++;
+			PlayerConnected[InPkgBuf.refID] = true;
+		}
 
 		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
 		Players[InPkgBuf.refID].PosY = InPkgBuf.fPosY;

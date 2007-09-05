@@ -83,6 +83,8 @@ extern IDebugLog gLog;
 extern bool bIsConnected;
 extern int LocalPlayer;
 extern int OtherPlayer;
+extern bool PlayerConnected[MAXCLIENTS];
+extern int TotalPlayers;
 extern SOCKET ServerSocket;
 extern HANDLE hRecvThread;
 extern PlayerStatus Players[MAXCLIENTS];

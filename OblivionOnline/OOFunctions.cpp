@@ -61,11 +61,20 @@ int GetActorID(UInt32 refID)
 	int retVal = -1;
 	if (refID == 20)
 		retVal = LocalPlayer;
-	if (refID == SpawnID[0])
-		retVal = OtherPlayer;
 
-	// This is to prevent errors when only 1 player is connected
-	if (LocalPlayer == OtherPlayer)
+	//If not the player, check the SpawnID list
+	for (int i=0; i<MAXCLIENTS; i++)
+	{
+		if(PlayerConnected[i] && (i != LocalPlayer))
+			for(int j=0; j<=i; j++)
+			{
+				if (refID == SpawnID[j])
+					retVal = i;
+			}
+	}
+
+	//Is only 1 player connected?
+	if (TotalPlayers <= 1)
 		retVal = -2;
 
 	return retVal;

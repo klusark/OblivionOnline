@@ -46,6 +46,8 @@ IDebugLog gLog("OblivionOnline.log");
 bool bIsConnected = false;
 int LocalPlayer;
 int OtherPlayer;
+bool PlayerConnected[MAXCLIENTS];
+int TotalPlayers;
 
 UInt32 SpawnID[MAXCLIENTS];
 UInt32 MarkerID[MAXCLIENTS];
@@ -148,6 +150,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 			if(!NetWelcome()) return true;
 			bIsConnected = true;
 			Console_Print("Oblivion connected to server");
+			TotalPlayers = 1;
 		}
 	}
 	return true;
@@ -167,25 +170,25 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 
 		if (actorNumber != -1 && actorNumber != -2)
 		{
-			Players[LocalPlayer].RefID = ActorBuf->refID;
-			Players[LocalPlayer].PosX = ActorBuf->posX;
-			Players[LocalPlayer].PosY = ActorBuf->posY;
-			Players[LocalPlayer].PosZ = ActorBuf->posZ;
-			Players[LocalPlayer].RotX = ActorBuf->rotX;
-			Players[LocalPlayer].RotY = ActorBuf->rotY;
-			Players[LocalPlayer].RotZ = ActorBuf->rotZ;
-			Players[LocalPlayer].Health = ActorBuf->GetActorValue(8);
-			Players[LocalPlayer].Magika = ActorBuf->GetActorValue(9);
-			Players[LocalPlayer].Fatigue = ActorBuf->GetActorValue(10);
+			Players[actorNumber].RefID = ActorBuf->refID;
+			Players[actorNumber].PosX = ActorBuf->posX;
+			Players[actorNumber].PosY = ActorBuf->posY;
+			Players[actorNumber].PosZ = ActorBuf->posZ;
+			Players[actorNumber].RotX = ActorBuf->rotX;
+			Players[actorNumber].RotY = ActorBuf->rotY;
+			Players[actorNumber].RotZ = ActorBuf->rotZ;
+			Players[actorNumber].Health = ActorBuf->GetActorValue(8);
+			Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
+			Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
 			if(ActorBuf->parentCell->worldSpace)
 			{
-				Players[LocalPlayer].bIsInInterior = false;
-				Players[LocalPlayer].CellID = ActorBuf->parentCell->worldSpace->refID;
+				Players[actorNumber].bIsInInterior = false;
+				Players[actorNumber].CellID = ActorBuf->parentCell->worldSpace->refID;
 			}else{
-				Players[LocalPlayer].bIsInInterior = true;
-				Players[LocalPlayer].CellID = ActorBuf->parentCell->refID;
+				Players[actorNumber].bIsInInterior = true;
+				Players[actorNumber].CellID = ActorBuf->parentCell->refID;
 			}
-			NetActorUpdate(&Players[LocalPlayer], LocalPlayer);
+			NetActorUpdate(&Players[actorNumber], actorNumber);
 		}
 	}
 	return true;
