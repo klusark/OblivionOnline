@@ -231,6 +231,7 @@ bool OOPDisconnect_Handler(char *Packet)
 	//memcpy(&InPkgBuf,Packet,sizeof(OOPDisconnect));
 	//sscanf(InPkgBuf.NickName, "Player%2d", &LocalPlayer);
 	//_MESSAGE("Received Player ID %u",LocalPlayer);
+	TotalPlayers--;
 	Console_Print("gone");
 	return true;
 }
