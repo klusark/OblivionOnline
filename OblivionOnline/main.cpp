@@ -158,8 +158,6 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 	return true;
 }
 
-
-
 bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 {
 	if (!thisObj)
