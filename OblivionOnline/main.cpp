@@ -488,6 +488,12 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 	return true;
 }
 
+bool Cmd_MPTotalPlayers_Execute (COMMAND_ARGS)
+{
+	*result=TotalPlayers;
+	return true;
+}
+
 //---------------------------
 //---End Command Functions---
 //---------------------------
@@ -724,6 +730,18 @@ static CommandInfo kMPSpawnedCommand =
 	Cmd_MPSpawned_Execute
 };
 
+static CommandInfo kMPTotalPlayersCommand =
+{
+	"MPTotalPlayers",
+	"MPTP",
+	0,
+	"Returns number of players connected",
+	0,		// requires parent obj
+	0,		// doesn't have params
+	NULL,	// no param table
+	Cmd_MPTotalPlayers_Execute
+};
+
 //-----------------------------
 //---End Command Enumeration---
 //-----------------------------
@@ -798,7 +816,7 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 
 	//Misc.
 	obse->RegisterCommand(&kMPSpawnedCommand);
-
+	obse->RegisterCommand(&kMPTotalPlayersCommand);
 	//Debug commands
 
 	_MESSAGE("Done loading OO Commands");
