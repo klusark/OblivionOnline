@@ -89,6 +89,8 @@ float GetStat(Actor* ActorBuf, int statNum)
 {
 	float statValue = 0;
 	int PlayerNum = GetActorID(ActorBuf->refID);
+
+	//If actorID is valid, retrieve the stat we want
 	if (PlayerNum != -1 && PlayerNum != -2)
 	{
 		switch(statNum)
