@@ -104,17 +104,18 @@ int OO_Deinitialize ()
 	{
 		Players[i].PosX = 0;
 		Players[i].PosY = 0;
-		Players[i].PosZ = 0;
+		Players[i].PosZ = -196;
 		Players[i].RotX = 0;
 		Players[i].RotY = 0;
 		Players[i].RotZ = 0;
 		Players[i].CellID = 0;
-		Players[i].Health = 0;
+		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
-		Players[i].bIsInInterior = false;
+		Players[i].bIsInInterior = true;
 
 		SpawnID[i] = 0;
 	}
+	TerminateThread(hRecvThread, 0);
 	CloseHandle(hRecvThread);
 	closesocket(ServerSocket);
 	WSACleanup();
@@ -126,11 +127,12 @@ DWORD WINAPI RecvThread(LPVOID Params)
 	char buf[512];
 	int rc;
 
-	while(1)
+	while(bIsConnected)
 	{
 		rc = recv(ServerSocket,buf,512,0);
 		NetReadBuffer(buf);
 	}
+	return 0;
 }
 
 //-----------------------------
@@ -161,9 +163,9 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 		else 
 		{
 			_MESSAGE("Successfully Connected");
+			bIsConnected = true;
 			hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
 			if(!NetWelcome()) return true;
-			bIsConnected = true;
 			Console_Print("Oblivion connected to server");
 			TotalPlayers = 1;
 		}
