@@ -69,6 +69,7 @@ struct OOPkgDisconnect
 {
 	OOPacketType etypeID;
 	short Flags;
+	short PlayerID;
 };
 
 /*
