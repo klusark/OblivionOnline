@@ -191,6 +191,9 @@ int main()
 					closesocket(clients[LocalPlayer]); 
 					clients[LocalPlayer]=INVALID_SOCKET;
 					Connected[LocalPlayer] = false;
+					Players[LocalPlayer].Health = 0;
+					Players[LocalPlayer].Magika = 0;
+					Players[LocalPlayer].Fatigue = 0;
 				} 
 				else
 				{

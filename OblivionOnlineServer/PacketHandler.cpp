@@ -67,8 +67,8 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 		fprintf(easylog,"Client %d closed the Connection\n",LocalPlayer);
 		fprintf(easylog,"Client %d had a non-compatible client\n",LocalPlayer);
 		fprintf(easylog,"We now have %d connections",TotalClients);
-		closesocket(clients[LocalPlayer]); 
-		clients[LocalPlayer]=INVALID_SOCKET; 
+		closesocket(clients[LocalPlayer]);
+		clients[LocalPlayer]=INVALID_SOCKET;
 	}
 	return true;
 }
