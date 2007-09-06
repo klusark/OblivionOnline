@@ -27,11 +27,11 @@ This file is part of OblivionOnline.
 #include <time.h>
 #include <process.h>
 
-#define MAXCLIENTS 2
+#define MAXCLIENTS 4
 #define PORT 41805
 
 #define MAIN_VERSION 3
-#define SUB_VERSION 5	//Release 3, bugfix 5
+#define SUB_VERSION 6	//Release 3, bugfix 6
 #define UInt32 unsigned long
 
 struct ObjectStatus

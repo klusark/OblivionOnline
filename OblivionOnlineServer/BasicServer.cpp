@@ -114,7 +114,7 @@ int main()
 		printf("Socket bound-");
 	}
 
-	// In den listen Modus
+	// Start listener
 	rc=listen(acceptSocket,10);
 	if(rc==SOCKET_ERROR)
 	{
