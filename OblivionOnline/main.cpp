@@ -168,8 +168,10 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		Actor *ActorBuf = (Actor *)thisObj;
 		int actorNumber = GetActorID(ActorBuf->refID);
 
-		if (actorNumber != -1 && actorNumber != -2)
+		if (actorNumber != -1)
 		{
+			if (actorNumber == -2)
+				actorNumber = LocalPlayer;
 			Players[actorNumber].RefID = ActorBuf->refID;
 			Players[actorNumber].PosX = ActorBuf->posX;
 			Players[actorNumber].PosY = ActorBuf->posY;

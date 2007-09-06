@@ -218,6 +218,7 @@ bool OOPActorUpdate_Handler(char *Packet)
 		{
 			TotalPlayers++;
 			PlayerConnected[InPkgBuf.refID] = true;
+			Console_Print("Player Connected");
 		}
 
 		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;

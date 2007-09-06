@@ -60,22 +60,27 @@ int GetActorID(UInt32 refID)
 	// Compare reference ID's and determine which actor we have selected in-game
 	int retVal = -1;
 	if (refID == 20)
-		retVal = LocalPlayer;
-
-	//If not the player, check the SpawnID list
-	for (int i=0; i<MAXCLIENTS; i++)
 	{
-		if(PlayerConnected[i] && (i != LocalPlayer))
-			for(int j=0; j<=i; j++)
-			{
-				if (refID == SpawnID[j])
-					retVal = i;
-			}
+		retVal =  LocalPlayer;
+	}else{
+
+		//If not the player, check the SpawnID list
+		for (int i=0; i<MAXCLIENTS; i++)
+		{
+			if(PlayerConnected[i] && (i != LocalPlayer))
+				for(int j=0; j<=i; j++)
+				{
+					if (refID == SpawnID[j])
+						retVal = i;
+				}
+		}
 	}
 
 	//Is only 1 player connected?
 	if (TotalPlayers <= 1)
+	{
 		retVal = -2;
+	}
 
 	return retVal;
 }
