@@ -350,7 +350,7 @@ bool Cmd_MPGetRotZ_Execute (COMMAND_ARGS)
 		if (actorNumber != -1 && actorNumber != -2)
 		{
 			//Now convert the angle from radians to degrees
-			float angleDegrees = Players[actorNumber].RotZ * (180.0/3.1415);
+			int angleDegrees = (int)(Players[actorNumber].RotZ * (180.0/3.1415));
 			*result = angleDegrees;
 		}else{
 			//Console_Print("Error: Couldn't find actor for MPGetRotZ");
@@ -499,7 +499,7 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 
 bool Cmd_MPTotalPlayers_Execute (COMMAND_ARGS)
 {
-	*result=TotalPlayers;
+	*result = (float)TotalPlayers;
 	return true;
 }
 
