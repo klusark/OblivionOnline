@@ -72,6 +72,16 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	}
 	return true;
 }
+bool OOPDisconnect_Handler(char *Packet,short LocalPlayer)
+{
+	OOPkgDisconnect InPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgDisconnect));
+	for(int cx=0;cx<MAXCLIENTS;cx++)
+	{
+		send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgDisconnect),0);
+	}
+	return true;
+}
 bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgActorUpdate InPkgBuf;
@@ -137,6 +147,7 @@ bool OOPEventRegister_Handler(char *Packet,short LocalPlayer)
 	//EVENTS ARE IGNORED UNTIL PLUGIN SYSTEM IS THERE
 	return true;
 }
+
 bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgFullStatUpdate InPkgBuf;

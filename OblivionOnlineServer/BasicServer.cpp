@@ -233,6 +233,9 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer)
 		if (!Connected[LocalPlayer])
 			OOPWelcome_Handler(acReadBuffer,LocalPlayer);
 		break;
+	case OOPDisconnect:
+		OOPDisconnect_Handler(acReadBuffer,LocalPlayer);
+		break;
 	case OOPActorUpdate:
 		OOPActorUpdate_Handler(acReadBuffer,LocalPlayer);
 		break;

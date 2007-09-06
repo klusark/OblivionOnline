@@ -24,11 +24,13 @@ This file is part of OblivionOnline.
 #include "BasicServer.h"
 #include "OOPackets.h"
 extern bool OOPWelcome_Handler(char *Packet,short LocalPlayer);
+extern bool OOPDisconnect_Handler(char *Packet,short LocalPlayer);
 extern bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer);
 extern bool OOPChat_Handler(char *Packet,short LocalPlayer);
 extern bool OOPEvent_Handler(char *Packet,short LocalPlayer);
 extern bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer);
 extern bool OOPEventRegister_Handler(char *Packet,short LocalPlayer);
 extern bool OOPTimeUpdate_Handler(char *Packet,short LocalPlayer);
+
 
 #endif
