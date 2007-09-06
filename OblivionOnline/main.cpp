@@ -112,6 +112,8 @@ int OO_Deinitialize ()
 		Players[i].Health = 0;
 		Players[i].bStatsInitialized = false;
 		Players[i].bIsInInterior = false;
+
+		SpawnID[i] = 0;
 	}
 	CloseHandle(hRecvThread);
 	closesocket(ServerSocket);
@@ -511,10 +513,11 @@ bool Cmd_MPTotalPlayers_Execute (COMMAND_ARGS)
 
 bool Cmd_MPDisconnect_Execute (COMMAND_ARGS)
 {
-	if(bIsConnected){
+	if(bIsConnected)
+	{
 		NetDisconnect();
 		OO_Deinitialize();
-		bIsConnected=false;
+		bIsConnected = false;
 		Console_Print("You have disconnected");
 	}else{
 		Console_Print("You are not connected");

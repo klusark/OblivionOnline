@@ -57,30 +57,22 @@ bool OOPPlayerList_Handler(char *Packet);
 bool NetWelcome()
 {
 	OOPkgWelcome pkgBuf;
-	char *SendBuf;
 	pkgBuf.etypeID = OOPWelcome;
 	pkgBuf.Flags = 0;
 	pkgBuf.PlayerID = 0;
 	pkgBuf.wVersion = MAKEWORD(MAIN_VERSION,SUB_VERSION);
 	pkgBuf.guidOblivionOnline = gcOOGUID;
-	SendBuf = (char *)malloc(sizeof(OOPkgWelcome));
-	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgWelcome));
-	send(ServerSocket,SendBuf,sizeof(OOPkgWelcome),0);
-	free(SendBuf);
+	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgWelcome),0);
 	return true;
 }
 
 bool NetDisconnect()
 {
 	OOPkgDisconnect pkgBuf;
-	char *SendBuf;
 	pkgBuf.etypeID = OOPDisconnect;
 	pkgBuf.Flags = 0;
 	pkgBuf.PlayerID = LocalPlayer;
-	SendBuf = (char *)malloc(sizeof(OOPDisconnect));
-	memcpy(SendBuf,&pkgBuf,sizeof(OOPDisconnect));
-	send(ServerSocket,SendBuf,sizeof(OOPDisconnect),0);
-	free(SendBuf);
+	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgDisconnect),0);
 	return true;
 }
 
@@ -229,9 +221,12 @@ bool OOPWelcome_Handler(char *Packet)
 bool OOPDisconnect_Handler(char *Packet)
 {
 	OOPkgDisconnect InPkgBuf;
-
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgDisconnect));
+	PlayerConnected[InPkgBuf.PlayerID] = false;
 	TotalPlayers--;
-	Console_Print("gone");
+	char DCText[32];
+	sprintf(DCText, "Player %i disconnected", InPkgBuf.PlayerID);
+	Console_Print(DCText);
 	return true;
 }
 
@@ -245,7 +240,9 @@ bool OOPActorUpdate_Handler(char *Packet)
 		{
 			TotalPlayers++;
 			PlayerConnected[InPkgBuf.refID] = true;
-			Console_Print("Player Connected");
+			char CNText[32];
+			sprintf(CNText, "Player %i connected", InPkgBuf.refID);
+			Console_Print(CNText);
 		}
 
 		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
