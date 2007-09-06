@@ -494,6 +494,12 @@ bool Cmd_MPTotalPlayers_Execute (COMMAND_ARGS)
 	return true;
 }
 
+bool Cmd_MPDisconnect_Execute (COMMAND_ARGS)
+{
+	closesocket(ServerSocket);
+	return true;
+}
+
 //---------------------------
 //---End Command Functions---
 //---------------------------
@@ -742,6 +748,18 @@ static CommandInfo kMPTotalPlayersCommand =
 	Cmd_MPTotalPlayers_Execute
 };
 
+static CommandInfo kMPDisconnectCommand =
+{
+	"MPDisconnect",
+	"MPD",
+	0,
+	"Disconnects the player",
+	0,		// requires parent obj
+	0,		// doesn't have params
+	NULL,	// no param table
+	Cmd_MPDisconnect_Execute
+};
+
 //-----------------------------
 //---End Command Enumeration---
 //-----------------------------
@@ -790,6 +808,7 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 
 	//Connection commands
 	obse->RegisterCommand(&kMPConnectCommand);
+	obse->RegisterCommand(&kMPDisconnectCommand);
 
 	//Data sending
 	obse->RegisterCommand(&kMPSendActorCommand);
