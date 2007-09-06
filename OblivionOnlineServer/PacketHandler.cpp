@@ -74,11 +74,16 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 }
 bool OOPDisconnect_Handler(char *Packet,short LocalPlayer)
 {
-	OOPkgDisconnect InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgDisconnect));
-	for(int cx=0;cx<MAXCLIENTS;cx++)
+	if (Connected[LocalPlayer])
 	{
-		send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgDisconnect),0);
+		OOPkgDisconnect InPkgBuf;
+		memcpy(&InPkgBuf,Packet,sizeof(OOPkgDisconnect));
+		printf("Received disconnect from %i\n", InPkgBuf.PlayerID);
+		for(int cx=0;cx<MAXCLIENTS;cx++)
+		{
+			if (cx != LocalPlayer)
+				send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgDisconnect),0);
+		}
 	}
 	return true;
 }
