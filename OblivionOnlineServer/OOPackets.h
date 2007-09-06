@@ -50,7 +50,8 @@ enum OOPacketType
 	OOPEventRegister,	//An Event is registered, server only
 	OOPFullStatUpdate,	//Send all actor, mob, player stats
 	OOPTimeUpdate,		//Send the time to all clients
-	OOPPlayerList		//Contains a list of connected players
+	OOPPlayerList,		//Contains a list of connected players
+	OOPDisconnect		//Tells other clients that the player is disconnecting
 };
 #pragma pack(push,1)
 struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE IT HAS TO WORK WITH ALL VERSIONS!!!!
@@ -63,6 +64,13 @@ struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE
 	GUID guidOblivionOnline; // contains OblivionOnline GUID , this is once defined by me and never to be changed.
 	char NickName[32]; // ignored when sent by client
 };
+
+struct OOPkgDisconnect
+{
+	OOPacketType etypeID;
+	short Flags;
+};
+
 /*
 OblivionOnline GUID 
 // {2B09E144-4976-44f6-AA8F-B627992432AF}
@@ -134,6 +142,6 @@ inline OOPacketType SelectType(char *Packet)
 }
 
 //Total packet types
-#define PACKET_COUNT 8
+#define PACKET_COUNT 9
 
 #endif
