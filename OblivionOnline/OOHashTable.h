@@ -67,49 +67,53 @@ private:
 typedef HashTable * HashMemory;
 */
 #pragma once
+int find_slot(UINT32 formid);
+char * lookup(UINT32 formid);
+int set(int formid, char * value);
+unsigned int hashs(UINT32 str, unsigned int len);
 struct pair{
-	char * key;
+	UINT32 formid;
 	char * value;
 }slot[90];
-int find_slot(char * key)
+int find_slot(UINT32 formid)
 {
 	int i;
-	i = hashs(key,90) % 90;
+	i = hashs(formid,90) % 90;
 	// search until we either find the key, or find an empty slot.
-	while (slot[i].key && slot[i].key != key){
+	while (slot[i].formid && slot[i].formid != formid){
 		i = (i + 1) % 90;
 	}
 	return i;
 }
-char * lookup(char * key)
+char * lookup(UINT32 formid)
 {
 	int i;
-	i = find_slot(key);
+	i = find_slot(formid);
 	if (slot[i].value)  // key is in table
 		return slot[i].value;
 	else                     // key is not in table
 		return "not found";
 }
-int set(char * key, char * value)
+int set(UINT32 formid, char * value)
 {
 	int i;
-	i = find_slot(key);
-	if (slot[i].key)
+	i = find_slot(formid);
+	if (slot[i].formid)
 		slot[i].value = value;
 	else{
-         slot[i].key = key;
+         slot[i].formid = formid;
          slot[i].value = value;
 	}
 	return 1;
 }
-unsigned int hashs(char* str, unsigned int len)
+unsigned int hashs(UINT32 str, unsigned int len)
 {
    unsigned int hash = 5381;
    unsigned int i    = 0;
 
    for(i = 0; i < len; str++, i++)
    {
-      hash = ((hash << 5) + hash) + (*str);
+      hash = ((hash << 5) + hash) + (str);
    }
 
    return hash;
