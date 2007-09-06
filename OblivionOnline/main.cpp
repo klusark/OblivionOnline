@@ -541,7 +541,7 @@ bool Cmd_MPClearSpawn_Execute (COMMAND_ARGS)
 {
 	if (!thisObj)
 	{
-		Console_Print("Error, no reference given for MPSpawned");
+		Console_Print("Error, no reference given for MPClearSpawn");
 		return true;
 	}
 	if (thisObj->IsActor())

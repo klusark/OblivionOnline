@@ -48,10 +48,10 @@ This file is part of OblivionOnline.
 #include "obse/GameObjects.h"
 #include "OONetwork.h"
 
-#define MAXCLIENTS 2
+#define MAXCLIENTS 4
 
 #define MAIN_VERSION 3
-#define SUB_VERSION 5 // change this with EVERY release
+#define SUB_VERSION 6 // change this with EVERY release
 
 struct ObjectStatus
 {
@@ -79,12 +79,12 @@ struct PlayerStatus : ActorStatus
 	int Day, Month, Year;
 };
 
+//Externals
 extern IDebugLog gLog;
 extern bool bIsConnected;
 extern int LocalPlayer;
-extern int OtherPlayer;
-extern bool PlayerConnected[MAXCLIENTS];
 extern int TotalPlayers;
+extern bool PlayerConnected[MAXCLIENTS];
 extern SOCKET ServerSocket;
 extern HANDLE hRecvThread;
 extern PlayerStatus Players[MAXCLIENTS];
