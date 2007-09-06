@@ -45,7 +45,6 @@ IDebugLog gLog("OblivionOnline.log");
 
 bool bIsConnected = false;
 int LocalPlayer;
-int OtherPlayer;
 bool PlayerConnected[MAXCLIENTS];
 int TotalPlayers;
 
@@ -93,6 +92,8 @@ int OO_Initialize()
 		Players[i].bStatsInitialized = false;
 		Players[i].bIsInInterior = true;
 
+		PlayerConnected[i] = false;
+
 		SpawnID[i] = 0;
 	}
 	return rc;
@@ -113,11 +114,15 @@ int OO_Deinitialize ()
 		Players[i].bStatsInitialized = false;
 		Players[i].bIsInInterior = true;
 
+		PlayerConnected[i] = false;
+
 		SpawnID[i] = 0;
 	}
+	TotalPlayers = 0;
 	TerminateThread(hRecvThread, 0);
 	CloseHandle(hRecvThread);
 	closesocket(ServerSocket);
+	ServerSocket = INVALID_SOCKET;
 	WSACleanup();
 	return 1;
 }
@@ -148,11 +153,16 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 		SOCKADDR_IN ServerAddr;
 		FILE *Realmlist = fopen("realmlist.wth","r");
 		char IP[15];
+		unsigned short ClientPort;
 		long rc;
 		fscanf(Realmlist,"%s",IP);
+		if(!fscanf(Realmlist,"%i",&ClientPort))
+			ClientPort = 41805;
+		_MESSAGE("Connecting to %s:%i",IP,ClientPort);
+		fclose(Realmlist);
 		memset(&ServerAddr,NULL,sizeof(SOCKADDR_IN));
 		ServerAddr.sin_addr.s_addr = inet_addr(IP);
-		ServerAddr.sin_port = htons(41805);
+		ServerAddr.sin_port = htons(ClientPort);
 		ServerAddr.sin_family = AF_INET;
 		rc = connect(ServerSocket,(SOCKADDR *)&ServerAddr,sizeof(SOCKADDR));
 		if(rc == SOCKET_ERROR)
@@ -459,7 +469,7 @@ bool Cmd_MPGetStat_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetOtherPlayer_Execute (COMMAND_ARGS)
 {
-	*result = OtherPlayer;
+	*result = 42;
 	return true;
 }
 
@@ -490,7 +500,7 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
 		UInt32 actorNumber = ActorBuf->refID;
-		for(int i=0; i<MAXCLIENTS; i++)
+		for(int i=0; i<TotalPlayers-1; i++)
 		{
 			if (!SpawnID[i])
 			{
@@ -523,6 +533,25 @@ bool Cmd_MPDisconnect_Execute (COMMAND_ARGS)
 		Console_Print("You have disconnected");
 	}else{
 		Console_Print("You are not connected");
+	}
+	return true;
+}
+
+bool Cmd_MPClearSpawn_Execute (COMMAND_ARGS)
+{
+	if (!thisObj)
+	{
+		Console_Print("Error, no reference given for MPSpawned");
+		return true;
+	}
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		for(int i=0; i<MAXCLIENTS; i++)
+		{
+			if (SpawnID[i] == ActorBuf->refID)
+				SpawnID[i] = 0;
+		}
 	}
 	return true;
 }
@@ -789,6 +818,18 @@ static CommandInfo kMPDisconnectCommand =
 	Cmd_MPDisconnect_Execute
 };
 
+static CommandInfo kMPClearSpawnCommand =
+{
+	"MPClearSpawn",
+	"MPCSP",
+	0,
+	"Clears the SpawnID for the calling ref",
+	0,		// requires parent obj
+	0,		// doesn't have params
+	NULL,	// no param table
+	Cmd_MPClearSpawn_Execute
+};
+
 //-----------------------------
 //---End Command Enumeration---
 //-----------------------------
@@ -867,6 +908,7 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPTotalPlayersCommand);
 	//should be under connections but it causes a bug then. 
 	obse->RegisterCommand(&kMPDisconnectCommand);
+	obse->RegisterCommand(&kMPClearSpawnCommand);
 	//Debug commands
 
 	_MESSAGE("Done loading OO Commands");
