@@ -66,6 +66,7 @@ extern float GetStat(Actor *ActorBuf, int statNum);
 
 extern bool NetActorUpdate(PlayerStatus *Player,int PlayerID);
 extern bool NetWelcome();
+extern bool NetDisconnect();
 extern bool NetChat(char *Message);
 extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID);
 extern bool NetReadBuffer(char *acReadBuffer);
@@ -101,6 +102,7 @@ int OO_Initialize()
 
 int OO_Deinitialize ()
 {
+	CloseHandle(hRecvThread);
 	closesocket(ServerSocket);
 	WSACleanup();
 	return 1;
@@ -156,12 +158,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 	return true;
 }
 
-bool Cmd_MPDC_Execute (COMMAND_ARGS)
-{
-	Console_Print("DC in progress");
-	//closesocket(ServerSocket);
-	return true;
-}
+
 
 bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 {
@@ -503,6 +500,19 @@ bool Cmd_MPTotalPlayers_Execute (COMMAND_ARGS)
 	return true;
 }
 
+bool Cmd_MPDisconnect_Execute (COMMAND_ARGS)
+{
+	if(bIsConnected){
+		NetDisconnect();
+		OO_Deinitialize();
+		bIsConnected=false;
+		Console_Print("You have disconnected");
+	}else{
+		Console_Print("You are not connected");
+	}
+	return true;
+}
+
 //---------------------------
 //---End Command Functions---
 //---------------------------
@@ -523,17 +533,7 @@ static CommandInfo kMPConnectCommand =
 	Cmd_MPConnect_Execute
 };
 
-static CommandInfo kMPDCCommand =
-{
-	"MPDC",
-	"MPDC",
-	0,
-	"Disconnects the player",
-	0,		// requires parent obj
-	0,		// doesn't have params
-	NULL,	// no param table
-	Cmd_MPDC_Execute
-};
+
 
 static CommandInfo kMPSendActorCommand =
 {
@@ -763,6 +763,18 @@ static CommandInfo kMPTotalPlayersCommand =
 	Cmd_MPTotalPlayers_Execute
 };
 
+static CommandInfo kMPDisconnectCommand =
+{
+	"MPDisconnect",
+	"MPDC",
+	0,
+	"Disconnects the player",
+	0,		// requires parent obj
+	0,		// doesn't have params
+	NULL,	// no param table
+	Cmd_MPDisconnect_Execute
+};
+
 //-----------------------------
 //---End Command Enumeration---
 //-----------------------------
@@ -811,7 +823,7 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 
 	//Connection commands
 	obse->RegisterCommand(&kMPConnectCommand);
-	//obse->RegisterCommand(&kMPDCCommand);
+	
 
 	//Data sending
 	obse->RegisterCommand(&kMPSendActorCommand);
@@ -839,6 +851,8 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	//Misc.
 	obse->RegisterCommand(&kMPSpawnedCommand);
 	obse->RegisterCommand(&kMPTotalPlayersCommand);
+	//should be under connections but it causes a bug then. 
+	obse->RegisterCommand(&kMPDisconnectCommand);
 	//Debug commands
 
 	_MESSAGE("Done loading OO Commands");

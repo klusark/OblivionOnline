@@ -41,6 +41,7 @@ This file is part of OblivionOnline.
 //Prototypes
 extern void RunScriptLine(const char *buf, bool IsTemp);
 bool OOPWelcome_Handler(char *Packet);
+bool OOPDisconnect_Handler(char *Packet);
 bool OOPActorUpdate_Handler(char *Packet);
 bool OOPChat_Handler(char *Packet);
 bool OOPEvent_Handler(char *Packet);
@@ -65,6 +66,19 @@ bool NetWelcome()
 	SendBuf = (char *)malloc(sizeof(OOPkgWelcome));
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgWelcome));
 	send(ServerSocket,SendBuf,sizeof(OOPkgWelcome),0);
+	free(SendBuf);
+	return true;
+}
+
+bool NetDisconnect()
+{
+	OOPkgDisconnect pkgBuf;
+	char *SendBuf;
+	pkgBuf.etypeID = OOPDisconnect;
+	pkgBuf.Flags = 0;
+	SendBuf = (char *)malloc(sizeof(OOPDisconnect));
+	memcpy(SendBuf,&pkgBuf,sizeof(OOPDisconnect));
+	send(ServerSocket,SendBuf,sizeof(OOPDisconnect),0);
 	free(SendBuf);
 	return true;
 }
@@ -167,6 +181,9 @@ bool NetReadBuffer(char *acReadBuffer)
 	case OOPWelcome:
 		OOPWelcome_Handler(acReadBuffer);
 		break;
+	case OOPDisconnect:
+		OOPDisconnect_Handler(acReadBuffer);
+		break;
 	case OOPActorUpdate:
 		OOPActorUpdate_Handler(acReadBuffer);
 		break;
@@ -205,6 +222,16 @@ bool OOPWelcome_Handler(char *Packet)
 	sscanf(InPkgBuf.NickName, "Player%2d", &LocalPlayer);
 	_MESSAGE("Received Player ID %u",LocalPlayer);
 	Console_Print(InPkgBuf.NickName);
+	return true;
+}
+
+bool OOPDisconnect_Handler(char *Packet)
+{
+	OOPkgDisconnect InPkgBuf;
+	//memcpy(&InPkgBuf,Packet,sizeof(OOPDisconnect));
+	//sscanf(InPkgBuf.NickName, "Player%2d", &LocalPlayer);
+	//_MESSAGE("Received Player ID %u",LocalPlayer);
+	Console_Print("gone");
 	return true;
 }
 
