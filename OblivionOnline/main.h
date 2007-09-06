@@ -89,6 +89,5 @@ extern SOCKET ServerSocket;
 extern HANDLE hRecvThread;
 extern PlayerStatus Players[MAXCLIENTS];
 extern UInt32 SpawnID[MAXCLIENTS];
-extern UInt32 MarkerID[MAXCLIENTS];
 extern DWORD PacketTime[PACKET_COUNT];
 #endif

@@ -50,7 +50,6 @@ bool PlayerConnected[MAXCLIENTS];
 int TotalPlayers;
 
 UInt32 SpawnID[MAXCLIENTS];
-UInt32 MarkerID[MAXCLIENTS];
 
 SOCKET ServerSocket;
 HANDLE hRecvThread;
@@ -95,13 +94,25 @@ int OO_Initialize()
 		Players[i].bIsInInterior = true;
 
 		SpawnID[i] = 0;
-		MarkerID[i] = 0;
 	}
 	return rc;
 }
 
 int OO_Deinitialize ()
 {
+	for(int i=0; i<MAXCLIENTS; i++)
+	{
+		Players[i].PosX = 0;
+		Players[i].PosY = 0;
+		Players[i].PosZ = 0;
+		Players[i].RotX = 0;
+		Players[i].RotY = 0;
+		Players[i].RotZ = 0;
+		Players[i].CellID = 0;
+		Players[i].Health = 0;
+		Players[i].bStatsInitialized = false;
+		Players[i].bIsInInterior = false;
+	}
 	CloseHandle(hRecvThread);
 	closesocket(ServerSocket);
 	WSACleanup();
