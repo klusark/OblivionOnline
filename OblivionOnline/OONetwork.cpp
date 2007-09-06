@@ -76,7 +76,7 @@ bool NetDisconnect()
 	char *SendBuf;
 	pkgBuf.etypeID = OOPDisconnect;
 	pkgBuf.Flags = 0;
-	pkgBug.PlayerID = LocalPlayer;
+	pkgBuf.PlayerID = LocalPlayer;
 	SendBuf = (char *)malloc(sizeof(OOPDisconnect));
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPDisconnect));
 	send(ServerSocket,SendBuf,sizeof(OOPDisconnect),0);
