@@ -156,6 +156,13 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 	return true;
 }
 
+bool Cmd_MPDC_Execute (COMMAND_ARGS)
+{
+	Console_Print("DC in progress");
+	//closesocket(ServerSocket);
+	return true;
+}
+
 bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 {
 	if (!thisObj)
@@ -496,12 +503,6 @@ bool Cmd_MPTotalPlayers_Execute (COMMAND_ARGS)
 	return true;
 }
 
-bool Cmd_MPDisconnect_Execute (COMMAND_ARGS)
-{
-	closesocket(ServerSocket);
-	return true;
-}
-
 //---------------------------
 //---End Command Functions---
 //---------------------------
@@ -520,6 +521,18 @@ static CommandInfo kMPConnectCommand =
 	0,		// doesn't have params
 	NULL,	// no param table
 	Cmd_MPConnect_Execute
+};
+
+static CommandInfo kMPDCCommand =
+{
+	"MPDC",
+	"MPDC",
+	0,
+	"Disconnects the player",
+	0,		// requires parent obj
+	0,		// doesn't have params
+	NULL,	// no param table
+	Cmd_MPDC_Execute
 };
 
 static CommandInfo kMPSendActorCommand =
@@ -741,25 +754,13 @@ static CommandInfo kMPSpawnedCommand =
 static CommandInfo kMPTotalPlayersCommand =
 {
 	"MPTotalPlayers",
-	"MPTP",
+	"MPTPS",
 	0,
 	"Returns number of players connected",
 	0,		// requires parent obj
 	0,		// doesn't have params
 	NULL,	// no param table
 	Cmd_MPTotalPlayers_Execute
-};
-
-static CommandInfo kMPDisconnectCommand =
-{
-	"MPDisconnect",
-	"MPD",
-	0,
-	"Disconnects the player",
-	0,		// requires parent obj
-	0,		// doesn't have params
-	NULL,	// no param table
-	Cmd_MPDisconnect_Execute
 };
 
 //-----------------------------
@@ -810,7 +811,7 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 
 	//Connection commands
 	obse->RegisterCommand(&kMPConnectCommand);
-	obse->RegisterCommand(&kMPDisconnectCommand);
+	//obse->RegisterCommand(&kMPDCCommand);
 
 	//Data sending
 	obse->RegisterCommand(&kMPSendActorCommand);
