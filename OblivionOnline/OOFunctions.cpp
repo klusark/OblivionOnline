@@ -71,7 +71,7 @@ int GetActorID(UInt32 refID)
 				for(int j=0; j<=i; j++)
 				{
 					if (refID == SpawnID[j])
-						retVal = i;
+						retVal = i+j;
 				}
 		}
 	}
