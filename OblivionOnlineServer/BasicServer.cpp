@@ -18,8 +18,6 @@ This file is part of OblivionOnline.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// BasicServer.cpp : Defines the entry point for the console application.
-
 #include "BasicServer.h"
 #include "OOPackets.h"
 #include "PacketHandler.h"
@@ -28,7 +26,6 @@ This file is part of OblivionOnline.
 int TotalClients;
 bool bServerAlive;
 SOCKET clients[MAXCLIENTS];
-char acSendBuffer[512];
 PlayerStatus Players[MAXCLIENTS];
 bool Connected[MAXCLIENTS];
 unsigned short serverPort = 0;
@@ -199,7 +196,6 @@ int main()
 				{
 					acReadBuffer[rc]='\0';	// Create a null-terminated string from buffer
 					ScanBuffer(acReadBuffer, LocalPlayer);
-					acSendBuffer[0] = '\0';
 				}
 			}
 		}

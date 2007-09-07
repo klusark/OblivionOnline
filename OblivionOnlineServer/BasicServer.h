@@ -38,7 +38,6 @@ This file is part of OblivionOnline.
 extern int TotalClients;
 extern bool bServerAlive;
 extern SOCKET clients[MAXCLIENTS];
-extern char acSendBuffer[512];
 extern PlayerStatus Players[MAXCLIENTS];
 extern FILE *easylog;
 extern int StartNet(void);
