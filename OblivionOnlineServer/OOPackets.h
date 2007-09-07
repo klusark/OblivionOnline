@@ -51,7 +51,8 @@ enum OOPacketType
 	OOPFullStatUpdate,	//Send all actor, mob, player stats
 	OOPTimeUpdate,		//Send the time to all clients
 	OOPPlayerList,		//Contains a list of connected players
-	OOPDisconnect		//Tells other clients that the player is disconnecting
+	OOPDisconnect,		//Tells other clients that the player is disconnecting
+	OOPEquipped
 };
 #pragma pack(push,1)
 struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE IT HAS TO WORK WITH ALL VERSIONS!!!!
@@ -136,6 +137,15 @@ struct OOPkgPlayerList
 	//The actual player list will be attached to the end of the packet
 	//1 byte per player connected (so each player # can be from 0-255)
 };
+struct OOPkgEquipped
+{
+	OOPacketType etypeID;
+	short Flags;	// none
+	int PlayerID;
+	UInt32 refID;
+	UINT32 head,hair,upper_body,lower_body,hand,foot,right_ring,left_ring,amulet,shield,tail,weapon,ammo; 
+	//more to come
+};
 #pragma pack(pop)
 inline OOPacketType SelectType(char *Packet)
 {
@@ -143,6 +153,6 @@ inline OOPacketType SelectType(char *Packet)
 }
 
 //Total packet types
-#define PACKET_COUNT 9
+#define PACKET_COUNT 10
 
 #endif

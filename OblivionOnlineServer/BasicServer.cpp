@@ -251,6 +251,9 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer)
 	case OOPFullStatUpdate:
 		OOPFullStatUpdate_Handler(acReadBuffer,LocalPlayer);
 		break;
+	case OOPEquipped:
+		OOPEquipped_Handler(acReadBuffer,LocalPlayer);
+		break;
 	default: 
 		OOPTimeUpdate_Handler(acReadBuffer,LocalPlayer);
 		break;

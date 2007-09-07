@@ -203,3 +203,15 @@ bool OOPPlayerList_Handler(char *Packet,short LocalPlayer)
 	free(SendBuf);
 	return true;
 }
+
+bool OOPEquipped_Handler(char *Packet,short LocalPlayer)
+{
+	OOPkgEquipped InPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgEquipped));
+	for(int cx=0;cx<MAXCLIENTS;cx++)
+	{
+		if (cx != LocalPlayer)
+			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgEquipped),0);
+	}
+	return true;
+}

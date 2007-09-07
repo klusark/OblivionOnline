@@ -31,6 +31,6 @@ extern bool OOPEvent_Handler(char *Packet,short LocalPlayer);
 extern bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer);
 extern bool OOPEventRegister_Handler(char *Packet,short LocalPlayer);
 extern bool OOPTimeUpdate_Handler(char *Packet,short LocalPlayer);
-
+extern bool OOPEquipped_Handler(char *Packet,short LocalPlayer);
 
 #endif
