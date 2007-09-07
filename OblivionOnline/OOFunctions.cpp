@@ -75,7 +75,7 @@ int GetActorID(UInt32 refID)
 				{
 					if ((refID == SpawnID[j]) && !foundID)
 					{
-						retVal = i+j;
+						retVal = i;
 						foundID = true;
 					}
 				}
