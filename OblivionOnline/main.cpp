@@ -977,7 +977,7 @@ static CommandInfo kMPSendEquippedCommand =
 
 static CommandInfo kMPGetEquipmentCommand =
 {
-	"MPGetEquipped",
+	"MPGetEquipment",
 	"MPGE",
 	0,
 	"Gets the players equipment useing the int specified",
