@@ -114,26 +114,37 @@ bool NetActorUpdate(PlayerStatus *Player,int PlayerID)
 	return true;
 }
 
-bool NetEquipped(UInt32 head, UInt32 hair, UInt32 upper_body, UInt32 lower_body, UInt32 hand, UInt32 foot, UInt32 right_ring, UInt32 left_ring, UInt32 amulet, UInt32 shield, UInt32 tail, UInt32 weapon, UInt32 ammo)
+bool NetEquipped(PlayerStatus *Player,int PlayerID)
 {
+	static PlayerStatus LastPlayer;
+	
 	OOPkgEquipped pkgBuf;
-	pkgBuf.etypeID = OOPDisconnect;
-	pkgBuf.Flags = 0;
-	pkgBuf.PlayerID = LocalPlayer;
-	pkgBuf.head = head;
-	pkgBuf.hair=hair;
-	pkgBuf.upper_body=upper_body;
-	pkgBuf.lower_body=lower_body;
-	pkgBuf.hand=hand;
-	pkgBuf.foot=foot;
-	pkgBuf.right_ring=right_ring;
-	pkgBuf.left_ring=left_ring;
-	pkgBuf.amulet=amulet;
-	pkgBuf.shield=shield;
-	pkgBuf.tail=tail;
-	pkgBuf.weapon=weapon;
-	pkgBuf.ammo=ammo;
-	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgEquipped),0);
+	DWORD tickBuf;
+	tickBuf=GetTickCount();
+	if((tickBuf - PacketTime[OOPEquipped]) > NET_EQUIPUPDATE_RESEND)
+	{
+		if(memcmp(&LastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
+		{
+			pkgBuf.etypeID = OOPEquipped;
+			pkgBuf.Flags = 0;
+			pkgBuf.PlayerID = PlayerID;
+			pkgBuf.head = Player->head;
+			pkgBuf.hair=Player->hair;
+			pkgBuf.upper_body=Player->upper_body;
+			pkgBuf.lower_body=Player->lower_body;
+			pkgBuf.hand=Player->hand;
+			pkgBuf.foot=Player->foot;
+			pkgBuf.right_ring=Player->right_ring;
+			pkgBuf.left_ring=Player->left_ring;
+			pkgBuf.amulet=Player->amulet;
+			pkgBuf.shield=Player->shield;
+			pkgBuf.tail=Player->tail;
+			pkgBuf.weapon=Player->weapon;
+			pkgBuf.ammo=Player->ammo;
+			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgEquipped),0);
+			PacketTime[OOPEquipped] = tickBuf;
+		}
+	}
 	return true;
 }
 

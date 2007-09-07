@@ -48,6 +48,8 @@ int LocalPlayer;
 bool PlayerConnected[MAXCLIENTS];
 int TotalPlayers;
 
+short ModOffset = 1;
+
 UInt32 SpawnID[MAXCLIENTS];
 
 SOCKET ServerSocket;
@@ -68,7 +70,7 @@ extern bool NetDisconnect();
 extern bool NetChat(char *Message);
 extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID);
 extern bool NetReadBuffer(char *acReadBuffer);
-extern bool NetEquipped(UInt32 head, UInt32 hair, UInt32 upper_body, UInt32 lower_body, UInt32 hand, UInt32 foot, UInt32 right_ring, UInt32 left_ring, UInt32 amulet, UInt32 shield, UInt32 tail, UInt32 weapon, UInt32 ammo);
+extern bool NetEquipped(PlayerStatus *Player, int PlayerID);
 
 int OO_Initialize()
 {
@@ -467,25 +469,25 @@ bool Cmd_MPGetStat_Execute (COMMAND_ARGS)
 	return true;
 }
 
-bool Cmd_MPGetOtherPlayer_Execute (COMMAND_ARGS)
+bool Cmd_MPGetDebugData_Execute (COMMAND_ARGS)
 {
 	if (!thisObj)
 	{
-		Console_Print("Error, no reference given for MPGetIsInInterior");
+		Console_Print("Error, no reference given for MPGetDebugData");
 		return true;
 	}
 	if (thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
 		int actorNumber = GetActorID(ActorBuf->refID);
-		char tempData[64];
-		sprintf(tempData, "Player # of calling ref: %i", actorNumber);
-		Console_Print(tempData);
-		for(int i=0; i<MAXCLIENTS; i++)
+
+		if (actorNumber != -1)
 		{
-			sprintf(tempData, "SpawnID %i: %u", i, SpawnID[i]);
-			Console_Print(tempData);
-			sprintf(tempData, "PlayerConnected %i: %u", i, PlayerConnected[i]);
+			if (actorNumber == -2)
+				actorNumber = LocalPlayer;
+			char tempData[64];
+			Console_Print((*g_thePlayer)->parentCell->GetEditorName());
+			sprintf(tempData, "Actor %u upper_body object: %u", ActorBuf->refID, Players[actorNumber].upper_body);
 			Console_Print(tempData);
 		}
 	}
@@ -523,7 +525,8 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 		{
 			if (!SpawnID[i])
 			{
-				SpawnID[i] = actorNumber & 0x00ffffff;	//Mask off the mod offset
+				SpawnID[i] = actorNumber & 0x00ffffff;	//Mask off the mod offset for OblivionOnline
+				ModOffset = actorNumber & 0xff000000;	//Read off the mod offset for OblivionOnline
 				//Temp
 				char tempData2[64];
 				sprintf(tempData2, "Spawn %i ID: %u", i, SpawnID[i]);
@@ -569,16 +572,55 @@ bool Cmd_MPClearSpawn_Execute (COMMAND_ARGS)
 		for(int i=0; i<MAXCLIENTS; i++)
 		{
 			if (SpawnID[i] == (ActorBuf->refID & 0x00ffffff))
+			{
 				SpawnID[i] = 0;
+				//Console_Print("SpawnID cleared");
+			}
 		}
 	}
 	return true;
 }
 bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
 {
-	UINT32 head,hair,upper_body,lower_body,hand,foot,right_ring,left_ring,amulet,shield,tail,weapon,ammo;
-	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &head, &hair, &upper_body, &lower_body, &hand, &foot, &right_ring, &left_ring, &amulet, &shield, &tail, &weapon, &ammo)) return true;
-	NetEquipped(head, hair, upper_body, lower_body, hand, foot, right_ring, left_ring, amulet, shield, tail, weapon, ammo);
+	if (!thisObj)
+	{
+		Console_Print("Error, no reference given for MPGetDebugData");
+		return true;
+	}
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		int actorNumber = GetActorID(ActorBuf->refID);
+
+		if (actorNumber != -1)
+		{
+			//If the player is the only one connected, go ahead and store the data
+			if (actorNumber == -2)
+				actorNumber = LocalPlayer;
+
+			UInt32 head,hair,upper_body,lower_body;
+			UInt32 hand,foot,right_ring,left_ring;
+			UInt32 amulet,shield,tail,weapon,ammo;
+
+			if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &head, &hair, &upper_body, &lower_body, &hand, &foot, &right_ring, &left_ring, &amulet, &shield, &tail, &weapon, &ammo)) return true;
+
+			Players[actorNumber].head = head;
+			Players[actorNumber].hair = hair;
+			Players[actorNumber].upper_body = upper_body;
+			Players[actorNumber].lower_body = lower_body;
+			Players[actorNumber].hand = hand;
+			Players[actorNumber].foot = foot;
+			Players[actorNumber].right_ring = right_ring;
+			Players[actorNumber].left_ring = left_ring;
+			Players[actorNumber].amulet = amulet;
+			Players[actorNumber].shield = shield;
+			Players[actorNumber].tail = tail;
+			Players[actorNumber].weapon = weapon;
+			Players[actorNumber].ammo = ammo;
+
+			NetEquipped(&Players[actorNumber], actorNumber);
+		}
+	}
 	return true;
 }
 
@@ -849,16 +891,16 @@ static CommandInfo kMPGetStatCommand =
 	Cmd_MPGetStat_Execute
 };
 
-static CommandInfo kMPGetOtherPlayer =
+static CommandInfo kMPGetDebugDataCommand =
 {
-	"MPGetOtherPlayer",
-	"MPGOP",
+	"MPGetDebugData",
+	"MPGDD",
 	0,
-	"Gets other player number",
+	"Gets debug data",
 	0,		// requires parent obj
 	0,		// doesn't have params
 	NULL,	// no param table
-	Cmd_MPGetOtherPlayer_Execute
+	Cmd_MPGetDebugData_Execute
 };
 
 static CommandInfo kMPGetSpawnedRefCommand =
@@ -1015,9 +1057,11 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPGetYearCommand);
 	obse->RegisterCommand(&kMPGetIsInInteriorCommand);
 	obse->RegisterCommand(&kMPGetStatCommand);
+	
+	//Debug
+	obse->RegisterCommand(&kMPGetDebugDataCommand);
 
 	//Misc.
-	obse->RegisterCommand(&kMPGetOtherPlayer);
 	obse->RegisterCommand(&kMPGetSpawnedRefCommand);
 	obse->RegisterCommand(&kMPSpawnedCommand);
 	obse->RegisterCommand(&kMPTotalPlayersCommand);

@@ -83,8 +83,8 @@ int GetActorID(UInt32 refID)
 		}
 	}
 
-	//Is only 1 player connected?
-	if (TotalPlayers <= 1)
+	//Is only 1 player connected? and is ref valid?
+	if ((TotalPlayers <= 1) && (retVal != -1))
 	{
 		retVal = -2;
 	}

@@ -54,7 +54,9 @@ struct ActorStatus : ObjectStatus
 	int Personality, Luck, Encumbrance;
 	int Health, Magika, Fatigue;
 	
-	UInt32 head,hair,upper_body,lower_body,hand,foot,right_ring,left_ring,amulet,shield,tail,weapon,ammo;
+	UInt32 head,hair,upper_body,lower_body;
+	UInt32 hand,foot,right_ring,left_ring;
+	UInt32 amulet,shield,tail,weapon,ammo;
 
 	bool bStatsInitialized;
 	bool bInitialSet;
