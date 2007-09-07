@@ -83,19 +83,19 @@ struct PlayerStatus : ActorStatus
 
 static ParamInfo kParams_13ObjectRefs[13] =
 {
-	{	"UINT32",	kParamType_ObjectRef,	0 },
-	{	"UINT32",	kParamType_ObjectRef,	0 },
-	{	"UINT32",	kParamType_ObjectRef,	0 },
-	{	"UINT32",	kParamType_ObjectRef,	0 },
-	{	"UINT32",	kParamType_ObjectRef,	0 },
-	{	"UINT32",	kParamType_ObjectRef,	0 },
-	{	"UINT32",	kParamType_ObjectRef,	0 },
-	{	"UINT32",	kParamType_ObjectRef,	0 },
-	{	"UINT32",	kParamType_ObjectRef,	0 },
-	{	"UINT32",	kParamType_ObjectRef,	0 },
-	{	"UINT32",	kParamType_ObjectRef,	0 },
-	{	"UINT32",	kParamType_ObjectRef,	0 },
-	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
+	{	"UInt32",	kParamType_ObjectRef,	0 },
 };
 
 //Externals

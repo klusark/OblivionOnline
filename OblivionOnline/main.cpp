@@ -68,8 +68,7 @@ extern bool NetDisconnect();
 extern bool NetChat(char *Message);
 extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID);
 extern bool NetReadBuffer(char *acReadBuffer);
-extern bool NetEquipped(UINT32 head, UINT32 hair, UINT32 upper_body, UINT32 lower_body, UINT32 hand, UINT32 foot, UINT32 right_ring, UINT32 left_ring, UINT32 amulet, UINT32 shield, UINT32 tail, UINT32 weapon, UINT32 ammo);
-
+extern bool NetEquipped(UInt32 head, UInt32 hair, UInt32 upper_body, UInt32 lower_body, UInt32 hand, UInt32 foot, UInt32 right_ring, UInt32 left_ring, UInt32 amulet, UInt32 shield, UInt32 tail, UInt32 weapon, UInt32 ammo);
 
 int OO_Initialize()
 {
@@ -929,8 +928,8 @@ static CommandInfo kMPSendEquippedCommand =
 	0,
 	"Sends the players equipment",
 	0,		// requires parent obj
-	13,		// doesn't have params
-	kParams_13ObjectRefs,	// no param table
+	13,		// 13 params
+	kParams_13ObjectRefs,	// 13 ref param table
 	Cmd_MPSendEquipped_Execute
 };
 
@@ -941,8 +940,8 @@ static CommandInfo kMPGetEquipmentCommand =
 	0,
 	"Gets the players equipment useing the int specified",
 	0,		// requires parent obj
-	1,		// doesn't have params
-	kParams_OneInt,	// no param table
+	1,		// 1 param
+	kParams_OneInt,	// int param table
 	Cmd_MPGetEquipment_Execute
 };
 
@@ -1016,18 +1015,18 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPGetYearCommand);
 	obse->RegisterCommand(&kMPGetIsInInteriorCommand);
 	obse->RegisterCommand(&kMPGetStatCommand);
-	obse->RegisterCommand(&kMPGetOtherPlayer);
-	obse->RegisterCommand(&kMPGetSpawnedRefCommand);
 
 	//Misc.
+	obse->RegisterCommand(&kMPGetOtherPlayer);
+	obse->RegisterCommand(&kMPGetSpawnedRefCommand);
 	obse->RegisterCommand(&kMPSpawnedCommand);
 	obse->RegisterCommand(&kMPTotalPlayersCommand);
-	//should be under connections but it causes a bug then. 
 	obse->RegisterCommand(&kMPDisconnectCommand);
 	obse->RegisterCommand(&kMPClearSpawnCommand);
+
+	//Equipment
 	obse->RegisterCommand(&kMPSendEquippedCommand);
 	obse->RegisterCommand(&kMPGetEquipmentCommand);
-	//Debug commands
 
 	_MESSAGE("Done loading OO Commands");
 	return true;

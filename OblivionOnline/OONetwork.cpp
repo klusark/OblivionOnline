@@ -114,7 +114,7 @@ bool NetActorUpdate(PlayerStatus *Player,int PlayerID)
 	return true;
 }
 
-bool NetEquipped(UINT32 head, UINT32 hair, UINT32 upper_body, UINT32 lower_body, UINT32 hand, UINT32 foot, UINT32 right_ring, UINT32 left_ring, UINT32 amulet, UINT32 shield, UINT32 tail, UINT32 weapon, UINT32 ammo)
+bool NetEquipped(UInt32 head, UInt32 hair, UInt32 upper_body, UInt32 lower_body, UInt32 hand, UInt32 foot, UInt32 right_ring, UInt32 left_ring, UInt32 amulet, UInt32 shield, UInt32 tail, UInt32 weapon, UInt32 ammo)
 {
 	OOPkgEquipped pkgBuf;
 	pkgBuf.etypeID = OOPDisconnect;
