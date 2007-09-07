@@ -59,20 +59,27 @@ int GetActorID(UInt32 refID)
 	refID = refID & 0x00ffffff;	//Mask off the mod offset
 	// Compare reference ID's and determine which actor we have selected in-game
 	int retVal = -1;
+	bool foundID = false;
 	if (refID == 20)
 	{
 		retVal =  LocalPlayer;
+		foundID = true;
 	}else{
 
 		//If not the player, check the SpawnID list
 		for (int i=0; i<MAXCLIENTS; i++)
 		{
-			if(PlayerConnected[i] && (i != LocalPlayer))
+			if(PlayerConnected[i] && !foundID)
+			{
 				for(int j=0; j<=i; j++)
 				{
 					if (refID == SpawnID[j])
+					{
 						retVal = i+j;
+						foundID = true;
+					}
 				}
+			}
 		}
 	}
 
