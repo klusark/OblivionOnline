@@ -119,7 +119,8 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		//End Temp
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
-			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
+			if (cx != LocalPlayer)
+				send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
 		}
 	}
 	return true;
@@ -130,7 +131,8 @@ bool OOPChat_Handler(char *Packet,short LocalPlayer)
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgChat));
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
-		send(clients[cx],Packet,sizeof(OOPkgChat)+InPkgBuf.Length,0);
+		if (cx != LocalPlayer)
+			send(clients[cx],Packet,sizeof(OOPkgChat)+InPkgBuf.Length,0);
 	}
 	//Temp
 	char MessageDest[1024] = "\0";
@@ -159,7 +161,8 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
-		send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgFullStatUpdate),0);
+		if (cx != LocalPlayer)
+			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgFullStatUpdate),0);
 	}
 	return true;
 }
