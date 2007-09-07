@@ -36,52 +36,35 @@ This file is part of OblivionOnline.
 	forward this exception.
 */
 
-#ifndef main_h
-#define main_h
+#ifndef OOStatusStructs_h
+#define OOStatusStructs_h
 
-#include <stdio.h>
-#include <Windows.h>
-#include "obse/PluginAPI.h"
-#include "obse/CommandTable.h"
-#include "obse/GameAPI.h"
-#include "obse/ParamInfos.h"
-#include "obse/GameObjects.h"
-#include "OONetwork.h"
-#include "OOStatusStructs.h"
-
-#define MAXCLIENTS 4
-
-#define MAIN_VERSION 3
-#define SUB_VERSION 6 // change this with EVERY release
-
-//Equipment kParamInfo (i.e. 13 ObjectRefs)
-static ParamInfo kParams_13ObjectRefs[13] =
+struct ObjectStatus
 {
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
+	float PosX,PosY,PosZ;
+	float RotX,RotY,RotZ;
+	UInt32 RefID;
+	UInt32 CellID;
 };
 
-//Externals
-extern IDebugLog gLog;
-extern bool bIsConnected;
-extern int LocalPlayer;
-extern int TotalPlayers;
-extern bool PlayerConnected[MAXCLIENTS];
-extern SOCKET ServerSocket;
-extern HANDLE hRecvThread;
-extern PlayerStatus Players[MAXCLIENTS];
-extern UInt32 SpawnID[MAXCLIENTS];
-extern DWORD PacketTime[PACKET_COUNT];
+struct ActorStatus : ObjectStatus
+{
+	int Strength, Intelligence, Willpower;
+	int Agility, Speed, Endurance;
+	int Personality, Luck, Encumbrance;
+	int Health, Magika, Fatigue;
+	
+	UInt32 head,hair,upper_body,lower_body,hand,foot,right_ring,left_ring,amulet,shield,tail,weapon,ammo;
+
+	bool bStatsInitialized;
+	bool bInitialSet;
+	bool bIsInInterior;
+};
+
+struct PlayerStatus : ActorStatus
+{
+	float Time;
+	int Day, Month, Year;
+};
 
 #endif
