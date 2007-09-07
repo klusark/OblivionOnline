@@ -69,11 +69,11 @@ int GetActorID(UInt32 refID)
 		//If not the player, check the SpawnID list
 		for (int i=0; i<MAXCLIENTS; i++)
 		{
-			if(PlayerConnected[i] && !foundID)
+			if(PlayerConnected[i] && (i != LocalPlayer))
 			{
 				for(int j=0; j<=i; j++)
 				{
-					if (refID == SpawnID[j])
+					if ((refID == SpawnID[j]) && !foundID)
 					{
 						retVal = i+j;
 						foundID = true;
