@@ -21,41 +21,19 @@ This file is part of OblivionOnline.
 #ifndef BasicServer_h
 #define BasicServer_h
 
-#pragma once
+#define UInt32 unsigned long
+
 #include <windows.h>
 #include <stdio.h>
 #include <time.h>
 #include <process.h>
+#include "OOStatusStructs.h"
 
 #define MAXCLIENTS 4
 #define PORT 41805
 
 #define MAIN_VERSION 3
 #define SUB_VERSION 6	//Release 3, bugfix 6
-#define UInt32 unsigned long
-
-struct ObjectStatus
-{
-	float PosX,PosY,PosZ;
-	float RotX,RotY,RotZ;
-	UInt32 RefID;
-	UInt32 CellID;
-};
-
-struct ActorStatus : ObjectStatus
-{
-	int Strength, Intelligence, Willpower;
-	int Agility, Speed, Endurance;
-	int Personality, Luck, Encumbrance;
-	int Health, Magika, Fatigue;
-};
-
-struct PlayerStatus : ActorStatus
-{
-	float Time;
-	int Day, Month, Year;
-};
-
 
 extern int TotalClients;
 extern bool bServerAlive;

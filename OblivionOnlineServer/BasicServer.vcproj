@@ -200,6 +200,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\OOStatusStructs.h"
+				>
+			</File>
+			<File
 				RelativePath=".\PacketHandler.h"
 				>
 			</File>

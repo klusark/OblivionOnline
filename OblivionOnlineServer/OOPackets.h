@@ -143,7 +143,7 @@ struct OOPkgEquipped
 	short Flags;	// none
 	int PlayerID;
 	UInt32 refID;
-	UINT32 head,hair,upper_body,lower_body,hand,foot,right_ring,left_ring,amulet,shield,tail,weapon,ammo; 
+	UInt32 head,hair,upper_body,lower_body,hand,foot,right_ring,left_ring,amulet,shield,tail,weapon,ammo; 
 	//more to come
 };
 #pragma pack(pop)

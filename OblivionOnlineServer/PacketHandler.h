@@ -23,6 +23,7 @@ This file is part of OblivionOnline.
 
 #include "BasicServer.h"
 #include "OOPackets.h"
+
 extern bool OOPWelcome_Handler(char *Packet,short LocalPlayer);
 extern bool OOPDisconnect_Handler(char *Packet,short LocalPlayer);
 extern bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer);
