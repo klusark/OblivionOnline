@@ -469,7 +469,26 @@ bool Cmd_MPGetStat_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetOtherPlayer_Execute (COMMAND_ARGS)
 {
-	*result = 42;
+	if (!thisObj)
+	{
+		Console_Print("Error, no reference given for MPGetIsInInterior");
+		return true;
+	}
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		int actorNumber = GetActorID(ActorBuf->refID);
+		char tempData[64];
+		sprintf(tempData, "Player # of calling ref: %i", actorNumber);
+		Console_Print(tempData);
+		for(int i=0; i<MAXCLIENTS; i++)
+		{
+			sprintf(tempData, "SpawnID %i: %u", i, SpawnID[i]);
+			Console_Print(tempData);
+			sprintf(tempData, "PlayerConnected %i: %u", i, PlayerConnected[i]);
+			Console_Print(tempData);
+		}
+	}
 	return true;
 }
 
@@ -549,10 +568,15 @@ bool Cmd_MPClearSpawn_Execute (COMMAND_ARGS)
 		Actor *ActorBuf = (Actor *)thisObj;
 		for(int i=0; i<MAXCLIENTS; i++)
 		{
-			if (SpawnID[i] == ActorBuf->refID)
+			if (SpawnID[i] == (ActorBuf->refID & 0x00ffffff))
 				SpawnID[i] = 0;
 		}
 	}
+	return true;
+}
+
+bool Cmd_MPGetMyNumber_Execute (COMMAND_ARGS)
+{
 	return true;
 }
 

@@ -215,6 +215,7 @@ bool OOPWelcome_Handler(char *Packet)
 	sscanf(InPkgBuf.NickName, "Player%2d", &LocalPlayer);
 	_MESSAGE("Received Player ID %u",LocalPlayer);
 	Console_Print(InPkgBuf.NickName);
+	PlayerConnected[LocalPlayer] = true;
 	return true;
 }
 
