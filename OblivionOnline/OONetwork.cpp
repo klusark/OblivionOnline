@@ -49,6 +49,7 @@ bool OOPEventRegister_Handler(char *Packet);
 bool OOPFullStatUpdate_Handler(char *Packet);
 bool OOPTimeUpdate_Handler(char *Packet);
 bool OOPPlayerList_Handler(char *Packet);
+bool OOPEquipped_Handler(char *Packet);
 
 //----------------------------------
 //--Begin Incoming packet handlers--
@@ -110,6 +111,29 @@ bool NetActorUpdate(PlayerStatus *Player,int PlayerID)
 			PacketTime[OOPActorUpdate] = tickBuf;
 		}
 	}
+	return true;
+}
+
+bool NetEquipped(UINT32 head, UINT32 hair, UINT32 upper_body, UINT32 lower_body, UINT32 hand, UINT32 foot, UINT32 right_ring, UINT32 left_ring, UINT32 amulet, UINT32 shield, UINT32 tail, UINT32 weapon, UINT32 ammo)
+{
+	OOPkgEquipped pkgBuf;
+	pkgBuf.etypeID = OOPDisconnect;
+	pkgBuf.Flags = 0;
+	pkgBuf.PlayerID = LocalPlayer;
+	pkgBuf.head = head;
+	pkgBuf.hair=hair;
+	pkgBuf.upper_body=upper_body;
+	pkgBuf.lower_body=lower_body;
+	pkgBuf.hand=hand;
+	pkgBuf.foot=foot;
+	pkgBuf.right_ring=right_ring;
+	pkgBuf.left_ring=left_ring;
+	pkgBuf.amulet=amulet;
+	pkgBuf.shield=shield;
+	pkgBuf.tail=tail;
+	pkgBuf.weapon=weapon;
+	pkgBuf.ammo=ammo;
+	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgEquipped),0);
 	return true;
 }
 
@@ -197,6 +221,9 @@ bool NetReadBuffer(char *acReadBuffer)
 		break;
 	case OOPPlayerList:
 		OOPPlayerList_Handler(acReadBuffer);
+		break;
+	case OOPEquipped:
+		OOPEquipped_Handler(acReadBuffer);
 		break;
 	default: 
 		break;
@@ -287,6 +314,26 @@ bool OOPEvent_Handler(char *Packet)
 
 bool OOPEventRegister_Handler(char *Packet)
 {
+	return true;
+}
+
+bool OOPEquipped_Handler(char *Packet)
+{
+	OOPkgEquipped InPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgEquipped));
+	Players[InPkgBuf.refID].head = InPkgBuf.head;
+	Players[InPkgBuf.refID].hair = InPkgBuf.hair;
+	Players[InPkgBuf.refID].upper_body = InPkgBuf.upper_body;
+	Players[InPkgBuf.refID].lower_body = InPkgBuf.lower_body;
+	Players[InPkgBuf.refID].hand = InPkgBuf.hand;
+	Players[InPkgBuf.refID].foot = InPkgBuf.foot;
+	Players[InPkgBuf.refID].right_ring = InPkgBuf.right_ring;
+	Players[InPkgBuf.refID].left_ring = InPkgBuf.left_ring;
+	Players[InPkgBuf.refID].amulet = InPkgBuf.amulet;
+	Players[InPkgBuf.refID].shield = InPkgBuf.shield;
+	Players[InPkgBuf.refID].tail = InPkgBuf.tail;
+	Players[InPkgBuf.refID].weapon = InPkgBuf.weapon;
+	Players[InPkgBuf.refID].ammo = InPkgBuf.ammo;
 	return true;
 }
 

@@ -68,6 +68,7 @@ extern bool NetDisconnect();
 extern bool NetChat(char *Message);
 extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID);
 extern bool NetReadBuffer(char *acReadBuffer);
+extern bool NetEquipped(UINT32 head, UINT32 hair, UINT32 upper_body, UINT32 lower_body, UINT32 hand, UINT32 foot, UINT32 right_ring, UINT32 left_ring, UINT32 amulet, UINT32 shield, UINT32 tail, UINT32 weapon, UINT32 ammo);
 
 
 int OO_Initialize()
@@ -574,7 +575,74 @@ bool Cmd_MPClearSpawn_Execute (COMMAND_ARGS)
 	}
 	return true;
 }
+bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
+{
+	UINT32 head,hair,upper_body,lower_body,hand,foot,right_ring,left_ring,amulet,shield,tail,weapon,ammo;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &head, &hair, &upper_body, &lower_body, &hand, &foot, &right_ring, &left_ring, &amulet, &shield, &tail, &weapon, &ammo)) return true;
+	NetEquipped(head, hair, upper_body, lower_body, hand, foot, right_ring, left_ring, amulet, shield, tail, weapon, ammo);
+	return true;
+}
 
+bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
+{
+	if (!thisObj)
+	{
+		Console_Print("Error, no reference given for MPGetEquipment");
+		return true;
+	}
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		int actorNumber = GetActorID(ActorBuf->refID);
+		int SlotID;
+		if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &SlotID)) return true;
+		switch (SlotID)
+		{
+		case 0:
+			*result = Players[actorNumber].head;
+			break;
+		case 1:
+			*result = Players[actorNumber].hair;
+			break;
+		case 2:
+			*result = Players[actorNumber].upper_body;
+			break;
+		case 3:
+			*result = Players[actorNumber].lower_body;
+			break;
+		case 4:
+			*result = Players[actorNumber].hand;
+			break;
+		case 5:
+			*result = Players[actorNumber].foot;
+			break;
+		case 6:
+			*result = Players[actorNumber].right_ring;
+			break;
+		case 7:
+			*result = Players[actorNumber].left_ring;
+			break;
+		case 8:
+			*result = Players[actorNumber].amulet;
+			break;
+		case 13:
+			*result = Players[actorNumber].shield;
+			break;
+		case 15:
+			*result = Players[actorNumber].tail;
+			break;
+		case 16:
+			*result = Players[actorNumber].weapon;
+			break;
+		case 17:
+			*result = Players[actorNumber].ammo;
+			break;
+		default: 
+			break;
+		}
+	}
+	return true;
+}
 bool Cmd_MPGetMyNumber_Execute (COMMAND_ARGS)
 {
 	return true;
@@ -854,6 +922,30 @@ static CommandInfo kMPClearSpawnCommand =
 	Cmd_MPClearSpawn_Execute
 };
 
+static CommandInfo kMPSendEquippedCommand =
+{
+	"MPSendEquipped",
+	"MPSE",
+	0,
+	"Sends the players equipment",
+	0,		// requires parent obj
+	13,		// doesn't have params
+	kParams_13ObjectRefs,	// no param table
+	Cmd_MPSendEquipped_Execute
+};
+
+static CommandInfo kMPGetEquipmentCommand =
+{
+	"MPGetEquipped",
+	"MPGE",
+	0,
+	"Gets the players equipment useing the int specified",
+	0,		// requires parent obj
+	1,		// doesn't have params
+	kParams_OneInt,	// no param table
+	Cmd_MPGetEquipment_Execute
+};
+
 //-----------------------------
 //---End Command Enumeration---
 //-----------------------------
@@ -933,6 +1025,8 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	//should be under connections but it causes a bug then. 
 	obse->RegisterCommand(&kMPDisconnectCommand);
 	obse->RegisterCommand(&kMPClearSpawnCommand);
+	obse->RegisterCommand(&kMPSendEquippedCommand);
+	obse->RegisterCommand(&kMPGetEquipmentCommand);
 	//Debug commands
 
 	_MESSAGE("Done loading OO Commands");

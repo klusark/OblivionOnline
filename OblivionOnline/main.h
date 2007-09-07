@@ -67,6 +67,8 @@ struct ActorStatus : ObjectStatus
 	int Agility, Speed, Endurance;
 	int Personality, Luck, Encumbrance;
 	int Health, Magika, Fatigue;
+	
+	UInt32 head,hair,upper_body,lower_body,hand,foot,right_ring,left_ring,amulet,shield,tail,weapon,ammo;
 
 	bool bStatsInitialized;
 	bool bInitialSet;
@@ -77,6 +79,23 @@ struct PlayerStatus : ActorStatus
 {
 	float Time;
 	int Day, Month, Year;
+};
+
+static ParamInfo kParams_13ObjectRefs[13] =
+{
+	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UINT32",	kParamType_ObjectRef,	0 },
+	{	"UINT32",	kParamType_ObjectRef,	0 },
 };
 
 //Externals
