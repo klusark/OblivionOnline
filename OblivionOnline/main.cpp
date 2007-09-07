@@ -504,11 +504,11 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 		{
 			if (!SpawnID[i])
 			{
-				SpawnID[i] = actorNumber;
+				SpawnID[i] = actorNumber & 0x00ffffff;	//Mask off the mod offset
 				//Temp
-				char tempData[64];
-				sprintf(tempData, "Spawn %i ID: %u", i, SpawnID[i]);
-				Console_Print(tempData);
+				char tempData2[64];
+				sprintf(tempData2, "Spawn %i ID: %u", i, SpawnID[i]);
+				Console_Print(tempData2);
 				//End Temp
 				break;
 			}
