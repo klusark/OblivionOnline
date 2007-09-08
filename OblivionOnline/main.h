@@ -53,7 +53,7 @@ This file is part of OblivionOnline.
 #define MAXCLIENTS 4
 
 #define MAIN_VERSION 3
-#define SUB_VERSION 6 // change this with EVERY release
+#define SUB_VERSION 7 // Release 3, bugfix 7
 
 //Externals
 extern IDebugLog gLog;

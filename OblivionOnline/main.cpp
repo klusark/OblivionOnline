@@ -748,7 +748,6 @@ bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 			default: 
 				break;
 			}
-			Console_Print("Player %i equip-slot %i: %x", actorNumber, SlotID, refResult);
 		}
 	}
 	return true;
