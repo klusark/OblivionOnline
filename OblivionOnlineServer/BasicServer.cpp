@@ -56,7 +56,12 @@ int main()
 		Players[i].RotY = 0;
 		Players[i].RotZ = 0;
 		Players[i].CellID = 0;
+
 		Players[i].Health = 1;
+		Players[i].Magika = 0;
+		Players[i].Fatigue = 0;
+
+		Players[i].hair = 0;
 
 		Connected[i] = false;
 	}
@@ -191,6 +196,7 @@ int main()
 					Players[LocalPlayer].Health = 0;
 					Players[LocalPlayer].Magika = 0;
 					Players[LocalPlayer].Fatigue = 0;
+					Players[LocalPlayer].hair = 0;
 				} 
 				else
 				{

@@ -135,12 +135,15 @@ bool OOPChat_Handler(char *Packet,short LocalPlayer)
 			send(clients[cx],Packet,sizeof(OOPkgChat)+InPkgBuf.Length,0);
 	}
 	//Temp
-	char MessageDest[1024] = "\0";
-	for(int i=0; i<InPkgBuf.Length; i++)
+	if (InPkgBuf.Length < 1024)
 	{
-		MessageDest[i] = Packet[i+sizeof(OOPkgChat)];
+		char MessageDest[1024] = "\0";
+		for(int i=0; i<InPkgBuf.Length; i++)
+		{
+			MessageDest[i] = Packet[i+sizeof(OOPkgChat)];
+		}
+		printf("Player %i: %s\n", LocalPlayer, MessageDest);
 	}
-	printf("Player %i: %s\n", LocalPlayer, MessageDest);
 	//End Temp
 	return true;
 }
@@ -208,6 +211,12 @@ bool OOPEquipped_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgEquipped InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgEquipped));
+	if (InPkgBuf.hair != Players[LocalPlayer].hair)
+	{
+		printf("Player %i old helmet refID: %x\n", LocalPlayer, Players[LocalPlayer].hair);
+		printf("Player %i new helmet refID: %x\n", LocalPlayer, InPkgBuf.hair);
+	}
+	Players[LocalPlayer].hair = InPkgBuf.hair;
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
 		if (cx != LocalPlayer)
