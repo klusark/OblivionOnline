@@ -306,6 +306,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\OBSEFunctions.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\OOFunctions.cpp"
 				>
 			</File>
@@ -319,6 +323,10 @@
 			>
 			<File
 				RelativePath=".\main.h"
+				>
+			</File>
+			<File
+				RelativePath=".\OBSEFunctions.h"
 				>
 			</File>
 			<File

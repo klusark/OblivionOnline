@@ -48,29 +48,12 @@ This file is part of OblivionOnline.
 #include "obse/GameObjects.h"
 #include "OONetwork.h"
 #include "OOStatusStructs.h"
+#include "OBSEFunctions.h"
 
 #define MAXCLIENTS 4
 
 #define MAIN_VERSION 3
 #define SUB_VERSION 6 // change this with EVERY release
-
-//Equipment kParamInfo (i.e. 13 ObjectRefs)
-static ParamInfo kParams_13ObjectRefs[13] =
-{
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-	{	"UInt32",	kParamType_ObjectRef,	0 },
-};
 
 //Externals
 extern IDebugLog gLog;

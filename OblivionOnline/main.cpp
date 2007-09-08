@@ -72,6 +72,8 @@ extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID);
 extern bool NetReadBuffer(char *acReadBuffer);
 extern bool NetEquipped(PlayerStatus *Player, int PlayerID);
 
+extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEquippedFunctor, double* result);
+
 int OO_Initialize()
 {
 	long rc;
@@ -101,10 +103,10 @@ int OO_Initialize()
 		Players[i].foot = 0;
 		Players[i].right_ring = 0;
 		Players[i].left_ring = 0;
+		Players[i].amulet = 0;
 		Players[i].shield = 0;
 		Players[i].tail = 0;
 		Players[i].weapon = 0;
-		Players[i].amulet = 0;
 		Players[i].ammo = 0;
 
 		PlayerConnected[i] = false;
@@ -136,10 +138,10 @@ int OO_Deinitialize ()
 		Players[i].foot = 0;
 		Players[i].right_ring = 0;
 		Players[i].left_ring = 0;
+		Players[i].amulet = 0;
 		Players[i].shield = 0;
 		Players[i].tail = 0;
 		Players[i].weapon = 0;
-		Players[i].amulet = 0;
 		Players[i].ammo = 0;
 
 		PlayerConnected[i] = false;
@@ -610,13 +612,13 @@ bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
 {
 	if (!thisObj)
 	{
-		Console_Print("Error, no reference given for MPGetDebugData");
+		Console_Print("Error, no reference given for MPSendEquipped");
 		return true;
 	}
+	Console_Print("thisObj = %x", thisObj);
 	if (thisObj->IsActor())
 	{
-		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
+		int actorNumber = GetActorID(thisObj->refID);
 
 		if (actorNumber != -1)
 		{
@@ -624,31 +626,62 @@ bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
 			if (actorNumber == -2)
 				actorNumber = LocalPlayer;
 
-			UInt32 head,hair,upper_body,lower_body;
-			UInt32 hand,foot,right_ring,left_ring;
-			UInt32 amulet,shield,tail,weapon,ammo;
+			double itemResult;
+			UInt32* itemRef = (UInt32*)&itemResult;
+			feGetObject getObject;
 
-			if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &head, &hair, &upper_body, &lower_body, &hand, &foot, &right_ring, &left_ring, &amulet, &shield, &tail, &weapon, &ammo)) return true;
-
-			Players[actorNumber].head = head;
-			Players[actorNumber].hair = hair;
-			Players[actorNumber].upper_body = upper_body;
-			Players[actorNumber].lower_body = lower_body;
-			Players[actorNumber].hand = hand;
-			Players[actorNumber].foot = foot;
-			Players[actorNumber].right_ring = right_ring;
-			Players[actorNumber].left_ring = left_ring;
-			Players[actorNumber].amulet = amulet;
-			Players[actorNumber].shield = shield;
-			Players[actorNumber].tail = tail;
-			Players[actorNumber].weapon = weapon;
-			Players[actorNumber].ammo = ammo;
-
-			//Temp
-			char tempData[64];
-			sprintf(tempData, "Actor %i head: %u", actorNumber, Players[actorNumber].head);
-			Console_Print(tempData);
-			//End Temp
+			if (FindEquipped(thisObj, 0, &getObject, &itemResult))
+				Players[actorNumber].head = *itemRef;
+			else
+				Players[actorNumber].head = 0;
+			if (FindEquipped(thisObj, 1, &getObject, &itemResult))
+				Players[actorNumber].hair = *itemRef;
+			else
+				Players[actorNumber].hair = 0;
+			if (FindEquipped(thisObj, 2, &getObject, &itemResult))
+				Players[actorNumber].upper_body = *itemRef;
+			else
+				Players[actorNumber].upper_body = 0;
+			if (FindEquipped(thisObj, 3, &getObject, &itemResult))
+				Players[actorNumber].lower_body = *itemRef;
+			else
+				Players[actorNumber].lower_body = 0;
+			if (FindEquipped(thisObj, 4, &getObject, &itemResult))
+				Players[actorNumber].hand = *itemRef;
+			else
+				Players[actorNumber].hand = 0;
+			if (FindEquipped(thisObj, 5, &getObject, &itemResult))
+				Players[actorNumber].foot = *itemRef;
+			else
+				Players[actorNumber].foot = 0;
+			if (FindEquipped(thisObj, 6, &getObject, &itemResult))
+				Players[actorNumber].right_ring = *itemRef;
+			else
+				Players[actorNumber].right_ring = 0;
+			if (FindEquipped(thisObj, 7, &getObject, &itemResult))
+				Players[actorNumber].left_ring = *itemRef;
+			else
+				Players[actorNumber].left_ring = 0;
+			if (FindEquipped(thisObj, 8, &getObject, &itemResult))
+				Players[actorNumber].amulet = *itemRef;
+			else
+				Players[actorNumber].amulet = 0;
+			if (FindEquipped(thisObj, 13, &getObject, &itemResult))
+				Players[actorNumber].shield = *itemRef;
+			else
+				Players[actorNumber].shield = 0;
+			if (FindEquipped(thisObj, 15, &getObject, &itemResult))
+				Players[actorNumber].tail = *itemRef;
+			else
+				Players[actorNumber].tail = 0;
+			if (FindEquipped(thisObj, 16, &getObject, &itemResult))
+				Players[actorNumber].weapon = *itemRef;
+			else
+				Players[actorNumber].weapon = 0;
+			if (FindEquipped(thisObj, 17, &getObject, &itemResult))
+				Players[actorNumber].ammo = *itemRef;
+			else
+				Players[actorNumber].ammo = 0;
 
 			NetEquipped(&Players[actorNumber], actorNumber);
 		}
@@ -713,11 +746,7 @@ bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 		default: 
 			break;
 		}
-		//Temp
-		char tempData[64];
-		sprintf(tempData, "Actor %i equip %i: %u", actorNumber, SlotID, result);
-		Console_Print(tempData);
-		//End Temp
+		Console_Print("Actor %i equip %i: %u", actorNumber, SlotID, result);
 	}
 	return true;
 }
@@ -1005,8 +1034,8 @@ static CommandInfo kMPSendEquippedCommand =
 	0,
 	"Sends the players equipment",
 	0,		// requires parent obj
-	13,		// 13 params
-	kParams_13ObjectRefs,	// 13 ref param table
+	0,		// no params
+	NULL,	// no param table
 	Cmd_MPSendEquipped_Execute
 };
 
