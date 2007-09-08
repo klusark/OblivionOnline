@@ -209,7 +209,6 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 			if(!NetWelcome()) return true;
 			Console_Print("Oblivion connected to server");
 			TotalPlayers = 1;
-			Players[LocalPlayer].bStatsInitialized = true;
 		}
 	}
 	return true;
@@ -253,7 +252,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 					Players[actorNumber].bIsInInterior = true;
 					Players[actorNumber].CellID = ActorBuf->parentCell->refID;
 				}
-				NetActorUpdate(&Players[actorNumber], actorNumber, false);
+				NetActorUpdate(&Players[actorNumber], actorNumber, true);
 				Players[actorNumber].bStatsInitialized = true;
 			}else{
 				PlayerStatus DummyStatus;
