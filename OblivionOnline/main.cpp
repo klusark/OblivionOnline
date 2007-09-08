@@ -92,7 +92,7 @@ int OO_Initialize()
 		Players[i].RotY = 0;
 		Players[i].RotZ = 0;
 		Players[i].CellID = 0;
-		Players[i].Health = 42;
+		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
 		Players[i].bIsInInterior = true;
 		Players[i].head = 0;
@@ -127,7 +127,7 @@ int OO_Deinitialize ()
 		Players[i].RotY = 0;
 		Players[i].RotZ = 0;
 		Players[i].CellID = 0;
-		Players[i].Health = 42;
+		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
 		Players[i].bIsInInterior = true;
 		Players[i].head = 0;
@@ -229,6 +229,9 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		{
 			if (actorNumber == -2)
 				actorNumber = LocalPlayer;
+
+			if (actorNumber != LocalPlayer)
+				Players[actorNumber].bStatsInitialized = true;
 
 			//Prevent the player info from being logged client side, let the server handle it
 			if (!Players[actorNumber].bStatsInitialized)
