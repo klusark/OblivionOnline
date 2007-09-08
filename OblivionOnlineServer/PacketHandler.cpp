@@ -163,24 +163,17 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 	OOPkgFullStatUpdate InPkgBuf;
 	OOPkgFullStatUpdate OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
-	if (InPkgBuf.refID < MAXCLIENTS)
+	//Are these initialized stats?
+	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.Flags & 8))
 	{
+		Players[InPkgBuf.refID].Health = InPkgBuf.Health;
+		Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
+		Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
 		OutPkgBuf.etypeID = OOPFullStatUpdate;
 		OutPkgBuf.refID = InPkgBuf.refID;
 		OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
 		OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
 		OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
-		//Is this initial stats?
-		if (InPkgBuf.Flags & 8)
-		{
-			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
-			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
-			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
-		}else{
-			Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
-			Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
-			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
-		}
 		//Temp
 		if (OutPkgBuf.Health != 0)
 		{

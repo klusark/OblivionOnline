@@ -56,6 +56,7 @@ SOCKET ServerSocket;
 HANDLE hRecvThread;
 
 PlayerStatus Players[MAXCLIENTS];
+PlayerStatus PlayersInitial[MAXCLIENTS];
 
 DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.
 
@@ -208,6 +209,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 			if(!NetWelcome()) return true;
 			Console_Print("Oblivion connected to server");
 			TotalPlayers = 1;
+			Players[LocalPlayer].bStatsInitialized = true;
 		}
 	}
 	return true;
@@ -251,7 +253,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 					Players[actorNumber].bIsInInterior = true;
 					Players[actorNumber].CellID = ActorBuf->parentCell->refID;
 				}
-				NetActorUpdate(&Players[actorNumber], actorNumber, true);
+				NetActorUpdate(&Players[actorNumber], actorNumber, false);
 				Players[actorNumber].bStatsInitialized = true;
 			}else{
 				PlayerStatus DummyStatus;
@@ -273,7 +275,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 					DummyStatus.bIsInInterior = true;
 					DummyStatus.CellID = ActorBuf->parentCell->refID;
 				}
-				NetActorUpdate(&DummyStatus, actorNumber, false);
+				NetActorUpdate(&DummyStatus, actorNumber, true);
 			}
 		}
 	}
@@ -307,7 +309,7 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 			DummyHolder.Magika = ActorBuf->GetActorValue(9);
 			DummyHolder.Fatigue = ActorBuf->GetActorValue(10);
 			DummyHolder.Encumbrance = ActorBuf->GetActorValue(11);
-			NetFullStatUpdate(&DummyHolder, actorNumber, false);
+			NetFullStatUpdate(&DummyHolder, actorNumber, true);
 		}
 	}
 	return true;
