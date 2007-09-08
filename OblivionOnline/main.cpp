@@ -93,6 +93,19 @@ int OO_Initialize()
 		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
 		Players[i].bIsInInterior = true;
+		Players[i].head = 0;
+		Players[i].hair = 0;
+		Players[i].upper_body = 0;
+		Players[i].lower_body = 0;
+		Players[i].hand = 0;
+		Players[i].foot = 0;
+		Players[i].right_ring = 0;
+		Players[i].left_ring = 0;
+		Players[i].shield = 0;
+		Players[i].tail = 0;
+		Players[i].weapon = 0;
+		Players[i].amulet = 0;
+		Players[i].ammo = 0;
 
 		PlayerConnected[i] = false;
 
@@ -115,6 +128,19 @@ int OO_Deinitialize ()
 		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
 		Players[i].bIsInInterior = true;
+		Players[i].head = 0;
+		Players[i].hair = 0;
+		Players[i].upper_body = 0;
+		Players[i].lower_body = 0;
+		Players[i].hand = 0;
+		Players[i].foot = 0;
+		Players[i].right_ring = 0;
+		Players[i].left_ring = 0;
+		Players[i].shield = 0;
+		Players[i].tail = 0;
+		Players[i].weapon = 0;
+		Players[i].amulet = 0;
+		Players[i].ammo = 0;
 
 		PlayerConnected[i] = false;
 
@@ -618,6 +644,12 @@ bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
 			Players[actorNumber].weapon = weapon;
 			Players[actorNumber].ammo = ammo;
 
+			//Temp
+			char tempData[64];
+			sprintf(tempData, "Actor %i head: %u", actorNumber, Players[actorNumber].head);
+			Console_Print(tempData);
+			//End Temp
+
 			NetEquipped(&Players[actorNumber], actorNumber);
 		}
 	}
@@ -681,6 +713,11 @@ bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 		default: 
 			break;
 		}
+		//Temp
+		char tempData[64];
+		sprintf(tempData, "Actor %i equip %i: %u", actorNumber, SlotID, result);
+		Console_Print(tempData);
+		//End Temp
 	}
 	return true;
 }
