@@ -372,6 +372,7 @@ bool OOPFullStatUpdate_Handler(char *Packet)
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
 	if ((InPkgBuf.refID < MAXCLIENTS))
 	{
+		Players[InPkgBuf.refID].bStatsInitialized = true;
 		Players[InPkgBuf.refID].Agility = InPkgBuf.Agility;
 		Players[InPkgBuf.refID].Encumbrance = InPkgBuf.Encumbrance;
 		Players[InPkgBuf.refID].Endurance = InPkgBuf.Endurance;

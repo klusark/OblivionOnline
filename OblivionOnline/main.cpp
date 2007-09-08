@@ -230,10 +230,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 			if (actorNumber == -2)
 				actorNumber = LocalPlayer;
 
-			if (actorNumber != LocalPlayer)
-				Players[actorNumber].bStatsInitialized = true;
-
-			//Prevent the player info from being logged client side, let the server handle it
+			//Prevent the player info from being logged client side if not initialized
 			if (!Players[actorNumber].bStatsInitialized)
 			{
 				Players[actorNumber].RefID = ActorBuf->refID;
@@ -295,7 +292,7 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 		Actor *ActorBuf = (Actor *)thisObj;
 		int actorNumber = GetActorID(ActorBuf->refID);
 
-		if (actorNumber != -1 && actorNumber != -2)
+		if ((actorNumber != -1 && actorNumber != -2) && Players[actorNumber].bStatsInitialized)
 		{
 			PlayerStatus DummyHolder;
 			DummyHolder.Strength = ActorBuf->GetActorValue(0);
