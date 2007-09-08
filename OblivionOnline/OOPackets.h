@@ -141,7 +141,6 @@ struct OOPkgEquipped
 {
 	OOPacketType etypeID;
 	short Flags;	// none
-	int PlayerID;
 	UInt32 refID;
 	UInt32 head,hair,upper_body,lower_body,hand,foot,right_ring,left_ring,amulet,shield,tail,weapon,ammo; 
 	//more to come

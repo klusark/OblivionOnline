@@ -126,8 +126,8 @@ bool NetEquipped(PlayerStatus *Player,int PlayerID)
 		if(memcmp(&LastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
 		{
 			pkgBuf.etypeID = OOPEquipped;
+			pkgBuf.refID = PlayerID;
 			pkgBuf.Flags = 0;
-			pkgBuf.PlayerID = PlayerID;
 			pkgBuf.head = Player->head;
 			pkgBuf.hair=Player->hair;
 			pkgBuf.upper_body=Player->upper_body;
@@ -332,19 +332,24 @@ bool OOPEquipped_Handler(char *Packet)
 {
 	OOPkgEquipped InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgEquipped));
-	Players[InPkgBuf.refID].head = InPkgBuf.head;
-	Players[InPkgBuf.refID].hair = InPkgBuf.hair;
-	Players[InPkgBuf.refID].upper_body = InPkgBuf.upper_body;
-	Players[InPkgBuf.refID].lower_body = InPkgBuf.lower_body;
-	Players[InPkgBuf.refID].hand = InPkgBuf.hand;
-	Players[InPkgBuf.refID].foot = InPkgBuf.foot;
-	Players[InPkgBuf.refID].right_ring = InPkgBuf.right_ring;
-	Players[InPkgBuf.refID].left_ring = InPkgBuf.left_ring;
-	Players[InPkgBuf.refID].amulet = InPkgBuf.amulet;
-	Players[InPkgBuf.refID].shield = InPkgBuf.shield;
-	Players[InPkgBuf.refID].tail = InPkgBuf.tail;
-	Players[InPkgBuf.refID].weapon = InPkgBuf.weapon;
-	Players[InPkgBuf.refID].ammo = InPkgBuf.ammo;
+	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
+	{
+		Players[InPkgBuf.refID].head = InPkgBuf.head;
+		if (Players[InPkgBuf.refID].hair != InPkgBuf.hair)
+			Console_Print("Player %i new helm refID: %8.0X", InPkgBuf.refID, InPkgBuf.hair);
+		Players[InPkgBuf.refID].hair = InPkgBuf.hair;
+		Players[InPkgBuf.refID].upper_body = InPkgBuf.upper_body;
+		Players[InPkgBuf.refID].lower_body = InPkgBuf.lower_body;
+		Players[InPkgBuf.refID].hand = InPkgBuf.hand;
+		Players[InPkgBuf.refID].foot = InPkgBuf.foot;
+		Players[InPkgBuf.refID].right_ring = InPkgBuf.right_ring;
+		Players[InPkgBuf.refID].left_ring = InPkgBuf.left_ring;
+		Players[InPkgBuf.refID].amulet = InPkgBuf.amulet;
+		Players[InPkgBuf.refID].shield = InPkgBuf.shield;
+		Players[InPkgBuf.refID].tail = InPkgBuf.tail;
+		Players[InPkgBuf.refID].weapon = InPkgBuf.weapon;
+		Players[InPkgBuf.refID].ammo = InPkgBuf.ammo;
+	}
 	return true;
 }
 

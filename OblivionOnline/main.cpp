@@ -615,7 +615,6 @@ bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
 		Console_Print("Error, no reference given for MPSendEquipped");
 		return true;
 	}
-	Console_Print("thisObj = %x", thisObj);
 	if (thisObj->IsActor())
 	{
 		int actorNumber = GetActorID(thisObj->refID);
@@ -702,51 +701,55 @@ bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 		int actorNumber = GetActorID(ActorBuf->refID);
 		int SlotID;
 		if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &SlotID)) return true;
-		switch (SlotID)
+		if (actorNumber != -1 && actorNumber != -2)
 		{
-		case 0:
-			*result = Players[actorNumber].head;
-			break;
-		case 1:
-			*result = Players[actorNumber].hair;
-			break;
-		case 2:
-			*result = Players[actorNumber].upper_body;
-			break;
-		case 3:
-			*result = Players[actorNumber].lower_body;
-			break;
-		case 4:
-			*result = Players[actorNumber].hand;
-			break;
-		case 5:
-			*result = Players[actorNumber].foot;
-			break;
-		case 6:
-			*result = Players[actorNumber].right_ring;
-			break;
-		case 7:
-			*result = Players[actorNumber].left_ring;
-			break;
-		case 8:
-			*result = Players[actorNumber].amulet;
-			break;
-		case 13:
-			*result = Players[actorNumber].shield;
-			break;
-		case 15:
-			*result = Players[actorNumber].tail;
-			break;
-		case 16:
-			*result = Players[actorNumber].weapon;
-			break;
-		case 17:
-			*result = Players[actorNumber].ammo;
-			break;
-		default: 
-			break;
+			UInt32* refResult = (UInt32*)result;
+			switch (SlotID)
+			{
+			case 0:
+				*refResult = Players[actorNumber].head;
+				break;
+			case 1:
+				*refResult = Players[actorNumber].hair;
+				break;
+			case 2:
+				*refResult = Players[actorNumber].upper_body;
+				break;
+			case 3:
+				*refResult = Players[actorNumber].lower_body;
+				break;
+			case 4:
+				*refResult = Players[actorNumber].hand;
+				break;
+			case 5:
+				*refResult = Players[actorNumber].foot;
+				break;
+			case 6:
+				*refResult = Players[actorNumber].right_ring;
+				break;
+			case 7:
+				*refResult = Players[actorNumber].left_ring;
+				break;
+			case 8:
+				*refResult = Players[actorNumber].amulet;
+				break;
+			case 13:
+				*refResult = Players[actorNumber].shield;
+				break;
+			case 15:
+				*refResult = Players[actorNumber].tail;
+				break;
+			case 16:
+				*refResult = Players[actorNumber].weapon;
+				break;
+			case 17:
+				*refResult = Players[actorNumber].ammo;
+				break;
+			default: 
+				break;
+			}
+			Console_Print("Player %i equip-slot %i: %x", actorNumber, SlotID, refResult);
 		}
-		Console_Print("Actor %i equip %i: %u", actorNumber, SlotID, result);
 	}
 	return true;
 }
