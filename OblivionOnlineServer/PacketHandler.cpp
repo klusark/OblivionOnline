@@ -211,12 +211,10 @@ bool OOPEquipped_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgEquipped InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgEquipped));
-	if (InPkgBuf.hair != Players[LocalPlayer].hair)
-	{
-		printf("Player %i old helmet refID: %x\n", LocalPlayer, Players[LocalPlayer].hair);
-		printf("Player %i new helmet refID: %x\n", LocalPlayer, InPkgBuf.hair);
-	}
 	Players[LocalPlayer].hair = InPkgBuf.hair;
+	Players[LocalPlayer].upper_body = InPkgBuf.upper_body;
+	Players[LocalPlayer].lower_body = InPkgBuf.lower_body;
+	Players[LocalPlayer].weapon = InPkgBuf.weapon;
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
 		if (cx != LocalPlayer)
