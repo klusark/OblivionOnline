@@ -167,31 +167,36 @@ bool NetChat(char *Message)
 
 bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID)
 {
+	static PlayerStatus LastPlayer;
+	
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
 	
 	// If we have a full update, don't send it too quickly
 	if((tickBuf - PacketTime[OOPFullStatUpdate]) > NET_FULLSTATUPDATE_RESEND)
 	{
-		OOPkgFullStatUpdate pkgBuf;
-		pkgBuf.etypeID = OOPFullStatUpdate;
-		pkgBuf.Flags = 1 | 2;
-		pkgBuf.Agility = Player->Agility;
-		pkgBuf.Encumbrance = Player->Encumbrance;
-		pkgBuf.Endurance = Player->Endurance;
-		pkgBuf.Intelligence = Player->Intelligence;
-		pkgBuf.Luck = Player->Luck;
-		pkgBuf.Personality = Player->Personality;
-		pkgBuf.Speed = Player->Speed;
-		pkgBuf.Strength = Player->Strength;
-		pkgBuf.Willpower = Player->Willpower;
-		pkgBuf.Health = Player->Health;
-		pkgBuf.Magika = Player->Magika;
-		pkgBuf.Fatigue = Player->Fatigue;
-		pkgBuf.TimeStamp = Player->Time;
-		pkgBuf.refID = PlayerID;
-		send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgFullStatUpdate),0);
-		PacketTime[OOPFullStatUpdate] = tickBuf;
+		if(memcmp(&LastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
+		{
+			OOPkgFullStatUpdate pkgBuf;
+			pkgBuf.etypeID = OOPFullStatUpdate;
+			pkgBuf.Flags = 1 | 2;
+			pkgBuf.Agility = Player->Agility;
+			pkgBuf.Encumbrance = Player->Encumbrance;
+			pkgBuf.Endurance = Player->Endurance;
+			pkgBuf.Intelligence = Player->Intelligence;
+			pkgBuf.Luck = Player->Luck;
+			pkgBuf.Personality = Player->Personality;
+			pkgBuf.Speed = Player->Speed;
+			pkgBuf.Strength = Player->Strength;
+			pkgBuf.Willpower = Player->Willpower;
+			pkgBuf.Health = Player->Health;
+			pkgBuf.Magika = Player->Magika;
+			pkgBuf.Fatigue = Player->Fatigue;
+			pkgBuf.TimeStamp = Player->Time;
+			pkgBuf.refID = PlayerID;
+			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgFullStatUpdate),0);
+			PacketTime[OOPFullStatUpdate] = tickBuf;
+		}
 	}
 	return true;
 }
@@ -298,6 +303,10 @@ bool OOPActorUpdate_Handler(char *Packet)
 			Players[InPkgBuf.refID].bIsInInterior = false;
 		else
 			Players[InPkgBuf.refID].bIsInInterior = true;
+		if (InPkgBuf.Health != 0)
+		{
+			//Console_Print("Player %i HP %i (change of %i)", InPkgBuf.refID, Players[InPkgBuf.refID].Health, InPkgBuf.Health);
+		}
 	}
 	return true;
 }
@@ -335,8 +344,6 @@ bool OOPEquipped_Handler(char *Packet)
 	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
 	{
 		Players[InPkgBuf.refID].head = InPkgBuf.head;
-		if (Players[InPkgBuf.refID].hair != InPkgBuf.hair)
-			Console_Print("Player %i new helm refID: %8.0X", InPkgBuf.refID, InPkgBuf.hair);
 		Players[InPkgBuf.refID].hair = InPkgBuf.hair;
 		Players[InPkgBuf.refID].upper_body = InPkgBuf.upper_body;
 		Players[InPkgBuf.refID].lower_body = InPkgBuf.lower_body;
@@ -357,7 +364,7 @@ bool OOPFullStatUpdate_Handler(char *Packet)
 {
 	OOPkgFullStatUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
-	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
+	if ((InPkgBuf.refID < MAXCLIENTS))
 	{
 		Players[InPkgBuf.refID].Agility = InPkgBuf.Agility;
 		Players[InPkgBuf.refID].Encumbrance = InPkgBuf.Encumbrance;

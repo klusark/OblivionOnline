@@ -229,25 +229,51 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		{
 			if (actorNumber == -2)
 				actorNumber = LocalPlayer;
-			Players[actorNumber].RefID = ActorBuf->refID;
-			Players[actorNumber].PosX = ActorBuf->posX;
-			Players[actorNumber].PosY = ActorBuf->posY;
-			Players[actorNumber].PosZ = ActorBuf->posZ;
-			Players[actorNumber].RotX = ActorBuf->rotX;
-			Players[actorNumber].RotY = ActorBuf->rotY;
-			Players[actorNumber].RotZ = ActorBuf->rotZ;
-			Players[actorNumber].Health = ActorBuf->GetActorValue(8);
-			Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
-			Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
-			if(ActorBuf->parentCell->worldSpace)
+
+			//Prevent the player info from being logged client side, let the server handle it
+			if (actorNumber == LocalPlayer)
 			{
-				Players[actorNumber].bIsInInterior = false;
-				Players[actorNumber].CellID = ActorBuf->parentCell->worldSpace->refID;
+				PlayerStatus DummyStatus;
+				DummyStatus.RefID = ActorBuf->refID;
+				DummyStatus.PosX = ActorBuf->posX;
+				DummyStatus.PosY = ActorBuf->posY;
+				DummyStatus.PosZ = ActorBuf->posZ;
+				DummyStatus.RotX = ActorBuf->rotX;
+				DummyStatus.RotY = ActorBuf->rotY;
+				DummyStatus.RotZ = ActorBuf->rotZ;
+				DummyStatus.Health = ActorBuf->GetActorValue(8);
+				DummyStatus.Magika = ActorBuf->GetActorValue(9);
+				DummyStatus.Fatigue = ActorBuf->GetActorValue(10);
+				if(ActorBuf->parentCell->worldSpace)
+				{
+					DummyStatus.bIsInInterior = false;
+					DummyStatus.CellID = ActorBuf->parentCell->worldSpace->refID;
+				}else{
+					DummyStatus.bIsInInterior = true;
+					DummyStatus.CellID = ActorBuf->parentCell->refID;
+				}
+				NetActorUpdate(&DummyStatus, actorNumber);
 			}else{
-				Players[actorNumber].bIsInInterior = true;
-				Players[actorNumber].CellID = ActorBuf->parentCell->refID;
+				Players[actorNumber].RefID = ActorBuf->refID;
+				Players[actorNumber].PosX = ActorBuf->posX;
+				Players[actorNumber].PosY = ActorBuf->posY;
+				Players[actorNumber].PosZ = ActorBuf->posZ;
+				Players[actorNumber].RotX = ActorBuf->rotX;
+				Players[actorNumber].RotY = ActorBuf->rotY;
+				Players[actorNumber].RotZ = ActorBuf->rotZ;
+				Players[actorNumber].Health = ActorBuf->GetActorValue(8);
+				Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
+				Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
+				if(ActorBuf->parentCell->worldSpace)
+				{
+					Players[actorNumber].bIsInInterior = false;
+					Players[actorNumber].CellID = ActorBuf->parentCell->worldSpace->refID;
+				}else{
+					Players[actorNumber].bIsInInterior = true;
+					Players[actorNumber].CellID = ActorBuf->parentCell->refID;
+				}
+				NetActorUpdate(&Players[actorNumber], actorNumber);
 			}
-			NetActorUpdate(&Players[actorNumber], actorNumber);
 		}
 	}
 	return true;
@@ -267,27 +293,20 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 
 		if (actorNumber != -1 && actorNumber != -2)
 		{
-			Players[actorNumber].Strength = ActorBuf->GetActorValue(0);
-			Players[actorNumber].Intelligence = ActorBuf->GetActorValue(1);
-			Players[actorNumber].Willpower = ActorBuf->GetActorValue(2);
-			Players[actorNumber].Agility = ActorBuf->GetActorValue(3);
-			Players[actorNumber].Speed = ActorBuf->GetActorValue(4);
-			Players[actorNumber].Endurance = ActorBuf->GetActorValue(5);
-			Players[actorNumber].Personality = ActorBuf->GetActorValue(6);
-			Players[actorNumber].Luck = ActorBuf->GetActorValue(7);
-			Players[actorNumber].Health = ActorBuf->GetActorValue(8);
-			Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
-			Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
-			Players[actorNumber].Encumbrance = ActorBuf->GetActorValue(11);
-			
-			// Check to see if we're trying to send the NPC default values
-			if (Players[actorNumber].Personality != 1)
-			{
-				NetFullStatUpdate(&Players[actorNumber], actorNumber);
-			}
-		}else{
-			if (actorNumber == -2)
-				Console_Print("Cannot update, only one player is connected");
+			PlayerStatus DummyHolder;
+			DummyHolder.Strength = ActorBuf->GetActorValue(0);
+			DummyHolder.Intelligence = ActorBuf->GetActorValue(1);
+			DummyHolder.Willpower = ActorBuf->GetActorValue(2);
+			DummyHolder.Agility = ActorBuf->GetActorValue(3);
+			DummyHolder.Speed = ActorBuf->GetActorValue(4);
+			DummyHolder.Endurance = ActorBuf->GetActorValue(5);
+			DummyHolder.Personality = ActorBuf->GetActorValue(6);
+			DummyHolder.Luck = ActorBuf->GetActorValue(7);
+			DummyHolder.Health = ActorBuf->GetActorValue(8);
+			DummyHolder.Magika = ActorBuf->GetActorValue(9);
+			DummyHolder.Fatigue = ActorBuf->GetActorValue(10);
+			DummyHolder.Encumbrance = ActorBuf->GetActorValue(11);
+			NetFullStatUpdate(&DummyHolder, actorNumber);
 		}
 	}
 	return true;
@@ -750,10 +769,6 @@ bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 			}
 		}
 	}
-	return true;
-}
-bool Cmd_MPGetMyNumber_Execute (COMMAND_ARGS)
-{
 	return true;
 }
 

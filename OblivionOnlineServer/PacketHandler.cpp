@@ -161,11 +161,30 @@ bool OOPEventRegister_Handler(char *Packet,short LocalPlayer)
 bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgFullStatUpdate InPkgBuf;
+	OOPkgFullStatUpdate OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
-	for(int cx=0;cx<MAXCLIENTS;cx++)
+	if (InPkgBuf.refID < MAXCLIENTS)
 	{
-		if (cx != LocalPlayer)
+		OutPkgBuf.etypeID = OOPFullStatUpdate;
+		OutPkgBuf.refID = InPkgBuf.refID;
+		OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
+		OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
+		OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
+		//Add in other stats here
+		Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
+		Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
+		Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
+		//Temp
+		if (OutPkgBuf.Health != 0)
+		{
+			printf("Player %i HP: %i (change of %i)(FSU)\n", InPkgBuf.refID,
+				Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
+		}
+		//End Temp
+		for(int cx=0;cx<MAXCLIENTS;cx++)
+		{
 			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgFullStatUpdate),0);
+		}
 	}
 	return true;
 }
