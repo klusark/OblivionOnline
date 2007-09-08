@@ -295,6 +295,7 @@ bool OOPActorUpdate_Handler(char *Packet)
 			Console_Print(CNText);
 		}
 
+		Players[InPkgBuf.refID].bStatsInitialized = true;
 		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
 		Players[InPkgBuf.refID].PosY = InPkgBuf.fPosY;
 		Players[InPkgBuf.refID].PosZ = InPkgBuf.fPosZ;
