@@ -709,8 +709,6 @@ static CommandInfo kMPConnectCommand =
 	Cmd_MPConnect_Execute
 };
 
-
-
 static CommandInfo kMPSendActorCommand =
 {
 	"MPSendActor",
