@@ -64,13 +64,13 @@ extern void RunScriptLine(const char *buf, bool IsTemp);
 extern int GetActorID(UInt32 refID);
 extern float GetStat(Actor *ActorBuf, int statNum);
 
-extern bool NetActorUpdate(PlayerStatus *Player,int PlayerID);
+extern bool NetActorUpdate(PlayerStatus *Player,int PlayerID,bool Initial);
 extern bool NetWelcome();
 extern bool NetDisconnect();
 extern bool NetChat(char *Message);
-extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID);
+extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID,bool Initial);
 extern bool NetReadBuffer(char *acReadBuffer);
-extern bool NetEquipped(PlayerStatus *Player, int PlayerID);
+extern bool NetEquipped(PlayerStatus *Player, int PlayerID,bool Initial);
 
 extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEquippedFunctor, double* result);
 
@@ -231,8 +231,29 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 				actorNumber = LocalPlayer;
 
 			//Prevent the player info from being logged client side, let the server handle it
-			if (actorNumber == LocalPlayer)
+			if (!Players[actorNumber].bStatsInitialized)
 			{
+				Players[actorNumber].RefID = ActorBuf->refID;
+				Players[actorNumber].PosX = ActorBuf->posX;
+				Players[actorNumber].PosY = ActorBuf->posY;
+				Players[actorNumber].PosZ = ActorBuf->posZ;
+				Players[actorNumber].RotX = ActorBuf->rotX;
+				Players[actorNumber].RotY = ActorBuf->rotY;
+				Players[actorNumber].RotZ = ActorBuf->rotZ;
+				Players[actorNumber].Health = ActorBuf->GetActorValue(8);
+				Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
+				Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
+				if(ActorBuf->parentCell->worldSpace)
+				{
+					Players[actorNumber].bIsInInterior = false;
+					Players[actorNumber].CellID = ActorBuf->parentCell->worldSpace->refID;
+				}else{
+					Players[actorNumber].bIsInInterior = true;
+					Players[actorNumber].CellID = ActorBuf->parentCell->refID;
+				}
+				NetActorUpdate(&Players[actorNumber], actorNumber, true);
+				Players[actorNumber].bStatsInitialized = true;
+			}else{
 				PlayerStatus DummyStatus;
 				DummyStatus.RefID = ActorBuf->refID;
 				DummyStatus.PosX = ActorBuf->posX;
@@ -252,27 +273,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 					DummyStatus.bIsInInterior = true;
 					DummyStatus.CellID = ActorBuf->parentCell->refID;
 				}
-				NetActorUpdate(&DummyStatus, actorNumber);
-			}else{
-				Players[actorNumber].RefID = ActorBuf->refID;
-				Players[actorNumber].PosX = ActorBuf->posX;
-				Players[actorNumber].PosY = ActorBuf->posY;
-				Players[actorNumber].PosZ = ActorBuf->posZ;
-				Players[actorNumber].RotX = ActorBuf->rotX;
-				Players[actorNumber].RotY = ActorBuf->rotY;
-				Players[actorNumber].RotZ = ActorBuf->rotZ;
-				Players[actorNumber].Health = ActorBuf->GetActorValue(8);
-				Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
-				Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
-				if(ActorBuf->parentCell->worldSpace)
-				{
-					Players[actorNumber].bIsInInterior = false;
-					Players[actorNumber].CellID = ActorBuf->parentCell->worldSpace->refID;
-				}else{
-					Players[actorNumber].bIsInInterior = true;
-					Players[actorNumber].CellID = ActorBuf->parentCell->refID;
-				}
-				NetActorUpdate(&Players[actorNumber], actorNumber);
+				NetActorUpdate(&DummyStatus, actorNumber, false);
 			}
 		}
 	}
@@ -306,7 +307,7 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 			DummyHolder.Magika = ActorBuf->GetActorValue(9);
 			DummyHolder.Fatigue = ActorBuf->GetActorValue(10);
 			DummyHolder.Encumbrance = ActorBuf->GetActorValue(11);
-			NetFullStatUpdate(&DummyHolder, actorNumber);
+			NetFullStatUpdate(&DummyHolder, actorNumber, false);
 		}
 	}
 	return true;
@@ -701,7 +702,7 @@ bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
 			else
 				Players[actorNumber].ammo = 0;
 
-			NetEquipped(&Players[actorNumber], actorNumber);
+			NetEquipped(&Players[actorNumber], actorNumber, false);
 		}
 	}
 	return true;

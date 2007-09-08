@@ -77,7 +77,7 @@ bool NetDisconnect()
 	return true;
 }
 
-bool NetActorUpdate(PlayerStatus *Player,int PlayerID)
+bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
 {
 	static PlayerStatus LastPlayer;
 	
@@ -96,6 +96,8 @@ bool NetActorUpdate(PlayerStatus *Player,int PlayerID)
 			}else{
 				pkgBuf.Flags = 1 | 2 | 4;
 			}
+			if(Initial)
+				pkgBuf.Flags = pkgBuf.Flags | 8;
 			pkgBuf.fPosX = Player->PosX;
 			pkgBuf.fPosY = Player->PosY;
 			pkgBuf.fPosZ = Player->PosZ;
@@ -114,7 +116,7 @@ bool NetActorUpdate(PlayerStatus *Player,int PlayerID)
 	return true;
 }
 
-bool NetEquipped(PlayerStatus *Player,int PlayerID)
+bool NetEquipped(PlayerStatus *Player, int PlayerID, bool Initial)
 {
 	static PlayerStatus LastPlayer;
 	
@@ -128,6 +130,8 @@ bool NetEquipped(PlayerStatus *Player,int PlayerID)
 			pkgBuf.etypeID = OOPEquipped;
 			pkgBuf.refID = PlayerID;
 			pkgBuf.Flags = 0;
+			if (Initial)
+				pkgBuf.Flags = pkgBuf.Flags | 8;
 			pkgBuf.head = Player->head;
 			pkgBuf.hair=Player->hair;
 			pkgBuf.upper_body=Player->upper_body;
@@ -165,7 +169,7 @@ bool NetChat(char *Message)
 	return true;
 }
 
-bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID)
+bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
 {
 	static PlayerStatus LastPlayer;
 	
@@ -180,6 +184,8 @@ bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID)
 			OOPkgFullStatUpdate pkgBuf;
 			pkgBuf.etypeID = OOPFullStatUpdate;
 			pkgBuf.Flags = 1 | 2;
+			if (Initial)
+				pkgBuf.Flags = pkgBuf.Flags | 8;
 			pkgBuf.Agility = Player->Agility;
 			pkgBuf.Encumbrance = Player->Encumbrance;
 			pkgBuf.Endurance = Player->Endurance;
