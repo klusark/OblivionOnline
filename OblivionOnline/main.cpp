@@ -508,7 +508,7 @@ bool Cmd_MPGetStat_Execute (COMMAND_ARGS)
 		Actor *ActorBuf = (Actor *)thisObj;
 		float statAmount = GetStat(ActorBuf, statNumber);
 		if (statAmount == -1)
-			Console_Print("Tried to get stat of non-initialized actor");
+			//Console_Print("Tried to get stat of non-initialized actor");
 		*result = statAmount;
 	}
 	return true;

@@ -269,25 +269,30 @@ void info(void *arg)
 	SOCKADDR_IN sin;
 
 	FILE *settings = fopen("settings.txt","r");
-	char IP[16];
-	char FILE[16];
-	char NAME[16];
-	fscanf(settings,"%s",IP);
-	fscanf(settings,"%s",FILE);
-	fscanf(settings,"%s",NAME);
-	char * hi = "hi";
-	char srequest[256];
-	sprintf_s(srequest,256, "GET /%s?name=%s&port=%i&players=%i&maxplayers=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,PORT,TotalClients,MAXCLIENTS,IP);
+	if (settings)
+	{
+		char IP[16];
+		char FILE[16];
+		char NAME[16];
+		fscanf(settings,"%s",IP);
+		fscanf(settings,"%s",FILE);
+		fscanf(settings,"%s",NAME);
+		char * hi = "hi";
+		char srequest[256];
+		sprintf_s(srequest,256, "GET /%s?name=%s&port=%i&players=%i&maxplayers=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,PORT,TotalClients,MAXCLIENTS,IP);
 
-	sock = socket(AF_INET, SOCK_STREAM, 0);
+		sock = socket(AF_INET, SOCK_STREAM, 0);
 	
-	sin.sin_addr.s_addr = inet_addr("192.168.0.5");
-	sin.sin_family = AF_INET;
-	sin.sin_port = htons(80);
+		sin.sin_addr.s_addr = inet_addr("192.168.0.5");
+		sin.sin_family = AF_INET;
+		sin.sin_port = htons(80);
 
-	connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
-	send(sock, srequest, strlen(srequest), 0); 
+		connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
+		send(sock, srequest, strlen(srequest), 0);
 
-	closesocket(sock); 
+		closesocket(sock); 
+	}else{
+		printf("Error: Server-list settings file settings.txt was not found");
+	}
 	WSACleanup();
 }
