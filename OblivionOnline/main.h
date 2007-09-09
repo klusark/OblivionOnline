@@ -39,6 +39,7 @@ This file is part of OblivionOnline.
 #ifndef main_h
 #define main_h
 
+#include <list>
 #include <stdio.h>
 #include <Windows.h>
 #include "obse/PluginAPI.h"

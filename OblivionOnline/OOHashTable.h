@@ -38,42 +38,22 @@ This file is part of OblivionOnline.
 //perhaps a template. DO NOT USE stdext:::hash_map. It is such bullshit....+
 //not to be used yet
 //bobjr777 doesnt think we need this code
-/*typedef void * ObjectPointer;
-typedef char * (*NameFunction) (ObjectPointer obj);
-typedef void (*ReleaseFunction) (ObjectPointer obj);
-typedef char *(*HashFunction) (char *Name,size_t size);
-struct HashEntry
-{
-	HashEntry *nxt; //In case of hash collision
-	void *obj;
-};
-class HashTable
-{
-public:
-   HashTable(NameFunction namef,size_t ElementSize,int size , HashFunction hashf);
-   int HashInsert(ObjectPointer obj);
-   int HashRemove(ObjectPointer obj);
-   ~HashTable(HashMemory s);
-   ObjectPointer Get(char*name);
-private:
-	NameFunction name;
-	// ReleaseFunction release; //not rly needed, we use sizeof... 
-	size_t ElementSize; // when we free something
-	HashFunction hash;
-	unsigned int size;
-	HashEntry **hashtable;
-}
+// this was an experiment , delete (mf64)
 
-typedef HashTable * HashMemory;
-*/
+
+
+//hmmm , it does not cover collisions , and it cannot store pointers or more than 90 elements...
 #pragma once
 int find_slot(UINT32 formid);
 char * lookup(UINT32 formid);
 int set(int formid, char * value);
 unsigned int hashs(UINT32 str, unsigned int len);
+//I changed this for collisions
 struct pair{
 	UINT32 formid;
-	char * value;
+	void * value;
+	size_t size;
+	pair *next;
 }slot[90];
 int find_slot(UINT32 formid)
 {
