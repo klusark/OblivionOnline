@@ -234,27 +234,6 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 			//Prevent the player info from being logged client side if not initialized
 			if (!Players[actorNumber].bStatsInitialized)
 			{
-				Players[actorNumber].RefID = ActorBuf->refID;
-				Players[actorNumber].PosX = ActorBuf->posX;
-				Players[actorNumber].PosY = ActorBuf->posY;
-				Players[actorNumber].PosZ = ActorBuf->posZ;
-				Players[actorNumber].RotX = ActorBuf->rotX;
-				Players[actorNumber].RotY = ActorBuf->rotY;
-				Players[actorNumber].RotZ = ActorBuf->rotZ;
-				Players[actorNumber].Health = ActorBuf->GetActorValue(8);
-				Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
-				Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
-				if(ActorBuf->parentCell->worldSpace)
-				{
-					Players[actorNumber].bIsInInterior = false;
-					Players[actorNumber].CellID = ActorBuf->parentCell->worldSpace->refID;
-				}else{
-					Players[actorNumber].bIsInInterior = true;
-					Players[actorNumber].CellID = ActorBuf->parentCell->refID;
-				}
-				NetActorUpdate(&Players[actorNumber], actorNumber, true);
-				Players[actorNumber].bStatsInitialized = true;
-			}else{
 				PlayerStatus DummyStatus;
 				DummyStatus.RefID = ActorBuf->refID;
 				DummyStatus.PosX = ActorBuf->posX;
@@ -275,6 +254,27 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 					DummyStatus.CellID = ActorBuf->parentCell->refID;
 				}
 				NetActorUpdate(&DummyStatus, actorNumber, true);
+				Players[actorNumber].bStatsInitialized = true;
+			}else{
+				Players[actorNumber].RefID = ActorBuf->refID;
+				Players[actorNumber].PosX = ActorBuf->posX;
+				Players[actorNumber].PosY = ActorBuf->posY;
+				Players[actorNumber].PosZ = ActorBuf->posZ;
+				Players[actorNumber].RotX = ActorBuf->rotX;
+				Players[actorNumber].RotY = ActorBuf->rotY;
+				Players[actorNumber].RotZ = ActorBuf->rotZ;
+				Players[actorNumber].Health = ActorBuf->GetActorValue(8);
+				Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
+				Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
+				if(ActorBuf->parentCell->worldSpace)
+				{
+					Players[actorNumber].bIsInInterior = false;
+					Players[actorNumber].CellID = ActorBuf->parentCell->worldSpace->refID;
+				}else{
+					Players[actorNumber].bIsInInterior = true;
+					Players[actorNumber].CellID = ActorBuf->parentCell->refID;
+				}
+				NetActorUpdate(&Players[actorNumber], actorNumber, true);
 			}
 		}
 	}

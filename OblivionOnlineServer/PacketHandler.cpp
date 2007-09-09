@@ -113,7 +113,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		//Temp
 		if (OutPkgBuf.Health != 0)
 		{
-			printf("Player %i HP: %i (change of %i)\n", InPkgBuf.refID,
+			printf("From %i: Player %i HP is %i (change of %i)\n", LocalPlayer, InPkgBuf.refID,
 				Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
 		}
 		//End Temp
@@ -166,6 +166,7 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 	//Are these initialized stats?
 	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.Flags & 8))
 	{
+		//printf("FSU incoming\n");
 		Players[InPkgBuf.refID].Health = InPkgBuf.Health;
 		Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
 		Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
@@ -177,7 +178,7 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 		//Temp
 		if (OutPkgBuf.Health != 0)
 		{
-			printf("Player %i HP: %i (change of %i)(FSU)\n", InPkgBuf.refID,
+			printf("From %i: Player %i HP is %i (change of %i)(FSU)\n", LocalPlayer, InPkgBuf.refID,
 				Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
 		}
 		//End Temp

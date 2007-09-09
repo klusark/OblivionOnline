@@ -284,7 +284,7 @@ bool OOPActorUpdate_Handler(char *Packet)
 {
 	OOPkgActorUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgActorUpdate));
-	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
+	if ((InPkgBuf.refID < MAXCLIENTS))
 	{
 		if(!PlayerConnected[InPkgBuf.refID])
 		{
