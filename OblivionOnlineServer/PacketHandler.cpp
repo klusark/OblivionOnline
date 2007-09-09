@@ -72,6 +72,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	}
 	return true;
 }
+
 bool OOPDisconnect_Handler(char *Packet,short LocalPlayer)
 {
 	if (Connected[LocalPlayer])
@@ -87,6 +88,7 @@ bool OOPDisconnect_Handler(char *Packet,short LocalPlayer)
 	}
 	return true;
 }
+
 bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgActorUpdate InPkgBuf;
@@ -134,6 +136,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 	}
 	return true;
 }
+
 bool OOPChat_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgChat InPkgBuf;
@@ -156,11 +159,13 @@ bool OOPChat_Handler(char *Packet,short LocalPlayer)
 	//End Temp
 	return true;
 }
+
 bool OOPEvent_Handler(char *Packet,short LocalPlayer)
 {
 	//EVENTS ARE IGNORED UNTIL PLUGIN SYSTEM IS THERE
 	return true;
 }
+
 bool OOPEventRegister_Handler(char *Packet,short LocalPlayer)
 {
 	//EVENTS ARE IGNORED UNTIL PLUGIN SYSTEM IS THERE
@@ -207,6 +212,7 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 	}
 	return true;
 }
+
 bool OOPTimeUpdate_Handler(char *Packet,short LocalPlayer)
 {
 	time_t ServerTime;
@@ -223,27 +229,6 @@ bool OOPTimeUpdate_Handler(char *Packet,short LocalPlayer)
 	}
 	return true;
 }
-bool OOPPlayerList_Handler(char *Packet,short LocalPlayer)
-{
-	char *SendBuf;
-	OOPkgPlayerList OutPkgBuf;
-	OutPkgBuf.etypeID = OOPPlayerList;
-	SendBuf = (char *)malloc(sizeof(OOPkgPlayerList) + MAXCLIENTS);
-	memcpy(SendBuf, &OutPkgBuf, sizeof(OOPkgPlayerList));
-	for(int cx=0; cx<MAXCLIENTS; cx++)
-	{
-		if (Connected[cx])
-			SendBuf[cx + sizeof(OOPkgPlayerList)] = cx;
-		else
-			SendBuf[cx + sizeof(OOPkgPlayerList)] = 255;
-	}
-	for(int cx=0;cx<MAXCLIENTS;cx++)
-	{
-		send(clients[cx],SendBuf,sizeof(OOPkgPlayerList),0);
-	}
-	free(SendBuf);
-	return true;
-}
 
 bool OOPEquipped_Handler(char *Packet,short LocalPlayer)
 {
@@ -257,6 +242,18 @@ bool OOPEquipped_Handler(char *Packet,short LocalPlayer)
 	{
 		if (cx != LocalPlayer)
 			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgEquipped),0);
+	}
+	return true;
+}
+
+bool OOPModOffsetList_Handler(char *Packet,short LocalPlayer)
+{
+	OOPkgModOffsetList InPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgModOffsetList));
+	for(int cx=0;cx<MAXCLIENTS;cx++)
+	{
+		if (cx != LocalPlayer)
+			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgModOffsetList),0);
 	}
 	return true;
 }

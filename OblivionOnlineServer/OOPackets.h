@@ -41,20 +41,30 @@ This file is part of OblivionOnline.
 
 const GUID gcOOGUID = 
 { 0x2b09e144, 0x4976, 0x44f6, { 0xaa, 0x8f, 0xb6, 0x27, 0x99, 0x24, 0x32, 0xaf } }; // so we can copy it over later
+/*
+OblivionOnline GUID 
+// {2B09E144-4976-44f6-AA8F-B627992432AF}
+static const GUID OO = 
+{ 0x2b09e144, 0x4976, 0x44f6, { 0xaa, 0x8f, 0xb6, 0x27, 0x99, 0x24, 0x32, 0xaf } };
+- I googled it and it is unique:) - and it is a GUID
+*/
+
 enum OOPacketType
 {
 	OOPWelcome = 0,		//Send to synchronise versions , 
-	OOPActorUpdate,		//Sends a position of actors , objects and players
-	OOPChat,			//Someone sends a chat message
 	OOPEvent,			//An Event is triggered by a plugin
 	OOPEventRegister,	//An Event is registered, server only
+	OOPActorUpdate,		//Sends a position of actors , objects and players
+	OOPChat,			//Someone sends a chat message
 	OOPFullStatUpdate,	//Send all actor, mob, player stats
 	OOPTimeUpdate,		//Send the time to all clients
-	OOPPlayerList,		//Contains a list of connected players
 	OOPDisconnect,		//Tells other clients that the player is disconnecting
-	OOPEquipped
+	OOPEquipped,		//Tells the clients what the actor is wearing
+	OOPModOffsetList,	//Contains a list of mod offsets to support mod items and locations
 };
+
 #pragma pack(push,1)
+
 struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE IT HAS TO WORK WITH ALL VERSIONS!!!!
 {
 	//4 bytes(most common enum) is a lot .... but better than a short and a hell of problems later
@@ -66,20 +76,23 @@ struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE
 	char NickName[32]; // ignored when sent by client
 };
 
-struct OOPkgDisconnect
+struct OOPkgEvent // This package is for Plugin Events
 {
 	OOPacketType etypeID;
-	short Flags;
-	int PlayerID;
+	short Flags;	// none yet
+	DWORD Param1;
+	DWORD Param2;
+	int EventID;
 };
 
-/*
-OblivionOnline GUID 
-// {2B09E144-4976-44f6-AA8F-B627992432AF}
-static const GUID OO = 
-{ 0x2b09e144, 0x4976, 0x44f6, { 0xaa, 0x8f, 0xb6, 0x27, 0x99, 0x24, 0x32, 0xaf } };
-- I googled it and it is unique:) - and it is a GUID
-*/
+struct OOPkgEventRegister // This package is for Plugin Events
+{
+	OOPacketType etypeID;
+	short Flags;	// none yet
+	char EventString[64]; //better than variable length here
+	int EventID;
+};
+
 struct OOPkgActorUpdate
 {
 	OOPacketType etypeID;
@@ -90,6 +103,7 @@ struct OOPkgActorUpdate
 	UInt32 CellID;	// It is the reference ID of the current location
 	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
 };
+
 struct OOPkgChat //THIS PACKAGE IS NOT DIRECTLY MAPPED , but has to be converted
 {
 	OOPacketType etypeID;
@@ -97,21 +111,7 @@ struct OOPkgChat //THIS PACKAGE IS NOT DIRECTLY MAPPED , but has to be converted
 	int Length; // attention here!!!!!!!!
 	//The actual message body is contained after this data. It is manually written as ANSI string
 };
-struct OOPkgEvent // This package is for Plugin Events
-{
-	OOPacketType etypeID;
-	short Flags;	// none yet
-	DWORD Param1;
-	DWORD Param2;
-	int EventID;
-};
-struct OOPkgEventRegister // This package is for Plugin Events
-{
-	OOPacketType etypeID;
-	short Flags;	// none yet
-	char EventString[64]; //better than variable length here
-	int EventID;
-};
+
 struct OOPkgFullStatUpdate // This package is for full stat updates
 {
 	OOPacketType etypeID;
@@ -123,29 +123,42 @@ struct OOPkgFullStatUpdate // This package is for full stat updates
 	float TimeStamp;	// This is so that the server can sort data
 	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
 };
+
 struct OOPkgTimeUpdate
 {
 	OOPacketType etypeID;
 	short Flags;	// 1 - time request
 	unsigned int Hours, Minutes, Seconds;
 };
-struct OOPkgPlayerList
+
+struct OOPkgDisconnect
 {
 	OOPacketType etypeID;
-	short Flags;	// none so far
-	unsigned short TotalPlayers;	//Total players connected
-	//The actual player list will be attached to the end of the packet
-	//1 byte per player connected (so each player # can be from 0-255)
+	short Flags;	// none yet
+	int PlayerID;	// the player number that DC'd
 };
+
 struct OOPkgEquipped
 {
 	OOPacketType etypeID;
 	short Flags;	// none
-	UInt32 refID;
-	UInt32 head,hair,upper_body,lower_body,hand,foot,right_ring,left_ring,amulet,shield,tail,weapon,ammo; 
-	//more to come
+	UInt32 refID;	// the player # or the refID of the actor
+	UInt32 head,hair,upper_body,lower_body;
+	UInt32 hand,foot,right_ring,left_ring;
+	UInt32 amulet,shield,tail,weapon,ammo; 
 };
+
+struct OOPkgModOffsetList
+{
+	OOPacketType etypeID;
+	short Flags;		// none
+	UInt32 refID;		// the player #
+	short NumOfMods;	// total supported mods enabled on client
+	//Mod ID's and offsets are each merged into a short (2 bytes) at the end of the packet
+};
+
 #pragma pack(pop)
+
 inline OOPacketType SelectType(char *Packet)
 {
 	return *((OOPacketType *)Packet);

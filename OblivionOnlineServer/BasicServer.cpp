@@ -70,9 +70,6 @@ int main()
 	SOCKADDR_IN addr;
 	FD_SET fdSet;
 
-	
-	easylog = fopen("Log.txt","w");
-
 	serverSettings = fopen("ServerSettings.ini","r");
 	if (serverSettings)
 	{
@@ -165,8 +162,10 @@ int main()
 					clients[LocalPlayer]=accept(acceptSocket, (sockaddr*)&NewAddr, &nAddrSize);
 					TotalClients++;
 					printf("Accepted new connection #(%d) from %s:%u\n",LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
+					easylog = fopen("Log.txt","a");
 					fprintf(easylog,"Accepted new connection #(%d) from %s:%u\n",LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					fprintf(easylog,"We now have %d connections\n",TotalClients);
+					fclose(easylog);
 					break;
 				}
 			}
@@ -188,17 +187,16 @@ int main()
 				{
 					TotalClients--;
 					printf("Client %d closed the Connection\n",LocalPlayer);
+					easylog = fopen("Log.txt","a");
 					fprintf(easylog,"Client %d closed the Connection\n",LocalPlayer);
 					fprintf(easylog,"We now have %d connections\n",TotalClients);
+					fclose(easylog);
 					closesocket(clients[LocalPlayer]); 
 					clients[LocalPlayer]=INVALID_SOCKET;
 					Connected[LocalPlayer] = false;
 				} 
 				else
-				{
-					acReadBuffer[rc]='\0';	// Create a null-terminated string from buffer
 					ScanBuffer(acReadBuffer, LocalPlayer);
-				}
 			}
 		}
 	}
@@ -252,6 +250,9 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer)
 	case OOPEquipped:
 		OOPEquipped_Handler(acReadBuffer,LocalPlayer);
 		break;
+	case OOPModOffsetList:
+		OOPModOffsetList_Handler(acReadBuffer,LocalPlayer);
+		break;
 	default: 
 		OOPTimeUpdate_Handler(acReadBuffer,LocalPlayer);
 		break;
@@ -283,9 +284,9 @@ void info(void *arg)
 
 		sock = socket(AF_INET, SOCK_STREAM, 0);
 	
-	sin.sin_addr.s_addr = inet_addr(IP);
-	sin.sin_family = AF_INET;
-	sin.sin_port = htons(80);
+		sin.sin_addr.s_addr = inet_addr(IP);
+		sin.sin_family = AF_INET;
+		sin.sin_port = htons(80);
 
 		connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
 		send(sock, srequest, strlen(srequest), 0);

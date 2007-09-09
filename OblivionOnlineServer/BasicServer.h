@@ -22,12 +22,13 @@ This file is part of OblivionOnline.
 #define BasicServer_h
 
 #define UInt32 unsigned long
+#define UInt8 unsigned char
 
 #include <windows.h>
 #include <stdio.h>
 #include <time.h>
 #include <process.h>
-#include "OOStatusStructs.h"
+#include "OOStructs.h"
 
 #define MAXCLIENTS 4
 #define PORT 41805
