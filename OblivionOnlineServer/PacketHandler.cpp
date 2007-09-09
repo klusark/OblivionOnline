@@ -104,12 +104,24 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		OutPkgBuf.fRotX = InPkgBuf.fRotX;
 		OutPkgBuf.fRotY = InPkgBuf.fRotY;
 		OutPkgBuf.fRotZ = InPkgBuf.fRotZ;
-		OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
-		OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
-		OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
-		Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
-		Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
-		Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
+		//Are we setting initial values?
+		if (InPkgBuf.Flags & 8)
+		{
+			OutPkgBuf.Health = InPkgBuf.Health;
+			OutPkgBuf.Magika = InPkgBuf.Magika;
+			OutPkgBuf.Fatigue = InPkgBuf.Fatigue;
+			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
+			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
+			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
+			printf("Client %i HP, MP, fatigue initialized", InPkgBuf.refID);
+		}else{
+			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
+			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
+			OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
+			Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
+			Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
+			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
+		}
 		//Temp
 		if (OutPkgBuf.Health != 0)
 		{
@@ -164,17 +176,17 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 	OOPkgFullStatUpdate OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
 	//Are these initialized stats?
-	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.Flags & 8))
+	if (InPkgBuf.refID < MAXCLIENTS)
 	{
 		//printf("FSU incoming\n");
-		Players[InPkgBuf.refID].Health = InPkgBuf.Health;
-		Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
-		Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
 		OutPkgBuf.etypeID = OOPFullStatUpdate;
 		OutPkgBuf.refID = InPkgBuf.refID;
 		OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
 		OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
 		OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
+		Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
+		Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
+		Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
 		//Temp
 		if (OutPkgBuf.Health != 0)
 		{

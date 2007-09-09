@@ -184,8 +184,6 @@ bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
 			OOPkgFullStatUpdate pkgBuf;
 			pkgBuf.etypeID = OOPFullStatUpdate;
 			pkgBuf.Flags = 1 | 2;
-			if (Initial)
-				pkgBuf.Flags = pkgBuf.Flags | 8;
 			pkgBuf.Agility = Player->Agility;
 			pkgBuf.Encumbrance = Player->Encumbrance;
 			pkgBuf.Endurance = Player->Endurance;
@@ -290,12 +288,10 @@ bool OOPActorUpdate_Handler(char *Packet)
 		{
 			TotalPlayers++;
 			PlayerConnected[InPkgBuf.refID] = true;
-			char CNText[32];
-			sprintf(CNText, "Player %i connected", InPkgBuf.refID);
-			Console_Print(CNText);
+			Console_Print("Player %i connected", InPkgBuf.refID);
+			Players[InPkgBuf.refID].bStatsInitialized = true;
 		}
 
-		Players[InPkgBuf.refID].bStatsInitialized = true;
 		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
 		Players[InPkgBuf.refID].PosY = InPkgBuf.fPosY;
 		Players[InPkgBuf.refID].PosZ = InPkgBuf.fPosZ;
@@ -310,10 +306,6 @@ bool OOPActorUpdate_Handler(char *Packet)
 			Players[InPkgBuf.refID].bIsInInterior = false;
 		else
 			Players[InPkgBuf.refID].bIsInInterior = true;
-		if (InPkgBuf.Health != 0)
-		{
-			//Console_Print("Player %i HP %i (change of %i)", InPkgBuf.refID, Players[InPkgBuf.refID].Health, InPkgBuf.Health);
-		}
 	}
 	return true;
 }
@@ -371,9 +363,8 @@ bool OOPFullStatUpdate_Handler(char *Packet)
 {
 	OOPkgFullStatUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
-	if ((InPkgBuf.refID < MAXCLIENTS))
+	if ((InPkgBuf.refID < MAXCLIENTS) && Players[InPkgBuf.refID].bStatsInitialized)
 	{
-		Players[InPkgBuf.refID].bStatsInitialized = true;
 		Players[InPkgBuf.refID].Agility = InPkgBuf.Agility;
 		Players[InPkgBuf.refID].Encumbrance = InPkgBuf.Encumbrance;
 		Players[InPkgBuf.refID].Endurance = InPkgBuf.Endurance;
@@ -383,9 +374,12 @@ bool OOPFullStatUpdate_Handler(char *Packet)
 		Players[InPkgBuf.refID].Speed = InPkgBuf.Speed;
 		Players[InPkgBuf.refID].Strength = InPkgBuf.Strength;
 		Players[InPkgBuf.refID].Willpower = InPkgBuf.Willpower;
+		int oldHP = Players[InPkgBuf.refID].Health;
 		Players[InPkgBuf.refID].Health = InPkgBuf.Health;
 		Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
 		Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
+		if (oldHP != InPkgBuf.Health)
+			Console_Print("FSU for localplayer, HP is %i (change of %i)", Players[InPkgBuf.refID].Health, InPkgBuf.Health);
 	}
 	return true;
 }
