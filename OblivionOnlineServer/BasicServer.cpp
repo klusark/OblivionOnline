@@ -23,7 +23,7 @@ This file is part of OblivionOnline.
 #include "PacketHandler.h"
 
 // Globals
-int TotalClients;
+int TotalClients = 0;
 bool bServerAlive;
 SOCKET clients[MAXCLIENTS];
 PlayerStatus Players[MAXCLIENTS];
@@ -35,12 +35,12 @@ FILE *serverSettings;
 // Prototypes
 int StartNet(void);
 int ScanBuffer(char *acReadBuffer, short LocalPlayer);
-void info( void * );
+void info(void *);
 
 //Main entry procedure
 int main()
 {
-	_beginthread(info,0,(void*)1);
+	_beginthread(info,0,NULL);
 
 	// Setup our local variables
 	short LocalPlayer;
@@ -260,36 +260,35 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer)
 }
 
 
-void info( void *arg )
+void info(void *arg)
 {
-	long rcs;
-	rcs=StartNet();
-	SOCKET server;
-    SOCKADDR_IN local;
-	server=socket(AF_INET,SOCK_STREAM,0);
-	memset(&local,0,sizeof(SOCKADDR_IN));
-    local.sin_family=AF_INET; //Address family
-    local.sin_addr.s_addr=INADDR_ANY; //Wild card IP address
-    local.sin_port=htons(serverPort-1); //port to use
-	rcs=bind(server,(SOCKADDR*)&local,sizeof(SOCKADDR_IN));
-		if(rcs==SOCKET_ERROR)
-	{
-		printf("Error calling bind: %d\n",WSAGetLastError());
-	}
-	rcs=listen(server,10);
-		if(rcs==SOCKET_ERROR)
-	{
-		printf("Error calling listen: %d\n",WSAGetLastError());
-	}
-    SOCKET client;
-	while(true)
-	{
-		sockaddr_in NewAddr;
-		int nAddrSize = sizeof(NewAddr);
-		client=accept(server, (sockaddr*)&NewAddr, &nAddrSize);
-		char * temp="Text being sent back.";
-		send( client, temp, strlen(temp), 0 );
-		closesocket(client);
-	}
-}
+	WSADATA WSAData;
+	WSAStartup(MAKEWORD(2,0), &WSAData);
 
+	SOCKET sock;
+	SOCKADDR_IN sin;
+
+	FILE *settings = fopen("settings.txt","r");
+	char IP[16];
+	char FILE[16];
+	char NAME[16];
+	fscanf(settings,"%s",IP);
+	fscanf(settings,"%s",FILE);
+	fscanf(settings,"%s",NAME);
+	char * hi = "hi";
+	char srequest[256];
+	sprintf_s(srequest,256, "GET /%s?name=%s&port=%i&players=%i&maxplayers=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,PORT,TotalClients,MAXCLIENTS,IP);
+	printf("%s",srequest);
+
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+	
+	sin.sin_addr.s_addr = inet_addr("192.168.0.5");
+	sin.sin_family = AF_INET;
+	sin.sin_port = htons(80);
+
+	connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
+	send(sock, srequest, strlen(srequest), 0); 
+
+	closesocket(sock); 
+	WSACleanup();
+}
