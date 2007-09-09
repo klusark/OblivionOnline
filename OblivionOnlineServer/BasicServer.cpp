@@ -278,7 +278,6 @@ void info(void *arg)
 	char * hi = "hi";
 	char srequest[256];
 	sprintf_s(srequest,256, "GET /%s?name=%s&port=%i&players=%i&maxplayers=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,PORT,TotalClients,MAXCLIENTS,IP);
-	printf("%s",srequest);
 
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	
