@@ -292,7 +292,7 @@ void info(void *arg)
 
 		closesocket(sock); 
 	}else{
-		printf("Error: Server-list settings file settings.txt was not found");
+		printf("Error: Server-list settings file settings.txt was not found\n");
 	}
 	WSACleanup();
 }
