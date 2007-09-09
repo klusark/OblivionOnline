@@ -51,7 +51,7 @@ unsigned int hashs(UINT32 str, unsigned int len);
 //I changed this for collisions
 struct pair{
 	UINT32 formid;
-	void * value;
+	char * value;
 	size_t size;
 	pair *next;
 }slot[90];
