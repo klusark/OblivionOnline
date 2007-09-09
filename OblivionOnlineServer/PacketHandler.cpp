@@ -114,6 +114,8 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
 			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
 			printf("Client %i basic stats initialized\n", InPkgBuf.refID);
+			printf(" HP: %i\n", Players[InPkgBuf.refID].Health);
+			printf(" MP: %i\n", Players[InPkgBuf.refID].Magika);
 		}else{
 			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
 			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
@@ -172,7 +174,6 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
 	if (InPkgBuf.refID < MAXCLIENTS)
 	{
-		//printf("FSU incoming\n");
 		OutPkgBuf.etypeID = OOPFullStatUpdate;
 		OutPkgBuf.refID = InPkgBuf.refID;
 		OutPkgBuf.Flags = InPkgBuf.Flags;
@@ -186,6 +187,8 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
 			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
 			printf("Client %i full stats initialized\n", InPkgBuf.refID);
+			printf(" HP: %i\n", Players[InPkgBuf.refID].Health);
+			printf(" MP: %i\n", Players[InPkgBuf.refID].Magika);
 		}else{
 			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
 			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;

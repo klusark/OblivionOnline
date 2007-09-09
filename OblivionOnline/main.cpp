@@ -56,7 +56,6 @@ SOCKET ServerSocket;
 HANDLE hRecvThread;
 
 PlayerStatus Players[MAXCLIENTS];
-PlayerStatus PlayersInitial[MAXCLIENTS];
 
 DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.
 
@@ -531,10 +530,7 @@ bool Cmd_MPGetDebugData_Execute (COMMAND_ARGS)
 		{
 			if (actorNumber == -2)
 				actorNumber = LocalPlayer;
-			char tempData[64];
-			Console_Print((*g_thePlayer)->parentCell->GetEditorName());
-			sprintf(tempData, "Actor %u upper_body object: %u", ActorBuf->refID, Players[actorNumber].upper_body);
-			Console_Print(tempData);
+			Console_Print("OblivionOnline mod offset: %x", ModOffset);
 		}
 	}
 	return true;
