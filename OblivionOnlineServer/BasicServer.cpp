@@ -283,9 +283,9 @@ void info(void *arg)
 
 		sock = socket(AF_INET, SOCK_STREAM, 0);
 	
-		sin.sin_addr.s_addr = inet_addr("192.168.0.5");
-		sin.sin_family = AF_INET;
-		sin.sin_port = htons(80);
+	sin.sin_addr.s_addr = inet_addr(IP);
+	sin.sin_family = AF_INET;
+	sin.sin_port = htons(80);
 
 		connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
 		send(sock, srequest, strlen(srequest), 0);
