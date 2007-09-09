@@ -231,52 +231,34 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 			if (actorNumber == -2)
 				actorNumber = LocalPlayer;
 
+			PlayerStatus DummyStatus;
+			DummyStatus.RefID = ActorBuf->refID;
+			DummyStatus.PosX = ActorBuf->posX;
+			DummyStatus.PosY = ActorBuf->posY;
+			DummyStatus.PosZ = ActorBuf->posZ;
+			DummyStatus.RotX = ActorBuf->rotX;
+			DummyStatus.RotY = ActorBuf->rotY;
+			DummyStatus.RotZ = ActorBuf->rotZ;
+			DummyStatus.Health = ActorBuf->GetActorValue(8);
+			DummyStatus.Magika = ActorBuf->GetActorValue(9);
+			DummyStatus.Fatigue = ActorBuf->GetActorValue(10);
+			if(ActorBuf->parentCell->worldSpace)
+			{
+				DummyStatus.bIsInInterior = false;
+				DummyStatus.CellID = ActorBuf->parentCell->worldSpace->refID;
+			}else{
+				DummyStatus.bIsInInterior = true;
+				DummyStatus.CellID = ActorBuf->parentCell->refID;
+			}
 			if (actorNumber != LocalPlayer)
 			{
-				Players[actorNumber].RefID = ActorBuf->refID;
-				Players[actorNumber].PosX = ActorBuf->posX;
-				Players[actorNumber].PosY = ActorBuf->posY;
-				Players[actorNumber].PosZ = ActorBuf->posZ;
-				Players[actorNumber].RotX = ActorBuf->rotX;
-				Players[actorNumber].RotY = ActorBuf->rotY;
-				Players[actorNumber].RotZ = ActorBuf->rotZ;
-				Players[actorNumber].Health = ActorBuf->GetActorValue(8);
-				Players[actorNumber].Magika = ActorBuf->GetActorValue(9);
-				Players[actorNumber].Fatigue = ActorBuf->GetActorValue(10);
-				if(ActorBuf->parentCell->worldSpace)
-				{
-					Players[actorNumber].bIsInInterior = false;
-					Players[actorNumber].CellID = ActorBuf->parentCell->worldSpace->refID;
-				}else{
-					Players[actorNumber].bIsInInterior = true;
-					Players[actorNumber].CellID = ActorBuf->parentCell->refID;
-				}
-				NetActorUpdate(&Players[actorNumber], actorNumber, !Players[actorNumber].bStatsInitialized);
+				NetActorUpdate(&DummyStatus, actorNumber, false);
 			}else{
-				PlayerStatus DummyStatus;
-				DummyStatus.RefID = ActorBuf->refID;
-				DummyStatus.PosX = ActorBuf->posX;
-				DummyStatus.PosY = ActorBuf->posY;
-				DummyStatus.PosZ = ActorBuf->posZ;
-				DummyStatus.RotX = ActorBuf->rotX;
-				DummyStatus.RotY = ActorBuf->rotY;
-				DummyStatus.RotZ = ActorBuf->rotZ;
-				DummyStatus.Health = ActorBuf->GetActorValue(8);
-				DummyStatus.Magika = ActorBuf->GetActorValue(9);
-				DummyStatus.Fatigue = ActorBuf->GetActorValue(10);
-				if(ActorBuf->parentCell->worldSpace)
-				{
-					DummyStatus.bIsInInterior = false;
-					DummyStatus.CellID = ActorBuf->parentCell->worldSpace->refID;
-				}else{
-					DummyStatus.bIsInInterior = true;
-					DummyStatus.CellID = ActorBuf->parentCell->refID;
-				}
-				if (Players[LocalPlayer].bStatsInitialized)
+				if (Players[actorNumber].bStatsInitialized)
 					NetActorUpdate(&DummyStatus, actorNumber, false);
 				else{
 					NetActorUpdate(&DummyStatus, actorNumber, true);
-					Players[LocalPlayer].bStatsInitialized = true;
+					Players[actorNumber].bStatsInitialized = true;
 				}
 			}
 		}
@@ -296,7 +278,7 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 		Actor *ActorBuf = (Actor *)thisObj;
 		int actorNumber = GetActorID(ActorBuf->refID);
 
-		if ((actorNumber != -1 && actorNumber != -2) && Players[actorNumber].bStatsInitialized)
+		if (actorNumber != -1 && actorNumber != -2)
 		{
 			PlayerStatus DummyStatus;
 			DummyStatus.Strength = ActorBuf->GetActorValue(0);
@@ -311,7 +293,17 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 			DummyStatus.Magika = ActorBuf->GetActorValue(9);
 			DummyStatus.Fatigue = ActorBuf->GetActorValue(10);
 			DummyStatus.Encumbrance = ActorBuf->GetActorValue(11);
-			NetFullStatUpdate(&DummyStatus, actorNumber, true);
+			if (actorNumber != LocalPlayer)
+			{
+				NetFullStatUpdate(&DummyStatus, actorNumber, false);
+			}else{
+				if (Players[actorNumber].bStatsInitialized)
+					NetFullStatUpdate(&DummyStatus, actorNumber, false);
+				else{
+					NetFullStatUpdate(&DummyStatus, actorNumber, true);
+					Players[actorNumber].bStatsInitialized = true;
+				}
+			}
 		}
 	}
 	return true;
@@ -516,6 +508,8 @@ bool Cmd_MPGetStat_Execute (COMMAND_ARGS)
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
 		float statAmount = GetStat(ActorBuf, statNumber);
+		if (statAmount == -1)
+			Console_Print("Tried to get stat of non-initialized actor");
 		*result = statAmount;
 	}
 	return true;

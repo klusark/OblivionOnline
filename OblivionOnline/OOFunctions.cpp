@@ -94,11 +94,11 @@ int GetActorID(UInt32 refID)
 
 float GetStat(Actor* ActorBuf, int statNum)
 {
-	float statValue = 0;
+	float statValue = -1;
 	int PlayerNum = GetActorID(ActorBuf->refID);
 
-	//If actorID is valid, retrieve the stat we want
-	if (PlayerNum != -1 && PlayerNum != -2)
+	//If actorID is valid and stats have been initialized, retrieve the stat we want
+	if ((PlayerNum != -1 && PlayerNum != -2) && Players[PlayerNum].bStatsInitialized)
 	{
 		switch(statNum)
 		{

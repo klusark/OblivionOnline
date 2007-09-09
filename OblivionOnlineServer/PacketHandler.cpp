@@ -95,9 +95,9 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 	if (InPkgBuf.refID < MAXCLIENTS)
 	{
 		OutPkgBuf.etypeID = OOPActorUpdate;
+		OutPkgBuf.Flags = InPkgBuf.Flags;
 		OutPkgBuf.refID = InPkgBuf.refID;
 		OutPkgBuf.CellID = InPkgBuf.CellID;
-		OutPkgBuf.Flags = InPkgBuf.Flags;
 		OutPkgBuf.fPosX = InPkgBuf.fPosX;
 		OutPkgBuf.fPosY = InPkgBuf.fPosY;
 		OutPkgBuf.fPosZ = InPkgBuf.fPosZ;
@@ -113,26 +113,21 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
 			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
 			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
-			printf("Client %i HP, MP, fatigue initialized", InPkgBuf.refID);
+			printf("Client %i basic stats initialized\n", InPkgBuf.refID);
 		}else{
 			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
 			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
 			OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
+			//printf("Player HP: %i | Incoming HP: %i\n", Players[InPkgBuf.refID].Health, InPkgBuf.Health);
 			Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
 			Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
 			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
+			if (OutPkgBuf.Health != 0)
+				printf("From %i: Player %i HP is %i (change of %i)\n", LocalPlayer, InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
 		}
-		//Temp
-		if (OutPkgBuf.Health != 0)
-		{
-			printf("From %i: Player %i HP is %i (change of %i)\n", LocalPlayer, InPkgBuf.refID,
-				Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
-		}
-		//End Temp
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
-			if (cx != LocalPlayer)
-				send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
+			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
 		}
 	}
 	return true;
@@ -175,25 +170,33 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 	OOPkgFullStatUpdate InPkgBuf;
 	OOPkgFullStatUpdate OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
-	//Are these initialized stats?
 	if (InPkgBuf.refID < MAXCLIENTS)
 	{
 		//printf("FSU incoming\n");
 		OutPkgBuf.etypeID = OOPFullStatUpdate;
 		OutPkgBuf.refID = InPkgBuf.refID;
-		OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
-		OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
-		OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
-		Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
-		Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
-		Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
-		//Temp
-		if (OutPkgBuf.Health != 0)
+		OutPkgBuf.Flags = InPkgBuf.Flags;
+		//Are we setting initial values?
+		if (InPkgBuf.Flags & 8)
 		{
-			printf("From %i: Player %i HP is %i (change of %i)(FSU)\n", LocalPlayer, InPkgBuf.refID,
-				Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
+			OutPkgBuf.Health = InPkgBuf.Health;
+			OutPkgBuf.Magika = InPkgBuf.Magika;
+			OutPkgBuf.Fatigue = InPkgBuf.Fatigue;
+			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
+			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
+			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
+			printf("Client %i full stats initialized\n", InPkgBuf.refID);
+		}else{
+			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
+			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
+			OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
+			//printf("Player HP: %i | Incoming HP: %i (FSU)\n", Players[InPkgBuf.refID].Health, InPkgBuf.Health);
+			Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
+			Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
+			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
+			if (OutPkgBuf.Health != 0)
+				printf("From %i: Player %i HP is %i (change of %i)(FSU)\n", LocalPlayer, InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
 		}
-		//End Temp
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
 			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgFullStatUpdate),0);

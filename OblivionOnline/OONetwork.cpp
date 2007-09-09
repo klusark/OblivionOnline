@@ -91,11 +91,9 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
 			memcpy(&LastPlayer,Player,sizeof(PlayerStatus));
 			pkgBuf.etypeID = OOPActorUpdate;
 			if(Player->bIsInInterior)
-			{
 				pkgBuf.Flags = 1 | 2;
-			}else{
+			else
 				pkgBuf.Flags = 1 | 2 | 4;
-			}
 			if(Initial)
 				pkgBuf.Flags = pkgBuf.Flags | 8;
 			pkgBuf.fPosX = Player->PosX;
@@ -118,14 +116,14 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
 
 bool NetEquipped(PlayerStatus *Player, int PlayerID, bool Initial)
 {
-	static PlayerStatus LastPlayer;
+	static PlayerStatus EquipLastPlayer;
 	
 	OOPkgEquipped pkgBuf;
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
 	if((tickBuf - PacketTime[OOPEquipped]) > NET_EQUIPUPDATE_RESEND)
 	{
-		if(memcmp(&LastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
+		if(memcmp(&EquipLastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
 		{
 			pkgBuf.etypeID = OOPEquipped;
 			pkgBuf.refID = PlayerID;
@@ -171,7 +169,7 @@ bool NetChat(char *Message)
 
 bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
 {
-	static PlayerStatus LastPlayer;
+	static PlayerStatus StatLastPlayer;
 	
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
@@ -179,11 +177,13 @@ bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
 	// If we have a full update, don't send it too quickly
 	if((tickBuf - PacketTime[OOPFullStatUpdate]) > NET_FULLSTATUPDATE_RESEND)
 	{
-		if(memcmp(&LastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
+		if(memcmp(&StatLastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
 		{
 			OOPkgFullStatUpdate pkgBuf;
 			pkgBuf.etypeID = OOPFullStatUpdate;
 			pkgBuf.Flags = 1 | 2;
+			if (Initial)
+				pkgBuf.Flags = pkgBuf.Flags | 8;
 			pkgBuf.Agility = Player->Agility;
 			pkgBuf.Encumbrance = Player->Encumbrance;
 			pkgBuf.Endurance = Player->Endurance;
@@ -282,14 +282,13 @@ bool OOPActorUpdate_Handler(char *Packet)
 {
 	OOPkgActorUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgActorUpdate));
-	if ((InPkgBuf.refID < MAXCLIENTS))
+	if (InPkgBuf.refID < MAXCLIENTS)
 	{
 		if(!PlayerConnected[InPkgBuf.refID])
 		{
 			TotalPlayers++;
 			PlayerConnected[InPkgBuf.refID] = true;
 			Console_Print("Player %i connected", InPkgBuf.refID);
-			Players[InPkgBuf.refID].bStatsInitialized = true;
 		}
 
 		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
@@ -299,9 +298,18 @@ bool OOPActorUpdate_Handler(char *Packet)
 		Players[InPkgBuf.refID].RotY = InPkgBuf.fRotY;
 		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
 		Players[InPkgBuf.refID].CellID = InPkgBuf.CellID;
-		Players[InPkgBuf.refID].Health += InPkgBuf.Health;
-		Players[InPkgBuf.refID].Magika += InPkgBuf.Magika;
-		Players[InPkgBuf.refID].Fatigue += InPkgBuf.Fatigue;
+		if (InPkgBuf.Flags & 8)
+		{
+			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
+			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
+			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
+			Console_Print("Player %i basic stats initialized", InPkgBuf.refID);
+			Players[InPkgBuf.refID].bStatsInitialized = true;
+		}else{
+			Players[InPkgBuf.refID].Health += InPkgBuf.Health;
+			Players[InPkgBuf.refID].Magika += InPkgBuf.Magika;
+			Players[InPkgBuf.refID].Fatigue += InPkgBuf.Fatigue;
+		}
 		if (InPkgBuf.Flags & 4) //Is in an exterior?
 			Players[InPkgBuf.refID].bIsInInterior = false;
 		else
@@ -363,23 +371,37 @@ bool OOPFullStatUpdate_Handler(char *Packet)
 {
 	OOPkgFullStatUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
-	if ((InPkgBuf.refID < MAXCLIENTS) && Players[InPkgBuf.refID].bStatsInitialized)
+	if (InPkgBuf.refID < MAXCLIENTS)
 	{
-		Players[InPkgBuf.refID].Agility = InPkgBuf.Agility;
-		Players[InPkgBuf.refID].Encumbrance = InPkgBuf.Encumbrance;
-		Players[InPkgBuf.refID].Endurance = InPkgBuf.Endurance;
-		Players[InPkgBuf.refID].Intelligence = InPkgBuf.Intelligence;
-		Players[InPkgBuf.refID].Luck = InPkgBuf.Luck;
-		Players[InPkgBuf.refID].Personality = InPkgBuf.Personality;
-		Players[InPkgBuf.refID].Speed = InPkgBuf.Speed;
-		Players[InPkgBuf.refID].Strength = InPkgBuf.Strength;
-		Players[InPkgBuf.refID].Willpower = InPkgBuf.Willpower;
-		int oldHP = Players[InPkgBuf.refID].Health;
-		Players[InPkgBuf.refID].Health = InPkgBuf.Health;
-		Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
-		Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
-		if (oldHP != InPkgBuf.Health)
-			Console_Print("FSU for localplayer, HP is %i (change of %i)", Players[InPkgBuf.refID].Health, InPkgBuf.Health);
+		if (InPkgBuf.Flags & 8)
+		{
+			Players[InPkgBuf.refID].Agility = InPkgBuf.Agility;
+			Players[InPkgBuf.refID].Encumbrance = InPkgBuf.Encumbrance;
+			Players[InPkgBuf.refID].Endurance = InPkgBuf.Endurance;
+			Players[InPkgBuf.refID].Intelligence = InPkgBuf.Intelligence;
+			Players[InPkgBuf.refID].Luck = InPkgBuf.Luck;
+			Players[InPkgBuf.refID].Personality = InPkgBuf.Personality;
+			Players[InPkgBuf.refID].Speed = InPkgBuf.Speed;
+			Players[InPkgBuf.refID].Strength = InPkgBuf.Strength;
+			Players[InPkgBuf.refID].Willpower = InPkgBuf.Willpower;
+			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
+			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
+			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
+			Players[InPkgBuf.refID].bStatsInitialized = true;
+		}else{
+			Players[InPkgBuf.refID].Agility += InPkgBuf.Agility;
+			Players[InPkgBuf.refID].Encumbrance += InPkgBuf.Encumbrance;
+			Players[InPkgBuf.refID].Endurance += InPkgBuf.Endurance;
+			Players[InPkgBuf.refID].Intelligence += InPkgBuf.Intelligence;
+			Players[InPkgBuf.refID].Luck += InPkgBuf.Luck;
+			Players[InPkgBuf.refID].Personality += InPkgBuf.Personality;
+			Players[InPkgBuf.refID].Speed += InPkgBuf.Speed;
+			Players[InPkgBuf.refID].Strength += InPkgBuf.Strength;
+			Players[InPkgBuf.refID].Willpower += InPkgBuf.Willpower;
+			Players[InPkgBuf.refID].Health += InPkgBuf.Health;
+			Players[InPkgBuf.refID].Magika += InPkgBuf.Magika;
+			Players[InPkgBuf.refID].Fatigue += InPkgBuf.Fatigue;
+		}
 	}
 	return true;
 }
