@@ -61,6 +61,7 @@ struct ActorStatus : ObjectStatus
 	UInt32 head,hair,upper_body,lower_body;
 	UInt32 hand,foot,right_ring,left_ring;
 	UInt32 amulet,shield,tail,weapon,ammo;
+	UInt32 robes;
 
 	bool bStatsInitialized;
 	bool bInitialSet;

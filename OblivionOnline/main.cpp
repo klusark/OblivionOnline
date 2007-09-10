@@ -109,6 +109,7 @@ int OO_Initialize()
 		Players[i].tail = 0;
 		Players[i].weapon = 0;
 		Players[i].ammo = 0;
+		Players[i].robes = 0;
 
 		PlayerConnected[i] = false;
 
@@ -147,6 +148,7 @@ int OO_Deinitialize ()
 		Players[i].tail = 0;
 		Players[i].weapon = 0;
 		Players[i].ammo = 0;
+		Players[i].robes = 0;
 
 		PlayerConnected[i] = false;
 	}
@@ -692,7 +694,11 @@ bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
 			if (FindEquipped(thisObj, 17, &getObject, &itemResult))
 				Players[actorNumber].ammo = *itemRef;
 			else
-				Players[actorNumber].ammo = 0;
+				Players[actorNumber].robes = 0;
+			if (FindEquipped(thisObj, 18, &getObject, &itemResult))
+				Players[actorNumber].robes = *itemRef;
+			else
+				Players[actorNumber].robes = 0;
 
 			NetEquipped(&Players[actorNumber], actorNumber, false);
 		}
@@ -756,6 +762,9 @@ bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 				break;
 			case 17:
 				*refResult = Players[actorNumber].ammo;
+				break;
+			case 18:
+				*refResult = Players[actorNumber].robes;
 				break;
 			default: 
 				break;

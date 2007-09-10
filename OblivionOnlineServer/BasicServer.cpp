@@ -272,13 +272,15 @@ void info(void *arg)
 	SOCKET sock;
 	SOCKADDR_IN sin;
 
-	FILE *settings = fopen("settings.txt","r");
+	FILE *settings = fopen("ListSettings.ini","r");
 	if (settings)
 	{
 		char IP[16];
+		unsigned short LISTPORT;
 		char FILE[16];
 		char NAME[16];
 		fscanf(settings,"%s",IP);
+		fscanf(settings,"%i",LISTPORT);
 		fscanf(settings,"%s",FILE);
 		fscanf(settings,"%s",NAME);
 		char * hi = "hi";
@@ -289,14 +291,14 @@ void info(void *arg)
 	
 		sin.sin_addr.s_addr = inet_addr(IP);
 		sin.sin_family = AF_INET;
-		sin.sin_port = htons(80);
+		sin.sin_port = htons(LISTPORT);
 
 		connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
 		send(sock, srequest, strlen(srequest), 0);
 
 		closesocket(sock); 
 	}else{
-		printf("Error: Server-list settings file settings.txt was not found\n");
+		printf("Error: Server-list settings file ListSettings.ini was not found\n");
 	}
 	WSACleanup();
 }

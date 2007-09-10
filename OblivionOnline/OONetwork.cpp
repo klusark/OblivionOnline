@@ -143,6 +143,7 @@ bool NetEquipped(PlayerStatus *Player, int PlayerID, bool Initial)
 			pkgBuf.tail=Player->tail;
 			pkgBuf.weapon=Player->weapon;
 			pkgBuf.ammo=Player->ammo;
+			pkgBuf.robes=Player->robes;
 			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgEquipped),0);
 			PacketTime[OOPEquipped] = tickBuf;
 		}
@@ -412,6 +413,7 @@ bool OOPEquipped_Handler(char *Packet)
 		Players[InPkgBuf.refID].tail = InPkgBuf.tail;
 		Players[InPkgBuf.refID].weapon = InPkgBuf.weapon;
 		Players[InPkgBuf.refID].ammo = InPkgBuf.ammo;
+		Players[InPkgBuf.refID].robes = InPkgBuf.robes;
 	}
 	return true;
 }
@@ -467,7 +469,6 @@ bool OOPModOffsetList_Handler(char *Packet)
 {
 	OOPkgModOffsetList InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgModOffsetList));
-	int PlayerList[MAXCLIENTS];
 	if (InPkgBuf.NumOfMods >= 255)
 		return false;
 	Console_Print("Mod list (%i mods) from %i:", InPkgBuf.NumOfMods, InPkgBuf.refID);
