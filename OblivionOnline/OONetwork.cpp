@@ -207,7 +207,7 @@ bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
 
 bool NetSendModList(void)
 {
-	char Mods[255];
+	char Mods[256];
 	char *SendBuf;
 	void *ListDest;
 	OOPkgModOffsetList pkgBuf;
@@ -217,12 +217,14 @@ bool NetSendModList(void)
 
 	pkgBuf.NumOfMods = 1;
 	Mods[0] = ModList[LocalPlayer][0];	//Base Oblivion (should equal 0)
-	for(int i=1; i<255; i++)
+	for(int i=1; i<256; i++)
+	{
 		if (ModList[LocalPlayer][i])
 		{
-			Mods[i] = ModList[LocalPlayer][1];
+			Mods[pkgBuf.NumOfMods] = ModList[LocalPlayer][i];
 			pkgBuf.NumOfMods++;
 		}
+	}
 
 	SendBuf = (char *)malloc(sizeof(OOPkgModOffsetList)+pkgBuf.NumOfMods);
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgModOffsetList));
