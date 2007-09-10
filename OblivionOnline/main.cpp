@@ -57,7 +57,7 @@ PlayerStatus Players[MAXCLIENTS];
 
 DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.
 
-UInt8 ModList[MAXCLIENTS][255];	//List of supported mods from each client
+UInt8 ModList[MAXCLIENTS][256];	//List of supported mods from each client
 
 // Prototypes
 extern void RunScriptLine(const char *buf, bool IsTemp);
@@ -771,6 +771,22 @@ bool Cmd_MPSendModList_Execute (COMMAND_ARGS)
 	return true;
 }
 
+bool Cmd_MPLogModOffset_Execute (COMMAND_ARGS)
+{
+	if (!thisObj)
+	{
+		Console_Print("Error, no reference given for MPLogModOffset");
+		return true;
+	}
+	int ModID;	//0 - Oblivion, 1 - OblivionOnline.esp, 2 - OOArenaMod.esp
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &ModID)) return true;
+	if (ModID > 255)
+		return true;
+	ModList[LocalPlayer][ModID] = (thisObj->refID & 0xff000000) >> 24;
+	Console_Print("Offset of %i set for modID %i", ModList[LocalPlayer][ModID], ModID);
+	return true;
+}
+
 //---------------------------
 //---End Command Functions---
 //---------------------------
@@ -1079,6 +1095,18 @@ static CommandInfo kMPSendModListCommand =
 	Cmd_MPSendModList_Execute
 };
 
+static CommandInfo kMPLogModOffsetCommand =
+{
+	"MPLogModOffset",
+	"MPLMO",
+	0,
+	"Logs the mod offset of the calling ref",
+	0,		// requires parent obj
+	1,		// 1 param
+	kParams_OneInt,	// int param table
+	Cmd_MPLogModOffset_Execute
+};
+
 //---------------------------------
 //---End CommandInfo Enumeration---
 //---------------------------------
@@ -1134,7 +1162,7 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPSendFullStatCommand);
 	obse->RegisterCommand(&kMPSendChatCommand);
 
-	//Data sync
+	//Time sync
 	obse->RegisterCommand(&kMPSyncTimeCommand);
 
 	//Data injecting
@@ -1164,7 +1192,9 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPSendEquippedCommand);
 	obse->RegisterCommand(&kMPGetEquipmentCommand);
 
+	//Mod support
 	obse->RegisterCommand(&kMPSendModListCommand);
+	obse->RegisterCommand(&kMPLogModOffsetCommand);
 
 	_MESSAGE("Done loading OO Commands");
 	return true;

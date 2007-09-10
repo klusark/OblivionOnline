@@ -215,10 +215,14 @@ bool NetSendModList(void)
 	pkgBuf.Flags = 0;
 	pkgBuf.refID = LocalPlayer;
 
-	//Modlist is hardcoded for now, will read a file later
-	pkgBuf.NumOfMods = 2;
-	Mods[0] = ModList[LocalPlayer][0];
-	Mods[1] = ModList[LocalPlayer][1];
+	pkgBuf.NumOfMods = 1;
+	Mods[0] = ModList[LocalPlayer][0];	//Base Oblivion (should equal 0)
+	for(int i=1; i<255; i++)
+		if (ModList[LocalPlayer][i])
+		{
+			Mods[i] = ModList[LocalPlayer][1];
+			pkgBuf.NumOfMods++;
+		}
 
 	SendBuf = (char *)malloc(sizeof(OOPkgModOffsetList)+pkgBuf.NumOfMods);
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgModOffsetList));

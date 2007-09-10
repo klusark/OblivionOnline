@@ -67,6 +67,6 @@ extern HANDLE hRecvThread;
 extern PlayerStatus Players[MAXCLIENTS];
 extern UInt32 SpawnID[MAXCLIENTS];
 extern DWORD PacketTime[PACKET_COUNT];
-extern UInt8 ModList[MAXCLIENTS][255];
+extern UInt8 ModList[MAXCLIENTS][256];
 
 #endif
