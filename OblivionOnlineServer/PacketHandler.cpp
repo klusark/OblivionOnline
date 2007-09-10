@@ -234,10 +234,6 @@ bool OOPEquipped_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgEquipped InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgEquipped));
-	Players[LocalPlayer].hair = InPkgBuf.hair;
-	Players[LocalPlayer].upper_body = InPkgBuf.upper_body;
-	Players[LocalPlayer].lower_body = InPkgBuf.lower_body;
-	Players[LocalPlayer].weapon = InPkgBuf.weapon;
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
 		if (cx != LocalPlayer)
@@ -250,8 +246,8 @@ bool OOPModOffsetList_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgModOffsetList InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgModOffsetList));
-	for(int cx=0;cx<MAXCLIENTS;cx++)
-		ModList[LocalPlayer][0] = 0;
+	for(int cx=0;cx<InPkgBuf.NumOfMods;cx++)
+		ModList[LocalPlayer][cx] = Packet[cx+sizeof(OOPkgModOffsetList)];
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
 		if (cx != LocalPlayer)
