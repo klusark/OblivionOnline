@@ -43,7 +43,7 @@ This file is part of OblivionOnline.
 #include "main.h"
 
 //Update times for packets (in milliseconds)
-#define NET_POSUPDATE_RESEND 30
+#define NET_POSUPDATE_RESEND 100
 #define NET_FULLSTATUPDATE_RESEND 1000
 #define NET_TIMEUPDATE_RESEND 1000
 #define NET_EQUIPUPDATE_RESEND 1000

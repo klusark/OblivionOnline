@@ -256,7 +256,7 @@ bool OOPModOffsetList_Handler(char *Packet,short LocalPlayer)
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
 		if (cx != LocalPlayer)
-			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgModOffsetList),0);
+			send(clients[cx],Packet,sizeof(OOPkgModOffsetList)+InPkgBuf.NumOfMods,0);
 	}
 	return true;
 }

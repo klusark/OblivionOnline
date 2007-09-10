@@ -48,8 +48,6 @@ int LocalPlayer;
 bool PlayerConnected[MAXCLIENTS];
 int TotalPlayers;
 
-unsigned short OOModOffset = 1;
-
 UInt32 SpawnID[MAXCLIENTS];
 
 SOCKET ServerSocket;
@@ -115,6 +113,9 @@ int OO_Initialize()
 		PlayerConnected[i] = false;
 
 		SpawnID[i] = 0;
+
+		for(int j=0; j<256; j++)
+			ModList[i][j] = 0;
 	}
 	return rc;
 }
@@ -148,8 +149,6 @@ int OO_Deinitialize ()
 		Players[i].ammo = 0;
 
 		PlayerConnected[i] = false;
-
-		SpawnID[i] = 0;
 	}
 	TotalPlayers = 0;
 	TerminateThread(hRecvThread, 0);
@@ -533,7 +532,7 @@ bool Cmd_MPGetDebugData_Execute (COMMAND_ARGS)
 		{
 			if (actorNumber == -2)
 				actorNumber = LocalPlayer;
-			Console_Print("OblivionOnline mod offset: %i", OOModOffset);
+			Console_Print("OblivionOnline mod offset: %i", ModList[LocalPlayer][1]);
 		}
 	}
 	return true;
@@ -571,7 +570,7 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 			if (!SpawnID[i])
 			{
 				SpawnID[i] = actorNumber & 0x00ffffff;	//Mask off the mod offset for OblivionOnline
-				OOModOffset = (actorNumber & 0xff000000) >> 24;	//Read off the mod offset for OblivionOnline
+				ModList[LocalPlayer][1] = (actorNumber & 0xff000000) >> 24;	//Read off the mod offset for OblivionOnline
 				Console_Print("Spawn %i ID: %u", i, SpawnID[i]);
 				break;
 			}

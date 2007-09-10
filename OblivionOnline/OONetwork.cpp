@@ -217,8 +217,8 @@ bool NetSendModList(void)
 
 	//Modlist is hardcoded for now, will read a file later
 	pkgBuf.NumOfMods = 2;
-	Mods[0] = 0;
-	Mods[1] = OOModOffset;
+	Mods[0] = ModList[LocalPlayer][0];
+	Mods[1] = ModList[LocalPlayer][1];
 
 	SendBuf = (char *)malloc(sizeof(OOPkgModOffsetList)+pkgBuf.NumOfMods);
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgModOffsetList));
@@ -321,7 +321,26 @@ bool OOPActorUpdate_Handler(char *Packet)
 		Players[InPkgBuf.refID].RotX = InPkgBuf.fRotX;
 		Players[InPkgBuf.refID].RotY = InPkgBuf.fRotY;
 		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
+		UInt32 oldCell = Players[InPkgBuf.refID].CellID;
 		Players[InPkgBuf.refID].CellID = InPkgBuf.CellID;
+		//Check to see if cell is from a mod
+		UInt8 cellOffset = (InPkgBuf.CellID & 0xff000000) >> 24;
+		if (cellOffset)
+		{
+			//If so, change the offset to match this client
+			for(int i=1;i<ModList[InPkgBuf.refID][0]; i++)
+				if (cellOffset == ModList[InPkgBuf.refID][i])
+					cellOffset = ModList[LocalPlayer][i];
+			//If local offset doesn't exist print error, otherwise set CellID
+			if (!cellOffset)
+				//if (oldCell != Players[InPkgBuf.refID].CellID)
+					Console_Print("Player %i moved to unsupported mod location", InPkgBuf.refID);
+			else{
+				Console_Print("Player %i moved to mod location successfully", InPkgBuf.refID);
+				Players[InPkgBuf.refID].CellID = (Players[InPkgBuf.refID].CellID & 0x00ffffff) | (cellOffset << 24);
+			}
+		}
+
 		if (InPkgBuf.Flags & 8)
 		{
 			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
@@ -451,5 +470,6 @@ bool OOPModOffsetList_Handler(char *Packet)
 		ModList[InPkgBuf.refID][i] = Packet[i+sizeof(OOPkgModOffsetList)];
 		Console_Print("  Mod %i: %i", i, (int)ModList[InPkgBuf.refID][i]);
 	}
+	ModList[InPkgBuf.refID][0] = InPkgBuf.NumOfMods;	//Set the first slot to NumMods
 	return true;
 }
