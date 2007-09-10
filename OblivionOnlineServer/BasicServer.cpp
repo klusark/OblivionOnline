@@ -71,6 +71,10 @@ int main()
 	SOCKADDR_IN addr;
 	FD_SET fdSet;
 
+	//Clean out the server log
+	easylog = fopen("Log.txt","w");
+	fclose(easylog);
+
 	serverSettings = fopen("ServerSettings.ini","r");
 	if (serverSettings)
 	{
