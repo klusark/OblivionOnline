@@ -27,6 +27,7 @@ int TotalClients = 0;
 bool bServerAlive;
 SOCKET clients[MAXCLIENTS];
 PlayerStatus Players[MAXCLIENTS];
+UInt8 ModList[MAXCLIENTS][255];
 bool Connected[MAXCLIENTS];
 unsigned short serverPort = 0;
 FILE *easylog;

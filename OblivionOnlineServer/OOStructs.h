@@ -36,8 +36,12 @@ This file is part of OblivionOnline.
 	forward this exception.
 */
 
-#ifndef OOStatusStructs_h
-#define OOStatusStructs_h
+#ifndef OOStructs_h
+#define OOStructs_h
+
+//--------------------------
+//---Begin Status Structs---
+//--------------------------
 
 struct ObjectStatus
 {
@@ -68,5 +72,17 @@ struct PlayerStatus : ActorStatus
 	float Time;
 	int Day, Month, Year;
 };
+
+//------------------------
+//---End Status Structs---
+//------------------------
+
+//-------------------------
+//---Begin Misc. Structs---
+//-------------------------
+
+//-----------------------
+//---End Misc. Structs---
+//-----------------------
 
 #endif

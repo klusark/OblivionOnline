@@ -251,6 +251,8 @@ bool OOPModOffsetList_Handler(char *Packet,short LocalPlayer)
 	OOPkgModOffsetList InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgModOffsetList));
 	for(int cx=0;cx<MAXCLIENTS;cx++)
+		ModList[LocalPlayer][0] = 0;
+	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
 		if (cx != LocalPlayer)
 			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgModOffsetList),0);

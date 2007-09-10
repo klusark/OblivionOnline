@@ -40,6 +40,7 @@ extern int TotalClients;
 extern bool bServerAlive;
 extern SOCKET clients[MAXCLIENTS];
 extern PlayerStatus Players[MAXCLIENTS];
+extern UInt8 ModList[MAXCLIENTS][255];
 extern FILE *easylog;
 extern int StartNet(void);
 extern int ScanBuffer(char *acReadBuffer, short LocalPlayer);
