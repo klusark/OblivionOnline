@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OblivionOnline", "OblivionO
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "..\common\common.vcproj", "{20C6411C-596F-4B85-BE4E-8BC91F59D8A6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServerBrowser", "..\ServerBrowser\ServerBrowser.vcproj", "{21D0FD3A-8E4E-4FAD-AC1A-A8B159AC3EDC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{20C6411C-596F-4B85-BE4E-8BC91F59D8A6}.Debug|Win32.Build.0 = Debug|Win32
 		{20C6411C-596F-4B85-BE4E-8BC91F59D8A6}.Release|Win32.ActiveCfg = Release|Win32
 		{20C6411C-596F-4B85-BE4E-8BC91F59D8A6}.Release|Win32.Build.0 = Release|Win32
+		{21D0FD3A-8E4E-4FAD-AC1A-A8B159AC3EDC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{21D0FD3A-8E4E-4FAD-AC1A-A8B159AC3EDC}.Debug|Win32.Build.0 = Debug|Win32
+		{21D0FD3A-8E4E-4FAD-AC1A-A8B159AC3EDC}.Release|Win32.ActiveCfg = Release|Win32
+		{21D0FD3A-8E4E-4FAD-AC1A-A8B159AC3EDC}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
