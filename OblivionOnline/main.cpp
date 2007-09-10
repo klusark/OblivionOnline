@@ -73,6 +73,7 @@ extern bool NetChat(char *Message);
 extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID,bool Initial);
 extern bool NetReadBuffer(char *acReadBuffer);
 extern bool NetEquipped(PlayerStatus *Player, int PlayerID,bool Initial);
+extern bool NetSendModList(void);
 
 extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEquippedFunctor, double* result);
 
@@ -570,12 +571,8 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 			if (!SpawnID[i])
 			{
 				SpawnID[i] = actorNumber & 0x00ffffff;	//Mask off the mod offset for OblivionOnline
-				OOModOffset = actorNumber & 0xff000000;	//Read off the mod offset for OblivionOnline
-				//Temp
-				char tempData2[64];
-				sprintf(tempData2, "Spawn %i ID: %u", i, SpawnID[i]);
-				Console_Print(tempData2);
-				//End Temp
+				OOModOffset = (actorNumber & 0xff000000) >> 24;	//Read off the mod offset for OblivionOnline
+				Console_Print("Spawn %i ID: %u", i, SpawnID[i]);
 				break;
 			}
 		}
@@ -766,6 +763,12 @@ bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 			}
 		}
 	}
+	return true;
+}
+
+bool Cmd_MPSendModList_Execute (COMMAND_ARGS)
+{
+	NetSendModList();
 	return true;
 }
 
@@ -1065,6 +1068,18 @@ static CommandInfo kMPGetEquipmentCommand =
 	Cmd_MPGetEquipment_Execute
 };
 
+static CommandInfo kMPSendModListCommand =
+{
+	"MPSendModList",
+	"MPSML",
+	0,
+	"Sends the local mod list",
+	0,		// requires parent obj
+	0,		// no params
+	NULL,	// no param table
+	Cmd_MPSendModList_Execute
+};
+
 //---------------------------------
 //---End CommandInfo Enumeration---
 //---------------------------------
@@ -1149,6 +1164,8 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	//Equipment
 	obse->RegisterCommand(&kMPSendEquippedCommand);
 	obse->RegisterCommand(&kMPGetEquipmentCommand);
+
+	obse->RegisterCommand(&kMPSendModListCommand);
 
 	_MESSAGE("Done loading OO Commands");
 	return true;

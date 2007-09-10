@@ -216,7 +216,7 @@ bool NetSendModList(void)
 	pkgBuf.refID = LocalPlayer;
 
 	//Modlist is hardcoded for now, will read a file later
-	pkgBuf.NumOfMods = 1;
+	pkgBuf.NumOfMods = 2;
 	Mods[0] = 0;
 	Mods[1] = OOModOffset;
 
@@ -445,9 +445,11 @@ bool OOPModOffsetList_Handler(char *Packet)
 	int PlayerList[MAXCLIENTS];
 	if (InPkgBuf.NumOfMods >= 255)
 		return false;
+	Console_Print("Mod list (%i mods) from %i:", InPkgBuf.NumOfMods, InPkgBuf.refID);
 	for(int i=0; i<InPkgBuf.NumOfMods; i++)
 	{
 		ModList[InPkgBuf.refID][i] = Packet[i+sizeof(OOPkgModOffsetList)];
+		Console_Print("  Mod %i: %i", i, (int)ModList[InPkgBuf.refID][i]);
 	}
 	return true;
 }

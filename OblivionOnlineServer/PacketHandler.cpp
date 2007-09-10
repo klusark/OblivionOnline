@@ -246,8 +246,13 @@ bool OOPModOffsetList_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgModOffsetList InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgModOffsetList));
+	printf("Received mod list (%i mods) from %i:\n", InPkgBuf.NumOfMods, InPkgBuf.refID);
 	for(int cx=0;cx<InPkgBuf.NumOfMods;cx++)
+	{
 		ModList[LocalPlayer][cx] = Packet[cx+sizeof(OOPkgModOffsetList)];
+		if (ModList[LocalPlayer][cx])
+			printf("  Mod %i: %i\n", cx, ModList[LocalPlayer][cx]);
+	}
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
 		if (cx != LocalPlayer)
