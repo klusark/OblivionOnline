@@ -1,24 +1,4 @@
-/*
-
-Copyright 2007  Julian aka masterfreek64 and Joseph Pearson aka chessmaster42 
-
-This file is part of OblivionOnline.
-
-    OblivionOnline is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    OblivionOnline is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
+//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
 // Used by ServerBrowser.rc
 //
@@ -40,6 +20,8 @@ This file is part of OblivionOnline.
 #define IDC_SERVERIP                    1000
 #define IDC_SERVERS                     1001
 #define IDC_SERVERSTATUS                1003
+#define IDC_PORT                        1005
+#define IDC_SPIN1                       1006
 #define ID_FILE_EDITOR                  32771
 #define ID_SERVERBROWSER_INTERNET       32772
 #define ID_SERVER_MANUAL                32773
@@ -63,7 +45,7 @@ This file is part of OblivionOnline.
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32785
-#define _APS_NEXT_CONTROL_VALUE         1005
+#define _APS_NEXT_CONTROL_VALUE         1007
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

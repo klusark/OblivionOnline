@@ -252,11 +252,28 @@ INT_PTR CALLBACK ServerAdd(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 		{
 			FILE *realmfile;
 			DWORD dwTempAddress;
+			int bFailure;
+			unsigned int Port; //so we do not have an overflow. 
 			SendDlgItemMessage(hDlg,IDC_SERVERIP,IPM_GETADDRESS,0,(LPARAM)&dwTempAddress);
-			realmfile = fopen("realmlist.wth","w");
-			fprintf(realmfile,"%d.%d.%d.%d",FIRST_IPADDRESS(dwTempAddress),SECOND_IPADDRESS(dwTempAddress),THIRD_IPADDRESS(dwTempAddress),FOURTH_IPADDRESS(dwTempAddress));
-			fclose(realmfile);
-			EndDialog(hDlg, LOWORD(wParam));
+			Port = GetDlgItemInt(hDlg,IDC_PORT,&bFailure,false);
+			if(bFailure) //it worked, we got a number
+			{
+				if(Port <= 65535)
+				{
+					realmfile = fopen("realmlist.wth","w");
+					fprintf(realmfile,"%d.%d.%d.%d %u",FIRST_IPADDRESS(dwTempAddress),SECOND_IPADDRESS(dwTempAddress),THIRD_IPADDRESS(dwTempAddress),FOURTH_IPADDRESS(dwTempAddress),Port);
+					fclose(realmfile);
+					EndDialog(hDlg, LOWORD(wParam));
+				}
+				else
+				{
+					MessageBoxA(NULL,"Port out of range, specify a port lower than 65536","ERROR",NULL);
+				}
+			}
+			else
+			{
+				MessageBoxA(NULL,"Please enter a number","ERROR",NULL);
+			}
 			return (INT_PTR)TRUE;
 		}
 		if (LOWORD(wParam) == IDCANCEL)

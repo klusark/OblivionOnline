@@ -224,7 +224,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		Console_Print("Error, no reference given for MPSendActor");
 		return true;
 	}
-	if(thisObj->IsActor())
+	if(thisObj->IsActor()) // we won't handle it this way.... 
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
 		int actorNumber = GetActorID(ActorBuf->refID);

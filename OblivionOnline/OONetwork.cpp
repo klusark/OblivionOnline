@@ -77,7 +77,8 @@ bool NetDisconnect()
 	return true;
 }
 
-bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
+bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial) 
+//THIS IS FOR PLAYER CHARACTERS ONLY !!!!!!
 {
 	static PlayerStatus LastPlayer;
 	
