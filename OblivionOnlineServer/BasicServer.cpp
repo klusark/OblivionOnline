@@ -124,7 +124,9 @@ int main()
 	else
 	{
 		printf("Listening for incoming connections\n");
+		easylog = fopen("Log.txt","a");
 		fprintf(easylog,"Server Up and running\n");
+		fclose(easylog);
 	}
 	for(LocalPlayer=0;LocalPlayer<MAXCLIENTS;LocalPlayer++) 
 	{

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="shift_jis"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="OblivionOnline"
 	ProjectGUID="{D4DDA734-7E93-4581-8F82-32BB738F69FE}"
 	RootNamespace="obse_plugin_example"
@@ -350,7 +350,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\OOStatusStructs.h"
+				RelativePath=".\OOStructs.h"
 				>
 			</File>
 		</Filter>

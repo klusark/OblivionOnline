@@ -48,8 +48,8 @@ bool OOPEvent_Handler(char *Packet);
 bool OOPEventRegister_Handler(char *Packet);
 bool OOPFullStatUpdate_Handler(char *Packet);
 bool OOPTimeUpdate_Handler(char *Packet);
-bool OOPPlayerList_Handler(char *Packet);
 bool OOPEquipped_Handler(char *Packet);
+bool OOPModOffsetList_Handler(char *Packet);
 
 //----------------------------------
 //--Begin Incoming packet handlers--
@@ -205,6 +205,30 @@ bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
 	return true;
 }
 
+bool NetSendModList(void)
+{
+	char Mods[255];
+	char *SendBuf;
+	void *ListDest;
+	OOPkgModOffsetList pkgBuf;
+	pkgBuf.etypeID = OOPModOffsetList;
+	pkgBuf.Flags = 0;
+	pkgBuf.refID = LocalPlayer;
+
+	//Modlist is hardcoded for now, will read a file later
+	pkgBuf.NumOfMods = 1;
+	Mods[0] = 0;
+	Mods[1] = OOModOffset;
+
+	SendBuf = (char *)malloc(sizeof(OOPkgModOffsetList)+pkgBuf.NumOfMods);
+	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgModOffsetList));
+	ListDest=(SendBuf+sizeof(OOPkgModOffsetList));
+	memcpy(ListDest,Mods,pkgBuf.NumOfMods);
+	send(ServerSocket,SendBuf,sizeof(OOPkgModOffsetList)+pkgBuf.NumOfMods,0);
+	free(SendBuf);
+	return true;
+}
+
 //---------------------------
 //--End Outgoing Handlers----
 //---------------------------
@@ -239,11 +263,11 @@ bool NetReadBuffer(char *acReadBuffer)
 	case OOPTimeUpdate:
 		OOPTimeUpdate_Handler(acReadBuffer);
 		break;
-	case OOPPlayerList:
-		OOPPlayerList_Handler(acReadBuffer);
-		break;
 	case OOPEquipped:
 		OOPEquipped_Handler(acReadBuffer);
+		break;
+	case OOPModOffsetList:
+		OOPModOffsetList_Handler(acReadBuffer);
 		break;
 	default: 
 		break;
@@ -414,14 +438,16 @@ bool OOPTimeUpdate_Handler(char *Packet)
 	return true;
 }
 
-bool OOPPlayerList_Handler(char *Packet)
+bool OOPModOffsetList_Handler(char *Packet)
 {
-	OOPkgPlayerList InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgPlayerList));
+	OOPkgModOffsetList InPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgModOffsetList));
 	int PlayerList[MAXCLIENTS];
-	for(int i=0; i<InPkgBuf.TotalPlayers; i++)
+	if (InPkgBuf.NumOfMods >= 255)
+		return false;
+	for(int i=0; i<InPkgBuf.NumOfMods; i++)
 	{
-		PlayerList[i] = (int)Packet[i+sizeof(OOPkgPlayerList)];
+		ModList[InPkgBuf.refID][i] = Packet[i+sizeof(OOPkgModOffsetList)];
 	}
 	return true;
 }

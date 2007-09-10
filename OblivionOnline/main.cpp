@@ -48,7 +48,7 @@ int LocalPlayer;
 bool PlayerConnected[MAXCLIENTS];
 int TotalPlayers;
 
-short ModOffset = 1;
+unsigned short OOModOffset = 1;
 
 UInt32 SpawnID[MAXCLIENTS];
 
@@ -58,6 +58,8 @@ HANDLE hRecvThread;
 PlayerStatus Players[MAXCLIENTS];
 
 DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.
+
+UInt8 ModList[MAXCLIENTS][255];	//List of supported mods from each client
 
 // Prototypes
 extern void RunScriptLine(const char *buf, bool IsTemp);
@@ -530,7 +532,7 @@ bool Cmd_MPGetDebugData_Execute (COMMAND_ARGS)
 		{
 			if (actorNumber == -2)
 				actorNumber = LocalPlayer;
-			Console_Print("OblivionOnline mod offset: %x", ModOffset);
+			Console_Print("OblivionOnline mod offset: %i", OOModOffset);
 		}
 	}
 	return true;
@@ -568,7 +570,7 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 			if (!SpawnID[i])
 			{
 				SpawnID[i] = actorNumber & 0x00ffffff;	//Mask off the mod offset for OblivionOnline
-				ModOffset = actorNumber & 0xff000000;	//Read off the mod offset for OblivionOnline
+				OOModOffset = actorNumber & 0xff000000;	//Read off the mod offset for OblivionOnline
 				//Temp
 				char tempData2[64];
 				sprintf(tempData2, "Spawn %i ID: %u", i, SpawnID[i]);
@@ -771,9 +773,9 @@ bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 //---End Command Functions---
 //---------------------------
 
-//-------------------------------
-//---Begin Command Enumeration---
-//-------------------------------
+//-----------------------------------
+//---Begin CommandInfo Enumeration---
+//-----------------------------------
 
 static CommandInfo kMPConnectCommand =
 {
@@ -1063,9 +1065,9 @@ static CommandInfo kMPGetEquipmentCommand =
 	Cmd_MPGetEquipment_Execute
 };
 
-//-----------------------------
-//---End Command Enumeration---
-//-----------------------------
+//---------------------------------
+//---End CommandInfo Enumeration---
+//---------------------------------
 
 extern "C" {
 

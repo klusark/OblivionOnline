@@ -48,7 +48,7 @@ This file is part of OblivionOnline.
 #include "obse/ParamInfos.h"
 #include "obse/GameObjects.h"
 #include "OONetwork.h"
-#include "OOStatusStructs.h"
+#include "OOStructs.h"
 #include "OBSEFunctions.h"
 
 #define MAXCLIENTS 4
@@ -67,5 +67,7 @@ extern HANDLE hRecvThread;
 extern PlayerStatus Players[MAXCLIENTS];
 extern UInt32 SpawnID[MAXCLIENTS];
 extern DWORD PacketTime[PACKET_COUNT];
+extern unsigned short OOModOffset;
+extern UInt8 ModList[MAXCLIENTS][255];
 
 #endif
