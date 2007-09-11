@@ -279,28 +279,31 @@ void info(void *arg)
 	FILE *settings = fopen("ListSettings.ini","r");
 	if (settings)
 	{
-		char IP[16];
-		char HOST[32];
-		char FILE[16];
-		char NAME[16];
-		fscanf(settings,"%s",IP);
-		fscanf(settings,"%s",HOST);
-		fscanf(settings,"%s",FILE);
-		fscanf(settings,"%s",NAME);
-		char srequest[256];
-		sprintf_s(srequest,256, "GET /%s?name=%s&port=%i&players=%i&maxplayers=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,PORT,TotalClients,MAXCLIENTS,HOST);
+		while(true){
+			char IP[16];
+			char HOST[32];
+			char FILE[16];
+			char NAME[16];
+			fscanf(settings,"%s",IP);
+			fscanf(settings,"%s",HOST);
+			fscanf(settings,"%s",FILE);
+			fscanf(settings,"%s",NAME);
+			char srequest[256];
+			sprintf_s(srequest,256, "GET /%s?name=%s&port=%i&players=%i&maxplayers=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,PORT,TotalClients,MAXCLIENTS,HOST);
+			
+			sock = socket(AF_INET, SOCK_STREAM, 0);
 		
-		sock = socket(AF_INET, SOCK_STREAM, 0);
-	
-		sin.sin_addr.s_addr = inet_addr(IP);
-		sin.sin_family = AF_INET;
-		sin.sin_port = htons(80);
+			sin.sin_addr.s_addr = inet_addr(IP);
+			sin.sin_family = AF_INET;
+			sin.sin_port = htons(80);
 
-		connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
+			connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
 
-		send(sock, srequest, 256, 0);
+			send(sock, srequest, 256, 0);
 
-		closesocket(sock); 
+			closesocket(sock); 
+			Sleep(120000);
+		}
 	}else{
 		printf("Error: Server-list settings file ListSettings.ini was not found\n");
 	}
