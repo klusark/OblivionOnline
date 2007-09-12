@@ -158,6 +158,7 @@ bool NetChat(char *Message)
 	char *SendBuf;
 	void *MessageDest;
 	pkgBuf.etypeID = OOPChat;
+	pkgBuf.refID = LocalPlayer;
 	pkgBuf.Length = strlen(Message);
 	pkgBuf.Flags = 0;
 	SendBuf = (char *)malloc(sizeof(OOPkgChat)+pkgBuf.Length);
@@ -328,9 +329,9 @@ bool OOPActorUpdate_Handler(char *Packet)
 
 		UInt32 TimeDiff = VelocityTime[InPkgBuf.refID] - VelocityOldTime[InPkgBuf.refID];
 
-		Players[InPkgBuf.refID].VelX = (InPkgBuf.fPosX - Players[InPkgBuf.refID].PosX) / TimeDiff;
-		Players[InPkgBuf.refID].VelY = (InPkgBuf.fPosY - Players[InPkgBuf.refID].PosY) / TimeDiff;
-		Players[InPkgBuf.refID].VelZ = (InPkgBuf.fPosZ - Players[InPkgBuf.refID].PosZ) / TimeDiff;
+		Players[InPkgBuf.refID].VelX = (InPkgBuf.fPosX - Players[InPkgBuf.refID].PosX) / (float)TimeDiff;
+		Players[InPkgBuf.refID].VelY = (InPkgBuf.fPosY - Players[InPkgBuf.refID].PosY) / (float)TimeDiff;
+		Players[InPkgBuf.refID].VelZ = (InPkgBuf.fPosZ - Players[InPkgBuf.refID].PosZ) / (float)TimeDiff;
 
 		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
 		Players[InPkgBuf.refID].PosY = InPkgBuf.fPosY;

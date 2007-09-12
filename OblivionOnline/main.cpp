@@ -192,10 +192,13 @@ DWORD WINAPI PredictionEngine(LPVOID Params)
 		for(int i=0; i<MAXCLIENTS; i++)
 		{
 			//Keep the NPC moving between packets
-			Players[i].PosX += Players[i].VelX;
-			Players[i].PosY += Players[i].VelY;
-			Players[i].PosZ += Players[i].VelZ;
+			//Console_Print("VelX: %f, VelY: %f, VelZ: %f", Players[i].VelX, Players[i].VelY, Players[i].VelZ);
+			//Players[i].PosX += Players[i].VelX;
+			//Players[i].PosY += Players[i].VelY;
+			//Players[i].PosZ += Players[i].VelZ;
 		}
+		//Wait a bit to allow other processes work
+		Sleep(20);
 	}
 	return 0;
 }
@@ -561,7 +564,7 @@ bool Cmd_MPGetDebugData_Execute (COMMAND_ARGS)
 		{
 			if (actorNumber == -2)
 				actorNumber = LocalPlayer;
-			Console_Print("OblivionOnline mod offset: %i", ModList[LocalPlayer][1]);
+			Console_Print("VelX: %f, VelY: %f, VelZ: %f", Players[actorNumber].VelX, Players[actorNumber].VelY, Players[actorNumber].VelZ);
 		}
 	}
 	return true;
