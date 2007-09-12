@@ -51,11 +51,14 @@ int TotalPlayers;
 UInt32 SpawnID[MAXCLIENTS];
 
 SOCKET ServerSocket;
+
 HANDLE hRecvThread;
+HANDLE hPredictionEngine;
 
 PlayerStatus Players[MAXCLIENTS];
 
-DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.
+DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.'
+DWORD VelocityTime[MAXCLIENTS], VelocityOldTime[MAXCLIENTS];	//Timers to calculate NPC velocity
 
 UInt8 ModList[MAXCLIENTS][256];	//List of supported mods from each client
 
@@ -92,6 +95,9 @@ int OO_Initialize()
 		Players[i].RotX = 0;
 		Players[i].RotY = 0;
 		Players[i].RotZ = 0;
+		Players[i].VelX = 0;
+		Players[i].VelY = 0;
+		Players[i].VelZ = 0;
 		Players[i].CellID = 0;
 		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
@@ -131,6 +137,9 @@ int OO_Deinitialize ()
 		Players[i].RotX = 0;
 		Players[i].RotY = 0;
 		Players[i].RotZ = 0;
+		Players[i].VelX = 0;
+		Players[i].VelY = 0;
+		Players[i].VelZ = 0;
 		Players[i].CellID = 0;
 		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
@@ -155,6 +164,8 @@ int OO_Deinitialize ()
 	TotalPlayers = 0;
 	TerminateThread(hRecvThread, 0);
 	CloseHandle(hRecvThread);
+	TerminateThread(hPredictionEngine, 0);
+	CloseHandle(hPredictionEngine);
 	closesocket(ServerSocket);
 	ServerSocket = INVALID_SOCKET;
 	WSACleanup();
@@ -170,6 +181,21 @@ DWORD WINAPI RecvThread(LPVOID Params)
 	{
 		rc = recv(ServerSocket,buf,512,0);
 		NetReadBuffer(buf);
+	}
+	return 0;
+}
+
+DWORD WINAPI PredictionEngine(LPVOID Params)
+{
+	while(bIsConnected)
+	{
+		for(int i=0; i<MAXCLIENTS; i++)
+		{
+			//Keep the NPC moving between packets
+			Players[i].PosX += Players[i].VelX;
+			Players[i].PosY += Players[i].VelY;
+			Players[i].PosZ += Players[i].VelZ;
+		}
 	}
 	return 0;
 }
@@ -209,6 +235,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 			_MESSAGE("Successfully Connected");
 			bIsConnected = true;
 			hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
+			hPredictionEngine = CreateThread(NULL,NULL,PredictionEngine,NULL,NULL,NULL);
 			if(!NetWelcome()) return true;
 			Console_Print("Oblivion connected to server");
 			TotalPlayers = 1;

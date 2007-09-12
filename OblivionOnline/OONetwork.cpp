@@ -322,6 +322,15 @@ bool OOPActorUpdate_Handler(char *Packet)
 			PlayerConnected[InPkgBuf.refID] = true;
 			Console_Print("Player %i connected", InPkgBuf.refID);
 		}
+		
+		VelocityOldTime[InPkgBuf.refID] = VelocityTime[InPkgBuf.refID];
+		VelocityTime[InPkgBuf.refID] = GetTickCount();
+
+		UInt32 TimeDiff = VelocityTime[InPkgBuf.refID] - VelocityOldTime[InPkgBuf.refID];
+
+		Players[InPkgBuf.refID].VelX = (InPkgBuf.fPosX - Players[InPkgBuf.refID].PosX) / TimeDiff;
+		Players[InPkgBuf.refID].VelY = (InPkgBuf.fPosY - Players[InPkgBuf.refID].PosY) / TimeDiff;
+		Players[InPkgBuf.refID].VelZ = (InPkgBuf.fPosZ - Players[InPkgBuf.refID].PosZ) / TimeDiff;
 
 		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
 		Players[InPkgBuf.refID].PosY = InPkgBuf.fPosY;
@@ -341,14 +350,14 @@ bool OOPActorUpdate_Handler(char *Packet)
 					cellOffset = ModList[LocalPlayer][i];
 			//If local offset doesn't exist print error, otherwise set CellID
 			if (!cellOffset)
-				//if (oldCell != Players[InPkgBuf.refID].CellID)
-					Console_Print("Player %i moved to unsupported mod location", InPkgBuf.refID);
+				Console_Print("Player %i moved to unsupported mod location", InPkgBuf.refID);
 			else{
-				Console_Print("Player %i moved to mod location successfully", InPkgBuf.refID);
+				//Console_Print("Player %i moved to mod location successfully", InPkgBuf.refID);
 				Players[InPkgBuf.refID].CellID = (Players[InPkgBuf.refID].CellID & 0x00ffffff) | (cellOffset << 24);
 			}
 		}
 
+		//Is this a set of initial data?
 		if (InPkgBuf.Flags & 8)
 		{
 			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
@@ -380,7 +389,8 @@ bool OOPChat_Handler(char *Packet)
 	}
 	MessageDest[InPkgBuf.Length] = '\0';
 	char chatScript[1024];
-	sprintf(chatScript, "Message \"%s\", %s", MessageDest);
+	sprintf(chatScript, "Message \"Player %i: %s\"", InPkgBuf.refID, MessageDest);
+	Console_Print("Player %i: %s", InPkgBuf.refID, MessageDest);
 	RunScriptLine(chatScript, true);
 	return true;
 }

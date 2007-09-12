@@ -109,6 +109,7 @@ struct OOPkgChat //THIS PACKAGE IS NOT DIRECTLY MAPPED , but has to be converted
 	OOPacketType etypeID;
 	short Flags; // none yet
 	int Length; // attention here!!!!!!!!
+	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
 	//The actual message body is contained after this data. It is manually written as ANSI string
 };
 
