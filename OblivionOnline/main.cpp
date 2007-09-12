@@ -724,8 +724,8 @@ bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
 			if (FindEquipped(thisObj, 17, &getObject, &itemResult))
 				Players[actorNumber].ammo = *itemRef;
 			else
-				Players[actorNumber].robes = 0;
-			if (FindEquipped(thisObj, 18, &getObject, &itemResult))
+				Players[actorNumber].ammo = 0;
+			if (FindEquipped(thisObj, 20, &getObject, &itemResult))	//Robes are 20 not 18 (CS Wiki is wrong)
 				Players[actorNumber].robes = *itemRef;
 			else
 				Players[actorNumber].robes = 0;
