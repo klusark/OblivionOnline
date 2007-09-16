@@ -27,3 +27,24 @@ struct ServerInformation
 	char IPAddress[16]; //server IP
 	char Name[256];
 };
+#pragma pack(push,1)
+struct ServerAuthPacket
+{
+	int PacketID; //65556
+	short Flags; //none
+	char ClientName[64]; // 64 chars
+	DWORD crc32_PluginsTxt; // CRC 32 of plugins.txt
+	DWORD crc32_OblivionOnline; //CRC 32 of OblivionOnline.dll
+	short ModCount;
+};
+struct ServerModAuthPacket
+{
+	int PacketID; //65555
+	short Flags; //
+	char EspName[128]; //Name to file
+	char ModName[256]; //http link to d/
+	short ModOrder; // 0 - reserved , 1- 255 Mods
+	//after that it is: 255-2*255 - bsas for mod 1 etc ( mod 0 has no BSAs - it is a default namespace and not used) 
+};
+
+#pragma pack(pop)

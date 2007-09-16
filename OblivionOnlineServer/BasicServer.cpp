@@ -270,6 +270,7 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer)
 
 void info(void *arg)
 {
+	//not rly good at all
 	WSADATA WSAData;
 	WSAStartup(MAKEWORD(2,0), &WSAData);
 

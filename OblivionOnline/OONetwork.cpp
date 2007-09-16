@@ -323,22 +323,23 @@ bool OOPActorUpdate_Handler(char *Packet)
 			PlayerConnected[InPkgBuf.refID] = true;
 			Console_Print("Player %i connected", InPkgBuf.refID);
 		}
-		
+		/*
 		VelocityOldTime[InPkgBuf.refID] = VelocityTime[InPkgBuf.refID];
 		VelocityTime[InPkgBuf.refID] = GetTickCount();
-
+	
 		UInt32 TimeDiff = VelocityTime[InPkgBuf.refID] - VelocityOldTime[InPkgBuf.refID];
 
 		Players[InPkgBuf.refID].VelX = (InPkgBuf.fPosX - Players[InPkgBuf.refID].PosX) / (float)TimeDiff;
 		Players[InPkgBuf.refID].VelY = (InPkgBuf.fPosY - Players[InPkgBuf.refID].PosY) / (float)TimeDiff;
 		Players[InPkgBuf.refID].VelZ = (InPkgBuf.fPosZ - Players[InPkgBuf.refID].PosZ) / (float)TimeDiff;
-
+		*/ 
 		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
 		Players[InPkgBuf.refID].PosY = InPkgBuf.fPosY;
 		Players[InPkgBuf.refID].PosZ = InPkgBuf.fPosZ;
 		Players[InPkgBuf.refID].RotX = InPkgBuf.fRotX;
 		Players[InPkgBuf.refID].RotY = InPkgBuf.fRotY;
 		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
+		Players[InPkgBuf.refID].Health = InPkgBuf.Health;
 		UInt32 oldCell = Players[InPkgBuf.refID].CellID;
 		Players[InPkgBuf.refID].CellID = InPkgBuf.CellID;
 		//Check to see if cell is from a mod

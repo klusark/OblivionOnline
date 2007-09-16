@@ -187,6 +187,7 @@ DWORD WINAPI RecvThread(LPVOID Params)
 
 DWORD WINAPI PredictionEngine(LPVOID Params)
 {
+	/*
 	while(bIsConnected)
 	{
 		for(int i=0; i<MAXCLIENTS; i++)
@@ -200,7 +201,9 @@ DWORD WINAPI PredictionEngine(LPVOID Params)
 		//Wait a bit to allow other processes work
 		Sleep(20);
 	}
+	*/
 	return 0;
+	
 }
 
 //-----------------------------
@@ -249,6 +252,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 
 bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 {
+	static int LastHealthBuf = -1;
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPSendActor");
@@ -279,17 +283,22 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 			{
 				DummyStatus.bIsInInterior = false;
 				DummyStatus.CellID = ActorBuf->parentCell->worldSpace->refID;
-			}else{
+			}
+			else
+			{
 				DummyStatus.bIsInInterior = true;
 				DummyStatus.CellID = ActorBuf->parentCell->refID;
 			}
 			if (actorNumber != LocalPlayer)
 			{
 				NetActorUpdate(&DummyStatus, actorNumber, false);
-			}else{
+			}
+			else
+			{
 				if (Players[actorNumber].bStatsInitialized)
 					NetActorUpdate(&DummyStatus, actorNumber, false);
-				else{
+				else
+				{
 					NetActorUpdate(&DummyStatus, actorNumber, true);
 					Players[actorNumber].bStatsInitialized = true;
 				}

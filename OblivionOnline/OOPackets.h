@@ -61,6 +61,8 @@ enum OOPacketType
 	OOPDisconnect,		//Tells other clients that the player is disconnecting
 	OOPEquipped,		//Tells the clients what the actor is wearing
 	OOPModOffsetList,	//Contains a list of mod offsets to support mod items and locations
+	OOPACModVerify = 65555,
+	OOPACVerify = 65556 // ATTENTION  PACKETS 65555 and 65556 are reserver for AuthMod and Auth
 };
 
 #pragma pack(push,1)
