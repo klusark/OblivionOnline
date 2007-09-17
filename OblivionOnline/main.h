@@ -52,6 +52,7 @@ This file is part of OblivionOnline.
 #include "OBSEFunctions.h"
 
 #define MAXCLIENTS 4
+#define MAXSERVERS 8
 
 #define MAIN_VERSION 3
 #define SUB_VERSION 8 // Release 3, bugfix 8

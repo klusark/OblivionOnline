@@ -214,38 +214,51 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 {
 	if(!bIsConnected)
 	{
-		_MESSAGE("Connecting \n");
+		_MESSAGE("Initializing Connection... \n");
 		OO_Initialize();
 		SOCKADDR_IN ServerAddr;
 		FILE *Realmlist = fopen("realmlist.wth","r");
-		char IP[15];
-		unsigned short ClientPort;
+		if(!Realmlist)
+		{
+			_ERROR("File realmlist.wth could not be found");
+			Console_Print("File realmlist.wth could not be found");
+			return true;
+		}
+		int TotalServers = 0;
+		fscanf(Realmlist,"%i",&TotalServers);
+		_MESSAGE("Found %i servers in realmlist.wth",TotalServers);
+		char IP[MAXSERVERS][15];
+		unsigned short ClientPort[MAXSERVERS];
 		long rc;
-		fscanf(Realmlist,"%s",IP);
-		if(!fscanf(Realmlist,"%i",&ClientPort))
-			ClientPort = 41805;
-		_MESSAGE("Connecting to %s:%i",IP,ClientPort);
+		for(int i=0; i<TotalServers; i++)
+		{
+			fscanf(Realmlist,"%s",IP[i]);
+			if(!fscanf(Realmlist,"%i",&ClientPort[i]))
+				ClientPort[i] = 41805;
+			_MESSAGE("Connecting to %s:%i",IP[i],ClientPort[i]);
+			memset(&ServerAddr,NULL,sizeof(SOCKADDR_IN));
+			ServerAddr.sin_addr.s_addr = inet_addr(IP[i]);
+			ServerAddr.sin_port = htons(ClientPort[i]);
+			ServerAddr.sin_family = AF_INET;
+			rc = connect(ServerSocket,(SOCKADDR *)&ServerAddr,sizeof(SOCKADDR));
+			if(rc == SOCKET_ERROR)
+			{
+				_ERROR("Couldn't connect to %s:%i %u",IP[i],ClientPort[i],WSAGetLastError());
+				Console_Print("Oblivion not connected to %s",IP[i]);
+			}
+			else 
+			{
+				_MESSAGE("Successfully Connected to %s",IP[i]);
+				bIsConnected = true;
+				hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
+				//hPredictionEngine = CreateThread(NULL,NULL,PredictionEngine,NULL,NULL,NULL);
+				if(!NetWelcome()) return true;
+				Console_Print("Oblivion connected to %s",IP[i]);
+				TotalPlayers = 1;
+				break;
+			}
+		}
 		fclose(Realmlist);
-		memset(&ServerAddr,NULL,sizeof(SOCKADDR_IN));
-		ServerAddr.sin_addr.s_addr = inet_addr(IP);
-		ServerAddr.sin_port = htons(ClientPort);
-		ServerAddr.sin_family = AF_INET;
-		rc = connect(ServerSocket,(SOCKADDR *)&ServerAddr,sizeof(SOCKADDR));
-		if(rc == SOCKET_ERROR)
-		{
-			_ERROR("Couldn't connect %u",WSAGetLastError());
-			Console_Print("Oblivion not connected to server");
-		}
-		else 
-		{
-			_MESSAGE("Successfully Connected");
-			bIsConnected = true;
-			hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
-			hPredictionEngine = CreateThread(NULL,NULL,PredictionEngine,NULL,NULL,NULL);
-			if(!NetWelcome()) return true;
-			Console_Print("Oblivion connected to server");
-			TotalPlayers = 1;
-		}
 	}
 	return true;
 }
