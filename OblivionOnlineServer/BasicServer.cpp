@@ -127,9 +127,17 @@ int main()
 	}
 	else
 	{
+		time_t TimeStamp;
+		time(&TimeStamp);
+		int Seconds = (int)TimeStamp % 60;
+		int Minutes = (int)(TimeStamp / 60) % 60;
+		int Hours = (int)(TimeStamp / 3600) % 24;
+		char MyTime[8];
+		sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
+
 		printf("Listening for incoming connections\n");
 		easylog = fopen("Log.txt","a");
-		fprintf(easylog,"Server Up and running\n");
+		fprintf(easylog,"%s - Server Up and running\n",MyTime);
 		fclose(easylog);
 	}
 	for(LocalPlayer=0;LocalPlayer<MAXCLIENTS;LocalPlayer++) 
@@ -164,14 +172,22 @@ int main()
 			{
 				if(clients[LocalPlayer]==INVALID_SOCKET) 
 				{
+					time_t TimeStamp;
+					time(&TimeStamp);
+					int Seconds = (int)TimeStamp % 60;
+					int Minutes = (int)(TimeStamp / 60) % 60;
+					int Hours = (int)(TimeStamp / 3600) % 24;
+					char MyTime[8];
+					sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
+
 					sockaddr_in NewAddr;
 					int nAddrSize = sizeof(NewAddr);
 					clients[LocalPlayer]=accept(acceptSocket, (sockaddr*)&NewAddr, &nAddrSize);
 					TotalClients++;
-					printf("Accepted new connection #(%d) from %s:%u\n",LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
+					printf("%s - Accepted new connection #%d from %s:%u\n",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					easylog = fopen("Log.txt","a");
-					fprintf(easylog,"Accepted new connection #(%d) from %s:%u\n",LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
-					fprintf(easylog,"We now have %d connections\n",TotalClients);
+					fprintf(easylog,"%s - Accepted new connection #(%d) from %s:%u\n",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
+					fprintf(easylog,"%s - We now have %d connections\n",MyTime,TotalClients);
 					fclose(easylog);
 					break;
 				}
@@ -192,11 +208,19 @@ int main()
 		
 				if(rc==0 || rc==SOCKET_ERROR)
 				{
+					time_t TimeStamp;
+					time(&TimeStamp);
+					int Seconds = (int)TimeStamp % 60;
+					int Minutes = (int)(TimeStamp / 60) % 60;
+					int Hours = (int)(TimeStamp / 3600) % 24;
+					char MyTime[8];
+					sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
+
 					TotalClients--;
-					printf("Client %d closed the Connection\n",LocalPlayer);
+					printf("%s - Client %d closed the Connection\n",MyTime,LocalPlayer);
 					easylog = fopen("Log.txt","a");
-					fprintf(easylog,"Client %d closed the Connection\n",LocalPlayer);
-					fprintf(easylog,"We now have %d connections\n",TotalClients);
+					fprintf(easylog,"%s - Client %d closed the Connection\n",MyTime,LocalPlayer);
+					fprintf(easylog,"%s - We now have %d connection(s)\n",MyTime,TotalClients);
 					fclose(easylog);
 					closesocket(clients[LocalPlayer]); 
 					clients[LocalPlayer]=INVALID_SOCKET;
