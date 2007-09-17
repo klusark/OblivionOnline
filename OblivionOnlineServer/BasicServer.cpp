@@ -294,25 +294,24 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer)
 
 void info(void *arg)
 {
-	//not rly good at all
-	WSADATA WSAData;
-	WSAStartup(MAKEWORD(2,0), &WSAData);
-
-	SOCKET sock;
-	SOCKADDR_IN sin;
-
 	FILE *settings = fopen("ListSettings.ini","r");
 	if (settings)
 	{
+	//not rly good at all. Why is that?
+		WSADATA WSAData;
+		WSAStartup(MAKEWORD(2,0), &WSAData);
+		SOCKET sock;
+		SOCKADDR_IN sin;
+		char IP[16];
+		char HOST[32];
+		char FILE[16];
+		char NAME[16];
+		fscanf(settings,"%s",IP);
+		fscanf(settings,"%s",HOST);
+		fscanf(settings,"%s",FILE);
+		fscanf(settings,"%s",NAME);
+		long rcs;
 		while(true){
-			char IP[16];
-			char HOST[32];
-			char FILE[16];
-			char NAME[16];
-			fscanf(settings,"%s",IP);
-			fscanf(settings,"%s",HOST);
-			fscanf(settings,"%s",FILE);
-			fscanf(settings,"%s",NAME);
 			char srequest[256];
 			sprintf_s(srequest,256, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,serverPort,TotalClients,MAXCLIENTS,HOST);
 			
@@ -322,15 +321,22 @@ void info(void *arg)
 			sin.sin_family = AF_INET;
 			sin.sin_port = htons(80);
 
-			connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
-
-			send(sock, srequest, 256, 0);
-
+			rcs=connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
+			if(rcs==SOCKET_ERROR) 
+			{
+				printf("Error: connect, error code: %s\n",WSAGetLastError());
+			}
+			rcs=send(sock, srequest, 256, 0);
+			if(rcs==SOCKET_ERROR) 
+			{
+				printf("Error: send, error code: %s\n",WSAGetLastError());
+			}
 			closesocket(sock); 
 			Sleep(120000);
 		}
+		WSACleanup();
 	}else{
 		printf("Error: Server-list settings file ListSettings.ini was not found\n");
 	}
-	WSACleanup();
+	
 }
