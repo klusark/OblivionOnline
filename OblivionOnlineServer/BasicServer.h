@@ -34,7 +34,7 @@ This file is part of OblivionOnline.
 #define PORT 41805
 
 #define MAIN_VERSION 3
-#define SUB_VERSION 8	//Release 3, bugfix 8
+#define SUB_VERSION 10	//Release 3, bugfix 8
 
 extern int TotalClients;
 extern bool bServerAlive;

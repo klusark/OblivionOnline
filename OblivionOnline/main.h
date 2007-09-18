@@ -55,7 +55,7 @@ This file is part of OblivionOnline.
 #define MAXSERVERS 8
 
 #define MAIN_VERSION 3
-#define SUB_VERSION 8 // Release 3, bugfix 8
+#define SUB_VERSION 10 // Release 3, bugfix 8
 
 //Externals
 extern IDebugLog gLog;

@@ -354,10 +354,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\exports.def"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

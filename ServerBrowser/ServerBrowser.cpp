@@ -261,7 +261,7 @@ INT_PTR CALLBACK ServerAdd(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 				if(Port <= 65535)
 				{
 					realmfile = fopen("realmlist.wth","w");
-					fprintf(realmfile,"%d.%d.%d.%d %u",FIRST_IPADDRESS(dwTempAddress),SECOND_IPADDRESS(dwTempAddress),THIRD_IPADDRESS(dwTempAddress),FOURTH_IPADDRESS(dwTempAddress),Port);
+					fprintf(realmfile,"1 %d.%d.%d.%d %u",FIRST_IPADDRESS(dwTempAddress),SECOND_IPADDRESS(dwTempAddress),THIRD_IPADDRESS(dwTempAddress),FOURTH_IPADDRESS(dwTempAddress),Port);
 					fclose(realmfile);
 					EndDialog(hDlg, LOWORD(wParam));
 				}

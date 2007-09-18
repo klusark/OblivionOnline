@@ -43,7 +43,7 @@ void info(void *);
 int main()
 {
 	_beginthread(info,0,NULL);
-
+	
 	// Setup our local variables
 	short LocalPlayer;
 	long rc;
@@ -67,7 +67,7 @@ int main()
 
 		Connected[i] = false;
 	}
-
+	printf("OblivionOnline Basic Server , version %d.%d , by masterfreek64 and Chessmaster 64 aka Julian Bangert and Joseph Pearson \n");
 	SOCKET acceptSocket;
 	SOCKADDR_IN addr;
 	FD_SET fdSet;
@@ -313,7 +313,7 @@ void info(void *arg)
 		long rcs;
 		while(true){
 			char srequest[256];
-			sprintf_s(srequest,256, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,serverPort,TotalClients,MAXCLIENTS,HOST);
+			sprintf_s(srequest,256, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,serverPort,TotalClients,MAXCLIENTS,HOST,MAIN_VERSION,SUB_VERSION);
 			
 			sock = socket(AF_INET, SOCK_STREAM, 0);
 		
