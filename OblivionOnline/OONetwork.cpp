@@ -305,9 +305,7 @@ bool OOPDisconnect_Handler(char *Packet)
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgDisconnect));
 	PlayerConnected[InPkgBuf.PlayerID] = false;
 	TotalPlayers--;
-	char DCText[32];
-	sprintf(DCText, "Player %i disconnected", InPkgBuf.PlayerID);
-	Console_Print(DCText);
+	Console_Print("Player %i disconnected", InPkgBuf.PlayerID);
 	return true;
 }
 
