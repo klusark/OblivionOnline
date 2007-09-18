@@ -85,7 +85,7 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
 	OOPkgActorUpdate pkgBuf;
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
-	if((tickBuf - PacketTime[OOPActorUpdate]) > NET_POSUPDATE_RESEND) //just send it every 30 ms 
+	if((tickBuf - PacketTime[OOPActorUpdate]) > NET_POSUPDATE_RESEND)
 	{
 		if(memcmp(&LastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
 		{
@@ -339,7 +339,6 @@ bool OOPActorUpdate_Handler(char *Packet)
 		Players[InPkgBuf.refID].RotX = InPkgBuf.fRotX;
 		Players[InPkgBuf.refID].RotY = InPkgBuf.fRotY;
 		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
-		Players[InPkgBuf.refID].Health = InPkgBuf.Health;
 		UInt32 oldCell = Players[InPkgBuf.refID].CellID;
 		Players[InPkgBuf.refID].CellID = InPkgBuf.CellID;
 		//Check to see if cell is from a mod

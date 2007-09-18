@@ -27,6 +27,7 @@ int TotalClients = 0;
 bool bServerAlive;
 SOCKET clients[MAXCLIENTS];
 PlayerStatus Players[MAXCLIENTS];
+PlayerStatus PlayersInitial[MAXCLIENTS];
 UInt8 ModList[MAXCLIENTS][255];
 bool Connected[MAXCLIENTS];
 unsigned short serverPort = 0;
@@ -290,7 +291,6 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer)
 	}
 	return true;
 }
-
 
 void info(void *arg)
 {

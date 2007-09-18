@@ -98,8 +98,11 @@ float GetStat(Actor* ActorBuf, int statNum)
 	int PlayerNum = GetActorID(ActorBuf->refID);
 
 	//If actorID is valid and stats have been initialized, retrieve the stat we want
-	if ((PlayerNum != -1 && PlayerNum != -2) && Players[PlayerNum].bStatsInitialized)
+	if (PlayerNum != -1 && PlayerNum != -2)
 	{
+		if (!Players[PlayerNum].bStatsInitialized)
+			return -1;
+
 		switch(statNum)
 		{
 		case 0:

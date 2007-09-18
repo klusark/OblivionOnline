@@ -265,57 +265,52 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 
 bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 {
-	static int LastHealthBuf = -1;
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPSendActor");
 		return true;
 	}
-	if(thisObj->IsActor()) // we won't handle it this way.... 
+	if(thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
 		int actorNumber = GetActorID(ActorBuf->refID);
 
-		if (actorNumber != -1)
-		{
-			if (actorNumber == -2)
-				actorNumber = LocalPlayer;
+		if (actorNumber == -2)
+			actorNumber = LocalPlayer;
+		if (actorNumber != LocalPlayer)	//This command will only be for the player
+			return true;
 
-			PlayerStatus DummyStatus;
-			DummyStatus.RefID = ActorBuf->refID;
-			DummyStatus.PosX = ActorBuf->posX;
-			DummyStatus.PosY = ActorBuf->posY;
-			DummyStatus.PosZ = ActorBuf->posZ;
-			DummyStatus.RotX = ActorBuf->rotX;
-			DummyStatus.RotY = ActorBuf->rotY;
-			DummyStatus.RotZ = ActorBuf->rotZ;
-			DummyStatus.Health = ActorBuf->GetActorValue(8);
-			DummyStatus.Magika = ActorBuf->GetActorValue(9);
-			DummyStatus.Fatigue = ActorBuf->GetActorValue(10);
-			if(ActorBuf->parentCell->worldSpace)
-			{
-				DummyStatus.bIsInInterior = false;
-				DummyStatus.CellID = ActorBuf->parentCell->worldSpace->refID;
-			}
-			else
-			{
-				DummyStatus.bIsInInterior = true;
-				DummyStatus.CellID = ActorBuf->parentCell->refID;
-			}
-			if (actorNumber != LocalPlayer)
-			{
-				NetActorUpdate(&DummyStatus, actorNumber, false);
-			}
-			else
-			{
-				if (Players[actorNumber].bStatsInitialized)
-					NetActorUpdate(&DummyStatus, actorNumber, false);
-				else
-				{
-					NetActorUpdate(&DummyStatus, actorNumber, true);
-					Players[actorNumber].bStatsInitialized = true;
-				}
-			}
+		if (!PlayerConnected[actorNumber])
+		{
+			return true;
+		}
+		PlayerStatus DummyStatus;
+		DummyStatus.RefID = ActorBuf->refID;
+		DummyStatus.PosX = ActorBuf->posX;
+		DummyStatus.PosY = ActorBuf->posY;
+		DummyStatus.PosZ = ActorBuf->posZ;
+		DummyStatus.RotX = ActorBuf->rotX;
+		DummyStatus.RotY = ActorBuf->rotY;
+		DummyStatus.RotZ = ActorBuf->rotZ;
+		DummyStatus.Health = ActorBuf->GetActorValue(8);
+		DummyStatus.Magika = ActorBuf->GetActorValue(9);
+		DummyStatus.Fatigue = ActorBuf->GetActorValue(10);
+		if(ActorBuf->parentCell->worldSpace)
+		{
+			DummyStatus.bIsInInterior = false;
+			DummyStatus.CellID = ActorBuf->parentCell->worldSpace->refID;
+		}
+		else
+		{
+			DummyStatus.bIsInInterior = true;
+			DummyStatus.CellID = ActorBuf->parentCell->refID;
+		}
+		if (Players[actorNumber].bStatsInitialized)
+			NetActorUpdate(&DummyStatus, actorNumber, false);
+		else{
+			NetActorUpdate(&DummyStatus, actorNumber, true);
+			Players[actorNumber].bStatsInitialized = true;
+			Console_Print("Initializing stats ...");
 		}
 	}
 	return true;
@@ -335,6 +330,10 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 
 		if (actorNumber != -1 && actorNumber != -2)
 		{
+			if (!PlayerConnected[actorNumber])
+			{
+				return true;
+			}
 			PlayerStatus DummyStatus;
 			DummyStatus.Strength = ActorBuf->GetActorValue(0);
 			DummyStatus.Intelligence = ActorBuf->GetActorValue(1);
@@ -350,13 +349,14 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 			DummyStatus.Encumbrance = ActorBuf->GetActorValue(11);
 			if (actorNumber != LocalPlayer)
 			{
-				NetFullStatUpdate(&DummyStatus, actorNumber, false);
+				//NetFullStatUpdate(&DummyStatus, actorNumber, false);
 			}else{
 				if (Players[actorNumber].bStatsInitialized)
-					NetFullStatUpdate(&DummyStatus, actorNumber, false);
-				else{
-					NetFullStatUpdate(&DummyStatus, actorNumber, true);
-					Players[actorNumber].bStatsInitialized = true;
+				{
+					//NetFullStatUpdate(&DummyStatus, actorNumber, false);
+				}else{
+					//NetFullStatUpdate(&DummyStatus, actorNumber, true);
+					//Players[actorNumber].bStatsInitialized = true;
 				}
 			}
 		}
@@ -366,6 +366,10 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 
 bool Cmd_MPSendChat_Execute (COMMAND_ARGS)
 {
+	if (!bIsConnected)
+	{
+		return true;
+	}
 	char message[512] = "\0";
 	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &message)) return true;
 	NetChat(message);
@@ -374,6 +378,10 @@ bool Cmd_MPSendChat_Execute (COMMAND_ARGS)
 
 bool Cmd_MPSyncTime_Execute (COMMAND_ARGS)
 {
+	if (!bIsConnected)
+	{
+		return true;
+	}
 	OOPkgTimeUpdate pkgBuf;
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
@@ -563,7 +571,7 @@ bool Cmd_MPGetStat_Execute (COMMAND_ARGS)
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
 		float statAmount = GetStat(ActorBuf, statNumber);
-		if (statAmount == -1)
+		//if (statAmount == -1)
 			//Console_Print("Tried to get stat of non-initialized actor");
 		*result = statAmount;
 	}

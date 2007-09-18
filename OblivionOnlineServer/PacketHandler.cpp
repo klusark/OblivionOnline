@@ -47,6 +47,29 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			printf("Welcoming Player%2d\n",LocalPlayer);
 			free(SendBuf);
 			Connected[LocalPlayer] = true;
+
+			Sleep(100);	//Give some time for the client to process the welcome
+
+			//Now send out the data from our other clients to our new client
+			for(int i=0; i<MAXCLIENTS; i++)
+			{
+				if ((i != LocalPlayer && Connected[i]) && Players[i].bStatsInitialized)
+				{
+					printf("  Init: Sending player %i info to player %i\n", i, LocalPlayer);
+					OOPkgActorUpdate SendPkgBuf;
+					SendPkgBuf.etypeID = OOPActorUpdate;
+					if (Players[i].bIsInInterior)
+						SendPkgBuf.Flags = 1 | 2 | 8;
+					else
+						SendPkgBuf.Flags = 1 | 2 | 4 | 8;
+					SendPkgBuf.refID = Players[i].RefID;
+					SendPkgBuf.CellID = Players[i].CellID;
+					SendPkgBuf.Health = PlayersInitial[i].Health;
+					SendPkgBuf.Magika = PlayersInitial[i].Magika;
+					SendPkgBuf.Fatigue = PlayersInitial[i].Fatigue;
+					send(clients[LocalPlayer],(char *)&SendPkgBuf,sizeof(OOPkgActorUpdate),0);
+				}
+			}
 		}
 		else
 		{
@@ -115,9 +138,13 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
 			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
 			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
+			PlayersInitial[InPkgBuf.refID].Health = InPkgBuf.Health;
+			PlayersInitial[InPkgBuf.refID].Magika = InPkgBuf.Magika;
+			PlayersInitial[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
 			printf("Client %i basic stats initialized\n", InPkgBuf.refID);
 			printf(" HP: %i\n", Players[InPkgBuf.refID].Health);
 			printf(" MP: %i\n", Players[InPkgBuf.refID].Magika);
+			Players[InPkgBuf.refID].bStatsInitialized = true;
 		}else{
 			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
 			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
@@ -191,6 +218,9 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
 			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
 			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
+			PlayersInitial[InPkgBuf.refID].Health = InPkgBuf.Health;
+			PlayersInitial[InPkgBuf.refID].Magika = InPkgBuf.Magika;
+			PlayersInitial[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
 			printf("Client %i full stats initialized\n", InPkgBuf.refID);
 			printf(" HP: %i\n", Players[InPkgBuf.refID].Health);
 			printf(" MP: %i\n", Players[InPkgBuf.refID].Magika);
