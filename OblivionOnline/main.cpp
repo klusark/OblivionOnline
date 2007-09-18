@@ -71,7 +71,7 @@ extern bool NetActorUpdate(PlayerStatus *Player,int PlayerID,bool Initial);
 extern bool NetWelcome();
 extern bool NetDisconnect();
 extern bool NetChat(char *Message);
-extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID,bool Initial);
+extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC);
 extern bool NetReadBuffer(char *acReadBuffer);
 extern bool NetEquipped(PlayerStatus *Player, int PlayerID,bool Initial);
 extern bool NetSendModList(void);
@@ -349,14 +349,14 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 			DummyStatus.Encumbrance = ActorBuf->GetActorValue(11);
 			if (actorNumber != LocalPlayer)
 			{
-				//NetFullStatUpdate(&DummyStatus, actorNumber, false);
+				NetFullStatUpdate(&DummyStatus, actorNumber, false, false);
 			}else{
 				if (Players[actorNumber].bStatsInitialized)
 				{
-					//NetFullStatUpdate(&DummyStatus, actorNumber, false);
+					NetFullStatUpdate(&DummyStatus, actorNumber, false, true);
 				}else{
-					//NetFullStatUpdate(&DummyStatus, actorNumber, true);
-					//Players[actorNumber].bStatsInitialized = true;
+					NetFullStatUpdate(&DummyStatus, actorNumber, true, true);
+					Players[actorNumber].bStatsInitialized = true;
 				}
 			}
 		}

@@ -170,7 +170,7 @@ bool NetChat(char *Message)
 	return true;
 }
 
-bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
+bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC)
 {
 	static PlayerStatus StatLastPlayer;
 	
@@ -184,7 +184,10 @@ bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
 		{
 			OOPkgFullStatUpdate pkgBuf;
 			pkgBuf.etypeID = OOPFullStatUpdate;
-			pkgBuf.Flags = 1 | 2;
+			if (IsPC)
+				pkgBuf.Flags = 1 | 2;
+			else
+				pkgBuf.Flags = 2;
 			if (Initial)
 				pkgBuf.Flags = pkgBuf.Flags | 8;
 			pkgBuf.Agility = Player->Agility;
@@ -449,6 +452,7 @@ bool OOPFullStatUpdate_Handler(char *Packet)
 			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
 			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
 			Players[InPkgBuf.refID].bStatsInitialized = true;
+			Console_Print("Player %i full stats initialized", InPkgBuf.refID);
 		}else{
 			Players[InPkgBuf.refID].Agility += InPkgBuf.Agility;
 			Players[InPkgBuf.refID].Encumbrance += InPkgBuf.Encumbrance;

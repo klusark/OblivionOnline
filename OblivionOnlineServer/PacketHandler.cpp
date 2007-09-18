@@ -237,7 +237,7 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 		}
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
-			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgFullStatUpdate),0);
+			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgFullStatUpdate),0);
 		}
 	}
 	return true;
