@@ -33,8 +33,9 @@ This file is part of OblivionOnline.
 #define MAXCLIENTS 4
 #define PORT 41805
 
+#define SUPER_VERSION 0	//Not used yet
 #define MAIN_VERSION 3
-#define SUB_VERSION 10	//Release 3, bugfix 8
+#define SUB_VERSION 10	//Release 3, bugfix 10
 
 extern int TotalClients;
 extern bool bServerAlive;

@@ -67,7 +67,8 @@ int main()
 
 		Connected[i] = false;
 	}
-	printf("OblivionOnline Basic Server , version %d.%d , by masterfreek64 and Chessmaster 64 aka Julian Bangert and Joseph Pearson \n");
+	printf("OblivionOnline Basic Server, v.%i.%i.%i\n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION);
+	printf("Wrtten by masterfreek64 aka Julian Bangert and Chessmaster42 aka Joseph Pearson \n");
 	SOCKET acceptSocket;
 	SOCKADDR_IN addr;
 	FD_SET fdSet;
@@ -297,7 +298,6 @@ void info(void *arg)
 	FILE *settings = fopen("ListSettings.ini","r");
 	if (settings)
 	{
-	//not rly good at all. Why is that?
 		WSADATA WSAData;
 		WSAStartup(MAKEWORD(2,0), &WSAData);
 		SOCKET sock;
@@ -312,8 +312,8 @@ void info(void *arg)
 		fscanf(settings,"%s",NAME);
 		long rcs;
 		while(true){
-			char srequest[256];
-			sprintf_s(srequest,256, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,serverPort,TotalClients,MAXCLIENTS,HOST,MAIN_VERSION,SUB_VERSION);
+			char srequest[384];
+			sprintf_s(srequest,384, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,serverPort,TotalClients,MAXCLIENTS,MAIN_VERSION,SUB_VERSION,HOST);
 			
 			sock = socket(AF_INET, SOCK_STREAM, 0);
 		
