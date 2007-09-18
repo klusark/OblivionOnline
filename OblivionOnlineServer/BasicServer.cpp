@@ -324,12 +324,12 @@ void info(void *arg)
 			rcs=connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
 			if(rcs==SOCKET_ERROR) 
 			{
-				printf("Error: connect, error code: %s\n",WSAGetLastError());
+				printf("Error: connect, error code: %i\n",WSAGetLastError());
 			}
 			rcs=send(sock, srequest, 256, 0);
 			if(rcs==SOCKET_ERROR) 
 			{
-				printf("Error: send, error code: %s\n",WSAGetLastError());
+				printf("Error: send, error code: %i\n",WSAGetLastError());
 			}
 			closesocket(sock); 
 			Sleep(120000);
