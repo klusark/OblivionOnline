@@ -326,7 +326,7 @@ void info(void *arg)
 			{
 				printf("Error: connect, error code: %i\n",WSAGetLastError());
 			}
-			rcs=send(sock, srequest, 256, 0);
+			rcs=send(sock, srequest, 384, 0);
 			if(rcs==SOCKET_ERROR) 
 			{
 				printf("Error: send, error code: %i\n",WSAGetLastError());
