@@ -305,7 +305,7 @@ void info(void *arg)
 		char IP[16];
 		char HOST[32];
 		char FILE[16];
-		char NAME[16];
+		char NAME[32];
 		fscanf(settings,"%s",IP);
 		fscanf(settings,"%s",HOST);
 		fscanf(settings,"%s",FILE);
