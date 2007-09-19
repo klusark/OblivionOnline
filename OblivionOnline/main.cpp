@@ -56,6 +56,7 @@ HANDLE hRecvThread;
 HANDLE hPredictionEngine;
 
 PlayerStatus Players[MAXCLIENTS];
+TESObjectREFR* PlayerActorList[MAXCLIENTS];
 
 DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.'
 DWORD VelocityTime[MAXCLIENTS], VelocityOldTime[MAXCLIENTS];	//Timers to calculate NPC velocity
@@ -284,6 +285,9 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		{
 			return true;
 		}
+
+		PlayerActorList[actorNumber] = thisObj;
+
 		PlayerStatus DummyStatus;
 		DummyStatus.RefID = ActorBuf->refID;
 		DummyStatus.PosX = ActorBuf->posX;

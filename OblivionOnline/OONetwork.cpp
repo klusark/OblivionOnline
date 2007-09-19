@@ -180,32 +180,36 @@ bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool Is
 	// If we have a full update, don't send it too quickly
 	if((tickBuf - PacketTime[OOPFullStatUpdate]) > NET_FULLSTATUPDATE_RESEND)
 	{
-		if(memcmp(&StatLastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
+		//And make sure we aren't sending at the same time as ActorUpdate
+		if((tickBuf - PacketTime[OOPActorUpdate]) < NET_POSUPDATE_RESEND)
 		{
-			OOPkgFullStatUpdate pkgBuf;
-			pkgBuf.etypeID = OOPFullStatUpdate;
-			if (IsPC)
-				pkgBuf.Flags = 1 | 2;
-			else
-				pkgBuf.Flags = 2;
-			if (Initial)
-				pkgBuf.Flags = pkgBuf.Flags | 8;
-			pkgBuf.Agility = Player->Agility;
-			pkgBuf.Encumbrance = Player->Encumbrance;
-			pkgBuf.Endurance = Player->Endurance;
-			pkgBuf.Intelligence = Player->Intelligence;
-			pkgBuf.Luck = Player->Luck;
-			pkgBuf.Personality = Player->Personality;
-			pkgBuf.Speed = Player->Speed;
-			pkgBuf.Strength = Player->Strength;
-			pkgBuf.Willpower = Player->Willpower;
-			pkgBuf.Health = Player->Health;
-			pkgBuf.Magika = Player->Magika;
-			pkgBuf.Fatigue = Player->Fatigue;
-			pkgBuf.TimeStamp = Player->Time;
-			pkgBuf.refID = PlayerID;
-			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgFullStatUpdate),0);
-			PacketTime[OOPFullStatUpdate] = tickBuf;
+			if(memcmp(&StatLastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
+			{
+				OOPkgFullStatUpdate pkgBuf;
+				pkgBuf.etypeID = OOPFullStatUpdate;
+				if (IsPC)
+					pkgBuf.Flags = 1 | 2;
+				else
+					pkgBuf.Flags = 2;
+				if (Initial)
+					pkgBuf.Flags = pkgBuf.Flags | 8;
+				pkgBuf.Agility = Player->Agility;
+				pkgBuf.Encumbrance = Player->Encumbrance;
+				pkgBuf.Endurance = Player->Endurance;
+				pkgBuf.Intelligence = Player->Intelligence;
+				pkgBuf.Luck = Player->Luck;
+				pkgBuf.Personality = Player->Personality;
+				pkgBuf.Speed = Player->Speed;
+				pkgBuf.Strength = Player->Strength;
+				pkgBuf.Willpower = Player->Willpower;
+				pkgBuf.Health = Player->Health;
+				pkgBuf.Magika = Player->Magika;
+				pkgBuf.Fatigue = Player->Fatigue;
+				pkgBuf.TimeStamp = Player->Time;
+				pkgBuf.refID = PlayerID;
+				send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgFullStatUpdate),0);
+				PacketTime[OOPFullStatUpdate] = tickBuf;
+			}
 		}
 	}
 	return true;
