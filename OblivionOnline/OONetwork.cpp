@@ -181,8 +181,8 @@ bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool Is
 	if((tickBuf - PacketTime[OOPFullStatUpdate]) > NET_FULLSTATUPDATE_RESEND)
 	{
 		//And make sure we aren't sending at the same time as ActorUpdate
-		if((tickBuf - PacketTime[OOPActorUpdate]) < NET_POSUPDATE_RESEND)
-		{
+		//if((tickBuf - PacketTime[OOPActorUpdate]) < NET_POSUPDATE_RESEND)
+		//{
 			if(memcmp(&StatLastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
 			{
 				OOPkgFullStatUpdate pkgBuf;
@@ -210,7 +210,7 @@ bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool Is
 				send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgFullStatUpdate),0);
 				PacketTime[OOPFullStatUpdate] = tickBuf;
 			}
-		}
+		//}
 	}
 	return true;
 }
