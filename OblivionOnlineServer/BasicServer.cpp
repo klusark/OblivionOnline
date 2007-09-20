@@ -1,6 +1,6 @@
 /*
 
-Copyright 2007  Julian aka masterfreek64 and Joseph Pearson aka chessmaster42 
+Copyright 2007  Julian aka masterfreek64, Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
 
 This file is part of OblivionOnline.
 
@@ -68,7 +68,7 @@ int main()
 		Connected[i] = false;
 	}
 	printf("OblivionOnline Basic Server, v.%i.%i.%i\n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION);
-	printf("Wrtten by masterfreek64 aka Julian Bangert and Chessmaster42 aka Joseph Pearson \n");
+	printf("Wrtten by masterfreek64 aka Julian Bangert, Chessmaster42 aka Joseph Pearson and bobjr777 aka Joel Teichroeb \n");
 	SOCKET acceptSocket;
 	SOCKADDR_IN addr;
 	FD_SET fdSet;
@@ -336,7 +336,7 @@ void info(void *arg)
 		}
 		WSACleanup();
 	}else{
-		printf("Error: Server-list settings file ListSettings.ini was not found\n");
+		printf("ListSettings.ini not found. This server will not be listed online.\n");
 	}
 	
 }
