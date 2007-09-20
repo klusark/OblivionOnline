@@ -56,6 +56,7 @@ HANDLE hRecvThread;
 HANDLE hPredictionEngine;
 
 PlayerStatus Players[MAXCLIENTS];
+PlayerStatus PlayersInitial[MAXCLIENTS];
 TESObjectREFR* PlayerActorList[MAXCLIENTS];
 
 int BadPackets[PACKET_COUNT];	//Keeps track of # of bad packets of each type

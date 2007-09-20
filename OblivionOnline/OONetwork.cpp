@@ -337,6 +337,12 @@ bool OOPWelcome_Handler(char *Packet)
 	_MESSAGE("Received Player ID %u",LocalPlayer);
 	Console_Print(InPkgBuf.NickName);
 	PlayerConnected[LocalPlayer] = true;
+	PlayersInitial[LocalPlayer].Health = (*g_thePlayer)->GetActorValue(8);
+	PlayersInitial[LocalPlayer].Magika = (*g_thePlayer)->GetActorValue(9);
+	PlayersInitial[LocalPlayer].Fatigue = (*g_thePlayer)->GetActorValue(10);
+	Players[LocalPlayer].Health = (*g_thePlayer)->GetActorValue(8);
+	Players[LocalPlayer].Magika = (*g_thePlayer)->GetActorValue(9);
+	Players[LocalPlayer].Fatigue = (*g_thePlayer)->GetActorValue(10);
 	return true;
 }
 
