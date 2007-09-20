@@ -44,8 +44,8 @@ This file is part of OblivionOnline.
 IDebugLog gLog("OblivionOnline.log");
 
 bool bIsConnected = false;
-int LocalPlayer;
 bool PlayerConnected[MAXCLIENTS];
+int LocalPlayer;
 int TotalPlayers;
 
 UInt32 SpawnID[MAXCLIENTS];
@@ -58,6 +58,8 @@ HANDLE hPredictionEngine;
 PlayerStatus Players[MAXCLIENTS];
 TESObjectREFR* PlayerActorList[MAXCLIENTS];
 
+int BadPackets[PACKET_COUNT];	//Keeps track of # of bad packets of each type
+
 DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.'
 DWORD VelocityTime[MAXCLIENTS], VelocityOldTime[MAXCLIENTS];	//Timers to calculate NPC velocity
 
@@ -68,13 +70,13 @@ extern void RunScriptLine(const char *buf, bool IsTemp);
 extern int GetActorID(UInt32 refID);
 extern float GetStat(Actor *ActorBuf, int statNum);
 
-extern bool NetActorUpdate(PlayerStatus *Player,int PlayerID,bool Initial);
+extern bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC);
 extern bool NetWelcome();
 extern bool NetDisconnect();
 extern bool NetChat(char *Message);
 extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC);
-extern bool NetReadBuffer(char *acReadBuffer);
-extern bool NetEquipped(PlayerStatus *Player, int PlayerID,bool Initial);
+extern bool NetReadBuffer(char *acReadBuffer, int Length);
+extern bool NetEquipped(PlayerStatus *Player, int PlayerID, bool Initial);
 extern bool NetSendModList(void);
 
 extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEquippedFunctor, double* result);
@@ -181,7 +183,7 @@ DWORD WINAPI RecvThread(LPVOID Params)
 	while(bIsConnected)
 	{
 		rc = recv(ServerSocket,buf,512,0);
-		NetReadBuffer(buf);
+		NetReadBuffer(buf, rc);
 	}
 	return 0;
 }
@@ -278,8 +280,6 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 
 		if (actorNumber == -2)
 			actorNumber = LocalPlayer;
-		if (actorNumber != LocalPlayer)	//This command will only be for the player
-			return true;
 
 		if (!PlayerConnected[actorNumber])
 		{
@@ -309,12 +309,17 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 			DummyStatus.bIsInInterior = true;
 			DummyStatus.CellID = ActorBuf->parentCell->refID;
 		}
-		if (Players[actorNumber].bStatsInitialized)
-			NetActorUpdate(&DummyStatus, actorNumber, false);
-		else{
-			NetActorUpdate(&DummyStatus, actorNumber, true);
-			Players[actorNumber].bStatsInitialized = true;
-			Console_Print("Initializing stats ...");
+		if (actorNumber != LocalPlayer)
+		{
+			NetActorUpdate(&DummyStatus, actorNumber, false, false);
+		}else{
+			if (Players[actorNumber].bStatsInitialized)
+				NetActorUpdate(&DummyStatus, actorNumber, false, true);
+			else{
+				Console_Print("Initializing stats ...");
+				NetActorUpdate(&DummyStatus, actorNumber, true, true);
+				Players[actorNumber].bStatsInitialized = true;
+			}
 		}
 	}
 	return true;
@@ -598,7 +603,8 @@ bool Cmd_MPGetDebugData_Execute (COMMAND_ARGS)
 		{
 			if (actorNumber == -2)
 				actorNumber = LocalPlayer;
-			Console_Print("VelX: %f, VelY: %f, VelZ: %f", Players[actorNumber].VelX, Players[actorNumber].VelY, Players[actorNumber].VelZ);
+			//Console_Print("VelX: %f, VelY: %f, VelZ: %f", Players[actorNumber].VelX, Players[actorNumber].VelY, Players[actorNumber].VelZ);
+			Console_Print("Badpackets: ActorUpdate(%i), FSU(%i)", BadPackets[OOPActorUpdate], BadPackets[OOPFullStatUpdate]);
 		}
 	}
 	return true;
@@ -857,6 +863,22 @@ bool Cmd_MPLogModOffset_Execute (COMMAND_ARGS)
 		return true;
 	ModList[LocalPlayer][ModID] = (thisObj->refID & 0xff000000) >> 24;
 	Console_Print("Offset of %i set for modID %i", ModList[LocalPlayer][ModID], ModID);
+	return true;
+}
+
+bool Cmd_MPGetMyID_Execute (COMMAND_ARGS)
+{
+	if (!thisObj)
+	{
+		Console_Print("Error, no reference given for MPGetEquipment");
+		return true;
+	}
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		int actorNumber = GetActorID(ActorBuf->refID);
+		*result = (float)actorNumber;
+	}
 	return true;
 }
 
@@ -1180,6 +1202,18 @@ static CommandInfo kMPLogModOffsetCommand =
 	Cmd_MPLogModOffset_Execute
 };
 
+static CommandInfo kMPGetMyIDCommand =
+{
+	"MPGetMyID",
+	"MPGMID",
+	0,
+	"Get's the player ID of the calling NPC (other player)",
+	0,		// requires parent obj
+	0,		// no params
+	NULL,	// no param table
+	Cmd_MPGetMyID_Execute
+};
+
 //---------------------------------
 //---End CommandInfo Enumeration---
 //---------------------------------
@@ -1268,6 +1302,8 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	//Mod support
 	obse->RegisterCommand(&kMPSendModListCommand);
 	obse->RegisterCommand(&kMPLogModOffsetCommand);
+
+	obse->RegisterCommand(&kMPGetMyIDCommand);
 
 	_MESSAGE("Done loading OO Commands");
 	return true;

@@ -68,6 +68,7 @@ extern SOCKET ServerSocket;
 extern HANDLE hRecvThread;
 extern PlayerStatus Players[MAXCLIENTS];
 extern UInt32 SpawnID[MAXCLIENTS];
+extern int BadPackets[PACKET_COUNT];
 extern DWORD PacketTime[PACKET_COUNT];
 extern DWORD VelocityTime[MAXCLIENTS], VelocityOldTime[MAXCLIENTS];
 extern UInt8 ModList[MAXCLIENTS][256];

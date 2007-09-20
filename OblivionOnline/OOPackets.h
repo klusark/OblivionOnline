@@ -52,6 +52,7 @@ static const GUID OO =
 enum OOPacketType
 {
 	OOPWelcome = 0,		//Send to synchronise versions , 
+	OOPError,			//For triggering a resend due to bad data
 	OOPEvent,			//An Event is triggered by a plugin
 	OOPEventRegister,	//An Event is registered, server only
 	OOPActorUpdate,		//Sends a position of actors , objects and players
@@ -76,6 +77,13 @@ struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE
 	WORD wVersion; // LowerByte contains subversion ( or bugfix ) Higher Byte contains major release
 	GUID guidOblivionOnline; // contains OblivionOnline GUID , this is once defined by me and never to be changed.
 	char NickName[32]; // ignored when sent by client
+};
+
+struct OOPError		//This package is for managine data errors
+{
+	OOPacketType etypeID;
+	short Flags;	//Contains the flags of the bad packet
+	OOPacketType BadPacketType;
 };
 
 struct OOPkgEvent // This package is for Plugin Events
@@ -169,6 +177,6 @@ inline OOPacketType SelectType(char *Packet)
 }
 
 //Total packet types
-#define PACKET_COUNT 10
+#define PACKET_COUNT 11
 
 #endif

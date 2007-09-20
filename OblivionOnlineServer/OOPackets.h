@@ -52,6 +52,7 @@ static const GUID OO =
 enum OOPacketType
 {
 	OOPWelcome = 0,		//Send to synchronise versions , 
+	OOPError,			//For triggering a resend due to bad data
 	OOPEvent,			//An Event is triggered by a plugin
 	OOPEventRegister,	//An Event is registered, server only
 	OOPActorUpdate,		//Sends a position of actors , objects and players
@@ -61,6 +62,8 @@ enum OOPacketType
 	OOPDisconnect,		//Tells other clients that the player is disconnecting
 	OOPEquipped,		//Tells the clients what the actor is wearing
 	OOPModOffsetList,	//Contains a list of mod offsets to support mod items and locations
+	OOPACModVerify = 65555,
+	OOPACVerify = 65556 // ATTENTION  PACKETS 65555 and 65556 are reserver for AuthMod and Auth
 };
 
 #pragma pack(push,1)
@@ -74,6 +77,13 @@ struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE
 	WORD wVersion; // LowerByte contains subversion ( or bugfix ) Higher Byte contains major release
 	GUID guidOblivionOnline; // contains OblivionOnline GUID , this is once defined by me and never to be changed.
 	char NickName[32]; // ignored when sent by client
+};
+
+struct OOPError		//This package is for managine data errors
+{
+	OOPacketType etypeID;
+	short Flags;	//Contains the flags of the bad packet
+	OOPacketType BadPacketType;
 };
 
 struct OOPkgEvent // This package is for Plugin Events
@@ -146,7 +156,7 @@ struct OOPkgEquipped
 	UInt32 refID;	// the player # or the refID of the actor
 	UInt32 head,hair,upper_body,lower_body;
 	UInt32 hand,foot,right_ring,left_ring;
-	UInt32 amulet,shield,tail,weapon,ammo;
+	UInt32 amulet,shield,tail,weapon,ammo; 
 	UInt32 robes;
 };
 
@@ -167,6 +177,6 @@ inline OOPacketType SelectType(char *Packet)
 }
 
 //Total packet types
-#define PACKET_COUNT 10
+#define PACKET_COUNT 11
 
 #endif

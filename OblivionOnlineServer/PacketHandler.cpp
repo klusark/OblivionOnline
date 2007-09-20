@@ -158,7 +158,8 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		}
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
-			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
+			if (cx != LocalPlayer)
+				send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
 		}
 	}
 	return true;
@@ -237,7 +238,8 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 		}
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
-			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgFullStatUpdate),0);
+			if (cx != LocalPlayer)
+				send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgFullStatUpdate),0);
 		}
 	}
 	return true;

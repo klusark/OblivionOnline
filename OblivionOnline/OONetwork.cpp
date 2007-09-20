@@ -77,8 +77,7 @@ bool NetDisconnect()
 	return true;
 }
 
-bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial) 
-//THIS IS FOR PLAYER CHARACTERS ONLY !!!!!!
+bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC) 
 {
 	static PlayerStatus LastPlayer;
 	
@@ -91,12 +90,17 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial)
 		{
 			memcpy(&LastPlayer,Player,sizeof(PlayerStatus));
 			pkgBuf.etypeID = OOPActorUpdate;
+			pkgBuf.Flags = IsPC | 2 | (Player->bIsInInterior << 2) | (Initial << 3);
+			/*
 			if(Player->bIsInInterior)
-				pkgBuf.Flags = 1 | 2;
+				pkgBuf.Flags = 2;
 			else
-				pkgBuf.Flags = 1 | 2 | 4;
+				pkgBuf.Flags = 2 | 4;
+			if(IsPC)
+				pkgBuf.Flags = pkgBuf.Flags | 1;
 			if(Initial)
 				pkgBuf.Flags = pkgBuf.Flags | 8;
+			*/
 			pkgBuf.fPosX = Player->PosX;
 			pkgBuf.fPosY = Player->PosY;
 			pkgBuf.fPosZ = Player->PosZ;
@@ -249,41 +253,71 @@ bool NetSendModList(void)
 //--End Outgoing Handlers----
 //---------------------------
 
-bool NetReadBuffer(char *acReadBuffer)
+bool NetReadBuffer(char *acReadBuffer, int Length)
 {
 	OOPacketType ePacketType = SelectType(acReadBuffer);
 
 	switch (ePacketType)
 	{
 	case OOPWelcome:
-		OOPWelcome_Handler(acReadBuffer);
+		if (Length == sizeof(OOPkgWelcome))
+			OOPWelcome_Handler(acReadBuffer);
+		else
+			BadPackets[OOPWelcome]++;
 		break;
 	case OOPDisconnect:
-		OOPDisconnect_Handler(acReadBuffer);
+		if (Length == sizeof(OOPkgDisconnect))
+			OOPDisconnect_Handler(acReadBuffer);
+		else
+			BadPackets[OOPDisconnect]++;
 		break;
 	case OOPActorUpdate:
-		OOPActorUpdate_Handler(acReadBuffer);
+		if (Length == sizeof(OOPkgActorUpdate))
+			OOPActorUpdate_Handler(acReadBuffer);
+		else
+			BadPackets[OOPActorUpdate]++;
 		break;
 	case OOPChat:
-		OOPChat_Handler(acReadBuffer);
+		if (Length == sizeof(OOPkgChat))
+			OOPChat_Handler(acReadBuffer);
+		else
+			BadPackets[OOPChat]++;
 		break;
 	case OOPEvent:
-		OOPEvent_Handler(acReadBuffer);
+		if (Length == sizeof(OOPkgEvent))
+			OOPEvent_Handler(acReadBuffer);
+		else
+			BadPackets[OOPEvent]++;
 		break;
 	case OOPEventRegister:
-		OOPEventRegister_Handler(acReadBuffer);
+		if (Length == sizeof(OOPkgEventRegister))
+			OOPEventRegister_Handler(acReadBuffer);
+		else
+			BadPackets[OOPEventRegister]++;
 		break;
 	case OOPFullStatUpdate:
-		OOPFullStatUpdate_Handler(acReadBuffer);
+		if (Length == sizeof(OOPkgFullStatUpdate))
+			OOPFullStatUpdate_Handler(acReadBuffer);
+		else
+			BadPackets[OOPFullStatUpdate]++;
 		break;
 	case OOPTimeUpdate:
-		OOPTimeUpdate_Handler(acReadBuffer);
+		if (Length == sizeof(OOPkgTimeUpdate))
+			OOPTimeUpdate_Handler(acReadBuffer);
+		else
+			BadPackets[OOPTimeUpdate]++;
 		break;
 	case OOPEquipped:
-		OOPEquipped_Handler(acReadBuffer);
+		if (Length == sizeof(OOPkgEquipped))
+			OOPEquipped_Handler(acReadBuffer);
+		else
+			BadPackets[OOPEquipped]++;
 		break;
 	case OOPModOffsetList:
-		OOPModOffsetList_Handler(acReadBuffer);
+		if (Length == sizeof(OOPkgModOffsetList))
+			OOPModOffsetList_Handler(acReadBuffer);
+		else
+			BadPackets[OOPModOffsetList]++;
 		break;
 	default: 
 		break;
