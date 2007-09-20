@@ -279,13 +279,12 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		Actor *ActorBuf = (Actor *)thisObj;
 		int actorNumber = GetActorID(ActorBuf->refID);
 
+		if (actorNumber == -1)
+			return true;
+		if (!PlayerConnected[actorNumber])
+			return true;
 		if (actorNumber == -2)
 			actorNumber = LocalPlayer;
-
-		if (!PlayerConnected[actorNumber])
-		{
-			return true;
-		}
 
 		PlayerActorList[actorNumber] = thisObj;
 

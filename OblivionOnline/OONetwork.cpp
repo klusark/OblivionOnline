@@ -278,10 +278,7 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 			BadPackets[OOPActorUpdate]++;
 		break;
 	case OOPChat:
-		if (Length == sizeof(OOPkgChat))
-			OOPChat_Handler(acReadBuffer);
-		else
-			BadPackets[OOPChat]++;
+		OOPChat_Handler(acReadBuffer);
 		break;
 	case OOPEvent:
 		if (Length == sizeof(OOPkgEvent))
@@ -314,10 +311,7 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 			BadPackets[OOPEquipped]++;
 		break;
 	case OOPModOffsetList:
-		if (Length == sizeof(OOPkgModOffsetList))
-			OOPModOffsetList_Handler(acReadBuffer);
-		else
-			BadPackets[OOPModOffsetList]++;
+		OOPModOffsetList_Handler(acReadBuffer);
 		break;
 	default: 
 		break;

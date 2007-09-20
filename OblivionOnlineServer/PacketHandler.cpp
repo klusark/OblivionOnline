@@ -53,21 +53,25 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			//Now send out the data from our other clients to our new client
 			for(int i=0; i<MAXCLIENTS; i++)
 			{
-				if ((i != LocalPlayer && Connected[i]) && Players[i].bStatsInitialized)
+				if (i != LocalPlayer && Connected[i])
 				{
-					printf("  Init: Sending player %i info to player %i\n", i, LocalPlayer);
-					OOPkgActorUpdate SendPkgBuf;
-					SendPkgBuf.etypeID = OOPActorUpdate;
-					if (Players[i].bIsInInterior)
-						SendPkgBuf.Flags = 1 | 2 | 8;
-					else
-						SendPkgBuf.Flags = 1 | 2 | 4 | 8;
-					SendPkgBuf.refID = Players[i].RefID;
-					SendPkgBuf.CellID = Players[i].CellID;
-					SendPkgBuf.Health = PlayersInitial[i].Health;
-					SendPkgBuf.Magika = PlayersInitial[i].Magika;
-					SendPkgBuf.Fatigue = PlayersInitial[i].Fatigue;
-					send(clients[LocalPlayer],(char *)&SendPkgBuf,sizeof(OOPkgActorUpdate),0);
+					printf("  Init: Player %i\n", i);
+					if (Players[i].bStatsInitialized)
+					{
+						printf("  Init: Sending player %i info to player %i\n", i, LocalPlayer);
+						OOPkgActorUpdate SendPkgBuf;
+						SendPkgBuf.etypeID = OOPActorUpdate;
+						if (Players[i].bIsInInterior)
+							SendPkgBuf.Flags = 1 | 2 | 8;
+						else
+							SendPkgBuf.Flags = 1 | 2 | 4 | 8;
+						SendPkgBuf.refID = Players[i].RefID;
+						SendPkgBuf.CellID = Players[i].CellID;
+						SendPkgBuf.Health = PlayersInitial[i].Health;
+						SendPkgBuf.Magika = PlayersInitial[i].Magika;
+						SendPkgBuf.Fatigue = PlayersInitial[i].Fatigue;
+						send(clients[LocalPlayer],(char *)&SendPkgBuf,sizeof(OOPkgActorUpdate),0);
+					}
 				}
 			}
 		}
