@@ -77,12 +77,22 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 		}
 		else
 		{
+			time_t TimeStamp;
+			time(&TimeStamp);
+			int Seconds = (int)TimeStamp % 60;
+			int Minutes = (int)(TimeStamp / 60) % 60;
+			int Hours = (int)(TimeStamp / 3600) % 24;
+			char MyTime[8];
+			sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
+
 			TotalClients--;
-			printf("Client tried to authenticate with wrong client Version\n");
-			printf("Client %d was removed due to version missmatch\n",LocalPlayer);
-			fprintf(easylog,"Client %d closed the Connection\n",LocalPlayer);
-			fprintf(easylog,"Client %d had a version mismatch\n",LocalPlayer);
-			fprintf(easylog,"We now have %d connections",TotalClients);
+			int MajorVersion = (InPkgBuf.wVersion & 0xff00) >> 8;
+			int MinorVersion = InPkgBuf.wVersion & 0x00ff;
+			printf("%s - Client tried to authenticate with wrong client version(%i.%i.%i)\n", MyTime, 0, MajorVersion, MinorVersion);
+			printf("%s - Client %d was removed due to version missmatch\n", MyTime, LocalPlayer);
+			fprintf(easylog,"%s - Client %d closed the Connection\n", MyTime, LocalPlayer);
+			fprintf(easylog,"%s - Client %d had a version mismatch\n", MyTime, LocalPlayer);
+			fprintf(easylog,"%s - We now have %d connections", MyTime, TotalClients);
 			closesocket(clients[LocalPlayer]); 
 			clients[LocalPlayer]=INVALID_SOCKET; 
 		}

@@ -91,16 +91,6 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC)
 			memcpy(&LastPlayer,Player,sizeof(PlayerStatus));
 			pkgBuf.etypeID = OOPActorUpdate;
 			pkgBuf.Flags = IsPC | 2 | (Player->bIsInInterior << 2) | (Initial << 3);
-			/*
-			if(Player->bIsInInterior)
-				pkgBuf.Flags = 2;
-			else
-				pkgBuf.Flags = 2 | 4;
-			if(IsPC)
-				pkgBuf.Flags = pkgBuf.Flags | 1;
-			if(Initial)
-				pkgBuf.Flags = pkgBuf.Flags | 8;
-			*/
 			pkgBuf.fPosX = Player->PosX;
 			pkgBuf.fPosY = Player->PosY;
 			pkgBuf.fPosZ = Player->PosZ;
@@ -184,37 +174,33 @@ bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool Is
 	// If we have a full update, don't send it too quickly
 	if((tickBuf - PacketTime[OOPFullStatUpdate]) > NET_FULLSTATUPDATE_RESEND)
 	{
-		//And make sure we aren't sending at the same time as ActorUpdate
-		//if((tickBuf - PacketTime[OOPActorUpdate]) < NET_POSUPDATE_RESEND)
-		//{
-			if(memcmp(&StatLastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
-			{
-				OOPkgFullStatUpdate pkgBuf;
-				pkgBuf.etypeID = OOPFullStatUpdate;
-				if (IsPC)
-					pkgBuf.Flags = 1 | 2;
-				else
-					pkgBuf.Flags = 2;
-				if (Initial)
-					pkgBuf.Flags = pkgBuf.Flags | 8;
-				pkgBuf.Agility = Player->Agility;
-				pkgBuf.Encumbrance = Player->Encumbrance;
-				pkgBuf.Endurance = Player->Endurance;
-				pkgBuf.Intelligence = Player->Intelligence;
-				pkgBuf.Luck = Player->Luck;
-				pkgBuf.Personality = Player->Personality;
-				pkgBuf.Speed = Player->Speed;
-				pkgBuf.Strength = Player->Strength;
-				pkgBuf.Willpower = Player->Willpower;
-				pkgBuf.Health = Player->Health;
-				pkgBuf.Magika = Player->Magika;
-				pkgBuf.Fatigue = Player->Fatigue;
-				pkgBuf.TimeStamp = Player->Time;
-				pkgBuf.refID = PlayerID;
-				send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgFullStatUpdate),0);
-				PacketTime[OOPFullStatUpdate] = tickBuf;
-			}
-		//}
+		if(memcmp(&StatLastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
+		{
+			OOPkgFullStatUpdate pkgBuf;
+			pkgBuf.etypeID = OOPFullStatUpdate;
+			if (IsPC)
+				pkgBuf.Flags = 1 | 2;
+			else
+				pkgBuf.Flags = 2;
+			if (Initial)
+				pkgBuf.Flags = pkgBuf.Flags | 8;
+			pkgBuf.Agility = Player->Agility;
+			pkgBuf.Encumbrance = Player->Encumbrance;
+			pkgBuf.Endurance = Player->Endurance;
+			pkgBuf.Intelligence = Player->Intelligence;
+			pkgBuf.Luck = Player->Luck;
+			pkgBuf.Personality = Player->Personality;
+			pkgBuf.Speed = Player->Speed;
+			pkgBuf.Strength = Player->Strength;
+			pkgBuf.Willpower = Player->Willpower;
+			pkgBuf.Health = Player->Health;
+			pkgBuf.Magika = Player->Magika;
+			pkgBuf.Fatigue = Player->Fatigue;
+			pkgBuf.TimeStamp = Player->Time;
+			pkgBuf.refID = PlayerID;
+			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgFullStatUpdate),0);
+			PacketTime[OOPFullStatUpdate] = tickBuf;
+		}
 	}
 	return true;
 }
@@ -274,8 +260,14 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 	case OOPActorUpdate:
 		if (Length == sizeof(OOPkgActorUpdate))
 			OOPActorUpdate_Handler(acReadBuffer);
-		else
+		else{
+			OOPActorUpdate_Handler(acReadBuffer);
+			// Now we run a recursive call to examine the extra data
+			char tempBuffer[512];
+			memcpy(&tempBuffer,acReadBuffer + sizeof(OOPkgActorUpdate),Length - sizeof(OOPkgActorUpdate));
+			NetReadBuffer(tempBuffer, Length - sizeof(OOPkgActorUpdate));
 			BadPackets[OOPActorUpdate]++;
+		}
 		break;
 	case OOPChat:
 		OOPChat_Handler(acReadBuffer);
@@ -307,8 +299,14 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 	case OOPEquipped:
 		if (Length == sizeof(OOPkgEquipped))
 			OOPEquipped_Handler(acReadBuffer);
-		else
+		else{
+			OOPEquipped_Handler(acReadBuffer);
+			// Now we run a recursive call to examine the extra data
+			char tempBuffer[512];
+			memcpy(&tempBuffer,acReadBuffer + sizeof(OOPkgEquipped),Length - sizeof(OOPkgEquipped));
+			NetReadBuffer(tempBuffer, Length - sizeof(OOPkgEquipped));
 			BadPackets[OOPEquipped]++;
+		}
 		break;
 	case OOPModOffsetList:
 		OOPModOffsetList_Handler(acReadBuffer);
@@ -409,6 +407,21 @@ bool OOPActorUpdate_Handler(char *Packet)
 			Players[InPkgBuf.refID].Health += InPkgBuf.Health;
 			Players[InPkgBuf.refID].Magika += InPkgBuf.Magika;
 			Players[InPkgBuf.refID].Fatigue += InPkgBuf.Fatigue;
+			// If we know the mem location of the NPC, mod the stats
+			if (InPkgBuf.refID == LocalPlayer)
+			{
+				(*g_thePlayer)->ModActorBaseValue(8, InPkgBuf.Health, 0);
+				(*g_thePlayer)->ModActorBaseValue(9, InPkgBuf.Magika, 0);
+				(*g_thePlayer)->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
+			}else{
+				if (PlayerActorList[InPkgBuf.refID])
+				{
+					Actor *ActorBuf = (Actor*)PlayerActorList[InPkgBuf.refID];
+					ActorBuf->ModActorBaseValue(8, InPkgBuf.Health, 0);
+					ActorBuf->ModActorBaseValue(9, InPkgBuf.Magika, 0);
+					ActorBuf->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
+				}
+			}
 		}
 		if (InPkgBuf.Flags & 4) //Is in an exterior?
 			Players[InPkgBuf.refID].bIsInInterior = false;
@@ -504,6 +517,21 @@ bool OOPFullStatUpdate_Handler(char *Packet)
 			Players[InPkgBuf.refID].Health += InPkgBuf.Health;
 			Players[InPkgBuf.refID].Magika += InPkgBuf.Magika;
 			Players[InPkgBuf.refID].Fatigue += InPkgBuf.Fatigue;
+			// If we know the mem location of the NPC, mod the stats
+			if (InPkgBuf.refID == LocalPlayer)
+			{
+				(*g_thePlayer)->ModActorBaseValue(8, InPkgBuf.Health, 0);
+				(*g_thePlayer)->ModActorBaseValue(9, InPkgBuf.Magika, 0);
+				(*g_thePlayer)->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
+			}else{
+				if (PlayerActorList[InPkgBuf.refID])
+				{
+					Actor *ActorBuf = (Actor*)PlayerActorList[InPkgBuf.refID];
+					ActorBuf->ModActorBaseValue(8, InPkgBuf.Health, 0);
+					ActorBuf->ModActorBaseValue(9, InPkgBuf.Magika, 0);
+					ActorBuf->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
+				}
+			}
 		}
 	}
 	return true;

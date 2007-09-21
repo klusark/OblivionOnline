@@ -24,8 +24,8 @@ This file is part of OblivionOnline.
 #define UInt32 unsigned long
 #define UInt8 unsigned char
 
-#include <windows.h>
-#include <stdio.h>
+#include <winsock.h>
+#include <iostream>
 #include <time.h>
 #include <process.h>
 #include "OOStructs.h"

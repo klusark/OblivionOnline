@@ -281,12 +281,10 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 
 		if (actorNumber == -1)
 			return true;
-		if (!PlayerConnected[actorNumber])
-			return true;
 		if (actorNumber == -2)
 			actorNumber = LocalPlayer;
-
-		PlayerActorList[actorNumber] = thisObj;
+		if (!PlayerConnected[actorNumber])
+			return true;
 
 		PlayerStatus DummyStatus;
 		DummyStatus.RefID = ActorBuf->refID;
@@ -314,8 +312,9 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 			NetActorUpdate(&DummyStatus, actorNumber, false, false);
 		}else{
 			if (Players[actorNumber].bStatsInitialized)
+			{
 				NetActorUpdate(&DummyStatus, actorNumber, false, true);
-			else{
+			}else{
 				Console_Print("Initializing stats ...");
 				NetActorUpdate(&DummyStatus, actorNumber, true, true);
 				Players[actorNumber].bStatsInitialized = true;
@@ -343,6 +342,7 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 			{
 				return true;
 			}
+
 			PlayerStatus DummyStatus;
 			DummyStatus.Strength = ActorBuf->GetActorValue(0);
 			DummyStatus.Intelligence = ActorBuf->GetActorValue(1);
@@ -647,6 +647,8 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 				break;
 			}
 		}
+		int actorNum = GetActorID(ActorBuf->refID);
+		PlayerActorList[actorNum] = thisObj;
 	}
 	return true;
 }
