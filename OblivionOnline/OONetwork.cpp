@@ -90,7 +90,7 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC)
 		{
 			memcpy(&LastPlayer,Player,sizeof(PlayerStatus));
 			pkgBuf.etypeID = OOPActorUpdate;
-			pkgBuf.Flags = IsPC | 2 | (Player->bIsInInterior << 2) | (Initial << 3);
+			pkgBuf.Flags = IsPC | 2 | (!Player->bIsInInterior << 2) | (Initial << 3);
 			pkgBuf.fPosX = Player->PosX;
 			pkgBuf.fPosY = Player->PosY;
 			pkgBuf.fPosZ = Player->PosZ;
@@ -381,20 +381,25 @@ bool OOPActorUpdate_Handler(char *Packet)
 		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
 		UInt32 oldCell = Players[InPkgBuf.refID].CellID;
 		Players[InPkgBuf.refID].CellID = InPkgBuf.CellID;
-		//Check to see if cell is from a mod
-		UInt8 cellOffset = (InPkgBuf.CellID & 0xff000000) >> 24;
-		if (cellOffset)
+		if (oldCell != Players[InPkgBuf.refID].CellID)
 		{
-			//If so, change the offset to match this client
-			for(int i=1;i<ModList[InPkgBuf.refID][0]; i++)
-				if (cellOffset == ModList[InPkgBuf.refID][i])
-					cellOffset = ModList[LocalPlayer][i];
-			//If local offset doesn't exist print error, otherwise set CellID
-			if (!cellOffset)
-				Console_Print("Player %i moved to unsupported mod location", InPkgBuf.refID);
-			else{
-				//Console_Print("Player %i moved to mod location successfully", InPkgBuf.refID);
-				Players[InPkgBuf.refID].CellID = (Players[InPkgBuf.refID].CellID & 0x00ffffff) | (cellOffset << 24);
+			//Console_Print("Player %i cell change from %x to %x", InPkgBuf.refID, oldCell, Players[InPkgBuf.refID].CellID);
+			//Check to see if cell is from a mod
+			UInt8 cellOffset = (InPkgBuf.CellID & 0xff000000) >> 24;
+			if (cellOffset)
+			{
+				//Console_Print("Mod cell");
+				//If so, change the offset to match this client
+				for(int i=1;i<ModList[InPkgBuf.refID][0]; i++)
+					if (cellOffset == ModList[InPkgBuf.refID][i])
+						cellOffset = ModList[LocalPlayer][i];
+				//If local offset doesn't exist print error, otherwise set CellID
+				if (!cellOffset)
+					Console_Print("Player %i moved to unsupported mod location", InPkgBuf.refID);
+				else{
+					//Console_Print("Player %i moved to mod location successfully", InPkgBuf.refID);
+					Players[InPkgBuf.refID].CellID = (Players[InPkgBuf.refID].CellID & 0x00ffffff) | (cellOffset << 24);
+				}
 			}
 		}
 
@@ -427,9 +432,13 @@ bool OOPActorUpdate_Handler(char *Packet)
 			}
 		}
 		if (InPkgBuf.Flags & 4) //Is in an exterior?
+		{
 			Players[InPkgBuf.refID].bIsInInterior = false;
-		else
+			//Console_Print("Player exterior");
+		}else{
 			Players[InPkgBuf.refID].bIsInInterior = true;
+			//Console_Print("Player interior");
+		}
 	}
 	return true;
 }

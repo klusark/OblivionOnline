@@ -144,6 +144,11 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		OutPkgBuf.fRotY = InPkgBuf.fRotY;
 		OutPkgBuf.fRotZ = InPkgBuf.fRotZ;
 		OutPkgBuf.InCombat = InPkgBuf.InCombat;
+
+		UInt32 tempCell = Players[InPkgBuf.refID].CellID;
+		Players[InPkgBuf.refID].CellID = OutPkgBuf.CellID;
+		if (Players[InPkgBuf.refID].CellID != tempCell)
+			printf("Player %i moved from cell %x to cell %x\n", InPkgBuf.refID, tempCell, Players[InPkgBuf.refID].CellID);
 		//Are we setting initial values?
 		if (InPkgBuf.Flags & 8)
 		{

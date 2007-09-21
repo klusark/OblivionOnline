@@ -515,6 +515,7 @@ bool Cmd_MPGetCell_Execute (COMMAND_ARGS)
 		{
 			UInt32* refResult = (UInt32*)result;
 			*refResult = Players[actorNumber].CellID;
+			//Console_Print("Player %i cell: %x", actorNumber, Players[actorNumber].CellID);
 		}else{
 			//Console_Print("Error: Couldn't find actor for MPGetCell");
 		}
