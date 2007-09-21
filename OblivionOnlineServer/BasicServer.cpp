@@ -210,6 +210,14 @@ int main()
 		
 				if(rc==0 || rc==SOCKET_ERROR)
 				{
+					OOPkgDisconnect OutPkgBuf;
+					OutPkgBuf.etypeID = OOPDisconnect;
+					OutPkgBuf.PlayerID = LocalPlayer;
+					for(int cx=0;cx<MAXCLIENTS;cx++)
+					{
+						if (cx != LocalPlayer)
+							send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgDisconnect),0);
+					}
 					time_t TimeStamp;
 					time(&TimeStamp);
 					int Seconds = (int)TimeStamp % 60;
