@@ -56,7 +56,7 @@ This file is part of OblivionOnline.
 
 #define SUPER_VERSION 0 //Not used yet
 #define MAIN_VERSION 4
-#define SUB_VERSION 0 // Release 4, bugfix 0
+#define SUB_VERSION 1 // Release 4, bugfix 1
 
 //Externals
 extern IDebugLog gLog;
