@@ -102,6 +102,7 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC)
 			pkgBuf.Health = Player->Health;
 			pkgBuf.Magika = Player->Magika;
 			pkgBuf.Fatigue = Player->Fatigue;
+			pkgBuf.InCombat = Player->InCombat;
 			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgActorUpdate),0);
 			PacketTime[OOPActorUpdate] = tickBuf;
 		}
@@ -360,6 +361,12 @@ bool OOPActorUpdate_Handler(char *Packet)
 			PlayerConnected[InPkgBuf.refID] = true;
 			Console_Print("Player %i connected", InPkgBuf.refID);
 		}
+		Players[InPkgBuf.refID].InCombat = InPkgBuf.InCombat;
+		if(Players[InPkgBuf.refID].InCombat==1)
+			Console_Print("True");
+		else
+			Console_Print("False");
+		
 		/*
 		VelocityOldTime[InPkgBuf.refID] = VelocityTime[InPkgBuf.refID];
 		VelocityTime[InPkgBuf.refID] = GetTickCount();

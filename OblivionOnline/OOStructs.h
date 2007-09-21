@@ -68,6 +68,7 @@ struct ActorStatus : ObjectStatus
 
 	bool bStatsInitialized;
 	bool bIsInInterior;
+	int InCombat;
 };
 
 struct PlayerStatus : ActorStatus

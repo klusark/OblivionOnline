@@ -66,6 +66,8 @@ DWORD VelocityTime[MAXCLIENTS], VelocityOldTime[MAXCLIENTS];	//Timers to calcula
 
 UInt8 ModList[MAXCLIENTS][256];	//List of supported mods from each client
 
+int InCombat = 0;
+
 // Prototypes
 extern void RunScriptLine(const char *buf, bool IsTemp);
 extern int GetActorID(UInt32 refID);
@@ -297,6 +299,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		DummyStatus.Health = ActorBuf->GetActorValue(8);
 		DummyStatus.Magika = ActorBuf->GetActorValue(9);
 		DummyStatus.Fatigue = ActorBuf->GetActorValue(10);
+		DummyStatus.InCombat = InCombat;
 		if(ActorBuf->parentCell->worldSpace)
 		{
 			DummyStatus.bIsInInterior = false;
@@ -884,6 +887,18 @@ bool Cmd_MPGetMyID_Execute (COMMAND_ARGS)
 	return true;
 }
 
+bool Cmd_MPSetInCombat_Execute (COMMAND_ARGS)
+{
+	return true;
+}
+bool Cmd_MPGetIsInCombat_Execute (COMMAND_ARGS)
+{
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &InCombat)) return true;
+	return true;
+}
+
+
+
 //---------------------------
 //---End Command Functions---
 //---------------------------
@@ -1216,6 +1231,30 @@ static CommandInfo kMPGetMyIDCommand =
 	Cmd_MPGetMyID_Execute
 };
 
+static CommandInfo kMPSetInCombatCommand =
+{
+	"MPSetInCombat",
+	"MPSIC",
+	0,
+	"Sets npc active",
+	0,		// requires parent obj
+	0,		// doesn't have params
+	NULL,	// no param table
+	Cmd_MPSetInCombat_Execute
+};
+
+static CommandInfo kMPGetIsInCombatCommand =
+{
+	"MPGetIsInCombat",
+	"MPGIIC",
+	0,
+	"Sets checks if player has weapon out",
+	0,		// requires parent obj
+	1,		// doesn't have params
+	kParams_OneInt,	// no param table
+	Cmd_MPGetIsInCombat_Execute
+};
+
 //---------------------------------
 //---End CommandInfo Enumeration---
 //---------------------------------
@@ -1306,6 +1345,8 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPLogModOffsetCommand);
 
 	obse->RegisterCommand(&kMPGetMyIDCommand);
+	obse->RegisterCommand(&kMPSetInCombatCommand);
+	obse->RegisterCommand(&kMPGetIsInCombatCommand);
 
 	_MESSAGE("Done loading OO Commands");
 	return true;
