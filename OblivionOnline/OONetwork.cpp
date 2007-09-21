@@ -523,18 +523,18 @@ bool OOPFullStatUpdate_Handler(char *Packet)
 			// If we know the mem location of the NPC, mod the stats
 			if (InPkgBuf.refID == LocalPlayer)
 			{
-				(*g_thePlayer)->ModActorBaseValue(0, InPkgBuf.Strength, 0);
-				(*g_thePlayer)->ModActorBaseValue(1, InPkgBuf.Intelligence, 0);
-				(*g_thePlayer)->ModActorBaseValue(2, InPkgBuf.Willpower, 0);
-				(*g_thePlayer)->ModActorBaseValue(3, InPkgBuf.Agility, 0);
-				(*g_thePlayer)->ModActorBaseValue(4, InPkgBuf.Speed, 0);
-				(*g_thePlayer)->ModActorBaseValue(5, InPkgBuf.Endurance, 0);
-				(*g_thePlayer)->ModActorBaseValue(6, InPkgBuf.Personality, 0);
-				(*g_thePlayer)->ModActorBaseValue(7, InPkgBuf.Luck, 0);
+				//(*g_thePlayer)->ModActorBaseValue(0, InPkgBuf.Strength, 0);
+				//(*g_thePlayer)->ModActorBaseValue(1, InPkgBuf.Intelligence, 0);
+				//(*g_thePlayer)->ModActorBaseValue(2, InPkgBuf.Willpower, 0);
+				//(*g_thePlayer)->ModActorBaseValue(3, InPkgBuf.Agility, 0);
+				//(*g_thePlayer)->ModActorBaseValue(4, InPkgBuf.Speed, 0);
+				//(*g_thePlayer)->ModActorBaseValue(5, InPkgBuf.Endurance, 0);
+				//(*g_thePlayer)->ModActorBaseValue(6, InPkgBuf.Personality, 0);
+				//(*g_thePlayer)->ModActorBaseValue(7, InPkgBuf.Luck, 0);
 				(*g_thePlayer)->ModActorBaseValue(8, InPkgBuf.Health, 0);
 				(*g_thePlayer)->ModActorBaseValue(9, InPkgBuf.Magika, 0);
 				(*g_thePlayer)->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
-				(*g_thePlayer)->ModActorBaseValue(11, InPkgBuf.Encumbrance, 0);
+				//(*g_thePlayer)->ModActorBaseValue(11, InPkgBuf.Encumbrance, 0);
 			}else{
 				if (PlayerActorList[InPkgBuf.refID])
 				{
