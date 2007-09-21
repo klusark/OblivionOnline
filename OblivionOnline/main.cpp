@@ -66,8 +66,6 @@ DWORD VelocityTime[MAXCLIENTS], VelocityOldTime[MAXCLIENTS];	//Timers to calcula
 
 UInt8 ModList[MAXCLIENTS][256];	//List of supported mods from each client
 
-int InCombat = 0;
-
 // Prototypes
 extern void RunScriptLine(const char *buf, bool IsTemp);
 extern int GetActorID(UInt32 refID);
@@ -889,8 +887,18 @@ bool Cmd_MPGetMyID_Execute (COMMAND_ARGS)
 
 bool Cmd_MPSetInCombat_Execute (COMMAND_ARGS)
 {
-	int* intResult = (int*)result;
-	*intResult = InCombat;
+	if (!thisObj)
+	{
+		Console_Print("Error, no reference given for MPSetInCombat");
+		return true;
+	}
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		int actorNumber = GetActorID(ActorBuf->refID);
+		int* intResult = (int*)result;
+		*intResult = Players[actorNumber].InCombat;
+	}
 	return true;
 }
 bool Cmd_MPGetIsInCombat_Execute (COMMAND_ARGS)
