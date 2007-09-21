@@ -889,6 +889,7 @@ bool Cmd_MPGetMyID_Execute (COMMAND_ARGS)
 
 bool Cmd_MPSetInCombat_Execute (COMMAND_ARGS)
 {
+	*result = InCombat;
 	return true;
 }
 bool Cmd_MPGetIsInCombat_Execute (COMMAND_ARGS)
