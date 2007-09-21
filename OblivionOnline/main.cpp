@@ -297,7 +297,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		DummyStatus.Health = ActorBuf->GetActorValue(8);
 		DummyStatus.Magika = ActorBuf->GetActorValue(9);
 		DummyStatus.Fatigue = ActorBuf->GetActorValue(10);
-		DummyStatus.InCombat = InCombat;
+		DummyStatus.InCombat = Players[actorNumber].InCombat;
 		if(ActorBuf->parentCell->worldSpace)
 		{
 			DummyStatus.bIsInInterior = false;
@@ -903,7 +903,7 @@ bool Cmd_MPSetInCombat_Execute (COMMAND_ARGS)
 }
 bool Cmd_MPGetIsInCombat_Execute (COMMAND_ARGS)
 {
-	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &InCombat)) return true;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &Players[LocalPlayer].InCombat)) return true;
 	return true;
 }
 
