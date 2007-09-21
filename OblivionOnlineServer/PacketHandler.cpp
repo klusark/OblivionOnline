@@ -143,6 +143,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		OutPkgBuf.fRotX = InPkgBuf.fRotX;
 		OutPkgBuf.fRotY = InPkgBuf.fRotY;
 		OutPkgBuf.fRotZ = InPkgBuf.fRotZ;
+		OutPkgBuf.InCombat = InPkgBuf.InCombat;
 		//Are we setting initial values?
 		if (InPkgBuf.Flags & 8)
 		{
