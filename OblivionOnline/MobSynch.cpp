@@ -107,7 +107,7 @@ bool MCbSynchActors() //called nearly every frame , so extremely important
 	MobResynchTimer = tickBuf;
 	}
 }
-NetHandleMobUpdate(char *Packet)
+bool NetHandleMobUpdate(char *Packet)
 {
 }
 #endif
