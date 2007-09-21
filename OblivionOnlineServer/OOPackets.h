@@ -112,6 +112,7 @@ struct OOPkgActorUpdate
 	int Health, Magika, Fatigue;
 	UInt32 CellID;	// It is the reference ID of the current location
 	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
+	int InCombat;
 };
 
 struct OOPkgChat //THIS PACKAGE IS NOT DIRECTLY MAPPED , but has to be converted
