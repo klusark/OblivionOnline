@@ -362,10 +362,6 @@ bool OOPActorUpdate_Handler(char *Packet)
 			Console_Print("Player %i connected", InPkgBuf.refID);
 		}
 		Players[InPkgBuf.refID].InCombat = InPkgBuf.InCombat;
-		if(Players[InPkgBuf.refID].InCombat==1)
-			Console_Print("True");
-		else
-			Console_Print("False");
 		
 		/*
 		VelocityOldTime[InPkgBuf.refID] = VelocityTime[InPkgBuf.refID];
