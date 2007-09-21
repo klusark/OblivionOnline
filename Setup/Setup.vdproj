@@ -576,7 +576,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:OblivionOnline"
         "ProductCode" = "8:{00AFF182-C114-482E-9891-9F6B4B5CBE1A}"
-        "PackageCode" = "8:{FB0165E7-AB36-4D2E-BA87-34734D0E719A}"
+        "PackageCode" = "8:{0A6607EC-63EF-4951-8415-347F89C2BAF3}"
         "UpgradeCode" = "8:{75CB2856-DAF1-4317-BD19-A84910A0AAFB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
@@ -1136,6 +1136,34 @@
         }
         "ProjectOutput"
         {
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_0CAB5C333A094AB89B97B6BB9DB82E49"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_39F60FDDEE3E4C2B9CD684C0991455B8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:SourceFiles"
+            "OutputProjectGuid" = "8:{D4DDA734-7E93-4581-8F82-32BB738F69FE}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_20E45F0395DD4E9BBEDB8C5E695F215E"
             {
             "SourcePath" = "8:"
@@ -1243,34 +1271,6 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:ContentFiles"
             "OutputProjectGuid" = "8:{D4DDA734-7E93-4581-8F82-32BB738F69FE}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_B8D9921AF52B488F829EBCDCF5014DAA"
-            {
-            "SourcePath" = "8:"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_39F60FDDEE3E4C2B9CD684C0991455B8"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:SourceFiles"
-            "OutputProjectGuid" = "8:{4344220D-2400-40A5-80E5-36CF84DCC63E}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
