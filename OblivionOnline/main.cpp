@@ -316,7 +316,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 			{
 				NetActorUpdate(&DummyStatus, actorNumber, false, true);
 			}else{
-				Console_Print("Initializing stats ...");
+				Console_Print("Initializing player %i stats ...", actorNumber);
 				NetActorUpdate(&DummyStatus, actorNumber, true, true);
 				Players[actorNumber].bStatsInitialized = true;
 			}
@@ -366,6 +366,7 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 					NetFullStatUpdate(&DummyStatus, actorNumber, false, true);
 				}else{
 					NetFullStatUpdate(&DummyStatus, actorNumber, true, true);
+					Console_Print("Initializing player %i full stats ...", actorNumber);
 					Players[actorNumber].bStatsInitialized = true;
 				}
 			}
@@ -606,7 +607,11 @@ bool Cmd_MPGetDebugData_Execute (COMMAND_ARGS)
 			if (actorNumber == -2)
 				actorNumber = LocalPlayer;
 			//Console_Print("VelX: %f, VelY: %f, VelZ: %f", Players[actorNumber].VelX, Players[actorNumber].VelY, Players[actorNumber].VelZ);
-			Console_Print("Badpackets: ActorUpdate(%i), FSU(%i)", BadPackets[OOPActorUpdate], BadPackets[OOPFullStatUpdate]);
+			//Console_Print("Badpackets: ActorUpdate(%i), FSU(%i)", BadPackets[OOPActorUpdate], BadPackets[OOPFullStatUpdate]);
+			for(int i=0; i<MAXCLIENTS; i++)
+			{
+				Console_Print("Spawnlist[%i]: %x", i, SpawnID[i]);
+			}
 		}
 	}
 	return true;
@@ -639,18 +644,18 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
 		UInt32 actorNumber = ActorBuf->refID;
-		for(int i=0; i<TotalPlayers-1; i++)
+		for(int i=0; i<MAXCLIENTS; i++)
 		{
 			if (!SpawnID[i])
 			{
 				SpawnID[i] = actorNumber & 0x00ffffff;	//Mask off the mod offset for OblivionOnline
 				ModList[LocalPlayer][1] = (actorNumber & 0xff000000) >> 24;	//Read off the mod offset for OblivionOnline
 				Console_Print("Spawn %i ID: %u", i, SpawnID[i]);
-				break;
+				int actorNum = GetActorID(ActorBuf->refID);
+				PlayerActorList[actorNum] = thisObj;
+				return true;
 			}
 		}
-		int actorNum = GetActorID(ActorBuf->refID);
-		PlayerActorList[actorNum] = thisObj;
 	}
 	return true;
 }
@@ -881,6 +886,7 @@ bool Cmd_MPGetMyID_Execute (COMMAND_ARGS)
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
 		int actorNumber = GetActorID(ActorBuf->refID);
+		Console_Print("Id: %i", actorNumber);
 		*result = (float)actorNumber;
 	}
 	return true;

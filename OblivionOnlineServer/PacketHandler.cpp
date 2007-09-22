@@ -48,7 +48,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			free(SendBuf);
 			Connected[LocalPlayer] = true;
 
-			Sleep(100);	//Give some time for the client to process the welcome
+			Sleep(200);	//Give some time for the client to process the welcome
 
 			//Now send out the data from our other clients to our new client
 			for(int i=0; i<MAXCLIENTS; i++)

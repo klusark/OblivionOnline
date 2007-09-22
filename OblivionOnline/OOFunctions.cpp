@@ -71,14 +71,33 @@ int GetActorID(UInt32 refID)
 		{
 			if(PlayerConnected[i] && (i != LocalPlayer))
 			{
-				for(int j=0; j<=i; j++)
+				switch(LocalPlayer)
 				{
-					if ((refID == SpawnID[j]) && !foundID)
-					{
+				case 0:
+					if (refID == SpawnID[i-1])
 						retVal = i;
-						foundID = true;
-					}
-				}
+					break;
+				case 1:
+					if (refID == SpawnID[0])
+						retVal = 0;
+					if (refID == SpawnID[1])
+						retVal = 2;
+					if (refID == SpawnID[2])
+						retVal = 3;
+					break;
+				case 2:
+					if (refID == SpawnID[0])
+						retVal = 0;
+					if (refID == SpawnID[1])
+						retVal = 1;
+					if (refID == SpawnID[2])
+						retVal = 3;
+					break;
+				case 3:
+					if (refID == SpawnID[i])
+						retVal = i;
+					break;
+				};
 			}
 		}
 	}

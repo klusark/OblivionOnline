@@ -434,10 +434,8 @@ bool OOPActorUpdate_Handler(char *Packet)
 		if (InPkgBuf.Flags & 4) //Is in an exterior?
 		{
 			Players[InPkgBuf.refID].bIsInInterior = false;
-			//Console_Print("Player exterior");
 		}else{
 			Players[InPkgBuf.refID].bIsInInterior = true;
-			//Console_Print("Player interior");
 		}
 	}
 	return true;
