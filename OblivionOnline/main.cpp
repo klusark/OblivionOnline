@@ -71,7 +71,7 @@ extern void RunScriptLine(const char *buf, bool IsTemp);
 extern int GetActorID(UInt32 refID);
 extern float GetStat(Actor *ActorBuf, int statNum);
 
-extern bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC);
+extern bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC);
 extern bool NetWelcome();
 extern bool NetDisconnect();
 extern bool NetChat(char *Message);
@@ -310,14 +310,14 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		}
 		if (actorNumber != LocalPlayer)
 		{
-			NetActorUpdate(&DummyStatus, actorNumber, false, false);
+			NetActorUpdate(&DummyStatus, actorNumber, false);
 		}else{
 			if (Players[actorNumber].bStatsInitialized)
 			{
-				NetActorUpdate(&DummyStatus, actorNumber, false, true);
+				NetActorUpdate(&DummyStatus, actorNumber, true);
 			}else{
 				Console_Print("Initializing player %i stats ...", actorNumber);
-				NetActorUpdate(&DummyStatus, actorNumber, true, true);
+				NetActorUpdate(&DummyStatus, actorNumber, true);
 				Players[actorNumber].bStatsInitialized = true;
 			}
 		}

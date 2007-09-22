@@ -77,7 +77,7 @@ bool NetDisconnect()
 	return true;
 }
 
-bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC) 
+bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC) 
 {
 	static PlayerStatus LastPlayer;
 	
@@ -90,7 +90,7 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC)
 		{
 			memcpy(&LastPlayer,Player,sizeof(PlayerStatus));
 			pkgBuf.etypeID = OOPActorUpdate;
-			pkgBuf.Flags = IsPC | 2 | (!Player->bIsInInterior << 2) | (Initial << 3);
+			pkgBuf.Flags = IsPC | 2 | (!Player->bIsInInterior << 2); // THE CLIENT DOES NOT SEND OUT INITAL DATA ANYMORE
 			pkgBuf.fPosX = Player->PosX;
 			pkgBuf.fPosY = Player->PosY;
 			pkgBuf.fPosZ = Player->PosZ;
