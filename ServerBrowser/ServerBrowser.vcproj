@@ -136,7 +136,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Comctl32.lib ws2_32.lib"
+				AdditionalDependencies="Comctl32.lib ws2_32.lib shell32.lib shlwapi.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="false"
 				SubSystem="2"

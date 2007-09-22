@@ -42,3 +42,14 @@ This file is part of OblivionOnline.
 #ifndef _WIN32_IE			// Allow use of features specific to IE 6.0 or later.
 #define _WIN32_IE 0x0600	// Change this to the appropriate value to target other versions of IE.
 #endif
+
+#include <shlobj.h>
+#include <windows.h>
+// C RunTime Header Files
+#include <stdlib.h>
+#include <malloc.h>
+#include <memory.h>
+#include <tchar.h>
+#include <commctrl.h> // Ip Address Control
+#include <stdio.h>
+#include <shlwapi.h>
