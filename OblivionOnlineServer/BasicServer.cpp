@@ -371,7 +371,7 @@ void info(void *arg)
 		}
 		WSACleanup();
 	}else{
-		printf("ListSettings.ini not found. This server will not be listed online.\n");
+		printf("ServerSettings.ini not found. This server will not be listed online.\n");
 	}
 	
 }
