@@ -40,6 +40,9 @@ This file is part of OblivionOnline.
 #define MOBSYNCH
 #ifdef MOBSYNCH
 #include "MobSynch.h"
+MCActorBuf *MCWriteTarget;
+CRITICAL_SECTION MCWriteLock;
+bool MCbWritten;
 std::list<MCActorBuf> MCCache;
 DWORD MobResynchTimer ; // seperate , because no seperate packet
 bool bIsMasterClient;
@@ -50,7 +53,8 @@ bool MCbFlushCache()
 }
 bool MCbEnterZone (UINT32 Zone)  // the MC enters a new Zone , the client cache is rebuilt
 {
-	MCbFlushCache();
+	// we do not yet have a dinamyc client cahce, so we keep everything in one zone.
+	// MCbFlushCache();
 	//build client cache here
 	return true;
 }
@@ -82,6 +86,20 @@ bool NetSynchNPC(Actor *Actor)
 	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgActorUpdate),0);
 	return true;
 }
+bool MCAddClientCache(char *FileName)
+{
+	FILE *CacheFile;
+	char RefName[256];
+	char Script[512];
+	CacheFile = fopen(FileName,"r");
+	InitializeCriticalSection(&MCWriteLock);
+	while(!feof(CacheFile))
+	{
+		fscanf(CacheFile,"%s",RefName);  // change this format
+		sprintf(Script,"%s.MPPushNPC",RefName);
+	}
+	return true;
+}
 bool MCbSynchActors() //called nearly every frame , so extremely important
 {
 	DWORD tickBuf;
@@ -106,8 +124,10 @@ bool MCbSynchActors() //called nearly every frame , so extremely important
 	}
 	MobResynchTimer = tickBuf;
 	}
+	return true;
 }
 bool NetHandleMobUpdate(char *Packet)
 {
+	return false;
 }
 #endif
