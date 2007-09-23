@@ -306,8 +306,8 @@ void info(void *arg)
 	FILE *settings = fopen("ListSettings.ini","r");
 	if (settings)
 	{
-		if(serverPort==0)
-			Sleep(500);
+		while(serverPort==0)
+			Sleep(50);
 		WSADATA WSAData;
 		WSAStartup(MAKEWORD(2,0), &WSAData);
 		SOCKET sock;
