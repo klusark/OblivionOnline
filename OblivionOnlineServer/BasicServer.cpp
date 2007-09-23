@@ -376,13 +376,13 @@ void info(void *arg)
 	
 }
 
-bool BroadcastMessage(char *Message);
+bool BroadcastMessage(char *Message)
 {
 	OOPkgChat pkgBuf;
 	char *SendBuf;
 	void *MessageDest;
 	pkgBuf.etypeID = OOPChat;
-	pkgBuf.refID = LocalPlayer;
+	pkgBuf.refID = 0;
 	pkgBuf.Length = strlen(Message);
 	pkgBuf.Flags = 0;
 	SendBuf = (char *)malloc(sizeof(OOPkgChat)+pkgBuf.Length);
@@ -390,8 +390,7 @@ bool BroadcastMessage(char *Message);
 	MessageDest=(SendBuf+sizeof(OOPkgChat));
 	memcpy(MessageDest,Message,pkgBuf.Length);
 	for(int cx = 0;cx< MAXCLIENTS;cx++)
-
-	send(ServerSocket,SendBuf,sizeof(OOPkgChat)+pkgBuf.Length,0);
+		send(clients[cx],SendBuf,sizeof(OOPkgChat)+pkgBuf.Length,0);
 	free(SendBuf);
 	return true;
 }
