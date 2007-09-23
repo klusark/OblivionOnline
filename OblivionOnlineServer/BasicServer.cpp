@@ -21,7 +21,7 @@ This file is part of OblivionOnline.
 #include "BasicServer.h"
 #include "OOPackets.h"
 #include "PacketHandler.h"
-
+#include "curl.h"
 // Globals
 int TotalClients = 0;
 bool bServerAlive;
@@ -373,7 +373,23 @@ void info(void *arg)
 	}else{
 		printf("ServerSettings.ini not found. This server will not be listed online.\n");
 	}
+#if 0
+// CURL code , do not use atm
 	
+  CURL *curl;
+  CURLcode res;
+  curl = curl_easy_init();
+  if(curl) {
+     curl_easy_setopt(curl, CURLOPT_URL, "ooservers.freehostia.com"); // here we will have to set the URL , it is too late for that now
+    res = curl_easy_perform(curl);
+ 
+    /* always cleanup */
+      curl_easy_cleanup(curl);
+  }
+  else{
+		printf("ServerSettings.ini not found. This server will not be listed online.\n");
+	}
+#endif
 }
 
 bool BroadcastMessage(char *Message)
