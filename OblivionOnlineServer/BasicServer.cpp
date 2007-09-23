@@ -312,22 +312,25 @@ void info(void *arg)
 		WSAStartup(MAKEWORD(2,0), &WSAData);
 		SOCKET sock;
 		SOCKADDR_IN sin;
-		char IP[16];
 		char HOST[32];
 		char FILE[16];
 		char NAME[32];
-		fscanf(settings,"%s",IP);
 		fscanf(settings,"%s",HOST);
 		fscanf(settings,"%s",FILE);
 		fscanf(settings,"%s",NAME);
+		struct hostent     *he;
+		if ((he = gethostbyname(HOST)) == NULL) {
+			printf("error resolving hostname..");
+		}
+
 		long rcs;
 		while(true){
 			char srequest[384];
 			sprintf_s(srequest,384, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,serverPort,TotalClients,MAXCLIENTS,MAIN_VERSION,SUB_VERSION,HOST);
 			
 			sock = socket(AF_INET, SOCK_STREAM, 0);
-		
-			sin.sin_addr.s_addr = inet_addr(IP);
+			memcpy(&sin.sin_addr, he->h_addr_list[0], he->h_length);
+			//sin.sin_addr.s_addr = inet_addr(IP);
 			sin.sin_family = AF_INET;
 			sin.sin_port = htons(80);
 
