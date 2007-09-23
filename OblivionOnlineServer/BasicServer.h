@@ -47,4 +47,19 @@ extern FILE *easylog;
 extern int StartNet(void);
 extern int ScanBuffer(char *acReadBuffer, short LocalPlayer);
 
+inline void LogInfo(char *String)
+{
+	FILE *Log;
+	time_t TimeStamp;
+	time(&TimeStamp);
+	int Seconds = (int)TimeStamp % 60;
+	int Minutes = (int)(TimeStamp / 60) % 60;
+	int Hours = (int)(TimeStamp / 3600) % 24;
+	char MyTime[8];
+	sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
+	Log = fopen("Log.txt","a");
+	fprintf(Log,"%s",String);
+	fclose(Log);
+}
+
 #endif

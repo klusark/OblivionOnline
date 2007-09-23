@@ -168,6 +168,16 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 			{
 				OutPkgBuf.Health += Players[InPkgBuf.refID].Health;
 				Players[InPkgBuf.refID].Health = 0;
+				printf("  Player %i nearly passed away, save that an unkown spirit donated health points to him. His Killer will now feel the ethernal punishment of the law \n",InPkgBuf.refID);
+				time_t TimeStamp;
+				time(&TimeStamp);
+				int Seconds = (int)TimeStamp % 60;
+				int Minutes = (int)(TimeStamp / 60) % 60;
+				int Hours = (int)(TimeStamp / 3600) % 24;
+				char MyTime[8];
+				sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
+				fprintf(easylog,"%s - Player %d passed away , but was saved- His attacker will now feel the ethernal punishment of the law\n", MyTime, InPkgBuf.refID);
+			
 			}
 			printf("  Player %i HP is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
 		}else
