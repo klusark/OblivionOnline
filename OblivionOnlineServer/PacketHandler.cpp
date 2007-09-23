@@ -150,7 +150,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		UInt32 tempCell = Players[InPkgBuf.refID].CellID;
 		Players[InPkgBuf.refID].CellID = OutPkgBuf.CellID;
 		if (Players[InPkgBuf.refID].CellID != tempCell)
-			printf("Player %i moved from cell %x to cell %x\n", InPkgBuf.refID, tempCell, Players[InPkgBuf.refID].CellID);
+			printf("  Player %i moved from cell %x to cell %x\n", InPkgBuf.refID, tempCell, Players[InPkgBuf.refID].CellID);
 
 		//If this is the first time we see data from this client, set init to true
 		if(!Players[InPkgBuf.refID].bStatsInitialized)
@@ -163,19 +163,22 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		if(Players[InPkgBuf.refID].Health != InPkgBuf.Health)
 		{
 			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
-			Players[InPkgBuf.refID].Health += OutPkgBuf.Health;    
+			Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
+			printf("  Player %i HP is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
 		}else
 			OutPkgBuf.Health = 0;
 		if(Players[InPkgBuf.refID].Magika != InPkgBuf.Magika)
 		{
 			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
-			Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika; 
+			Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
+			//printf("  Player %i MP is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Magika, OutPkgBuf.Magika);
 		}else
 			OutPkgBuf.Magika = 0;
 		if(Players[InPkgBuf.refID].Fatigue != InPkgBuf.Fatigue)
 		{
 			OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
-			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue; 
+			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
+			//printf("  Player %i Fatigue is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Fatigue, OutPkgBuf.Fatigue);
 		}else
 			OutPkgBuf.Fatigue = 0;
 
@@ -257,7 +260,7 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 			Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
 			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
 			if (OutPkgBuf.Health != 0)
-				printf("From %i: Player %i HP is %i (change of %i)(FSU)\n", LocalPlayer, InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
+				printf("  Player %i HP is %i (change of %i)(FSU)\n", LocalPlayer, InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
 		}
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
