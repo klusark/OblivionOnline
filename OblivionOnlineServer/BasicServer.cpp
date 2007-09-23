@@ -34,6 +34,12 @@ unsigned short serverPort = 0;
 FILE *easylog;
 FILE *serverSettings;
 
+//Server settings variables
+char LISTHOST[32];
+char LISTFILE[16];
+char LISTNAME[32];
+
+
 // Prototypes
 int StartNet(void);
 int ScanBuffer(char *acReadBuffer, short LocalPlayer);
@@ -69,6 +75,7 @@ int main()
 	}
 	printf("OblivionOnline Basic Server, v.%i.%i.%i\n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION);
 	printf("Wrtten by masterfreek64 aka Julian Bangert, Chessmaster42 aka Joseph Pearson and bobjr777 aka Joel Teichroeb \n");
+	printf("--------------------------\n\n");
 	SOCKET acceptSocket;
 	SOCKADDR_IN addr;
 	FD_SET fdSet;
@@ -80,9 +87,15 @@ int main()
 	serverSettings = fopen("ServerSettings.ini","r");
 	if (serverSettings)
 	{
-		char portLine[100];
-		fgets(portLine, 100, serverSettings);
-		sscanf(portLine, "Port %u", &serverPort);
+		bool portFound = false;
+		char settingLine[128];
+		while(!portFound)
+		{
+			fscanf(serverSettings, "%s", settingLine);
+			if (!strcmp(settingLine, "#PORT"))
+				portFound = true;
+		}
+		fscanf(serverSettings, "%u", &serverPort);
 		if (!serverPort || serverPort < 1024)
 			serverPort = PORT;
 		printf("Opening on port %u\n", serverPort);
@@ -303,7 +316,7 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer)
 
 void info(void *arg)
 {
-	FILE *settings = fopen("ListSettings.ini","r");
+	FILE *settings = fopen("ServerSettings.ini","r");
 	if (settings)
 	{
 		while(serverPort==0)
@@ -312,21 +325,30 @@ void info(void *arg)
 		WSAStartup(MAKEWORD(2,0), &WSAData);
 		SOCKET sock;
 		SOCKADDR_IN sin;
-		char HOST[32];
-		char FILE[16];
-		char NAME[32];
-		fscanf(settings,"%s",HOST);
-		fscanf(settings,"%s",FILE);
-		fscanf(settings,"%s",NAME);
-		struct hostent     *he;
-		if ((he = gethostbyname(HOST)) == NULL) {
-			printf("error resolving hostname..");
+
+		bool listSettingsFound = false;
+		char settingLine[128];
+		while(!listSettingsFound)
+		{
+			fscanf(settings, "%s", settingLine);
+			if (!strcmp(settingLine, "#LISTSETTINGS"))
+				listSettingsFound = true;
+		}
+		fscanf(settings,"%s",LISTHOST);
+		fscanf(settings,"%s",LISTFILE);
+		fscanf(settings,"%s",LISTNAME);
+
+		struct hostent *he;
+		while((he = gethostbyname(LISTHOST)) == NULL)
+		{
+			printf("Error resolving serverlist hostname. Retrying in 60 seconds.");
+			Sleep(60000);	//Sleep for 60 seconds and then try again
 		}
 
 		long rcs;
 		while(true){
 			char srequest[384];
-			sprintf_s(srequest,384, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", FILE,NAME,serverPort,TotalClients,MAXCLIENTS,MAIN_VERSION,SUB_VERSION,HOST);
+			sprintf_s(srequest,384, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", LISTFILE, LISTNAME, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION, LISTHOST);
 			
 			sock = socket(AF_INET, SOCK_STREAM, 0);
 			memcpy(&sin.sin_addr, he->h_addr_list[0], he->h_length);
@@ -337,12 +359,12 @@ void info(void *arg)
 			rcs=connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
 			if(rcs==SOCKET_ERROR) 
 			{
-				printf("Error: connect, error code: %i\n",WSAGetLastError());
+				printf("Error: Serverlist connect error, code: %i\n",WSAGetLastError());
 			}
 			rcs=send(sock, srequest, 384, 0);
 			if(rcs==SOCKET_ERROR) 
 			{
-				printf("Error: send, error code: %i\n",WSAGetLastError());
+				printf("Error: Serverlist send error, code: %i\n",WSAGetLastError());
 			}
 			closesocket(sock); 
 			Sleep(120000);

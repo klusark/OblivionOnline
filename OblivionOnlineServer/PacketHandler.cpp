@@ -48,14 +48,16 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			free(SendBuf);
 			Connected[LocalPlayer] = true;
 
-			//Sleep(100);	//Give some time for the client to process the welcome
-			// DO NOT SLEEP THE MAIN THREAD; THIS COULD LEAD TO TIMEOUTS OR JUST LAG .... NEVER DO THIS
+			Sleep(50);	//Give some time for the client to process the welcome
+			//Sleep is necessary, see above comment. Trust me. This will be fixed later.
+			//Just leave it for now.
+
 			//Now send out the data from our other clients to our new client
 			for(int i=0; i<MAXCLIENTS; i++)
 			{
 				if (i != LocalPlayer && Connected[i])
 				{
-					printf("  Init: Player %i\n", i);
+					//printf("  Init: Player %i\n", i);
 					if (Players[i].bStatsInitialized)
 					{
 						printf("  Init: Sending player %i info to player %i\n", i, LocalPlayer);
@@ -150,66 +152,33 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		if (Players[InPkgBuf.refID].CellID != tempCell)
 			printf("Player %i moved from cell %x to cell %x\n", InPkgBuf.refID, tempCell, Players[InPkgBuf.refID].CellID);
 
-		/*
-		//Are we setting initial values?
-		if (InPkgBuf.Flags & 8)
+		//If this is the first time we see data from this client, set init to true
+		if(!Players[InPkgBuf.refID].bStatsInitialized)
 		{
-			OutPkgBuf.Health = InPkgBuf.Health;
-			OutPkgBuf.Magika = InPkgBuf.Magika;
-			OutPkgBuf.Fatigue = InPkgBuf.Fatigue;
-			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
-			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
-			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
-			PlayersInitial[InPkgBuf.refID].Health = InPkgBuf.Health;
-			PlayersInitial[InPkgBuf.refID].Magika = InPkgBuf.Magika;
-			PlayersInitial[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
-			printf("Client %i basic stats initialized\n", InPkgBuf.refID);
-			printf(" HP: %i\n", Players[InPkgBuf.refID].Health);
-			printf(" MP: %i\n", Players[InPkgBuf.refID].Magika);
 			Players[InPkgBuf.refID].bStatsInitialized = true;
+			OutPkgBuf.Flags = OutPkgBuf.Flags | 8;
 		}
-		else
-		{
-			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
-			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
-			OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
-			//printf("Player HP: %i | Incoming HP: %i\n", Players[InPkgBuf.refID].Health, InPkgBuf.Health);
-			Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
-			Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
-			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
-			if (OutPkgBuf.Health != 0)
-				printf("From %i: Player %i HP is %i (change of %i)\n", LocalPlayer, InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
-		}
-		*/
 
-		//new code
+		//Now check for changes in the basic stats
 		if(Players[InPkgBuf.refID].Health != InPkgBuf.Health)
 		{
 			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
 			Players[InPkgBuf.refID].Health += OutPkgBuf.Health;    
-		}
-		else
-		{
-			OutPkgBuf.Health = 0;  // it JUST sends differences
-		}
+		}else
+			OutPkgBuf.Health = 0;
 		if(Players[InPkgBuf.refID].Magika != InPkgBuf.Magika)
 		{
 			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
 			Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika; 
-		}
-		else
-		{
+		}else
 			OutPkgBuf.Magika = 0;
-		}
 		if(Players[InPkgBuf.refID].Fatigue != InPkgBuf.Fatigue)
 		{
-			OutPkgBuf.Magika = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
+			OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
 			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue; 
-		}
-		else
-		{
+		}else
 			OutPkgBuf.Fatigue = 0;
-		}
+
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
 			if (cx != LocalPlayer)
