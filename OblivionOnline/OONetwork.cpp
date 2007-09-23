@@ -418,16 +418,34 @@ bool OOPActorUpdate_Handler(char *Packet)
 			// If we know the mem location of the NPC, mod the stats
 			if (InPkgBuf.refID == LocalPlayer)
 			{
-				(*g_thePlayer)->ModActorBaseValue(8, InPkgBuf.Health, 0);
-				(*g_thePlayer)->ModActorBaseValue(9, InPkgBuf.Magika, 0);
-				(*g_thePlayer)->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
+				if (Players[InPkgBuf.refID].Health >= 0)
+					(*g_thePlayer)->ModActorBaseValue(8, InPkgBuf.Health, 0);
+				else
+					Players[InPkgBuf.refID].Health = 0;
+				if (Players[InPkgBuf.refID].Magika >= 0)
+					(*g_thePlayer)->ModActorBaseValue(9, InPkgBuf.Magika, 0);
+				else
+					Players[InPkgBuf.refID].Magika = 0;
+				if (Players[InPkgBuf.refID].Fatigue >= 0)
+					(*g_thePlayer)->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
+				else
+					Players[InPkgBuf.refID].Fatigue = 0;
 			}else{
 				if (PlayerActorList[InPkgBuf.refID])
 				{
 					Actor *ActorBuf = (Actor*)PlayerActorList[InPkgBuf.refID];
-					ActorBuf->ModActorBaseValue(8, InPkgBuf.Health, 0);
-					ActorBuf->ModActorBaseValue(9, InPkgBuf.Magika, 0);
-					ActorBuf->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
+					if (Players[InPkgBuf.refID].Health >= 0)
+						ActorBuf->ModActorBaseValue(8, InPkgBuf.Health, 0);
+					else
+						Players[InPkgBuf.refID].Health = 0;
+					if (Players[InPkgBuf.refID].Magika >= 0)
+						ActorBuf->ModActorBaseValue(9, InPkgBuf.Magika, 0);
+					else
+						Players[InPkgBuf.refID].Magika = 0;
+					if (Players[InPkgBuf.refID].Fatigue >= 0)
+						ActorBuf->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
+					else
+						Players[InPkgBuf.refID].Fatigue = 0;
 				}
 			}
 		}

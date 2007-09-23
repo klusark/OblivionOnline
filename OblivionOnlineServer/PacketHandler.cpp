@@ -164,6 +164,11 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		{
 			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
 			Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
+			if (Players[InPkgBuf.refID].Health < 0)
+			{
+				OutPkgBuf.Health += Players[InPkgBuf.refID].Health;
+				Players[InPkgBuf.refID].Health = 0;
+			}
 			printf("  Player %i HP is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
 		}else
 			OutPkgBuf.Health = 0;
@@ -171,6 +176,11 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		{
 			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
 			Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
+			if (Players[InPkgBuf.refID].Magika < 0)
+			{
+				OutPkgBuf.Magika += Players[InPkgBuf.refID].Magika;
+				Players[InPkgBuf.refID].Magika = 0;
+			}
 			//printf("  Player %i MP is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Magika, OutPkgBuf.Magika);
 		}else
 			OutPkgBuf.Magika = 0;
@@ -178,6 +188,11 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		{
 			OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
 			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
+			if (Players[InPkgBuf.refID].Fatigue < 0)
+			{
+				OutPkgBuf.Fatigue += Players[InPkgBuf.refID].Fatigue;
+				Players[InPkgBuf.refID].Fatigue = 0;
+			}
 			//printf("  Player %i Fatigue is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Fatigue, OutPkgBuf.Fatigue);
 		}else
 			OutPkgBuf.Fatigue = 0;
