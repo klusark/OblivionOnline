@@ -1,6 +1,6 @@
 /*
 
-Copyright 2007  Julian aka masterfreek64 and Joseph Pearson aka chessmaster42 
+Copyright 2007  Julian aka masterfreek64 and Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
 
 This file is part of OblivionOnline.
 
@@ -41,6 +41,7 @@ This file is part of OblivionOnline.
 extern int TotalClients;
 extern bool bServerAlive;
 extern SOCKET clients[MAXCLIENTS];
+extern sockaddr_in ConnectionInfo[MAXCLIENTS];
 extern PlayerStatus Players[MAXCLIENTS];
 extern PlayerStatus PlayersInitial[MAXCLIENTS];
 extern UInt8 ModList[MAXCLIENTS][255];

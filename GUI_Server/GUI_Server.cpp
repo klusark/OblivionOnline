@@ -1,6 +1,6 @@
 /*
 
-Copyright 2007  Julian aka masterfreek64 and Joseph Pearson aka chessmaster42 
+Copyright 2007  Julian aka masterfreek64 and Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
 
 This file is part of OblivionOnline.
 
@@ -41,6 +41,7 @@ bool bServerAlive = true;
 char commandString[256];
 int TotalClients = 0;
 SOCKET clients[MAXCLIENTS];
+sockaddr_in ConnectionInfo[MAXCLIENTS];
 PlayerStatus Players[MAXCLIENTS];
 PlayerStatus PlayersInitial[MAXCLIENTS];
 UInt8 ModList[MAXCLIENTS][255];
@@ -51,17 +52,19 @@ FILE *serverSettings;
 char serverMsg[256];
 HWND hServerDlg;
 
-// Forward declarations of functions included in this code module:
+//Prototypes for GUI functions
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	ServerConsoleDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
-//Prototype for main server
+//Prototypes for main server
 void serverThread(void *arg);
 int server_main(HWND hDlg);
-bool BroadcastMessage(char *Message);
+bool BroadcastMessage(char *Message, int Player);
+bool Kick(int Player);
 
+//Main api entry
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPTSTR    lpCmdLine,
@@ -227,20 +230,49 @@ INT_PTR CALLBACK ServerConsoleDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 	case WM_INITDIALOG:
 		SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)"Server console loaded");
 		hServerDlg = hDlg;
+
+		//If server is not started, start it up
 		if (!hServerThread)
 		{
 			hServerThread = _beginthread(serverThread, 0, hServerDlg);
 		}
+
+		//Fill up the player list
+		for(int i=0; i<MAXCLIENTS; i++)
+			if (Connected[i])
+			{
+				sprintf(serverMsg, "Player %2i - %s:%u",i,inet_ntoa(ConnectionInfo[i].sin_addr),ntohs(ConnectionInfo[i].sin_port));
+				SendDlgItemMessageA(hServerDlg,IDC_PLAYERLIST,LB_ADDSTRING,0,(LPARAM)serverMsg);
+			}
 		return true;
 	case WM_COMMAND:
 		switch(LOWORD(wParam))
 		{
+		case IDC_KICK:
+			//Kick();
+			return true;
 		case IDC_CLOSE:
 			EndDialog(hDlg, LOWORD(wParam));
 			return true;
 		case IDC_SEND:
 			GetDlgItemTextA(hDlg, IDC_COMMAND_ENTER, (LPSTR)commandString, 256);
-			BroadcastMessage(commandString);
+			bool AllChat = IsDlgButtonChecked(hDlg, IDC_CHATALL);
+			if (AllChat)
+				BroadcastMessage(commandString, -1);
+			else{
+				int bSuccess;
+				int PlayerNum = GetDlgItemInt(hDlg, IDC_CHATPLAYERNUMBER, &bSuccess, false);
+				if (bSuccess)
+				{
+					if (PlayerNum < TotalClients && PlayerNum >= 0)
+					{
+						BroadcastMessage(commandString, PlayerNum);
+					}else{
+						MessageBoxA(NULL, "Player number out of range", "Error", NULL);
+						return true;
+					}
+				}
+			}
 			sprintf(serverMsg, "Server: %s", commandString);
 			SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 			SetDlgItemTextA(hDlg, IDC_COMMAND_ENTER, NULL);
@@ -309,7 +341,9 @@ int server_main(HWND hDlg)
 
 	sprintf(serverMsg, "OblivionOnline Basic Server, v.%i.%i.%i",SUPER_VERSION,MAIN_VERSION,SUB_VERSION);
 	SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
-	sprintf(serverMsg, "Wrtten by masterfreek64 aka Julian Bangert, Chessmaster42 aka Joseph Pearson and bobjr777 aka Joel Teichroeb");
+	sprintf(serverMsg, "Wrtten by masterfreek64 aka Julian Bangert, Chessmaster42 aka Joseph Pearson");
+	SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+	sprintf(serverMsg, "and bobjr777 aka Joel Teichroeb");
 	SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 	sprintf(serverMsg, "--------------------------");
 	SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
@@ -338,7 +372,7 @@ int server_main(HWND hDlg)
 		fscanf(serverSettings, "%u", &serverPort);
 		if (!serverPort || serverPort < 1024)
 			serverPort = PORT;
-		sprintf(serverMsg, "Opening on port %u\n", serverPort);
+		sprintf(serverMsg, "Opening on port %u", serverPort);
 		SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 	}else{
 		serverPort = PORT;
@@ -447,6 +481,7 @@ int server_main(HWND hDlg)
 					sockaddr_in NewAddr;
 					int nAddrSize = sizeof(NewAddr);
 					clients[LocalPlayer]=accept(acceptSocket, (sockaddr*)&NewAddr, &nAddrSize);
+					ConnectionInfo[LocalPlayer] = NewAddr;
 					TotalClients++;
 					sprintf(serverMsg, "%s - Accepted new connection #%d from %s:%u",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
@@ -493,6 +528,14 @@ int server_main(HWND hDlg)
 					TotalClients--;
 					sprintf(serverMsg, "%s - Client %d closed the Connection",MyTime,LocalPlayer);
 					SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+					for(int i=0; i<MAXCLIENTS; i++)
+					{
+						// Now search for the player in the dialog list
+						sprintf(serverMsg, "Player %2i",LocalPlayer);
+						int PlayerIdx = SendDlgItemMessageA(hDlg,IDC_PLAYERLIST,LB_FINDSTRING,-1,(LPARAM)serverMsg);
+						if (PlayerIdx != LB_ERR)
+							SendDlgItemMessageA(hDlg,IDC_PLAYERLIST,LB_DELETESTRING,PlayerIdx,0);
+					}
 					easylog = fopen("Log.txt","a");
 					fprintf(easylog,"%s - Client %d closed the Connection\n",MyTime,LocalPlayer);
 					fprintf(easylog,"%s - We now have %d connection(s)\n",MyTime,TotalClients);
@@ -627,7 +670,7 @@ void info(void *arg)
 	}	
 }
 
-bool BroadcastMessage(char *Message)
+bool BroadcastMessage(char *Message, int Player)
 {
 	//Send out the chat message
 	OOPkgChat pkgBuf;
@@ -641,10 +684,39 @@ bool BroadcastMessage(char *Message)
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgChat));
 	MessageDest=(SendBuf+sizeof(OOPkgChat));
 	memcpy(MessageDest,Message,pkgBuf.Length);
-	for(int cx=0;cx<MAXCLIENTS;cx++)
+	if (Player == -1)
 	{
-		send(clients[cx],SendBuf,sizeof(OOPkgChat)+pkgBuf.Length,0);
-	}
+		for(int cx=0;cx<MAXCLIENTS;cx++)
+		{
+			send(clients[cx],SendBuf,sizeof(OOPkgChat)+pkgBuf.Length,0);
+		}
+	}else
+		send(clients[Player],SendBuf,sizeof(OOPkgChat)+pkgBuf.Length,0);
 	free(SendBuf);
+	return true;
+}
+
+bool Kick(int Player)
+{
+	if (Connected[Player])
+	{
+		OOPkgDisconnect InPkgBuf;
+		InPkgBuf.PlayerID = Player;
+		InPkgBuf.etypeID = OOPDisconnect;
+		sprintf(serverMsg, "Kicking Player %i ...", InPkgBuf.PlayerID);
+		SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+		for(int cx=0;cx<MAXCLIENTS;cx++)
+		{
+			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgDisconnect),0);
+		}
+		for(int i=0; i<MAXCLIENTS; i++)
+		{
+			// Now search for the player in the dialog list
+			sprintf(serverMsg, "Player %2i",Player);
+			int PlayerIdx = SendDlgItemMessageA(hServerDlg,IDC_PLAYERLIST,LB_FINDSTRING,-1,(LPARAM)serverMsg);
+			if (PlayerIdx != LB_ERR)
+				SendDlgItemMessageA(hServerDlg,IDC_PLAYERLIST,LB_DELETESTRING,PlayerIdx,0);
+		}
+	}
 	return true;
 }

@@ -46,8 +46,10 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			SendBuf = (char *)malloc(sizeof(OOPkgWelcome));
 			memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgWelcome));
 			send(clients[LocalPlayer],SendBuf,sizeof(OOPkgWelcome),0);
-			sprintf(serverMsg, "Welcoming Player%2d\n",LocalPlayer);
+			sprintf(serverMsg, "Welcoming Player%2d",LocalPlayer);
 			SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+			sprintf(serverMsg, "Player %2i - %s:%u",LocalPlayer,inet_ntoa(ConnectionInfo[LocalPlayer].sin_addr),ntohs(ConnectionInfo[LocalPlayer].sin_port));
+			SendDlgItemMessageA(hServerDlg,IDC_PLAYERLIST,LB_ADDSTRING,0,(LPARAM)serverMsg);
 			free(SendBuf);
 			Connected[LocalPlayer] = true;
 
@@ -102,7 +104,8 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			fprintf(easylog,"%s - Client %d had a version mismatch\n", MyTime, LocalPlayer);
 			fprintf(easylog,"%s - We now have %d connections", MyTime, TotalClients);
 			closesocket(clients[LocalPlayer]); 
-			clients[LocalPlayer]=INVALID_SOCKET; 
+			clients[LocalPlayer]=INVALID_SOCKET;
+			return false;
 		}
 	}
 	else
@@ -115,6 +118,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 		fprintf(easylog,"We now have %d connections",TotalClients);
 		closesocket(clients[LocalPlayer]);
 		clients[LocalPlayer]=INVALID_SOCKET;
+		return false;
 	}
 	return true;
 }

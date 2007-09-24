@@ -51,6 +51,9 @@ bool OOPTimeUpdate_Handler(char *Packet);
 bool OOPEquipped_Handler(char *Packet);
 bool OOPModOffsetList_Handler(char *Packet);
 
+//Externals
+extern int OO_Deinitialize();
+
 //----------------------------------
 //--Begin Incoming packet handlers--
 //----------------------------------
@@ -343,9 +346,16 @@ bool OOPDisconnect_Handler(char *Packet)
 {
 	OOPkgDisconnect InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgDisconnect));
-	PlayerConnected[InPkgBuf.PlayerID] = false;
-	TotalPlayers--;
-	Console_Print("Player %i disconnected", InPkgBuf.PlayerID);
+	if (InPkgBuf.PlayerID == LocalPlayer)
+	{
+		OO_Deinitialize();
+		bIsConnected = false;
+		Console_Print("You have been disconnected");
+	}else{
+		PlayerConnected[InPkgBuf.PlayerID] = false;
+		TotalPlayers--;
+		Console_Print("Player %i disconnected", InPkgBuf.PlayerID);
+	}
 	return true;
 }
 
