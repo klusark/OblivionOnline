@@ -88,8 +88,8 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
 
 			TotalClients--;
-			int MajorVersion = (InPkgBuf.wVersion & 0xff00) >> 8;
-			int MinorVersion = InPkgBuf.wVersion & 0x00ff;
+			int MinorVersion = (InPkgBuf.wVersion & 0xff00) >> 8;
+			int MajorVersion = InPkgBuf.wVersion & 0x00ff;
 			printf("%s - Client tried to authenticate with wrong client version(%i.%i.%i)\n", MyTime, 0, MajorVersion, MinorVersion);
 			printf("%s - Client %d was removed due to version missmatch\n", MyTime, LocalPlayer);
 			fprintf(easylog,"%s - Client %d closed the Connection\n", MyTime, LocalPlayer);
@@ -102,7 +102,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	else
 	{
 		TotalClients--;
-		printf("Client %d tried to connect with a pre-version 3 OblivionOnline , or another software.\n",LocalPlayer);
+		printf("Client %d tried to connect with a pre-version 4 OblivionOnline , or another software.\n",LocalPlayer);
 		fprintf(easylog,"Client %d closed the Connection\n",LocalPlayer);
 		fprintf(easylog,"Client %d had a non-compatible client\n",LocalPlayer);
 		fprintf(easylog,"We now have %d connections",TotalClients);

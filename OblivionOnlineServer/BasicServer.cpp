@@ -231,6 +231,7 @@ int main()
 						if (cx != LocalPlayer)
 							send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgDisconnect),0);
 					}
+
 					time_t TimeStamp;
 					time(&TimeStamp);
 					int Seconds = (int)TimeStamp % 60;
