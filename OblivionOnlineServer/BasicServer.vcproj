@@ -40,6 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="&quot;C:\Users\Julian\Documents\Visual Studio 2005\Projects\OblivionOnline\libcurl-7.16.4\include\curl&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,7 +63,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib libcurl.a"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;\..\libcurl-7.16.4\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Users\Julian\Documents\Visual Studio 2005\Projects\OblivionOnline\libcurl-7.16.4\lib&quot;;&quot;\..\libcurl-7.16.4\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -117,7 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\Joe\Desktop\obse_0012\src\obse\&quot;;&quot;C:\Dokumente und Einstellungen\Juli\Eigene Dateien\Visual Studio 2005\Projects\OblivionOnline\SVN\libcurl-7.16.4\include\curl&quot;"
+				AdditionalIncludeDirectories="&quot;C:\Users\Julian\Documents\Visual Studio 2005\Projects\OblivionOnline\libcurl-7.16.4\include\curl&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -210,6 +211,42 @@
 				RelativePath=".\PacketHandler.h"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Library Headers"
+			>
+			<Filter
+				Name="curl"
+				>
+				<File
+					RelativePath="..\libcurl-7.16.4\include\curl\curl.h"
+					>
+				</File>
+				<File
+					RelativePath="..\libcurl-7.16.4\include\curl\curlver.h"
+					>
+				</File>
+				<File
+					RelativePath="..\libcurl-7.16.4\include\curl\easy.h"
+					>
+				</File>
+				<File
+					RelativePath="..\libcurl-7.16.4\include\curl\mprintf.h"
+					>
+				</File>
+				<File
+					RelativePath="..\libcurl-7.16.4\include\curl\multi.h"
+					>
+				</File>
+				<File
+					RelativePath="..\libcurl-7.16.4\include\curl\stdcheaders.h"
+					>
+				</File>
+				<File
+					RelativePath="..\libcurl-7.16.4\include\curl\types.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

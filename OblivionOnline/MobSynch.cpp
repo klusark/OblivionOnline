@@ -97,6 +97,10 @@ bool MCAddClientCache(char *FileName)
 	{
 		fscanf(CacheFile,"%s",RefName);  // change this format
 		sprintf(Script,"%s.MPPushNPC",RefName);
+		//EnterCriticalSection(&MCWriteLock);
+		// make thread safe in the future
+		MCbWritten = false;
+
 	}
 	return true;
 }
@@ -129,5 +133,11 @@ bool MCbSynchActors() //called nearly every frame , so extremely important
 bool NetHandleMobUpdate(char *Packet)
 {
 	return false;
+}
+
+bool Cmd_MPPushNPC_Execute (COMMAND_ARGS)
+{
+	
+	return true;
 }
 #endif

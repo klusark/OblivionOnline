@@ -373,7 +373,7 @@ void info(void *arg)
 	}else{
 		printf("ServerSettings.ini not found. This server will not be listed online.\n");
 	}
-#if 0
+
 // CURL code , do not use atm
 	
   CURL *curl;
@@ -389,7 +389,6 @@ void info(void *arg)
   else{
 		printf("ServerSettings.ini not found. This server will not be listed online.\n");
 	}
-#endif
 }
 
 bool BroadcastMessage(char *Message)
