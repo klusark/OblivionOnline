@@ -9,8 +9,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServerBrowser", "..\ServerB
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "..\Setup\Setup.vdproj", "{5F7C8062-9DC2-4367-997F-A914B5EA4073}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oo-libcurl-7", "..\libcurl-7.16.4\oo-libcurl-7.vcproj", "{B96746B1-F047-4AFD-8C61-FD0E73931369}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GUIServer", "..\GUI_Server\GUIServer.vcproj", "{F59F6EAF-DC42-4D0A-AE74-28F7C21BD136}"
 EndProject
 Global
@@ -33,10 +31,6 @@ Global
 		{21D0FD3A-8E4E-4FAD-AC1A-A8B159AC3EDC}.Release|Win32.Build.0 = Release|Win32
 		{5F7C8062-9DC2-4367-997F-A914B5EA4073}.Debug|Win32.ActiveCfg = Debug
 		{5F7C8062-9DC2-4367-997F-A914B5EA4073}.Release|Win32.ActiveCfg = Release
-		{B96746B1-F047-4AFD-8C61-FD0E73931369}.Debug|Win32.ActiveCfg = Debug|Win32
-		{B96746B1-F047-4AFD-8C61-FD0E73931369}.Debug|Win32.Build.0 = Debug|Win32
-		{B96746B1-F047-4AFD-8C61-FD0E73931369}.Release|Win32.ActiveCfg = Release|Win32
-		{B96746B1-F047-4AFD-8C61-FD0E73931369}.Release|Win32.Build.0 = Release|Win32
 		{F59F6EAF-DC42-4D0A-AE74-28F7C21BD136}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F59F6EAF-DC42-4D0A-AE74-28F7C21BD136}.Debug|Win32.Build.0 = Debug|Win32
 		{F59F6EAF-DC42-4D0A-AE74-28F7C21BD136}.Release|Win32.ActiveCfg = Release|Win32
