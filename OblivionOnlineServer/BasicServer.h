@@ -35,7 +35,7 @@ This file is part of OblivionOnline.
 
 #define SUPER_VERSION 0	//Not used yet
 #define MAIN_VERSION 4
-#define SUB_VERSION 1	//Release 4, bugfix 1
+#define SUB_VERSION 2	//Release 4, bugfix 2
 
 extern int TotalClients;
 extern bool bServerAlive;
@@ -46,7 +46,7 @@ extern UInt8 ModList[MAXCLIENTS][255];
 extern FILE *easylog;
 extern int StartNet(void);
 extern int ScanBuffer(char *acReadBuffer, short LocalPlayer);
-
+extern bool BroadcastMessage(char *Message);
 inline void LogInfo(char *String)
 {
 	FILE *Log;

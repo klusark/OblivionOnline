@@ -168,7 +168,10 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 			{
 				OutPkgBuf.Health += Players[InPkgBuf.refID].Health;
 				Players[InPkgBuf.refID].Health = 0;
+				char Notification [128];
 				printf("  Player %i nearly passed away, save that an unkown spirit donated health points to him. His Killer will now feel the ethernal punishment of the law \n",InPkgBuf.refID);
+				sprintf(Notification," Player %i died and was revived ",InPkgBuf.refID);
+				BroadcastMessage(Notification);
 				time_t TimeStamp;
 				time(&TimeStamp);
 				int Seconds = (int)TimeStamp % 60;

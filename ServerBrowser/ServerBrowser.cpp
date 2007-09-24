@@ -172,10 +172,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wmId)
 		{
 		case ID_GAME:
-			system("obse_loader");
+			system("..\obse_loader");
 			break;
 		case ID_EDITOR:
-			system("obse_loader -editor");
+			system("..\obse_loader -editor");
 			break;
 		case ID_SERVER_ADD:
 			DialogBox(hInst,MAKEINTRESOURCE(IDD_SERVER_ADD),hWnd,ServerAdd);
@@ -251,7 +251,7 @@ INT_PTR CALLBACK ServerAdd(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 			{
 				if(Port <= 65535)
 				{
-					realmfile = fopen("realmlist.wth","w");
+					realmfile = fopen("..\realmlist.wth","w");
 					fprintf(realmfile,"1 %d.%d.%d.%d %u",FIRST_IPADDRESS(dwTempAddress),SECOND_IPADDRESS(dwTempAddress),THIRD_IPADDRESS(dwTempAddress),FOURTH_IPADDRESS(dwTempAddress),Port);
 					fclose(realmfile);
 					EndDialog(hDlg, LOWORD(wParam));
