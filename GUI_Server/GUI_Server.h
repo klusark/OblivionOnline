@@ -1,6 +1,6 @@
 /*
 
-Copyright 2007  Julian aka masterfreek64, Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
+Copyright 2007  Julian aka masterfreek64 and Joseph Pearson aka chessmaster42 
 
 This file is part of OblivionOnline.
 
@@ -18,12 +18,13 @@ This file is part of OblivionOnline.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BasicServer_h
-#define BasicServer_h
+#ifndef GUI_Server_h
+#define GUI_Server_h
 
 #define UInt32 unsigned long
 #define UInt8 unsigned char
 
+#include "resource.h"
 #include <winsock.h>
 #include <iostream>
 #include <time.h>
@@ -44,22 +45,10 @@ extern PlayerStatus Players[MAXCLIENTS];
 extern PlayerStatus PlayersInitial[MAXCLIENTS];
 extern UInt8 ModList[MAXCLIENTS][255];
 extern FILE *easylog;
+extern char serverMsg[256];
+extern HWND hServerDlg;
+
 extern int StartNet(void);
 extern int ScanBuffer(char *acReadBuffer, short LocalPlayer);
-extern bool BroadcastMessage(char *Message);
-inline void LogInfo(char *String)
-{
-	FILE *Log;
-	time_t TimeStamp;
-	time(&TimeStamp);
-	int Seconds = (int)TimeStamp % 60;
-	int Minutes = (int)(TimeStamp / 60) % 60;
-	int Hours = (int)(TimeStamp / 3600) % 24;
-	char MyTime[8];
-	sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
-	Log = fopen("Log.txt","a");
-	fprintf(Log,"%s",String);
-	fclose(Log);
-}
 
 #endif

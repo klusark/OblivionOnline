@@ -18,8 +18,10 @@ This file is part of OblivionOnline.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "stdafx.h"
+
 #include "PacketHandler.h"
-#include "BasicServer.h"
+#include "GUI_Server.h"
 
 extern bool Connected[MAXCLIENTS];
 
@@ -44,7 +46,8 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			SendBuf = (char *)malloc(sizeof(OOPkgWelcome));
 			memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgWelcome));
 			send(clients[LocalPlayer],SendBuf,sizeof(OOPkgWelcome),0);
-			printf("Welcoming Player%2d\n",LocalPlayer);
+			sprintf(serverMsg, "Welcoming Player%2d\n",LocalPlayer);
+			SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 			free(SendBuf);
 			Connected[LocalPlayer] = true;
 
@@ -60,7 +63,8 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 					//printf("  Init: Player %i\n", i);
 					if (Players[i].bStatsInitialized)
 					{
-						printf("  Init: Sending player %i info to player %i\n", i, LocalPlayer);
+						sprintf(serverMsg, "  Init: Sending player %i info to player %i", i, LocalPlayer);
+						SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 						OOPkgActorUpdate SendPkgBuf;
 						SendPkgBuf.etypeID = OOPActorUpdate;
 						if (Players[i].bIsInInterior)
@@ -90,8 +94,10 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			TotalClients--;
 			int MinorVersion = (InPkgBuf.wVersion & 0xff00) >> 8;
 			int MajorVersion = InPkgBuf.wVersion & 0x00ff;
-			printf("%s - Client tried to authenticate with wrong client version(%i.%i.%i)\n", MyTime, 0, MajorVersion, MinorVersion);
-			printf("%s - Client %d was removed due to version missmatch\n", MyTime, LocalPlayer);
+			sprintf(serverMsg, "%s - Client tried to authenticate with wrong client version(%i.%i.%i)", MyTime, 0, MajorVersion, MinorVersion);
+			SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+			sprintf(serverMsg, "%s - Client %d was removed due to version missmatch", MyTime, LocalPlayer);
+			SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 			fprintf(easylog,"%s - Client %d closed the Connection\n", MyTime, LocalPlayer);
 			fprintf(easylog,"%s - Client %d had a version mismatch\n", MyTime, LocalPlayer);
 			fprintf(easylog,"%s - We now have %d connections", MyTime, TotalClients);
@@ -102,7 +108,8 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	else
 	{
 		TotalClients--;
-		printf("Client %d tried to connect with a pre-version 4 OblivionOnline , or another software.\n",LocalPlayer);
+		sprintf(serverMsg, "Client %d tried to connect with a pre-version 4 OblivionOnline , or another software.",LocalPlayer);
+		SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 		fprintf(easylog,"Client %d closed the Connection\n",LocalPlayer);
 		fprintf(easylog,"Client %d had a non-compatible client\n",LocalPlayer);
 		fprintf(easylog,"We now have %d connections",TotalClients);
@@ -118,7 +125,8 @@ bool OOPDisconnect_Handler(char *Packet,short LocalPlayer)
 	{
 		OOPkgDisconnect InPkgBuf;
 		memcpy(&InPkgBuf,Packet,sizeof(OOPkgDisconnect));
-		printf("Received disconnect from %i\n", InPkgBuf.PlayerID);
+		sprintf(serverMsg, "Received disconnect from %i", InPkgBuf.PlayerID);
+		SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
 			if (cx != LocalPlayer)
@@ -168,19 +176,6 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 			{
 				OutPkgBuf.Health += Players[InPkgBuf.refID].Health;
 				Players[InPkgBuf.refID].Health = 0;
-				char Notification [128];
-				printf("  Player %i nearly passed away, save that an unkown spirit donated health points to him. His Killer will now feel the ethernal punishment of the law \n",InPkgBuf.refID);
-				sprintf(Notification," Player %i died and was revived ",InPkgBuf.refID);
-				BroadcastMessage(Notification);
-				time_t TimeStamp;
-				time(&TimeStamp);
-				int Seconds = (int)TimeStamp % 60;
-				int Minutes = (int)(TimeStamp / 60) % 60;
-				int Hours = (int)(TimeStamp / 3600) % 24;
-				char MyTime[8];
-				sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
-				fprintf(easylog,"%s - Player %d passed away , but was saved- His attacker will now feel the ethernal punishment of the law\n", MyTime, InPkgBuf.refID);
-			
 			}
 			printf("  Player %i HP is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
 		}else
@@ -236,7 +231,8 @@ bool OOPChat_Handler(char *Packet,short LocalPlayer)
 		{
 			MessageDest[i] = Packet[i+sizeof(OOPkgChat)];
 		}
-		printf("Player %i: %s\n", LocalPlayer, MessageDest);
+		sprintf(serverMsg, "Player %i: %s\n", LocalPlayer, MessageDest);
+		SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 	}
 	//End Temp
 	return true;

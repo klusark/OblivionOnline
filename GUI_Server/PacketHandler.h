@@ -21,7 +21,7 @@ This file is part of OblivionOnline.
 #ifndef PacketHandler_h
 #define PacketHandler_h
 
-#include "BasicServer.h"
+#include "GUI_Server.h"
 #include "OOPackets.h"
 
 extern bool OOPWelcome_Handler(char *Packet,short LocalPlayer);

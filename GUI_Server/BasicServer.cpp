@@ -21,7 +21,7 @@ This file is part of OblivionOnline.
 #include "BasicServer.h"
 #include "OOPackets.h"
 #include "PacketHandler.h"
-#include "curl.h"
+
 // Globals
 int TotalClients = 0;
 bool bServerAlive;
@@ -374,39 +374,5 @@ void info(void *arg)
 	}else{
 		printf("ServerSettings.ini not found. This server will not be listed online.\n");
 	}
-
-// CURL code , do not use atm
 	
-  CURL *curl;
-  CURLcode res;
-  curl = curl_easy_init();
-  if(curl) {
-     curl_easy_setopt(curl, CURLOPT_URL, "ooservers.freehostia.com"); // here we will have to set the URL , it is too late for that now
-    res = curl_easy_perform(curl);
- 
-    /* always cleanup */
-      curl_easy_cleanup(curl);
-  }
-  else{
-		printf("ServerSettings.ini not found. This server will not be listed online.\n");
-	}
-}
-
-bool BroadcastMessage(char *Message)
-{
-	OOPkgChat pkgBuf;
-	char *SendBuf;
-	void *MessageDest;
-	pkgBuf.etypeID = OOPChat;
-	pkgBuf.refID = 0;
-	pkgBuf.Length = strlen(Message);
-	pkgBuf.Flags = 0;
-	SendBuf = (char *)malloc(sizeof(OOPkgChat)+pkgBuf.Length);
-	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgChat));
-	MessageDest=(SendBuf+sizeof(OOPkgChat));
-	memcpy(MessageDest,Message,pkgBuf.Length);
-	for(int cx = 0;cx< MAXCLIENTS;cx++)
-		send(clients[cx],SendBuf,sizeof(OOPkgChat)+pkgBuf.Length,0);
-	free(SendBuf);
-	return true;
 }

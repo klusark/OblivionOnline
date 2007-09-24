@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
-	Name="BasicServer"
-	ProjectGUID="{4344220D-2400-40A5-80E5-36CF84DCC63E}"
-	RootNamespace="BasicServer"
+	Version="8.00"
+	Name="GUIServer"
+	ProjectGUID="{F59F6EAF-DC42-4D0A-AE74-28F7C21BD136}"
+	RootNamespace="ServerBrowser"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -40,12 +40,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Users\Julian\Documents\Visual Studio 2005\Projects\OblivionOnline\libcurl-7.16.4\include\curl&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
@@ -61,11 +60,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib libcurl.a"
+				AdditionalDependencies="ws2_32.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;C:\Users\Julian\Documents\Visual Studio 2005\Projects\OblivionOnline\libcurl-7.16.4\lib&quot;;&quot;\..\libcurl-7.16.4\lib&quot;"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -98,8 +96,10 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="1"
-			WholeProgramOptimization="1"
+			UseOfATL="0"
+			CharacterSet="0"
+			ManagedExtensions="0"
+			WholeProgramOptimization="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -118,13 +118,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Users\Julian\Documents\Visual Studio 2005\Projects\OblivionOnline\libcurl-7.16.4\include\curl&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="0"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -137,14 +136,16 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib libcurl.a"
+				AdditionalDependencies="ws2_32.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;\..\libcurl-7.16.4\lib&quot;;&quot;C:\Dokumente und Einstellungen\Juli\Eigene Dateien\Visual Studio 2005\Projects\OblivionOnline\SVN\libcurl-7.16.4\lib&quot;"
+				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="false"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				LinkTimeCodeGeneration="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -152,6 +153,8 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="true"
+				VerboseOutput="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -182,12 +185,32 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\BasicServer.cpp"
+				RelativePath=".\GUI_Server.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\PacketHandler.cpp"
 				>
+			</File>
+			<File
+				RelativePath=".\stdafx.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -196,7 +219,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\BasicServer.h"
+				RelativePath=".\GUI_Server.h"
 				>
 			</File>
 			<File
@@ -211,42 +234,32 @@
 				RelativePath=".\PacketHandler.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\stdafx.h"
+				>
+			</File>
 		</Filter>
 		<Filter
-			Name="Library Headers"
+			Name="Resource Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
-			<Filter
-				Name="curl"
+			<File
+				RelativePath=".\GUI_Server.rc"
 				>
-				<File
-					RelativePath="..\libcurl-7.16.4\include\curl\curl.h"
-					>
-				</File>
-				<File
-					RelativePath="..\libcurl-7.16.4\include\curl\curlver.h"
-					>
-				</File>
-				<File
-					RelativePath="..\libcurl-7.16.4\include\curl\easy.h"
-					>
-				</File>
-				<File
-					RelativePath="..\libcurl-7.16.4\include\curl\mprintf.h"
-					>
-				</File>
-				<File
-					RelativePath="..\libcurl-7.16.4\include\curl\multi.h"
-					>
-				</File>
-				<File
-					RelativePath="..\libcurl-7.16.4\include\curl\stdcheaders.h"
-					>
-				</File>
-				<File
-					RelativePath="..\libcurl-7.16.4\include\curl\types.h"
-					>
-				</File>
-			</Filter>
+			</File>
+			<File
+				RelativePath=".\GUIServer.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\GUIServerSmall.ico"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
