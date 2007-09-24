@@ -249,7 +249,8 @@ INT_PTR CALLBACK ServerConsoleDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 		switch(LOWORD(wParam))
 		{
 		case IDC_KICK:
-			//Kick();
+			int Player = SendDlgItemMessageA(hServerDlg,IDC_PLAYERLIST,LB_GETCURSEL, 0, 0);
+			Kick(Player);
 			return true;
 		case IDC_CLOSE:
 			EndDialog(hDlg, LOWORD(wParam));
