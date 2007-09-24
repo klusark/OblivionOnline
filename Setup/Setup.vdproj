@@ -21,26 +21,20 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0ACA005973694901A8D97F3EC5065E38"
-        "OwnerKey" = "8:_870BF4EF27F3429EB9C681B07CAF3D40"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_22D9060FCC30420BA8A5D958DA96E423"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_509FF410D6144F69925C519D4BD064FD"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_298F55D3AFBF4D3DBE3A53F23C84CB45"
+        "OwnerKey" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_870BF4EF27F3429EB9C681B07CAF3D40"
-        "OwnerKey" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
+        "MsmKey" = "8:_509FF410D6144F69925C519D4BD064FD"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -59,6 +53,12 @@
         {
         "MsmKey" = "8:_B143CDD92A62472BBE16ED1E97D47AB9"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C094E04A60A54E4EA8E3C88EB298CB4A"
+        "OwnerKey" = "8:_298F55D3AFBF4D3DBE3A53F23C84CB45"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1127,11 +1127,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_0ACA005973694901A8D97F3EC5065E38"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_298F55D3AFBF4D3DBE3A53F23C84CB45"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
+            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
                 "Properties"
                 {
                 }
@@ -1141,11 +1141,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_870BF4EF27F3429EB9C681B07CAF3D40"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C094E04A60A54E4EA8E3C88EB298CB4A"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
+            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
                 "Properties"
                 {
                 }
