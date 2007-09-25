@@ -257,6 +257,8 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 				bIsConnected = true;
 				hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
 				//hPredictionEngine = CreateThread(NULL,NULL,PredictionEngine,NULL,NULL,NULL);
+				//Now try to connect with default password
+				NetWelcome("nopassword");
 				Console_Print("Oblivion connected to %s",IP[i]);
 				break;
 			}

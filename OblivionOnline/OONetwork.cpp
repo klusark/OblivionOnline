@@ -338,8 +338,12 @@ bool OOPWelcome_Handler(char *Packet)
 {
 	OOPkgWelcome InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
-	if (InPkgBuf.Flags & 1)
+	if (InPkgBuf.Flags)
 		bIsAuthenticated = true;
+	else{
+		Console_Print("Authentication failed");
+		return false;
+	}
 	sscanf(InPkgBuf.NickName, "Player%2d", &LocalPlayer);
 	_MESSAGE("Received Player ID %u",LocalPlayer);
 	Console_Print(InPkgBuf.NickName);

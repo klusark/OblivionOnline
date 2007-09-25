@@ -33,19 +33,20 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	OOPkgWelcome OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
 
-	//Replace with database check later
-	if(!strcmp(InPkgBuf.Password, ServerPassword))
-		InPkgBuf.Flags = 1;
-	else
-		return false;
-
 	if(InPkgBuf.guidOblivionOnline == gcOOGUID)
 	{
 		if(InPkgBuf.wVersion == MAKEWORD(MAIN_VERSION,SUB_VERSION))
 		{
 			char *SendBuf;
 			OutPkgBuf.etypeID = OOPWelcome;
-			OutPkgBuf.Flags = 0;
+			//Replace with database check later
+			if(!strcmp(InPkgBuf.Password, ServerPassword))
+				OutPkgBuf.Flags = 1;
+			else{
+				sprintf(serverMsg, "Player%2d tried to use wrong password",LocalPlayer);
+				SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+				return false;
+			}
 			OutPkgBuf.guidOblivionOnline = gcOOGUID;
 			OutPkgBuf.PlayerID = LocalPlayer;
 			OutPkgBuf.wVersion = MAKEWORD(MAIN_VERSION,SUB_VERSION); 
