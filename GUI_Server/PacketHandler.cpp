@@ -41,9 +41,11 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			OutPkgBuf.etypeID = OOPWelcome;
 			//Replace with database check later
 			if(!strcmp(InPkgBuf.Password, ServerPassword))
+			{
+				Authenticated[LocalPlayer] = true;
 				OutPkgBuf.Flags = 1;
-			else{
-				sprintf(serverMsg, "Player%2d tried to use wrong password",LocalPlayer);
+			}else{
+				sprintf(serverMsg, "Player%2d tried to use wrong password: %s", LocalPlayer, InPkgBuf.Password);
 				SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 				return false;
 			}
@@ -98,7 +100,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			int Seconds = (int)TimeStamp % 60;
 			int Minutes = (int)(TimeStamp / 60) % 60;
 			int Hours = (int)(TimeStamp / 3600) % 24;
-			char MyTime[8];
+			char MyTime[10];
 			sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
 
 			TotalClients--;
@@ -113,7 +115,6 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			fprintf(easylog,"%s - We now have %d connections", MyTime, TotalClients);
 			closesocket(clients[LocalPlayer]); 
 			clients[LocalPlayer]=INVALID_SOCKET;
-			return false;
 		}
 	}
 	else
@@ -126,7 +127,6 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 		fprintf(easylog,"We now have %d connections",TotalClients);
 		closesocket(clients[LocalPlayer]);
 		clients[LocalPlayer]=INVALID_SOCKET;
-		return false;
 	}
 	return true;
 }
@@ -235,7 +235,6 @@ bool OOPChat_Handler(char *Packet,short LocalPlayer)
 		if (cx != LocalPlayer)
 			send(clients[cx],Packet,sizeof(OOPkgChat)+InPkgBuf.Length,0);
 	}
-	//Temp
 	if (InPkgBuf.Length < 1024)
 	{
 		char MessageDest[1024] = "\0";
@@ -243,10 +242,9 @@ bool OOPChat_Handler(char *Packet,short LocalPlayer)
 		{
 			MessageDest[i] = Packet[i+sizeof(OOPkgChat)];
 		}
-		sprintf(serverMsg, "Player %i: %s\n", LocalPlayer, MessageDest);
+		sprintf(serverMsg, "Player %i: %s", LocalPlayer, MessageDest);
 		SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 	}
-	//End Temp
 	return true;
 }
 

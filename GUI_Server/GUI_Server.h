@@ -36,17 +36,18 @@ This file is part of OblivionOnline.
 
 #define SUPER_VERSION 0	//Not used yet
 #define MAIN_VERSION 4
-#define SUB_VERSION 2	//Release 4, bugfix 2
+#define SUB_VERSION 3	//Release 4, bugfix 3
 
 extern int TotalClients;
 extern bool bServerAlive;
+extern bool Authenticated[MAXCLIENTS];
 extern SOCKET clients[MAXCLIENTS];
 extern sockaddr_in ConnectionInfo[MAXCLIENTS];
 extern PlayerStatus Players[MAXCLIENTS];
 extern PlayerStatus PlayersInitial[MAXCLIENTS];
 extern UInt8 ModList[MAXCLIENTS][255];
 extern FILE *easylog;
-extern char serverMsg[256];
+extern char serverMsg[512];
 extern HWND hServerDlg;
 
 extern char ServerPassword[32];

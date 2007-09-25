@@ -38,6 +38,7 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 // Global Server Variables
 uintptr_t hServerThread;
 bool bServerAlive = true;
+bool Authenticated[MAXCLIENTS];
 char commandString[256];
 int TotalClients = 0;
 SOCKET clients[MAXCLIENTS];
@@ -49,7 +50,7 @@ bool Connected[MAXCLIENTS];
 unsigned short serverPort = 0;
 FILE *easylog;
 FILE *serverSettings;
-char serverMsg[256];
+char serverMsg[512];
 HWND hServerDlg;
 
 //Prototypes for GUI functions
@@ -379,21 +380,20 @@ int server_main(HWND hDlg)
 			serverPort = PORT;
 		sprintf(serverMsg, "Opening on port %u", serverPort);
 		SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+		bool passwordFound = false;
+		while(!passwordFound)
+		{
+			fscanf(serverSettings, "%s", settingLine);
+			if (!strcmp(settingLine, "#PASSWORD"))
+				passwordFound = true;
+		}
+		fscanf(serverSettings, "%s", &ServerPassword);
 	}else{
 		serverPort = PORT;
 		sprintf(serverMsg, "ServerSettings.ini not found. Using default port.");
 		SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 	}
 
-	bool passwordFound = false;
-	char settingLine[128];
-	while(!passwordFound)
-	{
-		fscanf(serverSettings, "%s", settingLine);
-		if (!strcmp(settingLine, "#PASSWORD"))
-			passwordFound = true;
-	}
-	fscanf(serverSettings, "%s", &ServerPassword);
 
 	//If no pw was in the file, use default
 	if(!strlen(ServerPassword))
@@ -519,7 +519,7 @@ int server_main(HWND hDlg)
 			if(clients[LocalPlayer]==INVALID_SOCKET)
 			{
 				continue; 
-			}
+			}else{
 			if(FD_ISSET(clients[LocalPlayer],&fdSet))
 			{
 				acReadBuffer[0] = '\0';
@@ -566,6 +566,7 @@ int server_main(HWND hDlg)
 				else
 					ScanBuffer(acReadBuffer, LocalPlayer);
 			}
+			}
 		}
 	}
 	fclose(easylog);
@@ -590,6 +591,20 @@ int StartNet()
 int ScanBuffer(char *acReadBuffer, short LocalPlayer)
 {
 	OOPacketType ePacketType = SelectType(acReadBuffer);
+
+	//Only welcome is allowed for non-auth clients
+	if(!Authenticated[LocalPlayer])
+	{
+		switch (ePacketType)
+		{
+		case OOPWelcome:
+			OOPWelcome_Handler(acReadBuffer,LocalPlayer);
+			break;
+		default:
+			break;
+		};
+		return true;
+	}
 
 	switch (ePacketType)
 	{
@@ -655,7 +670,8 @@ void info(void *arg)
 		struct hostent *he;
 		while((he = gethostbyname(LISTHOST)) == NULL)
 		{
-			//printf("Error resolving serverlist hostname. Retrying in 60 seconds.");
+			sprintf(serverMsg, "Error resolving serverlist hostname. Retrying in 60 seconds.");
+			SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 			Sleep(60000);	//Sleep for 60 seconds and then try again
 		}
 
@@ -685,7 +701,8 @@ void info(void *arg)
 		}
 		WSACleanup();
 	}else{
-		//printf("ServerSettings.ini not found. This server will not be listed online.\n");
+		sprintf(serverMsg, "ServerSettings.ini not found. This server will not be listed online.");
+		SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 	}	
 }
 
