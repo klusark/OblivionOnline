@@ -276,9 +276,7 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 		else{
 			OOPActorUpdate_Handler(acReadBuffer);
 			// Now we run a recursive call to examine the extra data
-			char tempBuffer[512];
-			memcpy(&tempBuffer,acReadBuffer + sizeof(OOPkgActorUpdate),Length - sizeof(OOPkgActorUpdate));
-			NetReadBuffer(tempBuffer, Length - sizeof(OOPkgActorUpdate));
+			NetReadBuffer(acReadBuffer+(sizeof(OOPkgActorUpdate)), Length - sizeof(OOPkgActorUpdate));
 			BadPackets[OOPActorUpdate]++;
 		}
 		break;
@@ -315,9 +313,8 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 		else{
 			OOPEquipped_Handler(acReadBuffer);
 			// Now we run a recursive call to examine the extra data
-			char tempBuffer[512];
-			memcpy(&tempBuffer,acReadBuffer + sizeof(OOPkgEquipped),Length - sizeof(OOPkgEquipped));
-			NetReadBuffer(tempBuffer, Length - sizeof(OOPkgEquipped));
+			
+			NetReadBuffer((acReadBuffer+sizeof(OOPkgEquipped)), Length - sizeof(OOPkgEquipped));
 			BadPackets[OOPEquipped]++;
 		}
 		break;
