@@ -44,6 +44,7 @@ This file is part of OblivionOnline.
 IDebugLog gLog("OblivionOnline.log");
 
 bool bIsConnected = false;
+bool bIsAuthenticated = false;
 bool PlayerConnected[MAXCLIENTS];
 int LocalPlayer;
 int TotalPlayers;
@@ -72,7 +73,7 @@ extern int GetActorID(UInt32 refID);
 extern float GetStat(Actor *ActorBuf, int statNum);
 
 extern bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC);
-extern bool NetWelcome();
+extern bool NetWelcome(char *Password);
 extern bool NetDisconnect();
 extern bool NetChat(char *Message);
 extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC);
@@ -256,9 +257,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 				bIsConnected = true;
 				hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
 				//hPredictionEngine = CreateThread(NULL,NULL,PredictionEngine,NULL,NULL,NULL);
-				if(!NetWelcome()) return true;
 				Console_Print("Oblivion connected to %s",IP[i]);
-				TotalPlayers = 1;
 				break;
 			}
 		}
@@ -908,13 +907,21 @@ bool Cmd_MPSetInCombat_Execute (COMMAND_ARGS)
 	}
 	return true;
 }
+
 bool Cmd_MPGetIsInCombat_Execute (COMMAND_ARGS)
 {
 	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &Players[LocalPlayer].InCombat)) return true;
 	return true;
 }
 
-
+bool Cmd_MPLogin_Execute (COMMAND_ARGS)
+{
+	char Password[32];
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &Password)) return true;
+	if(!NetWelcome(Password)) return true;
+	TotalPlayers = 1;
+	return true;
+}
 
 //---------------------------
 //---End Command Functions---
@@ -1268,8 +1275,20 @@ static CommandInfo kMPGetIsInCombatCommand =
 	"Sets checks if player has weapon out",
 	0,		// requires parent obj
 	1,		// doesn't have params
-	kParams_OneInt,	// no param table
+	kParams_OneInt,	// one string
 	Cmd_MPGetIsInCombat_Execute
+};
+
+static CommandInfo kMPLoginCommand =
+{
+	"MPLogin",
+	"login",
+	0,
+	"Authenticates the client",
+	0,		// requires parent obj
+	1,		// 1 param
+	kParams_OneString,	// one string
+	Cmd_MPLogin_Execute
 };
 
 //---------------------------------
@@ -1362,8 +1381,12 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPLogModOffsetCommand);
 
 	obse->RegisterCommand(&kMPGetMyIDCommand);
+
+	//Animation
 	obse->RegisterCommand(&kMPSetInCombatCommand);
 	obse->RegisterCommand(&kMPGetIsInCombatCommand);
+
+	obse->RegisterCommand(&kMPLoginCommand);
 
 	_MESSAGE("Done loading OO Commands");
 	return true;

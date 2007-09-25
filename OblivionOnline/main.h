@@ -61,6 +61,7 @@ This file is part of OblivionOnline.
 //Externals
 extern IDebugLog gLog;
 extern bool bIsConnected;
+extern bool bIsAuthenticated;
 extern int LocalPlayer;
 extern int TotalPlayers;
 extern bool PlayerConnected[MAXCLIENTS];

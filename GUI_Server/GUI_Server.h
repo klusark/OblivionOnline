@@ -49,6 +49,8 @@ extern FILE *easylog;
 extern char serverMsg[256];
 extern HWND hServerDlg;
 
+extern char ServerPassword[32];
+
 extern int StartNet(void);
 extern int ScanBuffer(char *acReadBuffer, short LocalPlayer);
 

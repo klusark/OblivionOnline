@@ -32,6 +32,13 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	OOPkgWelcome InPkgBuf;
 	OOPkgWelcome OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
+
+	//Replace with database check later
+	if(!strcmp(InPkgBuf.Password, ServerPassword))
+		InPkgBuf.Flags = 1;
+	else
+		return false;
+
 	if(InPkgBuf.guidOblivionOnline == gcOOGUID)
 	{
 		if(InPkgBuf.wVersion == MAKEWORD(MAIN_VERSION,SUB_VERSION))

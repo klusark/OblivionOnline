@@ -55,7 +55,7 @@ bool OOPModOffsetList_Handler(char *Packet);
 //--Begin Incoming packet handlers--
 //----------------------------------
 
-bool NetWelcome()
+bool NetWelcome(char *Password)
 {
 	OOPkgWelcome pkgBuf;
 	pkgBuf.etypeID = OOPWelcome;
@@ -63,6 +63,7 @@ bool NetWelcome()
 	pkgBuf.PlayerID = 0;
 	pkgBuf.wVersion = MAKEWORD(MAIN_VERSION,SUB_VERSION);
 	pkgBuf.guidOblivionOnline = gcOOGUID;
+	strcpy(pkgBuf.Password, Password);
 	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgWelcome),0);
 	return true;
 }
@@ -244,6 +245,15 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 {
 	OOPacketType ePacketType = SelectType(acReadBuffer);
 
+	//If the client isn't authenticated, only option is waiting for auth from server via welcome
+	if (!bIsAuthenticated)
+	{
+		if (ePacketType != OOPWelcome)
+			return true;
+		OOPWelcome_Handler(acReadBuffer);
+		return true;
+	}
+
 	switch (ePacketType)
 	{
 	case OOPWelcome:
@@ -328,6 +338,8 @@ bool OOPWelcome_Handler(char *Packet)
 {
 	OOPkgWelcome InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
+	if (InPkgBuf.Flags & 1)
+		bIsAuthenticated = true;
 	sscanf(InPkgBuf.NickName, "Player%2d", &LocalPlayer);
 	_MESSAGE("Received Player ID %u",LocalPlayer);
 	Console_Print(InPkgBuf.NickName);

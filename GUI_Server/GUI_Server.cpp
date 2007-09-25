@@ -299,6 +299,7 @@ INT_PTR CALLBACK ServerConsoleDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 char LISTHOST[32];
 char LISTFILE[16];
 char LISTNAME[32];
+char ServerPassword[32];
 
 // Prototypes
 int StartNet(void);
@@ -383,6 +384,20 @@ int server_main(HWND hDlg)
 		sprintf(serverMsg, "ServerSettings.ini not found. Using default port.");
 		SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 	}
+
+	bool passwordFound = false;
+	char settingLine[128];
+	while(!passwordFound)
+	{
+		fscanf(serverSettings, "%s", settingLine);
+		if (!strcmp(settingLine, "#PASSWORD"))
+			passwordFound = true;
+	}
+	fscanf(serverSettings, "%s", &ServerPassword);
+
+	//If no pw was in the file, use default
+	if(!strlen(ServerPassword))
+		strcpy(ServerPassword, "nopassword");
 
 	// start WinSock
 	rc=StartNet();
