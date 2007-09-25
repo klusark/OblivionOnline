@@ -27,12 +27,15 @@
         }
         "Entry"
         {
+<<<<<<< .mine
+=======
         "MsmKey" = "8:_298F55D3AFBF4D3DBE3A53F23C84CB45"
         "OwnerKey" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
+>>>>>>> .r271
         "MsmKey" = "8:_509FF410D6144F69925C519D4BD064FD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -51,7 +54,23 @@
         }
         "Entry"
         {
+<<<<<<< .mine
+        "MsmKey" = "8:_B7DABB55ABF2473DBB255BC6408A7CA7"
+        "OwnerKey" = "8:_BC9921EF9A234F17B784DC3552AD411E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BC9921EF9A234F17B784DC3552AD411E"
+        "OwnerKey" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C1D1EE62602E485E814B9CF99FE60436"
+=======
         "MsmKey" = "8:_B143CDD92A62472BBE16ED1E97D47AB9"
+>>>>>>> .r271
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -87,12 +106,15 @@
         }
         "Entry"
         {
+<<<<<<< .mine
+=======
         "MsmKey" = "8:_DB4E0A0AD1A349658CB58B64B693F1C5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
+>>>>>>> .r271
         "MsmKey" = "8:_E5DD67818C544C2DB67B7D9893F217C8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -160,6 +182,24 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+<<<<<<< .mine
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.2.0"
+                    {
+                    "Name" = "8:.NET Framework 2.0"
+                    "ProductCode" = "8:Microsoft.Net.Framework.2.0"
+                    }
+                }
+            }
+=======
             "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
             {
             "Enabled" = "11:TRUE"
@@ -171,6 +211,7 @@
                 {
                 }
             }
+>>>>>>> .r271
         }
     }
     "Deployable"
@@ -447,11 +488,44 @@
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_8448E300898C40FFB4EB9F84416D39DD"
+                    {
+                    "Name" = "8:Bethesda Softworks"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_FACAD90298084B8E862FD0DBDF2F3429"
+                        "Folders"
+                        {
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_EF6AB7EA94994E98A8FC06337769BD7E"
+                            {
+                            "Name" = "8:Oblivion"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_1BE630D956FC46769730BB11D783E3D3"
+                                "Folders"
+                                {
+                                }
+                            }
+                        }
+                    }
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_CA2960C3DF304DA38A190D0452AFAFCA"
+                    {
+                    "Name" = "8:OblivionOnline"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_C18B1B08A3444158AD88602775D2CD1F"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_DC58B7A30A9345F186E102386A49AB33"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFilesFolder]\\Bethesda Softworks\\Oblivion"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -597,14 +671,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:OblivionOnline"
-        "ProductCode" = "8:{00AFF182-C114-482E-9891-9F6B4B5CBE1A}"
-        "PackageCode" = "8:{0A6607EC-63EF-4951-8415-347F89C2BAF3}"
+        "ProductCode" = "8:{27429DE2-F305-4CC0-A5DC-FA93199BCE00}"
+        "PackageCode" = "8:{3CFB2095-222D-482B-A84D-9F7D8907F330}"
         "UpgradeCode" = "8:{75CB2856-DAF1-4317-BD19-A84910A0AAFB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
-        "DetectNewerInstalledVersion" = "11:TRUE"
+        "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.3.10"
+        "ProductVersion" = "8:0.4.2"
         "Manufacturer" = "8:OblivionOnline Team"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -719,14 +793,28 @@
         {
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_4564845F431249A1B7C4706BCC7237E0"
             {
-            "Name" = "8:Start OblivionOnline"
+            "Name" = "8:Start OblivionOnline Multiplayer Mod"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
             "Target" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
-            "Folder" = "8:_877EEAE0F3364A939A55877E21867F63"
+            "Folder" = "8:_CA2960C3DF304DA38A190D0452AFAFCA"
+            "WorkingFolder" = "8:_123C325CBE3745BBBBA97429E9E21FF9"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_BD6C84EA1B914E2289A553BBCE8FFBC1"
+            {
+            "Name" = "8:Start OblivionOnline Multiplayer Mod"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
+            "Folder" = "8:_EF6AB7EA94994E98A8FC06337769BD7E"
             "WorkingFolder" = "8:_123C325CBE3745BBBBA97429E9E21FF9"
             "Icon" = "8:"
             "Feature" = "8:"
@@ -1127,7 +1215,11 @@
         }
         "MergeModule"
         {
+<<<<<<< .mine
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_B7DABB55ABF2473DBB255BC6408A7CA7"
+=======
             "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_298F55D3AFBF4D3DBE3A53F23C84CB45"
+>>>>>>> .r271
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1141,7 +1233,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
+<<<<<<< .mine
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_BC9921EF9A234F17B784DC3552AD411E"
+=======
             "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C094E04A60A54E4EA8E3C88EB298CB4A"
+>>>>>>> .r271
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1303,7 +1399,7 @@
             "SourcePath" = "8:..\\OblivionOnline\\Release\\ServerBrowser.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_123C325CBE3745BBBBA97429E9E21FF9"
+            "Folder" = "8:_DC58B7A30A9345F186E102386A49AB33"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
