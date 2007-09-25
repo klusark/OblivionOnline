@@ -66,6 +66,7 @@ extern int TotalPlayers;
 extern bool PlayerConnected[MAXCLIENTS];
 extern SOCKET ServerSocket;
 extern HANDLE hRecvThread;
+extern HANDLE hPredictionEngine;
 extern PlayerStatus Players[MAXCLIENTS];
 extern PlayerStatus PlayersInitial[MAXCLIENTS];
 extern TESObjectREFR* PlayerActorList[MAXCLIENTS];

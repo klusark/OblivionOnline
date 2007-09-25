@@ -249,8 +249,11 @@ INT_PTR CALLBACK ServerConsoleDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 		switch(LOWORD(wParam))
 		{
 		case IDC_KICK:
-			int Player = SendDlgItemMessageA(hServerDlg,IDC_PLAYERLIST,LB_GETCURSEL, 0, 0);
-			Kick(Player);
+			{int KPlayer = (int)SendDlgItemMessageA(hServerDlg,IDC_PLAYERLIST,LB_GETCURSEL, 0, 0);
+			char KPlayerName[64];
+			SendDlgItemMessageA(hServerDlg,IDC_PLAYERLIST,LB_GETTEXT,KPlayer,(LPARAM)KPlayerName);
+			sscanf(KPlayerName, "Player %i", &KPlayer);
+			Kick(KPlayer);}
 			return true;
 		case IDC_CLOSE:
 			EndDialog(hDlg, LOWORD(wParam));
@@ -701,14 +704,15 @@ bool Kick(int Player)
 {
 	if (Connected[Player])
 	{
-		OOPkgDisconnect InPkgBuf;
-		InPkgBuf.PlayerID = Player;
-		InPkgBuf.etypeID = OOPDisconnect;
-		sprintf(serverMsg, "Kicking Player %i ...", InPkgBuf.PlayerID);
+		OOPkgDisconnect OutPkgBuf;
+		OutPkgBuf.PlayerID = Player;
+		OutPkgBuf.etypeID = OOPDisconnect;
+		OutPkgBuf.Flags = 1;
+		sprintf(serverMsg, "Kicking Player %i ...", OutPkgBuf.PlayerID);
 		SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
-			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgDisconnect),0);
+			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgDisconnect),0);
 		}
 		for(int i=0; i<MAXCLIENTS; i++)
 		{

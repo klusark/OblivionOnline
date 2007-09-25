@@ -51,9 +51,6 @@ bool OOPTimeUpdate_Handler(char *Packet);
 bool OOPEquipped_Handler(char *Packet);
 bool OOPModOffsetList_Handler(char *Packet);
 
-//Externals
-extern int OO_Deinitialize();
-
 //----------------------------------
 //--Begin Incoming packet handlers--
 //----------------------------------
@@ -258,8 +255,10 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 	case OOPDisconnect:
 		if (Length == sizeof(OOPkgDisconnect))
 			OOPDisconnect_Handler(acReadBuffer);
-		else
+		else{
+			OOPDisconnect_Handler(acReadBuffer);
 			BadPackets[OOPDisconnect]++;
+		}
 		break;
 	case OOPActorUpdate:
 		if (Length == sizeof(OOPkgActorUpdate))
@@ -346,11 +345,22 @@ bool OOPDisconnect_Handler(char *Packet)
 {
 	OOPkgDisconnect InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgDisconnect));
-	if (InPkgBuf.PlayerID == LocalPlayer)
+	if (InPkgBuf.PlayerID == LocalPlayer && InPkgBuf.Flags == 1)
 	{
-		OO_Deinitialize();
 		bIsConnected = false;
 		Console_Print("You have been disconnected");
+		for(int i=0; i<MAXCLIENTS; i++)
+		{
+			PlayerConnected[i] = false;
+		}
+		TotalPlayers = 0;
+		//TerminateThread(hRecvThread, 0);
+		//CloseHandle(hRecvThread);
+		//TerminateThread(hPredictionEngine, 0);
+		//CloseHandle(hPredictionEngine);
+		closesocket(ServerSocket);
+		ServerSocket = INVALID_SOCKET;
+		WSACleanup();
 	}else{
 		PlayerConnected[InPkgBuf.PlayerID] = false;
 		TotalPlayers--;
