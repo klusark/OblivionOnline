@@ -353,7 +353,7 @@ bool OOPDisconnect_Handler(char *Packet)
 		{
 			PlayerConnected[i] = false;
 		}
-		TotalPlayers = 0;
+		TotalPlayers = 1;
 		//TerminateThread(hRecvThread, 0);
 		//CloseHandle(hRecvThread);
 		//TerminateThread(hPredictionEngine, 0);
