@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="shift_jis"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="OblivionOnline"
 	ProjectGUID="{D4DDA734-7E93-4581-8F82-32BB738F69FE}"
 	RootNamespace="obse_plugin_example"
@@ -122,7 +122,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(SolutionDir)\..\obse\obse&quot;;&quot;$(SolutionDir)\..\obse\&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBLIVION_VERSION=0x010201A0"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBLIVION_VERSION=0x010201A0;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
