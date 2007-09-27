@@ -523,6 +523,9 @@ void adminthread(void *arg)
 
 bool BroadcastMessage(char *Message, int Player)
 {
+	//Print message on console
+	printf("Server: %s\n", Message);
+
 	//Send out the chat message
 	OOPkgChat pkgBuf;
 	char *SendBuf;
@@ -549,6 +552,8 @@ bool BroadcastMessage(char *Message, int Player)
 
 bool Kick(int Player)
 {
+	if (Player >= MAXCLIENTS)
+		return false;
 	if (Connected[Player])
 	{
 		OOPkgDisconnect OutPkgBuf;

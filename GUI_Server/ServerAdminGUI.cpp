@@ -247,12 +247,68 @@ INT_PTR CALLBACK ServerConsoleDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 		switch(LOWORD(wParam))
 		{
 		case IDC_KICK:
-			return true;
+			{
+				int Num = GetDlgItemInt(hAdminDlg, IDC_PLAYERNUMBER, NULL, false);
+				if (Num < 0 || Num > 255)
+				{
+					MessageBoxA(NULL, "Player number out of range", "Error", NULL);
+					return true;
+				}
+				UInt8 PlayerNum = Num;
+				OOPkgAdminInfo pkgBuf;
+				pkgBuf.etypeID = OOPAdminInfo;
+				pkgBuf.Flags = 0;
+				pkgBuf.ControlCommand = KICKCONTROL;
+				char *SendBuf;
+				void *DataDest;
+				SendBuf = (char *)malloc(sizeof(OOPkgAdminInfo)+1);
+				memcpy(SendBuf,&pkgBuf,sizeof(OOPkgAdminInfo));
+				DataDest=(SendBuf+sizeof(OOPkgAdminInfo));
+				memcpy(DataDest,&PlayerNum,1);
+				send(ServerSocket,SendBuf,sizeof(OOPkgAdminInfo)+1,0);
+				free(SendBuf);
+				return true;
+			}
 		case IDC_CLOSE:
 			EndDialog(hDlg, LOWORD(wParam));
 			return true;
 		case IDC_SEND:
-			return true;
+			{
+				//Read in data from the dialog
+				int Num = GetDlgItemInt(hAdminDlg, IDC_PLAYERNUMBER, NULL, false);
+				if (Num < 0 || Num > 255)
+				{
+					MessageBoxA(NULL, "Player number out of range", "Error", NULL);
+					return true;
+				}
+				UInt8 PlayerNum = Num;
+				char ServerChat[256];
+				int Length = GetDlgItemText(hAdminDlg, IDC_COMMAND_ENTER, ServerChat+1, 255);
+				if (Length < 1)
+				{
+					MessageBoxA(NULL, "No command entered.", "Error", NULL);
+					return true;
+				}
+
+				//Add 1 byte for PlayerNum
+				Length++;
+				ServerChat[0] = PlayerNum;
+
+				//Prepage packet and send it
+				OOPkgAdminInfo pkgBuf;
+				pkgBuf.etypeID = OOPAdminInfo;
+				pkgBuf.Flags = 0;
+				pkgBuf.ControlCommand = CHATCONTROL;
+				char *SendBuf;
+				void *DataDest;
+				SendBuf = (char *)malloc(sizeof(OOPkgAdminInfo)+Length);
+				memcpy(SendBuf,&pkgBuf,sizeof(OOPkgAdminInfo));
+				DataDest=(SendBuf+sizeof(OOPkgAdminInfo));
+				memcpy(DataDest,ServerChat,Length);
+				send(ServerSocket,SendBuf,sizeof(OOPkgAdminInfo)+Length,0);
+				free(SendBuf);
+				return true;
+			}
 		};
 		break;
 	}
@@ -331,12 +387,12 @@ DWORD WINAPI net_main(LPVOID Params)
 	rc = connect(ServerSocket,(SOCKADDR *)&ServerAddr,sizeof(SOCKADDR));
 
 	//Authenticate the admin
-	char *SendBuf;
-	void *DataDest;
 	OOPkgAdminInfo pkgBuf;
 	pkgBuf.etypeID = OOPAdminInfo;
 	pkgBuf.ControlCommand = AUTHCONTROL;
 	pkgBuf.Flags = 0;
+	char *SendBuf;
+	void *DataDest;
 	int Length = strlen(AdminPassword);
 	SendBuf = (char *)malloc(sizeof(OOPkgAdminInfo)+Length);
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgAdminInfo));

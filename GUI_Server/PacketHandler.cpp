@@ -342,6 +342,42 @@ bool OOPModOffsetList_Handler(char *Packet,short LocalPlayer)
 	return true;
 }
 
+bool AdminMsg_Handler(char *Data, short Length)
+{
+	return true;
+}
+
+bool AdminAuth_Handler(char *Data, short Length)
+{
+	if(!strcmp(Data, AdminPassword))
+		printf("Admin authentication good.\n");
+	else{
+		printf("Admin authentication bad: %s.\n", Data);
+		printf("Closing connection.\n");
+		closesocket(adminSocket);
+	}
+	return true;
+}
+
+bool AdminChat_Handler(char *Data, short Length)
+{
+	UInt8 PlayerNum = Data[0];
+	char tempData[512];
+	memcpy(tempData, &Data[1], Length - 1);
+	if (PlayerNum != 255)
+		BroadcastMessage(tempData, PlayerNum);
+	else
+		BroadcastMessage(tempData, -1);
+	return true;
+}
+
+bool AdminKick_Handler(char *Data, short Length)
+{
+	UInt8 PlayerNum = Data[0];
+	Kick(PlayerNum);
+	return true;
+}
+
 bool OOPAdminInfo_Handler(char *Packet, short Length)
 {
 	OOPkgAdminInfo InPkgBuf;
@@ -352,23 +388,19 @@ bool OOPAdminInfo_Handler(char *Packet, short Length)
 	switch(InPkgBuf.ControlCommand)
 	{
 	case MSGCONTROL:
+		AdminMsg_Handler(MessageDest, Length);
 		break;
 	case AUTHCONTROL:
-		if(!strcmp(MessageDest, AdminPassword))
-			printf("Admin authentication good.\n");
-		else{
-			printf("Admin authentication bad: %s.\n", MessageDest);
-			printf("Closing connection.\n");
-			closesocket(adminSocket);
-		}
+		AdminAuth_Handler(MessageDest, Length);
 		break;
 	case CHATCONTROL:
+		AdminChat_Handler(MessageDest, Length);
 		break;
 	case KICKCONTROL:
+		AdminKick_Handler(MessageDest, Length);
 		break;
 	default:
 		break;
 	};
-	//send(adminSocket, "TestData", 8, 0);
 	return true;
 }

@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by GUI_Server.rc
+// Used by ServerAdminGUI.rc
 //
 #define IDS_APPTITLE                    103
 #define IDC_SERVERCONSOLE               104
@@ -15,6 +15,7 @@
 #define IDC_CHATALL                     1016
 #define IDC_CHATPLAYER                  1017
 #define IDC_CHATPLAYERNUMBER            1018
+#define IDC_PLAYERNUMBER                1018
 #define IDC_LIST1                       1019
 #define IDC_PLAYERLIST                  1019
 #define IDC_KICK                        1020
