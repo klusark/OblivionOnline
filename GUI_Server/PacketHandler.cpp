@@ -354,10 +354,11 @@ bool OOPAdminInfo_Handler(char *Packet, short Length)
 	case MSGCONTROL:
 		break;
 	case AUTHCONTROL:
-		if(!strcmp(MessageDest, ServerPassword))
+		if(!strcmp(MessageDest, AdminPassword))
 			printf("Admin authentication good.\n");
 		else{
-			printf("Admin authentication bad. Closing connection.\n");
+			printf("Admin authentication bad: %s.\n", MessageDest);
+			printf("Closing connection.\n");
 			closesocket(adminSocket);
 		}
 		break;

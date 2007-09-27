@@ -42,6 +42,7 @@ char LISTHOST[32];
 char LISTFILE[16];
 char LISTNAME[32];
 char ServerPassword[32];
+char AdminPassword[32];
 
 // Prototypes
 int StartNet(void);
@@ -117,6 +118,14 @@ int main(void)
 				passwordFound = true;
 		}
 		fscanf(serverSettings, "%s", &ServerPassword);
+		bool adminPasswordFound = false;
+		while(!adminPasswordFound)
+		{
+			fscanf(serverSettings, "%s", settingLine);
+			if (!strcmp(settingLine, "#ADMINPASSWORD"))
+				adminPasswordFound = true;
+		}
+		fscanf(serverSettings, "%s", &AdminPassword);
 	}else{
 		serverPort = PORT;
 		printf("ServerSettings.ini not found. Using default port.\n");

@@ -60,6 +60,7 @@ extern UInt8 ModList[MAXCLIENTS][255];
 extern FILE *easylog;
 
 extern char ServerPassword[32];
+extern char AdminPassword[32];
 
 extern int StartNet(void);
 extern int ScanBuffer(char *acReadBuffer, short LocalPlayer);

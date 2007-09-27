@@ -183,31 +183,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hWnd);
 			break;
 		case ID_SERVER_START:
-			Started = true;
-			if(!hServerThread)
+			if(!Started)
 			{
+				Started = true;
 				hServerThread = CreateThread(NULL, NULL, net_main, NULL, NULL, NULL);
 			}
 			break;
 		case ID_SERVER_STOP:
-			Started = false;
-			if(hServerThread)
+			if(Started)
 			{
-				closesocket(ServerSocket);
 				TerminateThread(hServerThread, 0);
 				CloseHandle(hServerThread);
-				hServerThread = NULL;
+				closesocket(ServerSocket);
+				ServerSocket = INVALID_SOCKET;
+				WSACleanup();
+				Started = false;
 			}
 			break;
 		case ID_SERVER_RESTART:
-			if(hServerThread)
+			if(Started)
 			{
-				closesocket(ServerSocket);
 				TerminateThread(hServerThread, 0);
 				CloseHandle(hServerThread);
+				closesocket(ServerSocket);
+				ServerSocket = INVALID_SOCKET;
+				WSACleanup();
+				Started = true;
 				hServerThread = CreateThread(NULL, NULL, net_main, NULL, NULL, NULL);
-				break;
 			}
+			break;
 		case ID_SERVER_TOGGLECONSOLE:
 			DialogBox(hInst,MAKEINTRESOURCE(IDD_SERVERCONSOLE),hWnd,ServerConsoleDlg);
 			break;
@@ -274,18 +278,52 @@ DWORD WINAPI net_main(LPVOID Params)
 	ServerSocket = socket(AF_INET,SOCK_STREAM,0);
 	SOCKADDR_IN ServerAddr;
 
+	char AdminPassword[32];
+	char IP[15];
+	unsigned short Port;
+	long rc;
+
+	//Read in our settings file
 	FILE *AdminSettings = fopen("AdminGUISettings.ini","r");
 	if(!AdminSettings)
 	{
 		return true;
 	}
-	char IP[15];
-	unsigned short Port;
-	long rc;
-	fscanf(AdminSettings,"%s",IP);
-	if(!fscanf(AdminSettings,"%i",&Port))
-		Port = ADMINPORT;
 
+	bool HeaderFound = false;
+	char settingLine[128];
+	while(!HeaderFound)
+	{
+		fscanf(AdminSettings, "%s", settingLine);
+		if (!strcmp(settingLine, "#SERVER"))
+			HeaderFound = true;
+	}
+	if(HeaderFound)
+	{
+		HeaderFound = false;
+		fscanf(AdminSettings,"%s",IP);
+		if(!fscanf(AdminSettings,"%i",&Port))
+			Port = ADMINPORT;
+	}
+
+	while(!HeaderFound)
+	{
+		fscanf(AdminSettings, "%s", settingLine);
+		if (!strcmp(settingLine, "#PASSWORD"))
+			HeaderFound = true;
+	}
+	if(HeaderFound)
+	{
+		HeaderFound = false;
+		fscanf(AdminSettings,"%s",AdminPassword);
+		if(!strlen(AdminPassword))
+			strcpy(AdminPassword, "nopassword");
+	}
+
+
+	fclose(AdminSettings);
+
+	//Try to connect to server
 	memset(&ServerAddr,NULL,sizeof(SOCKADDR_IN));
 	ServerAddr.sin_addr.s_addr = inet_addr(IP);
 	ServerAddr.sin_port = htons(Port);
@@ -295,16 +333,15 @@ DWORD WINAPI net_main(LPVOID Params)
 	//Authenticate the admin
 	char *SendBuf;
 	void *DataDest;
-	char tempData[32] = "oodev";
 	OOPkgAdminInfo pkgBuf;
 	pkgBuf.etypeID = OOPAdminInfo;
 	pkgBuf.ControlCommand = AUTHCONTROL;
 	pkgBuf.Flags = 0;
-	int Length = strlen(tempData);
+	int Length = strlen(AdminPassword);
 	SendBuf = (char *)malloc(sizeof(OOPkgAdminInfo)+Length);
 	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgAdminInfo));
 	DataDest=(SendBuf+sizeof(OOPkgAdminInfo));
-	memcpy(DataDest,tempData,Length);
+	memcpy(DataDest,AdminPassword,Length);
 	send(ServerSocket,SendBuf,sizeof(OOPkgAdminInfo)+Length,0);
 	free(SendBuf);
 
@@ -322,8 +359,11 @@ DWORD WINAPI net_main(LPVOID Params)
 		ScanBuffer(buffer);
 	}
 
-	closesocket(ServerSocket);
-	WSACleanup();
+	if (ServerSocket)
+	{
+		closesocket(ServerSocket);
+		WSACleanup();
+	}
 	return 0;
 }
 
