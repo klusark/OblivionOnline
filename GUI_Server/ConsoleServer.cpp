@@ -47,6 +47,7 @@ char AdminPassword[32];
 // Prototypes
 int StartNet(void);
 int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead);
+char * message(int messagenum);
 void info(void *);
 void adminthread(void *);
 
@@ -109,7 +110,7 @@ int main(void)
 		fscanf(serverSettings, "%u", &serverPort);
 		if (!serverPort || serverPort < 1024)
 			serverPort = PORT;
-		printf("Opening on port %u\n", serverPort);
+		printf(message(1), serverPort);
 		bool passwordFound = false;
 		while(!passwordFound)
 		{
@@ -128,7 +129,7 @@ int main(void)
 		fscanf(serverSettings, "%s", &AdminPassword);
 	}else{
 		serverPort = PORT;
-		printf("ServerSettings.ini not found. Using default port.\n");
+		printf(message(2));
 	}
 
 
@@ -567,4 +568,19 @@ bool Kick(int Player)
 		}
 	}
 	return true;
+}
+char * message(int messagenum){
+	switch (messagenum)
+	{
+	case 1:
+		return "Opening on port %u\n";
+		break;
+	case 2:
+		return "ServerSettings.ini not found. Using default port.\n";
+		break;
+	default: 
+		printf("message code incorrect");
+		return false;
+		break;
+	}
 }
