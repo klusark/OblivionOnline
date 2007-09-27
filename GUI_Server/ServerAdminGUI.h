@@ -26,33 +26,21 @@ This file is part of OblivionOnline.
 
 #include "resource.h"
 #include <winsock.h>
-#include <iostream>
-#include <time.h>
-#include <process.h>
-#include "OOStructs.h"
 
-#define MAXCLIENTS 4
-#define PORT 41805
+#define ADMINPORT 41804
 
 #define SUPER_VERSION 0	//Not used yet
 #define MAIN_VERSION 4
 #define SUB_VERSION 3	//Release 4, bugfix 3
 
-extern int TotalClients;
-extern bool bServerAlive;
-extern bool Authenticated[MAXCLIENTS];
-extern SOCKET clients[MAXCLIENTS];
-extern sockaddr_in ConnectionInfo[MAXCLIENTS];
-extern PlayerStatus Players[MAXCLIENTS];
-extern PlayerStatus PlayersInitial[MAXCLIENTS];
-extern UInt8 ModList[MAXCLIENTS][255];
-extern FILE *easylog;
-extern char serverMsg[512];
-extern HWND hServerDlg;
+//Defines for remote admin control
+#define CONNECTMSG 0
+#define DISCONNECTMSG 1
+#define WELCOMEMSG 2
 
-extern char ServerPassword[32];
-
-extern int StartNet(void);
-extern int ScanBuffer(char *acReadBuffer, short LocalPlayer);
+#define MSGCONTROL 0
+#define AUTHCONTROL 1
+#define CHATCONTROL 2
+#define KICKCONTROL 3
 
 #endif

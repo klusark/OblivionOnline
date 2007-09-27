@@ -18,10 +18,8 @@ This file is part of OblivionOnline.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
-
 #include "PacketHandler.h"
-#include "GUI_Server.h"
+#include "ConsoleServer.h"
 
 extern bool Connected[MAXCLIENTS];
 
@@ -45,8 +43,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 				Authenticated[LocalPlayer] = true;
 				OutPkgBuf.Flags = 1;
 			}else{
-				sprintf(serverMsg, "Player%2d tried to use wrong password: %s", LocalPlayer, InPkgBuf.Password);
-				SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+				printf("Player%2d tried to use wrong password: %s\n", LocalPlayer, InPkgBuf.Password);
 				return false;
 			}
 			OutPkgBuf.guidOblivionOnline = gcOOGUID;
@@ -56,10 +53,8 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			SendBuf = (char *)malloc(sizeof(OOPkgWelcome));
 			memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgWelcome));
 			send(clients[LocalPlayer],SendBuf,sizeof(OOPkgWelcome),0);
-			sprintf(serverMsg, "Welcoming Player%2d",LocalPlayer);
-			SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
-			sprintf(serverMsg, "Player %2i - %s:%u",LocalPlayer,inet_ntoa(ConnectionInfo[LocalPlayer].sin_addr),ntohs(ConnectionInfo[LocalPlayer].sin_port));
-			SendDlgItemMessageA(hServerDlg,IDC_PLAYERLIST,LB_ADDSTRING,0,(LPARAM)serverMsg);
+			printf("Welcoming Player%2d\n",LocalPlayer);
+			printf("Player %2i - %s:%u\n",LocalPlayer,inet_ntoa(ConnectionInfo[LocalPlayer].sin_addr),ntohs(ConnectionInfo[LocalPlayer].sin_port));
 			free(SendBuf);
 			Connected[LocalPlayer] = true;
 
@@ -75,8 +70,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 					//printf("  Init: Player %i\n", i);
 					if (Players[i].bStatsInitialized)
 					{
-						sprintf(serverMsg, "  Init: Sending player %i info to player %i", i, LocalPlayer);
-						SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+						printf("  Init: Sending player %i info to player %i\n", i, LocalPlayer);
 						OOPkgActorUpdate SendPkgBuf;
 						SendPkgBuf.etypeID = OOPActorUpdate;
 						if (Players[i].bIsInInterior)
@@ -106,10 +100,8 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			TotalClients--;
 			int MinorVersion = (InPkgBuf.wVersion & 0xff00) >> 8;
 			int MajorVersion = InPkgBuf.wVersion & 0x00ff;
-			sprintf(serverMsg, "%s - Client tried to authenticate with wrong client version(%i.%i.%i)", MyTime, 0, MajorVersion, MinorVersion);
-			SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
-			sprintf(serverMsg, "%s - Client %d was removed due to version missmatch", MyTime, LocalPlayer);
-			SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+			printf("%s - Client tried to authenticate with wrong client version(%i.%i.%i)\n", MyTime, 0, MajorVersion, MinorVersion);
+			printf("%s - Client %d was removed due to version missmatch\n", MyTime, LocalPlayer);
 			fprintf(easylog,"%s - Client %d closed the Connection\n", MyTime, LocalPlayer);
 			fprintf(easylog,"%s - Client %d had a version mismatch\n", MyTime, LocalPlayer);
 			fprintf(easylog,"%s - We now have %d connections", MyTime, TotalClients);
@@ -120,8 +112,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	else
 	{
 		TotalClients--;
-		sprintf(serverMsg, "Client %d tried to connect with a pre-version 4 OblivionOnline , or another software.",LocalPlayer);
-		SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+		printf("Client %d tried to connect with a pre-version 4 OblivionOnline , or another software.\n",LocalPlayer);
 		fprintf(easylog,"Client %d closed the Connection\n",LocalPlayer);
 		fprintf(easylog,"Client %d had a non-compatible client\n",LocalPlayer);
 		fprintf(easylog,"We now have %d connections",TotalClients);
@@ -137,8 +128,7 @@ bool OOPDisconnect_Handler(char *Packet,short LocalPlayer)
 	{
 		OOPkgDisconnect InPkgBuf;
 		memcpy(&InPkgBuf,Packet,sizeof(OOPkgDisconnect));
-		sprintf(serverMsg, "Received disconnect from %i", InPkgBuf.PlayerID);
-		SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+		printf("Received disconnect from %i\n", InPkgBuf.PlayerID);
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
 			if (cx != LocalPlayer)
@@ -242,8 +232,7 @@ bool OOPChat_Handler(char *Packet,short LocalPlayer)
 		{
 			MessageDest[i] = Packet[i+sizeof(OOPkgChat)];
 		}
-		sprintf(serverMsg, "Player %i: %s", LocalPlayer, MessageDest);
-		SendDlgItemMessageA(hServerDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)serverMsg);
+		printf("Player %i: %s\n", LocalPlayer, MessageDest);
 	}
 	return true;
 }
@@ -350,5 +339,35 @@ bool OOPModOffsetList_Handler(char *Packet,short LocalPlayer)
 		if (cx != LocalPlayer)
 			send(clients[cx],Packet,sizeof(OOPkgModOffsetList)+InPkgBuf.NumOfMods,0);
 	}
+	return true;
+}
+
+bool OOPAdminInfo_Handler(char *Packet, short Length)
+{
+	OOPkgAdminInfo InPkgBuf;
+	memcpy(&InPkgBuf,Packet,sizeof(OOPkgAdminInfo));
+	char MessageDest[512];
+	memcpy(&MessageDest, Packet + sizeof(OOPkgAdminInfo), Length - sizeof(OOPkgAdminInfo));
+	MessageDest[Length - sizeof(OOPkgAdminInfo)] = '\0';
+	switch(InPkgBuf.ControlCommand)
+	{
+	case MSGCONTROL:
+		break;
+	case AUTHCONTROL:
+		if(!strcmp(MessageDest, ServerPassword))
+			printf("Admin authentication good.\n");
+		else{
+			printf("Admin authentication bad. Closing connection.\n");
+			closesocket(adminSocket);
+		}
+		break;
+	case CHATCONTROL:
+		break;
+	case KICKCONTROL:
+		break;
+	default:
+		break;
+	};
+	//send(adminSocket, "TestData", 8, 0);
 	return true;
 }

@@ -1,6 +1,6 @@
 /*
 
-Copyright 2007  Julian aka masterfreek64, Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
+Copyright 2007  Julian aka masterfreek64 and Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
 
 This file is part of OblivionOnline.
 
@@ -18,14 +18,17 @@ This file is part of OblivionOnline.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "BasicServer.h"
+#include "ConsoleServer.h"
 #include "OOPackets.h"
 #include "PacketHandler.h"
 
-// Globals
+// Global Server Variables
+bool bServerAlive = true;
+bool Authenticated[MAXCLIENTS];
 int TotalClients = 0;
-bool bServerAlive;
 SOCKET clients[MAXCLIENTS];
+SOCKET adminSocket;
+sockaddr_in ConnectionInfo[MAXCLIENTS];
 PlayerStatus Players[MAXCLIENTS];
 PlayerStatus PlayersInitial[MAXCLIENTS];
 UInt8 ModList[MAXCLIENTS][255];
@@ -34,21 +37,23 @@ unsigned short serverPort = 0;
 FILE *easylog;
 FILE *serverSettings;
 
-//Server settings variables
+//Serverlist settings variables
 char LISTHOST[32];
 char LISTFILE[16];
 char LISTNAME[32];
-
+char ServerPassword[32];
 
 // Prototypes
 int StartNet(void);
-int ScanBuffer(char *acReadBuffer, short LocalPlayer);
+int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead);
 void info(void *);
+void adminthread(void *);
 
 //Main entry procedure
-int main()
+int main(void)
 {
 	_beginthread(info,0,NULL);
+	_beginthread(adminthread,0,NULL);
 	
 	// Setup our local variables
 	short LocalPlayer;
@@ -73,9 +78,14 @@ int main()
 
 		Connected[i] = false;
 	}
+
+	Sleep(100);
+
 	printf("OblivionOnline Basic Server, v.%i.%i.%i\n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION);
-	printf("Wrtten by masterfreek64 aka Julian Bangert, Chessmaster42 aka Joseph Pearson and bobjr777 aka Joel Teichroeb \n");
-	printf("--------------------------\n\n");
+	printf("Wrtten by masterfreek64 aka Julian Bangert, Chessmaster42 aka Joseph Pearson\n");
+	printf("and bobjr777 aka Joel Teichroeb\n");
+	printf("--------------------------\n");
+
 	SOCKET acceptSocket;
 	SOCKADDR_IN addr;
 	FD_SET fdSet;
@@ -99,9 +109,23 @@ int main()
 		if (!serverPort || serverPort < 1024)
 			serverPort = PORT;
 		printf("Opening on port %u\n", serverPort);
-	}
-	else
+		bool passwordFound = false;
+		while(!passwordFound)
+		{
+			fscanf(serverSettings, "%s", settingLine);
+			if (!strcmp(settingLine, "#PASSWORD"))
+				passwordFound = true;
+		}
+		fscanf(serverSettings, "%s", &ServerPassword);
+	}else{
 		serverPort = PORT;
+		printf("ServerSettings.ini not found. Using default port.\n");
+	}
+
+
+	//If no pw was in the file, use default
+	if(!strlen(ServerPassword))
+		strcpy(ServerPassword, "nopassword");
 
 	// start WinSock
 	rc=StartNet();
@@ -198,6 +222,7 @@ int main()
 					sockaddr_in NewAddr;
 					int nAddrSize = sizeof(NewAddr);
 					clients[LocalPlayer]=accept(acceptSocket, (sockaddr*)&NewAddr, &nAddrSize);
+					ConnectionInfo[LocalPlayer] = NewAddr;
 					TotalClients++;
 					printf("%s - Accepted new connection #%d from %s:%u\n",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					easylog = fopen("Log.txt","a");
@@ -215,7 +240,7 @@ int main()
 			if(clients[LocalPlayer]==INVALID_SOCKET)
 			{
 				continue; 
-			}
+			}else{
 			if(FD_ISSET(clients[LocalPlayer],&fdSet))
 			{
 				acReadBuffer[0] = '\0';
@@ -251,7 +276,8 @@ int main()
 					Connected[LocalPlayer] = false;
 				} 
 				else
-					ScanBuffer(acReadBuffer, LocalPlayer);
+					ScanBuffer(acReadBuffer, LocalPlayer, rc);
+			}
 			}
 		}
 	}
@@ -274,9 +300,37 @@ int StartNet()
 	}
 }
 
-int ScanBuffer(char *acReadBuffer, short LocalPlayer)
+int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 {
 	OOPacketType ePacketType = SelectType(acReadBuffer);
+
+	//If this is run from the admin thread
+	if(LocalPlayer == -1)
+	{
+		switch (ePacketType)
+		{
+		case OOPAdminInfo:
+			OOPAdminInfo_Handler(acReadBuffer, nBytesRead);
+			break;
+		default:
+			break;
+		};
+		return true;
+	}
+
+	//Only welcome is allowed for non-auth clients
+	if(!Authenticated[LocalPlayer])
+	{
+		switch (ePacketType)
+		{
+		case OOPWelcome:
+			OOPWelcome_Handler(acReadBuffer,LocalPlayer);
+			break;
+		default:
+			break;
+		};
+		return true;
+	}
 
 	switch (ePacketType)
 	{
@@ -342,14 +396,15 @@ void info(void *arg)
 		struct hostent *he;
 		while((he = gethostbyname(LISTHOST)) == NULL)
 		{
-			printf("Error resolving serverlist hostname. Retrying in 60 seconds.");
+			printf("Error resolving serverlist hostname. Retrying in 60 seconds.\n");
 			Sleep(60000);	//Sleep for 60 seconds and then try again
 		}
 
 		long rcs;
+		bool HasPassword = strlen(ServerPassword);
 		while(true){
 			char srequest[384];
-			sprintf_s(srequest,384, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", LISTFILE, LISTNAME, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION, LISTHOST);
+			sprintf_s(srequest,384, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%iHasPassword=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", LISTFILE, LISTNAME, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION, HasPassword, LISTHOST);
 			
 			sock = socket(AF_INET, SOCK_STREAM, 0);
 			memcpy(&sin.sin_addr, he->h_addr_list[0], he->h_length);
@@ -373,6 +428,129 @@ void info(void *arg)
 		WSACleanup();
 	}else{
 		printf("ServerSettings.ini not found. This server will not be listed online.\n");
+	}	
+}
+
+void adminthread(void *arg)
+{
+	//Wait until we have a valid server port
+	while(serverPort == 0)
+		Sleep(50);
+
+	//Initialize winsock
+	WSADATA WSAData;
+	WSAStartup(MAKEWORD(2,0), &WSAData);
+
+	//Setup socket
+	SOCKET acceptSocket;
+	SOCKADDR_IN sinLocal;
+	acceptSocket=socket(AF_INET,SOCK_STREAM,0);
+
+	//Setup bind and listen on socket
+	memset(&sinLocal,0,sizeof(SOCKADDR_IN));
+	sinLocal.sin_family=AF_INET;
+	sinLocal.sin_port=htons(serverPort-1);
+	sinLocal.sin_addr.s_addr=INADDR_ANY;
+	int rc = bind(acceptSocket,(SOCKADDR*)&sinLocal,sizeof(SOCKADDR_IN));
+	if (rc == SOCKET_ERROR)
+	{
+		printf("Error on bind socket for remote admin.\n");
+		return;
 	}
-	
+	rc = listen(acceptSocket,10);
+	if (rc == SOCKET_ERROR)
+	{
+		printf("Error on listen socket for remote admin.\n");
+		return;
+	}
+
+	while(true)
+	{
+		//Wait for remote connection
+		SOCKADDR_IN sinRemote;
+		int nAddrSize = sizeof(SOCKADDR_IN);
+		adminSocket = accept(acceptSocket, (sockaddr*)&sinRemote, &nAddrSize);
+
+		time_t TimeStamp;
+		time(&TimeStamp);
+		int Seconds = (int)TimeStamp % 60;
+		int Minutes = (int)(TimeStamp / 60) % 60;
+		int Hours = (int)(TimeStamp / 3600) % 24;
+		char MyTime[8];
+		sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
+		printf("%s - Admin connected from %s:%i\n", MyTime, inet_ntoa(sinRemote.sin_addr), ntohs(sinRemote.sin_port));
+		easylog = fopen("Log.txt","a");
+		fprintf(easylog,"%s - Admin connected from %s:%i\n", MyTime, inet_ntoa(sinRemote.sin_addr), ntohs(sinRemote.sin_port));
+		fclose(easylog);
+
+		//Enter the send / receive loop
+		char acReadBuffer[512];
+		int nReadBytes;
+		do {
+			//Read in data from client
+			nReadBytes = recv(adminSocket, acReadBuffer, 512, 0);
+			if (nReadBytes > 0)
+			{
+				ScanBuffer(acReadBuffer, -1, nReadBytes);
+			}else
+				break;
+		} while (nReadBytes != 0);
+
+		time(&TimeStamp);
+		Seconds = (int)TimeStamp % 60;
+		Minutes = (int)(TimeStamp / 60) % 60;
+		Hours = (int)(TimeStamp / 3600) % 24;
+		sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
+		printf("%s - Admin disconnected from %s:%i\n", MyTime, inet_ntoa(sinRemote.sin_addr), ntohs(sinRemote.sin_port));
+		easylog = fopen("Log.txt","a");
+		fprintf(easylog,"%s - Admin disconnected from %s:%i\n", MyTime, inet_ntoa(sinRemote.sin_addr), ntohs(sinRemote.sin_port));
+		fclose(easylog);
+	}
+
+	//Clean up
+	closesocket(adminSocket);
+	WSACleanup();
+}
+
+bool BroadcastMessage(char *Message, int Player)
+{
+	//Send out the chat message
+	OOPkgChat pkgBuf;
+	char *SendBuf;
+	void *MessageDest;
+	pkgBuf.etypeID = OOPChat;
+	pkgBuf.refID = 1337;
+	pkgBuf.Length = (int)strlen(Message);
+	pkgBuf.Flags = 0;
+	SendBuf = (char *)malloc(sizeof(OOPkgChat)+pkgBuf.Length);
+	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgChat));
+	MessageDest=(SendBuf+sizeof(OOPkgChat));
+	memcpy(MessageDest,Message,pkgBuf.Length);
+	if (Player == -1)
+	{
+		for(int cx=0;cx<MAXCLIENTS;cx++)
+		{
+			send(clients[cx],SendBuf,sizeof(OOPkgChat)+pkgBuf.Length,0);
+		}
+	}else
+		send(clients[Player],SendBuf,sizeof(OOPkgChat)+pkgBuf.Length,0);
+	free(SendBuf);
+	return true;
+}
+
+bool Kick(int Player)
+{
+	if (Connected[Player])
+	{
+		OOPkgDisconnect OutPkgBuf;
+		OutPkgBuf.PlayerID = Player;
+		OutPkgBuf.etypeID = OOPDisconnect;
+		OutPkgBuf.Flags = 1;
+		printf("Kicking Player %i ...\n", OutPkgBuf.PlayerID);
+		for(int cx=0;cx<MAXCLIENTS;cx++)
+		{
+			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgDisconnect),0);
+		}
+	}
+	return true;
 }

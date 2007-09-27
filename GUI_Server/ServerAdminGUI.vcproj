@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="GUIServer"
+	Name="ServerAdminGUI"
 	ProjectGUID="{F59F6EAF-DC42-4D0A-AE74-28F7C21BD136}"
-	RootNamespace="ServerBrowser"
+	RootNamespace="ServerAdminGUI"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -185,11 +185,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\GUI_Server.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\PacketHandler.cpp"
+				RelativePath=".\ServerAdminGUI.cpp"
 				>
 			</File>
 			<File
@@ -219,23 +215,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\GUI_Server.h"
-				>
-			</File>
-			<File
 				RelativePath=".\OOPackets.h"
 				>
 			</File>
 			<File
-				RelativePath=".\OOStructs.h"
-				>
-			</File>
-			<File
-				RelativePath=".\PacketHandler.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ServerAdminGUI.h"
 				>
 			</File>
 			<File
@@ -249,15 +237,15 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\GUI_Server.rc"
+				RelativePath=".\ServerAdminGUI.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\GUIServer.ico"
+				RelativePath=".\ServerAdminGUI.rc"
 				>
 			</File>
 			<File
-				RelativePath=".\GUIServerSmall.ico"
+				RelativePath=".\ServerAdminGUISmall.ico"
 				>
 			</File>
 		</Filter>

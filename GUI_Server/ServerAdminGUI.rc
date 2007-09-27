@@ -149,8 +149,8 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_GUISERVER           ICON                    "GUIServer.ico"
-IDI_GUISERVERSMALL      ICON                    "GUIServerSmall.ico"
+IDI_GUISERVER           ICON                    "ServerAdminGUI.ico"
+IDI_GUISERVERSMALL      ICON                    "ServerAdminGUISmall.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
