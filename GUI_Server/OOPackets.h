@@ -64,6 +64,8 @@ enum OOPacketType
 	OOPModOffsetList,	//Contains a list of mod offsets to support mod items and locations
 	OOPAdminInfo,		//Contains admin control data and console messages
 	OOPAccseptMessage,
+	OOPCloseMessage,
+	OOPKickMessage,
 	OOPACModVerify = 65555,
 	OOPACVerify = 65556 // ATTENTION  PACKETS 65555 and 65556 are reserver for AuthMod and Auth
 };
@@ -194,6 +196,19 @@ struct OOPkgAccseptMessage
 	u_short ntohs;
 };
 
+struct OOPkgCloseMessage 
+{
+	OOPacketType etypeID;
+	char MyTime[8];
+	short LocalPlayer;
+};
+
+struct OOPkgKickMessage 
+{
+	OOPacketType etypeID;
+	int PlayerID;
+};
+
 #pragma pack(pop)
 
 inline OOPacketType SelectType(char *Packet)
@@ -204,9 +219,7 @@ inline OOPacketType SelectType(char *Packet)
 
 
 
-
-
 //Total packet types
-#define PACKET_COUNT 13
+#define PACKET_COUNT 15
 
 #endif

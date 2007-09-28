@@ -421,10 +421,20 @@ DWORD WINAPI net_main(LPVOID Params)
 		case OOPAccseptMessage:
 			OOPkgAccseptMessage Accsept;
 			memcpy(&Accsept,buffer,sizeof(Accsept));
-			char var[512];
-			sprintf(var,"%s",&Accsept.MyTime);
-			sprintf(var,"%s - Accepted new connection #%d from %s:%u",&Accsept.MyTime,Accsept.LocalPlayer,&Accsept.inet_ntoa,Accsept.ntohs);
-			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)var);
+			sprintf(buffer,"%s - Accepted new connection #%d from %s:%u",&Accsept.MyTime,Accsept.LocalPlayer,&Accsept.inet_ntoa,Accsept.ntohs);
+			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)buffer);
+			break;
+		case OOPCloseMessage:
+			OOPkgCloseMessage Close;
+			memcpy(&Close,buffer,sizeof(Close));
+			sprintf(buffer,"%s - Client %d closed the Connection",&Close.MyTime,Close.LocalPlayer);
+			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)buffer);
+			break;
+		case OOPKickMessage:
+			OOPkgKickMessage Kick;
+			memcpy(&Kick,buffer,sizeof(Kick));
+			sprintf(buffer,"Kicking Player %i ...",Kick.PlayerID);
+			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)buffer);
 			break;
 		default:
 			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)"Error packet from server not recignised");
