@@ -42,14 +42,6 @@ bool Started = false;
 char commandString[256];
 char adminMsg[512];
 
-struct test2
-{
-	char MyTime[8];
-	short LocalPlayer;
-	char *inet_ntoa;
-	u_short ntohs;
-};
-char * message(int messagenum);
 
 
 //Prototypes for GUI functions
@@ -423,11 +415,11 @@ DWORD WINAPI net_main(LPVOID Params)
 			WSACleanup();
 			return 1;
 		}
-		test2 test3;
-		memcpy(&test3,buffer,sizeof(test2));
+		OOPAccseptMessage Accsept;
+		memcpy(&Accsept,buffer,sizeof(Accsept));
 		char var[512];
-		sprintf(var,"%s",&test3.MyTime);
-		sprintf(var,"%s - Accepted new connection #%d from %s:%u",&test3.MyTime,test3.LocalPlayer,&test3.inet_ntoa,test3.ntohs);
+		sprintf(var,"%s",&Accsept.MyTime);
+		sprintf(var,"%s - Accepted new connection #%d from %s:%u",&Accsept.MyTime,Accsept.LocalPlayer,&Accsept.inet_ntoa,Accsept.ntohs);
 		SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)var);
 		ScanBuffer(buffer);
 	}
@@ -465,22 +457,4 @@ int ScanBuffer(char *acReadBuffer)
 		break;
 	};
 	return true;
-}
-char * message(int messagenum){
-	switch (messagenum)
-	{
-	case 1:
-		return "Opening on port %u\n";
-		break;
-	case 2:
-		return "ServerSettings.ini not found. Using default port.\n";
-		break;
-	case 3:
-		return "%s - Accepted new connection #%d from %s:%u\n";
-		break;
-	default: 
-		printf("message code incorrect");
-		return false;
-		break;
-	}
 }

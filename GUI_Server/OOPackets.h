@@ -63,6 +63,7 @@ enum OOPacketType
 	OOPEquipped,		//Tells the clients what the actor is wearing
 	OOPModOffsetList,	//Contains a list of mod offsets to support mod items and locations
 	OOPAdminInfo,		//Contains admin control data and console messages
+	OOPAccsept,
 	OOPACModVerify = 65555,
 	OOPACVerify = 65556 // ATTENTION  PACKETS 65555 and 65556 are reserver for AuthMod and Auth
 };
@@ -181,6 +182,18 @@ struct OOPkgAdminInfo
 	//Actual data is attached to the end of the packet like a chat msg
 };
 
+
+//Gui admin packets
+//Put non gui packets befor this
+struct OOPAccseptMessage 
+{
+	OOPacketType etypeID;
+	char MyTime[8];
+	short LocalPlayer;
+	char *inet_ntoa;
+	u_short ntohs;
+};
+
 #pragma pack(pop)
 
 inline OOPacketType SelectType(char *Packet)
@@ -188,7 +201,12 @@ inline OOPacketType SelectType(char *Packet)
 	return *((OOPacketType *)Packet);
 }
 
+
+
+
+
+
 //Total packet types
-#define PACKET_COUNT 12
+#define PACKET_COUNT 13
 
 #endif
