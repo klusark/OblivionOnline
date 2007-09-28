@@ -29,7 +29,6 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	OOPkgWelcome OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
 
-	printf("Test data: %i\n", (int)InPkgBuf.Flags);
 	//If this is an "I'm ready for init data" welcome, send init data
 	if(InPkgBuf.Flags & 1)
 	{
@@ -86,7 +85,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgWelcome));
 			send(clients[LocalPlayer],SendBuf,sizeof(OOPkgWelcome),0);
 			printf("Welcoming Player%2d\n",LocalPlayer);
-			printf("Player %2i - %s:%u\n",LocalPlayer,inet_ntoa(ConnectionInfo[LocalPlayer].sin_addr),ntohs(ConnectionInfo[LocalPlayer].sin_port));
+			//printf("Player %2i - %s:%u\n",LocalPlayer,inet_ntoa(ConnectionInfo[LocalPlayer].sin_addr),ntohs(ConnectionInfo[LocalPlayer].sin_port));
 			free(SendBuf);
 			Connected[LocalPlayer] = true;
 		}
@@ -165,9 +164,10 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		if (Players[InPkgBuf.refID].CellID != tempCell)
 			printf("  Player %i moved from cell %x to cell %x\n", InPkgBuf.refID, tempCell, Players[InPkgBuf.refID].CellID);
 
-		//If this is the first time we see data from this client, set init to true
+		//If the intialize flag is set, set init to true
 		if(!Players[InPkgBuf.refID].bStatsInitialized)
 		{
+			printf("  Initializing player %i basic stats", InPkgBuf.refID);
 			Players[InPkgBuf.refID].bStatsInitialized = true;
 			OutPkgBuf.Flags = OutPkgBuf.Flags | 8;
 		}
@@ -181,8 +181,9 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 			{
 				OutPkgBuf.Health += Players[InPkgBuf.refID].Health;
 				Players[InPkgBuf.refID].Health = 0;
+			}else{
+				printf("  Player %i HP is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
 			}
-			printf("  Player %i HP is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
 		}else
 			OutPkgBuf.Health = 0;
 		if(Players[InPkgBuf.refID].Magika != InPkgBuf.Magika)
@@ -210,6 +211,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		}else
 			OutPkgBuf.Fatigue = 0;
 
+		//Now send out the data
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
 			if (cx != LocalPlayer)

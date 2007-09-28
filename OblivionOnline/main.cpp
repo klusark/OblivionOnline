@@ -38,7 +38,6 @@ This file is part of OblivionOnline.
 
 #include "main.h"
 #include "OONetwork.h"
-#include <hash_map>
 
 // Global variables
 IDebugLog gLog("OblivionOnline.log");
@@ -72,7 +71,7 @@ extern void RunScriptLine(const char *buf, bool IsTemp);
 extern int GetActorID(UInt32 refID);
 extern float GetStat(Actor *ActorBuf, int statNum);
 
-extern bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC);
+extern bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC, bool Initial);
 extern bool NetWelcome(char *Password);
 extern bool NetDisconnect();
 extern bool NetChat(char *Message);
@@ -311,14 +310,14 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		}
 		if (actorNumber != LocalPlayer)
 		{
-			NetActorUpdate(&DummyStatus, actorNumber, false);
+			NetActorUpdate(&DummyStatus, actorNumber, false, false);
 		}else{
 			if (Players[actorNumber].bStatsInitialized)
 			{
-				NetActorUpdate(&DummyStatus, actorNumber, true);
+				NetActorUpdate(&DummyStatus, actorNumber, true, false);
 			}else{
-				Console_Print("Initializing player %i stats ...", actorNumber);
-				NetActorUpdate(&DummyStatus, actorNumber, true);
+				Console_Print("Initializing player %i basic stats ...", actorNumber);
+				NetActorUpdate(&DummyStatus, actorNumber, true, true);
 				Players[actorNumber].bStatsInitialized = true;
 			}
 		}

@@ -78,7 +78,7 @@ bool NetDisconnect()
 	return true;
 }
 
-bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC) 
+bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC, bool Initial) 
 {
 	static PlayerStatus LastPlayer;
 	
@@ -91,7 +91,7 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC)
 		{
 			memcpy(&LastPlayer,Player,sizeof(PlayerStatus));
 			pkgBuf.etypeID = OOPActorUpdate;
-			pkgBuf.Flags = IsPC | 2 | (!Player->bIsInInterior << 2); // THE CLIENT DOES NOT SEND OUT INITAL DATA ANYMORE
+			pkgBuf.Flags = IsPC | 2 | (!Player->bIsInInterior << 2) | (Initial << 3);
 			pkgBuf.fPosX = Player->PosX;
 			pkgBuf.fPosY = Player->PosY;
 			pkgBuf.fPosZ = Player->PosZ;
@@ -434,7 +434,7 @@ bool OOPActorUpdate_Handler(char *Packet)
 						cellOffset = ModList[LocalPlayer][i];
 				//If local offset doesn't exist print error, otherwise set CellID
 				if (!cellOffset)
-					Console_Print("Player %i moved to unsupported mod location", InPkgBuf.refID);
+					Console_Print("Player %i moved to unsupported mod location", (int)InPkgBuf.refID);
 				else{
 					//Console_Print("Player %i moved to mod location successfully", InPkgBuf.refID);
 					Players[InPkgBuf.refID].CellID = (Players[InPkgBuf.refID].CellID & 0x00ffffff) | (cellOffset << 24);
@@ -445,11 +445,16 @@ bool OOPActorUpdate_Handler(char *Packet)
 		//Is this a set of initial data?
 		if (InPkgBuf.Flags & 8)
 		{
-			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
-			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
-			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
-			Console_Print("Player %i basic stats initialized", InPkgBuf.refID);
-			Players[InPkgBuf.refID].bStatsInitialized = true;
+			if(!Players[InPkgBuf.refID].bStatsInitialized)
+			{
+				Players[InPkgBuf.refID].Health = InPkgBuf.Health;
+				Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
+				Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
+				Console_Print("Player %i basic stats initialized", (int)InPkgBuf.refID);
+				Players[InPkgBuf.refID].bStatsInitialized = true;
+			}else{
+				Console_Print("Player %i reinialized basic stats. Error perhaps?", (int)InPkgBuf.refID);
+			}
 		}else{
 			Players[InPkgBuf.refID].Health += InPkgBuf.Health;
 			Players[InPkgBuf.refID].Magika += InPkgBuf.Magika;
