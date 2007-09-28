@@ -25,12 +25,44 @@ extern bool Connected[MAXCLIENTS];
 
 bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 {
-	if (Connected[LocalPlayer])
-		return true;
 	OOPkgWelcome InPkgBuf;
 	OOPkgWelcome OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
 
+	printf("Test data: %i\n", (int)InPkgBuf.Flags);
+	//If this is an "I'm ready for init data" welcome, send init data
+	if(InPkgBuf.Flags & 1)
+	{
+		for(int i=0; i<MAXCLIENTS; i++)
+		{
+			//If the player is not localPlayer and is connected
+			if (i != LocalPlayer && Connected[i])
+			{
+				//And if the player is initialised continue
+				if (Players[i].bStatsInitialized)
+				{
+					printf("  Init: Sending player %i info to player %i\n", i, LocalPlayer);
+					OOPkgActorUpdate SendPkgBuf;
+					SendPkgBuf.etypeID = OOPActorUpdate;
+					if (Players[i].bIsInInterior)
+						SendPkgBuf.Flags = 1 | 2 | 8;
+					else
+						SendPkgBuf.Flags = 1 | 2 | 4 | 8;
+					SendPkgBuf.refID = Players[i].RefID;
+					SendPkgBuf.CellID = Players[i].CellID;
+					SendPkgBuf.Health = Players[i].Health; // we send the full values now , s that the client can make sense out of the differences
+					SendPkgBuf.Magika = Players[i].Magika;
+					SendPkgBuf.Fatigue = Players[i].Fatigue;
+					send(clients[LocalPlayer],(char *)&SendPkgBuf,sizeof(OOPkgActorUpdate),0);
+				}
+			}
+		}
+		return true;
+	}
+
+	//If player is already connected, ignore welcome
+	if (Connected[LocalPlayer])
+		return true;
 	if(InPkgBuf.guidOblivionOnline == gcOOGUID)
 	{
 		if(InPkgBuf.wVersion == MAKEWORD(MAIN_VERSION,SUB_VERSION))
@@ -57,35 +89,6 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			printf("Player %2i - %s:%u\n",LocalPlayer,inet_ntoa(ConnectionInfo[LocalPlayer].sin_addr),ntohs(ConnectionInfo[LocalPlayer].sin_port));
 			free(SendBuf);
 			Connected[LocalPlayer] = true;
-
-			Sleep(50);	//Give some time for the client to process the welcome
-			//Sleep is necessary, see above comment. Trust me. This will be fixed later.
-			//Just leave it for now.
-
-			//Now send out the data from our other clients to our new client
-			for(int i=0; i<MAXCLIENTS; i++)
-			{
-				if (i != LocalPlayer && Connected[i])
-				{
-					//printf("  Init: Player %i\n", i);
-					if (Players[i].bStatsInitialized)
-					{
-						printf("  Init: Sending player %i info to player %i\n", i, LocalPlayer);
-						OOPkgActorUpdate SendPkgBuf;
-						SendPkgBuf.etypeID = OOPActorUpdate;
-						if (Players[i].bIsInInterior)
-							SendPkgBuf.Flags = 1 | 2 | 8;
-						else
-							SendPkgBuf.Flags = 1 | 2 | 4 | 8;
-						SendPkgBuf.refID = Players[i].RefID;
-						SendPkgBuf.CellID = Players[i].CellID;
-						SendPkgBuf.Health = Players[i].Health; // we send the full values now , s that the client can make sense out of the differences
-						SendPkgBuf.Magika = Players[i].Magika;
-						SendPkgBuf.Fatigue = Players[i].Fatigue;
-						send(clients[LocalPlayer],(char *)&SendPkgBuf,sizeof(OOPkgActorUpdate),0);
-					}
-				}
-			}
 		}
 		else
 		{

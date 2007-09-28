@@ -351,6 +351,12 @@ bool OOPWelcome_Handler(char *Packet)
 	Players[LocalPlayer].Health = (*g_thePlayer)->GetActorValue(8);
 	Players[LocalPlayer].Magika = (*g_thePlayer)->GetActorValue(9);
 	Players[LocalPlayer].Fatigue = (*g_thePlayer)->GetActorValue(10);
+
+	//Tell server that we're ready to get init data from other clients
+	OOPkgWelcome pkgBuf;
+	pkgBuf.etypeID = OOPWelcome;
+	pkgBuf.Flags = 1;
+	send(ServerSocket, (char *)&pkgBuf, sizeof(OOPkgWelcome), 0);
 	return true;
 }
 

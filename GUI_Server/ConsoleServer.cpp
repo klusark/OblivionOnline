@@ -345,8 +345,7 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 	switch (ePacketType)
 	{
 	case OOPWelcome:
-		if (!Connected[LocalPlayer])
-			OOPWelcome_Handler(acReadBuffer,LocalPlayer);
+		OOPWelcome_Handler(acReadBuffer,LocalPlayer);
 		break;
 	case OOPDisconnect:
 		OOPDisconnect_Handler(acReadBuffer,LocalPlayer);
