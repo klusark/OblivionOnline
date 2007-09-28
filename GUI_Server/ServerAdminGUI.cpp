@@ -415,12 +415,21 @@ DWORD WINAPI net_main(LPVOID Params)
 			WSACleanup();
 			return 1;
 		}
-		OOPAccseptMessage Accsept;
-		memcpy(&Accsept,buffer,sizeof(Accsept));
-		char var[512];
-		sprintf(var,"%s",&Accsept.MyTime);
-		sprintf(var,"%s - Accepted new connection #%d from %s:%u",&Accsept.MyTime,Accsept.LocalPlayer,&Accsept.inet_ntoa,Accsept.ntohs);
-		SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)var);
+		OOPacketType ePacketType=SelectType(buffer);
+		switch (ePacketType)
+		{
+		case OOPAccseptMessage:
+			OOPkgAccseptMessage Accsept;
+			memcpy(&Accsept,buffer,sizeof(Accsept));
+			char var[512];
+			sprintf(var,"%s",&Accsept.MyTime);
+			sprintf(var,"%s - Accepted new connection #%d from %s:%u",&Accsept.MyTime,Accsept.LocalPlayer,&Accsept.inet_ntoa,Accsept.ntohs);
+			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)var);
+			break;
+		default:
+			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)"Error packet from server not recignised");
+			break;
+		}
 		ScanBuffer(buffer);
 	}
 

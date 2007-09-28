@@ -235,7 +235,9 @@ int main(void)
 					ConnectionInfo[LocalPlayer] = NewAddr;
 					TotalClients++;
 					printf("%s - Accepted new connection #%d from %s:%u\n",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
-					OOPAccseptMessage Accsept;
+
+					OOPkgAccseptMessage Accsept;
+					Accsept.etypeID=OOPAccseptMessage;
 					strcpy(Accsept.MyTime,MyTime);
 					Accsept.LocalPlayer =LocalPlayer;
 					Accsept.inet_ntoa=inet_ntoa(NewAddr.sin_addr);
