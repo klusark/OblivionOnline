@@ -40,6 +40,8 @@ This file is part of OblivionOnline.
 #define MOBSYNCH
 #ifdef MOBSYNCH
 #include "MobSynch.h"
+
+extern void RunScriptLine(const char *buf, bool IsTemp);
 MCActorBuf *MCWriteTarget;
 CRITICAL_SECTION MCWriteLock;
 bool MCbWritten;
@@ -89,6 +91,7 @@ bool NetSynchNPC(Actor *Actor)
 bool MCAddClientCache(char *FileName)
 {
 	FILE *CacheFile;
+	MCActorBuf tempBuf;
 	char RefName[256];
 	char Script[512];
 	CacheFile = fopen(FileName,"r");
@@ -97,9 +100,14 @@ bool MCAddClientCache(char *FileName)
 	{
 		fscanf(CacheFile,"%s",RefName);  // change this format
 		sprintf(Script,"%s.MPPushNPC",RefName);
-		//EnterCriticalSection(&MCWriteLock);
+		EnterCriticalSection(&MCWriteLock);
 		// make thread safe in the future
 		MCbWritten = false;
+		MCWriteTarget = &tempBuf;
+		LeaveCriticalSection(&MCWriteLock);
+		RunScriptLine(Script,true);
+
+		//here we have to wait
 
 	}
 	return true;
