@@ -54,7 +54,7 @@ void test(void *);
 
 struct test2
 {
-	char MyTime;
+	char MyTime[8];
 	short LocalPlayer;
 	char *inet_ntoa;
 	u_short ntohs;
@@ -246,7 +246,8 @@ int main(void)
 					TotalClients++;
 					printf(message(3),MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					test2 test2;
-					test2.MyTime = *MyTime;
+					strcpy(test2.MyTime,MyTime);
+					//test2.MyTime = MyTime;
 					test2.LocalPlayer =LocalPlayer;
 					test2.inet_ntoa=inet_ntoa(NewAddr.sin_addr);
 					test2.ntohs=ntohs(NewAddr.sin_port);

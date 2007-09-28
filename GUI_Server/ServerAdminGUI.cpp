@@ -44,7 +44,7 @@ char adminMsg[512];
 
 struct test2
 {
-	char MyTime;
+	char MyTime[8];
 	short LocalPlayer;
 	char *inet_ntoa;
 	u_short ntohs;
@@ -294,7 +294,7 @@ INT_PTR CALLBACK ServerConsoleDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 				}
 				UInt8 PlayerNum = Num;
 				char ServerChat[256];
-				int Length = GetDlgItemText(hAdminDlg, IDC_COMMAND_ENTER, ServerChat+1, 255);
+				int Length = GetDlgItemTextA(hAdminDlg, IDC_COMMAND_ENTER, ServerChat+1, 255);
 				if (Length < 1)
 				{
 					MessageBoxA(NULL, "No command entered.", "Error", NULL);
@@ -425,8 +425,9 @@ DWORD WINAPI net_main(LPVOID Params)
 		}
 		test2 test3;
 		memcpy(&test3,buffer,sizeof(test2));
-		char * var;
-		sprintf(var,"%s",test3.MyTime);
+		char var[512];
+		sprintf(var,"%s",&test3.MyTime);
+		sprintf(var,"%s - Accepted new connection #%d from %s:%u",&test3.MyTime,test3.LocalPlayer,&test3.inet_ntoa,test3.ntohs);
 		SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)var);
 		ScanBuffer(buffer);
 	}
