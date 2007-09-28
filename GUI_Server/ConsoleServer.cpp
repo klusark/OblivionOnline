@@ -50,12 +50,22 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead);
 char * message(int messagenum);
 void info(void *);
 void adminthread(void *);
+void test(void *);
+
+struct test2
+{
+	char MyTime;
+	short LocalPlayer;
+	char *inet_ntoa;
+	u_short ntohs;
+};
 
 //Main entry procedure
 int main(void)
 {
 	_beginthread(info,0,NULL);
 	_beginthread(adminthread,0,NULL);
+	//_beginthread(test,0,NULL);
 	
 	// Setup our local variables
 	short LocalPlayer;
@@ -110,7 +120,7 @@ int main(void)
 		fscanf(serverSettings, "%u", &serverPort);
 		if (!serverPort || serverPort < 1024)
 			serverPort = PORT;
-		printf(message(1), serverPort);
+		printf("Opening on port %u\n", serverPort);
 		bool passwordFound = false;
 		while(!passwordFound)
 		{
@@ -234,7 +244,13 @@ int main(void)
 					clients[LocalPlayer]=accept(acceptSocket, (sockaddr*)&NewAddr, &nAddrSize);
 					ConnectionInfo[LocalPlayer] = NewAddr;
 					TotalClients++;
-					printf("%s - Accepted new connection #%d from %s:%u\n",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
+					printf(message(3),MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
+					test2 test2;
+					test2.MyTime = *MyTime;
+					test2.LocalPlayer =LocalPlayer;
+					test2.inet_ntoa=inet_ntoa(NewAddr.sin_addr);
+					test2.ntohs=ntohs(NewAddr.sin_port);
+					rc=send(adminSocket,(char *)&test2,sizeof(test2),0);
 					easylog = fopen("Log.txt","a");
 					fprintf(easylog,"%s - Accepted new connection #(%d) from %s:%u\n",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					fprintf(easylog,"%s - We now have %d connections\n",MyTime,TotalClients);
@@ -521,6 +537,20 @@ void adminthread(void *arg)
 	WSACleanup();
 }
 
+void test(void *arg)
+{
+	long rc;
+	Sleep(10000);
+	rc=send(adminSocket,"hi",2,0);
+	if (rc == SOCKET_ERROR)
+	{
+		printf("Error with thread test sending.\n");
+		return;
+	}
+	printf("sent");
+}
+
+
 bool BroadcastMessage(char *Message, int Player)
 {
 	//Print message on console
@@ -576,6 +606,9 @@ char * message(int messagenum){
 		break;
 	case 2:
 		return "ServerSettings.ini not found. Using default port.\n";
+		break;
+	case 3:
+		return "%s - Accepted new connection #%d from %s:%u\n";
 		break;
 	default: 
 		printf("message code incorrect");

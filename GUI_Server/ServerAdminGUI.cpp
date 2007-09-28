@@ -42,6 +42,16 @@ bool Started = false;
 char commandString[256];
 char adminMsg[512];
 
+struct test2
+{
+	char MyTime;
+	short LocalPlayer;
+	char *inet_ntoa;
+	u_short ntohs;
+};
+char * message(int messagenum);
+
+
 //Prototypes for GUI functions
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
@@ -240,6 +250,7 @@ INT_PTR CALLBACK ServerConsoleDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 	{
 	case WM_INITDIALOG:
 		SendDlgItemMessageA(hDlg,IDC_SERVEROUTPUT,LB_ADDSTRING,0,(LPARAM)"Server console loaded");
+		
 		hAdminDlg = hDlg;
 
 		return true;
@@ -412,6 +423,11 @@ DWORD WINAPI net_main(LPVOID Params)
 			WSACleanup();
 			return 1;
 		}
+		test2 test3;
+		memcpy(&test3,buffer,sizeof(test2));
+		char * var;
+		sprintf(var,"%s",test3.MyTime);
+		SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)var);
 		ScanBuffer(buffer);
 	}
 
@@ -448,4 +464,22 @@ int ScanBuffer(char *acReadBuffer)
 		break;
 	};
 	return true;
+}
+char * message(int messagenum){
+	switch (messagenum)
+	{
+	case 1:
+		return "Opening on port %u\n";
+		break;
+	case 2:
+		return "ServerSettings.ini not found. Using default port.\n";
+		break;
+	case 3:
+		return "%s - Accepted new connection #%d from %s:%u\n";
+		break;
+	default: 
+		printf("message code incorrect");
+		return false;
+		break;
+	}
 }
