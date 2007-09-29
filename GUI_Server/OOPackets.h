@@ -192,8 +192,8 @@ struct OOPkgAccseptMessage
 	OOPacketType etypeID;
 	char MyTime[8];
 	short LocalPlayer;
-	char *inet_ntoa;
-	u_short ntohs;
+	char ip[16];
+	u_short port;
 };
 
 struct OOPkgCloseMessage 

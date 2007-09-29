@@ -421,7 +421,7 @@ DWORD WINAPI net_main(LPVOID Params)
 		case OOPAccseptMessage:
 			OOPkgAccseptMessage Accsept;
 			memcpy(&Accsept,buffer,sizeof(Accsept));
-			sprintf(buffer,"%s - Accepted new connection #%d from %s:%u",&Accsept.MyTime,Accsept.LocalPlayer,&Accsept.inet_ntoa,Accsept.ntohs);
+			sprintf(buffer,"%s - Accepted new connection #%d from %s:%u",&Accsept.MyTime,Accsept.LocalPlayer,&Accsept.ip,Accsept.port);
 			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)buffer);
 			break;
 		case OOPCloseMessage:

@@ -235,13 +235,13 @@ int main(void)
 					ConnectionInfo[LocalPlayer] = NewAddr;
 					TotalClients++;
 					printf("%s - Accepted new connection #%d from %s:%u\n",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
-					if(adminSocket!=SOCKET_ERROR){//not sure how to but this should only exicute when a admin is connectec
+					if(adminSocket){
 						OOPkgAccseptMessage Accsept;
 						Accsept.etypeID=OOPAccseptMessage;
 						strcpy(Accsept.MyTime,MyTime);
+						strcpy(Accsept.ip,inet_ntoa(NewAddr.sin_addr));
 						Accsept.LocalPlayer =LocalPlayer;
-						Accsept.inet_ntoa=inet_ntoa(NewAddr.sin_addr);
-						Accsept.ntohs=ntohs(NewAddr.sin_port);
+						Accsept.port=ntohs(NewAddr.sin_port);
 						rc=send(adminSocket,(char *)&Accsept,sizeof(Accsept),0);
 					}
 					easylog = fopen("Log.txt","a");
@@ -286,7 +286,7 @@ int main(void)
 
 					TotalClients--;
 					printf("%s - Client %d closed the Connection\n",MyTime,LocalPlayer);
-					if(adminSocket!=SOCKET_ERROR){//not sure how to but this should only exicute when a admin is connectec
+					if(adminSocket){
 						OOPkgCloseMessage Close;
 						Close.etypeID=OOPCloseMessage;
 						strcpy(Close.MyTime,MyTime);
@@ -578,7 +578,7 @@ bool Kick(int Player)
 		OutPkgBuf.etypeID = OOPDisconnect;
 		OutPkgBuf.Flags = 1;
 		printf("Kicking Player %i ...\n", OutPkgBuf.PlayerID);
-		if(adminSocket!=SOCKET_ERROR){//not sure how to but this should only exicute when a admin is connectec
+		if(adminSocket){
 			OOPkgKickMessage Kick;
 			Kick.etypeID=OOPKickMessage;
 			Kick.PlayerID=OutPkgBuf.PlayerID;
