@@ -44,6 +44,7 @@ This file is part of OblivionOnline.
 extern void RunScriptLine(const char *buf, bool IsTemp);
 MCActorBuf *MCWriteTarget;
 CRITICAL_SECTION MCWriteLock;
+
 bool MCbWritten;
 std::list<MCActorBuf> MCCache;
 DWORD MobResynchTimer ; // seperate , because no seperate packet
@@ -94,6 +95,7 @@ bool MCAddClientCache(char *FileName)
 	MCActorBuf tempBuf;
 	char RefName[256];
 	char Script[512];
+	unsigned char MaxTests;
 	CacheFile = fopen(FileName,"r");
 	InitializeCriticalSection(&MCWriteLock);
 	while(!feof(CacheFile))
@@ -106,8 +108,25 @@ bool MCAddClientCache(char *FileName)
 		MCWriteTarget = &tempBuf;
 		LeaveCriticalSection(&MCWriteLock);
 		RunScriptLine(Script,true);
-
-		//here we have to wait
+		// NOOOO REPLACE THIS WITH SEMAPHORE OR MUTEX CODE
+		MaxTests = 100;
+		while(!MCbWritten) //also add safety if script gets messed up
+		{
+			Sleep(10);
+			MaxTests--;
+			if(MaxTests == 0);
+			{
+				break;
+			}
+		}
+		if(MaxTests) //really really bad bad bad code here
+		{
+			MCCache.push_back(tempBuf); //ok we pushed him in
+		}
+		else
+		{
+			Console_Print("Couldn't find reference %s",RefName);
+		}
 
 	}
 	return true;
@@ -145,7 +164,9 @@ bool NetHandleMobUpdate(char *Packet)
 
 bool Cmd_MPPushNPC_Execute (COMMAND_ARGS)
 {
-	
+	//EnterCriticalSection(MCWriteLock);
+	MCWriteTarget->Actor = (Actor *)thisObj;
+	MCbWritten = true;
 	return true;
 }
 #endif

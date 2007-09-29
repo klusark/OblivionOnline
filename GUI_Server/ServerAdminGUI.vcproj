@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="ServerAdminGUI"
 	ProjectGUID="{F59F6EAF-DC42-4D0A-AE74-28F7C21BD136}"
 	RootNamespace="ServerAdminGUI"
