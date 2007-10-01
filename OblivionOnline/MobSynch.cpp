@@ -184,12 +184,13 @@ bool PCAddFile(char *FileName)
 		fscanf(CacheFile,"%s %u",RefName,RefID);  // change this format
 		tempBuf.Name = RefName;
 		tempBuf.RefID = RefID;
-		//PCList.insert(tempBuf);
+		//PCList.insert(tempBuf); . do that here
 	}
 	return true;
 }
 bool NetHandleMobUpdate(char *Packet)
 {
+	//do lookup , do injection . sry no other way yet
 	return false;
 }
 
