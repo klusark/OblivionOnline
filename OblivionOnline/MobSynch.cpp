@@ -169,4 +169,5 @@ bool Cmd_MPPushNPC_Execute (COMMAND_ARGS)
 	MCbWritten = true;
 	return true;
 }
+
 #endif
