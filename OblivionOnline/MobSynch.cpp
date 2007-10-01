@@ -114,7 +114,7 @@ bool MCAddClientCache(char *FileName)
 		{
 			Sleep(10);
 			MaxTests--;
-			if(MaxTests == 0);
+			if(MaxTests == 0)
 			{
 				break;
 			}
@@ -157,10 +157,6 @@ bool MCbSynchActors() //called nearly every frame , so extremely important
 	}
 	return true;
 }
-bool NetHandleMobUpdate(char *Packet)
-{
-	return false;
-}
 
 bool Cmd_MPPushNPC_Execute (COMMAND_ARGS)
 {
@@ -168,6 +164,33 @@ bool Cmd_MPPushNPC_Execute (COMMAND_ARGS)
 	MCWriteTarget->Actor = (Actor *)thisObj;
 	MCbWritten = true;
 	return true;
+}
+// passive or slave client : PC prefix
+struct PCActorBuf
+{
+	UINT32 RefID;
+	std::string Name;
+};
+stdext::hash_map<UINT32,PCActorBuf> PCList;//fix up the hash code in itself
+bool PCAddFile(char *FileName)
+{
+	FILE *CacheFile;
+	PCActorBuf tempBuf;
+	char RefName[256];
+	UINT32 RefID;
+	CacheFile = fopen(FileName,"r");
+	while(!feof(CacheFile))
+	{
+		fscanf(CacheFile,"%s %u",RefName,RefID);  // change this format
+		tempBuf.Name = RefName;
+		tempBuf.RefID = RefID;
+		//PCList.insert(tempBuf);
+	}
+	return true;
+}
+bool NetHandleMobUpdate(char *Packet)
+{
+	return false;
 }
 
 #endif

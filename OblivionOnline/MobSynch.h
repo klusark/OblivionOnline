@@ -1,5 +1,6 @@
 #pragma once
 #include "main.h"
+#include <hash_map>
 //time in MS in which the MC resynchs the npcs
 
 //MASTER CLIENT STUFF
