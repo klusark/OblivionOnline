@@ -49,6 +49,7 @@ bool MCbWritten;
 std::list<MCActorBuf> MCCache;
 DWORD MobResynchTimer ; // seperate , because no seperate packet
 bool bIsMasterClient;
+bool bCacheBuilt = false;
 bool MCbFlushCache()
 {
 	MCCache.erase(MCCache.begin(),MCCache.end()); // flushes it
@@ -129,6 +130,7 @@ bool MCAddClientCache(char *FileName)
 		}
 
 	}
+	bCacheBuilt = true;
 	return true;
 }
  bool MCbSynchActors() //called nearly every frame , so extremely important
@@ -167,7 +169,8 @@ bool Cmd_MPPushNPC_Execute (COMMAND_ARGS)
 }
 bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 {
-	MCbSynchActors();	
+	if(bCacheBuilt)
+		MCbSynchActors();	
 	return true;
 }
 bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
