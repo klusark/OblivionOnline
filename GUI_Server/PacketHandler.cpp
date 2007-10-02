@@ -145,6 +145,8 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 	OOPkgActorUpdate InPkgBuf;
 	OOPkgActorUpdate OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgActorUpdate));
+	if(InPkgBuf.Flags | 1)
+	{
 	if (InPkgBuf.refID < MAXCLIENTS)
 	{
 		OutPkgBuf.etypeID = OOPActorUpdate;
@@ -218,6 +220,27 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 				send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
 		}
 	}
+	}
+	else
+	{
+		OutPkgBuf.etypeID = OOPActorUpdate;
+		OutPkgBuf.Flags = InPkgBuf.Flags;
+		OutPkgBuf.refID = InPkgBuf.refID;
+		OutPkgBuf.CellID = InPkgBuf.CellID;
+		OutPkgBuf.fPosX = InPkgBuf.fPosX;
+		OutPkgBuf.fPosY = InPkgBuf.fPosY;
+		OutPkgBuf.fPosZ = InPkgBuf.fPosZ;
+		OutPkgBuf.fRotX = InPkgBuf.fRotX;
+		OutPkgBuf.fRotY = InPkgBuf.fRotY;
+		OutPkgBuf.fRotZ = InPkgBuf.fRotZ;
+		OutPkgBuf.InCombat = InPkgBuf.InCombat;
+		for(int cx=0;cx<MAXCLIENTS;cx++)
+		{
+			if (cx != LocalPlayer)
+				send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
+		}
+	}
+	// Mob Handling is down below
 	return true;
 }
 

@@ -131,7 +131,7 @@ bool MCAddClientCache(char *FileName)
 	}
 	return true;
 }
-bool MCbSynchActors() //called nearly every frame , so extremely important
+ bool MCbSynchActors() //called nearly every frame , so extremely important
 {
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
@@ -165,6 +165,28 @@ bool Cmd_MPPushNPC_Execute (COMMAND_ARGS)
 	MCbWritten = true;
 	return true;
 }
+bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
+{
+	MCbSynchActors();	
+	return true;
+}
+bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
+{
+	MCAddClientCache("Oblivion.ooc");
+	return true;
+}
+
+static CommandInfo kMPLoginCommand =
+{
+	"MPLogin",
+	"login",
+	0,
+	"Authenticates the client",
+	0,		// requires parent obj
+	1,		// 1 param
+	kParams_OneString,	// one string
+	Cmd_MPLogin_Execute
+};
 
 typedef std::pair< UINT32 , std::string > PCPair;
 stdext::hash_map<UINT32,std::string>  PCList;//fix up the hash code in itself
@@ -199,8 +221,7 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 	ScriptString += ",";
 	ScriptString += pkgBuf.CellID;
 	RunScriptLine(ScriptString.c_str(),true);
-	ScriptString = MobIterator->second;
-	ScriptStrinf += 
+	// Do Health here....
 	return true;
 }
 
