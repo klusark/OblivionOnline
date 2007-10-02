@@ -469,7 +469,6 @@ int StartNet()
 int ScanBuffer(char *acReadBuffer)
 {
 	OOPacketType ePacketType = SelectType(acReadBuffer);
-
 	switch (ePacketType)
 	{
 	default:

@@ -165,33 +165,43 @@ bool Cmd_MPPushNPC_Execute (COMMAND_ARGS)
 	MCbWritten = true;
 	return true;
 }
-// passive or slave client : PC prefix
-struct PCActorBuf
-{
-	UINT32 RefID;
-	std::string Name;
-};
-stdext::hash_map<UINT32,PCActorBuf> PCList;//fix up the hash code in itself
+
+typedef std::pair< UINT32 , std::string > PCPair;
+stdext::hash_map<UINT32,std::string>  PCList;//fix up the hash code in itself
 bool PCAddFile(char *FileName)
 {
 	FILE *CacheFile;
-	PCActorBuf tempBuf;
+	
 	char RefName[256];
 	UINT32 RefID;
 	CacheFile = fopen(FileName,"r");
 	while(!feof(CacheFile))
 	{
 		fscanf(CacheFile,"%s %u",RefName,RefID);  // change this format
-		tempBuf.Name = RefName;
-		tempBuf.RefID = RefID;
-		//PCList.insert(tempBuf); . do that here
+		PCList.insert(PCPair(RefID,RefName) );
 	}
 	return true;
 }
-bool NetHandleMobUpdate(char *Packet)
+bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handler
 {
-	//do lookup , do injection . sry no other way yet
-	return false;
+	stdext::hash_map<UINT32,std::string>::iterator MobIterator;
+	std::string ScriptString;
+	MobIterator = PCList.find(pkgBuf.refID);
+	ScriptString = MobIterator->second;
+	ScriptString += ".MoveTo" ;
+	ScriptString += pkgBuf.fPosX;
+	ScriptString += ",";
+	ScriptString += pkgBuf.fPosY;
+	ScriptString += ",";
+	ScriptString += pkgBuf.fPosZ;
+	ScriptString += ",";
+	ScriptString += pkgBuf.fRotZ;
+	ScriptString += ",";
+	ScriptString += pkgBuf.CellID;
+	RunScriptLine(ScriptString.c_str(),true);
+	ScriptString = MobIterator->second;
+	ScriptStrinf += 
+	return true;
 }
 
 #endif
