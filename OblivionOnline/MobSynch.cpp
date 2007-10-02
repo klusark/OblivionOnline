@@ -176,16 +176,38 @@ bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 	return true;
 }
 
-static CommandInfo kMPLoginCommand =
+ CommandInfo kMPPushNPCCommand =
 {
-	"MPLogin",
-	"login",
+	"MPPushNPC",
+	"MPPushActor",
 	0,
-	"Authenticates the client",
-	0,		// requires parent obj
-	1,		// 1 param
-	kParams_OneString,	// one string
-	Cmd_MPLogin_Execute
+	"Adds an Object to the OO master cache . Not to be used manually",
+	0,		 // well it NEEDS one...
+	0,		
+	NULL,	// one string
+	Cmd_MPPushNPC_Execute
+};
+ CommandInfo kMPSynchActorsCommand =
+{
+	"MPSynchActors",
+	"MPSA",
+	0,
+	"Synchs Objects",
+	0,		 // well it NEEDS one...
+	0,		
+	NULL,	// one string
+	Cmd_MPSynchActors_Execute
+};
+ CommandInfo kMPBuildCacheCommand =
+{
+	"MPBuildCache",
+	"MPBC",
+	0,
+	"Adds an Object to the OO master cache . Not to be used manually",
+	0,		 // well it NEEDS one...
+	0,		
+	NULL,	// one string
+	Cmd_MPBuildCache_Execute
 };
 
 typedef std::pair< UINT32 , std::string > PCPair;

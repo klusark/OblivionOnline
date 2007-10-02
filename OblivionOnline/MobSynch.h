@@ -12,3 +12,9 @@ struct MCActorBuf
 	ActorStatus LastStatus; //to compare it...
 };
 extern std::list<MCActorBuf> MCCache;
+extern bool Cmd_MPPushNPC_Execute (COMMAND_ARGS);
+extern bool Cmd_MPSynchActors_Execute (COMMAND_ARGS);
+extern bool Cmd_MPBuildCache_Execute(COMMAND_ARGS);
+extern  CommandInfo kMPPushNPCCommand ;
+extern  CommandInfo kMPSynchActorsCommand;
+extern  CommandInfo kMPBuildCacheCommand;
