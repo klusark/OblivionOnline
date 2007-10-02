@@ -96,13 +96,14 @@ bool MCAddClientCache(char *FileName)
 	MCActorBuf tempBuf;
 	char RefName[256];
 	char Script[512];
+	UINT32 RefID;
 	unsigned char MaxTests;
 	CacheFile = fopen(FileName,"r");
 	InitializeCriticalSection(&MCWriteLock);
 	while(!feof(CacheFile))
 	{
-		fscanf(CacheFile,"%s",RefName);  // change this format
-		sprintf(Script,"%s.MPPushNPC",RefName);
+		fscanf(CacheFile,"%s %u",RefName);  // change this format
+		sprintf(Script,"%s.MPPushNPC",RefName,&RefID);
 		EnterCriticalSection(&MCWriteLock);
 		// make thread safe in the future
 		MCbWritten = false;
