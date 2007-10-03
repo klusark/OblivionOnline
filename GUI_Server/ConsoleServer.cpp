@@ -235,14 +235,11 @@ int main(void)
 					ConnectionInfo[LocalPlayer] = NewAddr;
 					TotalClients++;
 					printf("%s - Accepted new connection #%d from %s:%u\n",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
+
 					if(adminSocket){
-						OOPkgAccseptMessage Accsept;
-						Accsept.etypeID=OOPAccseptMessage;
-						strcpy(Accsept.MyTime,MyTime);
-						strcpy(Accsept.ip,inet_ntoa(NewAddr.sin_addr));
-						Accsept.LocalPlayer =LocalPlayer;
-						Accsept.port=ntohs(NewAddr.sin_port);
-						rc=send(adminSocket,(char *)&Accsept,sizeof(Accsept),0);
+						char message[256];
+						sprintf(message,"%s - Accepted new connection #%d from %s:%u",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
+						SendAdminMessage(message);
 					}
 					easylog = fopen("Log.txt","a");
 					fprintf(easylog,"%s - Accepted new connection #(%d) from %s:%u\n",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
@@ -287,11 +284,9 @@ int main(void)
 					TotalClients--;
 					printf("%s - Client %d closed the Connection\n",MyTime,LocalPlayer);
 					if(adminSocket){
-						OOPkgCloseMessage Close;
-						Close.etypeID=OOPCloseMessage;
-						strcpy(Close.MyTime,MyTime);
-						Close.LocalPlayer=LocalPlayer;
-						rc=send(adminSocket,(char *)&Close,sizeof(Close),0);
+						char message[256];
+						sprintf(message,"%s - Client %d closed the Connection",MyTime,LocalPlayer);
+						SendAdminMessage(message);
 					}
 					easylog = fopen("Log.txt","a");
 					fprintf(easylog,"%s - Client %d closed the Connection\n",MyTime,LocalPlayer);
@@ -429,7 +424,7 @@ void info(void *arg)
 		bool HasPassword = strlen(ServerPassword);
 		while(true){
 			char srequest[384];
-			sprintf_s(srequest,384, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", LISTFILE, LISTNAME, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION, HasPassword, LISTHOST);
+			sprintf(srequest, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", LISTFILE, LISTNAME, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION, HasPassword, LISTHOST);
 			
 			sock = socket(AF_INET, SOCK_STREAM, 0);
 			memcpy(&sin.sin_addr, he->h_addr_list[0], he->h_length);
@@ -442,7 +437,7 @@ void info(void *arg)
 			{
 				printf("Error: Serverlist connect error, code: %i\n",WSAGetLastError());
 			}
-			rcs=send(sock, srequest, 384, 0);
+			rcs=send(sock, srequest, strlen(srequest), 0);
 			if(rcs==SOCKET_ERROR) 
 			{
 				printf("Error: Serverlist send error, code: %i\n",WSAGetLastError());
@@ -578,16 +573,24 @@ bool Kick(int Player)
 		OutPkgBuf.etypeID = OOPDisconnect;
 		OutPkgBuf.Flags = 1;
 		printf("Kicking Player %i ...\n", OutPkgBuf.PlayerID);
-		if(adminSocket){
-			OOPkgKickMessage Kick;
-			Kick.etypeID=OOPKickMessage;
-			Kick.PlayerID=OutPkgBuf.PlayerID;
-			send(adminSocket,(char *)&Kick,sizeof(Kick),0);
-		}
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
 			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgDisconnect),0);
 		}
 	}
 	return true;
+}
+
+int SendAdminMessage(char message[256]){
+	OOPkgAdminMessage AdminMessage;
+	AdminMessage.etypeID=OOPAdminMessage;
+	strcpy(AdminMessage.message,message);
+	long rc;
+	rc=send(adminSocket,(char *)&AdminMessage,sizeof(AdminMessage),0);
+		if (rc == SOCKET_ERROR)
+	{
+		printf("Error on send for remote admin.\n");
+		return 0;
+	}
+	return 1;
 }

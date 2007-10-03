@@ -418,23 +418,10 @@ DWORD WINAPI net_main(LPVOID Params)
 		OOPacketType ePacketType=SelectType(buffer);
 		switch (ePacketType)
 		{
-		case OOPAccseptMessage:
-			OOPkgAccseptMessage Accsept;
+		case OOPAdminMessage:
+			OOPkgAdminMessage Accsept;
 			memcpy(&Accsept,buffer,sizeof(Accsept));
-			sprintf(buffer,"%s - Accepted new connection #%d from %s:%u",&Accsept.MyTime,Accsept.LocalPlayer,&Accsept.ip,Accsept.port);
-			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)buffer);
-			break;
-		case OOPCloseMessage:
-			OOPkgCloseMessage Close;
-			memcpy(&Close,buffer,sizeof(Close));
-			sprintf(buffer,"%s - Client %d closed the Connection",&Close.MyTime,Close.LocalPlayer);
-			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)buffer);
-			break;
-		case OOPKickMessage:
-			OOPkgKickMessage Kick;
-			memcpy(&Kick,buffer,sizeof(Kick));
-			sprintf(buffer,"Kicking Player %i ...",Kick.PlayerID);
-			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)buffer);
+			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)Accsept.message);
 			break;
 		default:
 			SendDlgItemMessageA(hAdminDlg, IDC_SERVEROUTPUT, LB_ADDSTRING, NULL, (LPARAM)"Error packet from server not recignised");

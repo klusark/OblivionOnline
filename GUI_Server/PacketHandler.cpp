@@ -41,6 +41,11 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 				if (Players[i].bStatsInitialized)
 				{
 					printf("  Init: Sending player %i info to player %i\n", i, LocalPlayer);
+					if(adminSocket){
+						char message[256];
+						sprintf(message,"  Init: Sending player %i info to player %i\n", i, LocalPlayer);
+						SendAdminMessage(message);
+					}
 					OOPkgActorUpdate SendPkgBuf;
 					SendPkgBuf.etypeID = OOPActorUpdate;
 					if (Players[i].bIsInInterior)
@@ -75,6 +80,11 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 				OutPkgBuf.Flags = 1;
 			}else{
 				printf("Player%2d tried to use wrong password: %s\n", LocalPlayer, InPkgBuf.Password);
+				if(adminSocket){
+					char message[256];
+					sprintf(message,"Player%2d tried to use wrong password: %s", LocalPlayer, InPkgBuf.Password);
+					SendAdminMessage(message);
+				}
 				return false;
 			}
 			OutPkgBuf.guidOblivionOnline = gcOOGUID;
@@ -85,6 +95,11 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgWelcome));
 			send(clients[LocalPlayer],SendBuf,sizeof(OOPkgWelcome),0);
 			printf("Welcoming Player%2d\n",LocalPlayer);
+			if(adminSocket){
+				char message[256];
+				sprintf(message,"Welcoming Player%2d",LocalPlayer);
+				SendAdminMessage(message);
+			}
 			//printf("Player %2i - %s:%u\n",LocalPlayer,inet_ntoa(ConnectionInfo[LocalPlayer].sin_addr),ntohs(ConnectionInfo[LocalPlayer].sin_port));
 			free(SendBuf);
 			Connected[LocalPlayer] = true;
@@ -103,7 +118,17 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			int MinorVersion = (InPkgBuf.wVersion & 0xff00) >> 8;
 			int MajorVersion = InPkgBuf.wVersion & 0x00ff;
 			printf("%s - Client tried to authenticate with wrong client version(%i.%i.%i)\n", MyTime, 0, MajorVersion, MinorVersion);
+			if(adminSocket){
+				char message[256];
+				sprintf(message,"%s - Client tried to authenticate with wrong client version(%i.%i.%i)", MyTime, 0, MajorVersion, MinorVersion);
+				SendAdminMessage(message);
+			}
 			printf("%s - Client %d was removed due to version missmatch\n", MyTime, LocalPlayer);
+			if(adminSocket){
+				char message[256];
+				sprintf(message,"%s - Client %d was removed due to version missmatch", MyTime, LocalPlayer);
+				SendAdminMessage(message);
+			}
 			fprintf(easylog,"%s - Client %d closed the Connection\n", MyTime, LocalPlayer);
 			fprintf(easylog,"%s - Client %d had a version mismatch\n", MyTime, LocalPlayer);
 			fprintf(easylog,"%s - We now have %d connections", MyTime, TotalClients);
@@ -115,6 +140,11 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	{
 		TotalClients--;
 		printf("Client %d tried to connect with a pre-version 4 OblivionOnline , or another software.\n",LocalPlayer);
+		if(adminSocket){
+			char message[256];
+			sprintf(message,"Client %d tried to connect with a pre-version 4 OblivionOnline , or another software.",LocalPlayer);
+			SendAdminMessage(message);
+		}
 		fprintf(easylog,"Client %d closed the Connection\n",LocalPlayer);
 		fprintf(easylog,"Client %d had a non-compatible client\n",LocalPlayer);
 		fprintf(easylog,"We now have %d connections",TotalClients);
@@ -131,6 +161,11 @@ bool OOPDisconnect_Handler(char *Packet,short LocalPlayer)
 		OOPkgDisconnect InPkgBuf;
 		memcpy(&InPkgBuf,Packet,sizeof(OOPkgDisconnect));
 		printf("Received disconnect from %i\n", InPkgBuf.PlayerID);
+		if(adminSocket){
+			char message[256];
+			sprintf(message,"Received disconnect from %i", InPkgBuf.PlayerID);
+			SendAdminMessage(message);
+		}
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
 			if (cx != LocalPlayer)
@@ -163,13 +198,24 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 
 		UInt32 tempCell = Players[InPkgBuf.refID].CellID;
 		Players[InPkgBuf.refID].CellID = OutPkgBuf.CellID;
-		if (Players[InPkgBuf.refID].CellID != tempCell)
+		if (Players[InPkgBuf.refID].CellID != tempCell){
 			printf("  Player %i moved from cell %x to cell %x\n", InPkgBuf.refID, tempCell, Players[InPkgBuf.refID].CellID);
+			if(adminSocket){
+				char message[256];
+				sprintf(message,"  Player %i moved from cell %x to cell %x", InPkgBuf.refID, tempCell, Players[InPkgBuf.refID].CellID);
+				SendAdminMessage(message);
+			}
+		}
 
 		//If the intialize flag is set, set init to true
 		if(!Players[InPkgBuf.refID].bStatsInitialized)
 		{
 			printf("  Initializing player %i basic stats", InPkgBuf.refID);
+			if(adminSocket){
+				char message[256];
+				sprintf(message,"  Initializing player %i basic stats", InPkgBuf.refID);
+				SendAdminMessage(message);
+			}
 			Players[InPkgBuf.refID].bStatsInitialized = true;
 			OutPkgBuf.Flags = OutPkgBuf.Flags | 8;
 		}
@@ -185,6 +231,11 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 				Players[InPkgBuf.refID].Health = 0;
 			}else{
 				printf("  Player %i HP is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
+				/*if(adminSocket){
+					char message[256];
+					sprintf(message,"  Player %i HP is %i (change of %i)", InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
+					SendAdminMessage(message);
+				}*/
 			}
 		}else
 			OutPkgBuf.Health = 0;
@@ -261,6 +312,11 @@ bool OOPChat_Handler(char *Packet,short LocalPlayer)
 			MessageDest[i] = Packet[i+sizeof(OOPkgChat)];
 		}
 		printf("Player %i: %s\n", LocalPlayer, MessageDest);
+		if(adminSocket){
+			char message[256];
+			sprintf(message,"Player %i: %s", LocalPlayer, MessageDest);
+			SendAdminMessage(message);
+		}
 	}
 	return true;
 }
@@ -300,8 +356,23 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 			PlayersInitial[InPkgBuf.refID].Magika = InPkgBuf.Magika;
 			PlayersInitial[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
 			printf("Client %i full stats initialized\n", InPkgBuf.refID);
+			if(adminSocket){
+				char message[256];
+				sprintf(message,"Client %i full stats initialized", InPkgBuf.refID);
+				SendAdminMessage(message);
+			}
 			printf(" HP: %i\n", Players[InPkgBuf.refID].Health);
+			if(adminSocket){
+				char message[256];
+				sprintf(message," HP: %i", Players[InPkgBuf.refID].Health);
+				SendAdminMessage(message);
+			}
 			printf(" MP: %i\n", Players[InPkgBuf.refID].Magika);
+			if(adminSocket){
+				char message[256];
+				sprintf(message," MP: %i", Players[InPkgBuf.refID].Magika);
+				SendAdminMessage(message);
+			}
 		}else{
 			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
 			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
@@ -312,6 +383,11 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
 			if (OutPkgBuf.Health != 0)
 				printf("  Player %i HP is %i (change of %i)(FSU)\n", LocalPlayer, InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
+				if(adminSocket){
+					char message[256];
+					sprintf(message,"  Player %i HP is %i (change of %i)(FSU)", LocalPlayer, InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
+					SendAdminMessage(message);
+				}
 		}
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
@@ -356,11 +432,21 @@ bool OOPModOffsetList_Handler(char *Packet,short LocalPlayer)
 	OOPkgModOffsetList InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgModOffsetList));
 	printf("Received mod list (%i mods) from %i:\n", InPkgBuf.NumOfMods, InPkgBuf.refID);
+	if(adminSocket){
+		char message[256];
+		sprintf(message,"Received mod list (%i mods) from %i:", InPkgBuf.NumOfMods, InPkgBuf.refID);
+		SendAdminMessage(message);
+	}
 	for(int cx=0;cx<InPkgBuf.NumOfMods;cx++)
 	{
 		ModList[LocalPlayer][cx] = Packet[cx+sizeof(OOPkgModOffsetList)];
 		if (ModList[LocalPlayer][cx])
 			printf("  Mod %i: %i\n", cx, ModList[LocalPlayer][cx]);
+			if(adminSocket){
+				char message[256];
+				sprintf(message,"  Mod %i: %i\n", cx, ModList[LocalPlayer][cx]);
+				SendAdminMessage(message);
+			}
 	}
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
