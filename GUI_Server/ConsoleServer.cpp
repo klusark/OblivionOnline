@@ -421,7 +421,12 @@ void info(void *arg)
 		}
 
 		long rcs;
-		bool HasPassword = strlen(ServerPassword);
+		bool HasPassword;
+		if(!strcmp(ServerPassword, "nopassword"))
+			HasPassword = false;
+		else
+			HasPassword = true;
+
 		while(true){
 			char srequest[384];
 			sprintf(srequest, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", LISTFILE, LISTNAME, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION, HasPassword, LISTHOST);
