@@ -238,21 +238,29 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 {
 	if(!bIsMasterClient)
 	{
-	stdext::hash_map<UINT32,std::string>::iterator MobIterator;
-	std::string ScriptString;
-	MobIterator = PCList.find(pkgBuf.refID);
-	ScriptString = MobIterator->second;
-	ScriptString += ".MoveTo" ;
-	ScriptString += pkgBuf.fPosX;
-	ScriptString += ",";
-	ScriptString += pkgBuf.fPosY;
-	ScriptString += ",";
-	ScriptString += pkgBuf.fPosZ;
-	ScriptString += ",";
-	ScriptString += pkgBuf.fRotZ;
-	ScriptString += ",";
-	ScriptString += pkgBuf.CellID;
-	RunScriptLine(ScriptString.c_str(),true);
+	if(bCacheBuilt)
+	{
+		stdext::hash_map<UINT32,std::string>::iterator MobIterator;
+		std::string ScriptString;
+		MobIterator = PCList.find(pkgBuf.refID);
+		ScriptString = MobIterator->second;
+		ScriptString += ".MoveTo" ;
+		ScriptString += pkgBuf.fPosX;
+		ScriptString += ",";
+		ScriptString += pkgBuf.fPosY;
+		ScriptString += ",";
+		ScriptString += pkgBuf.fPosZ;
+		ScriptString += ",";
+		ScriptString += pkgBuf.fRotZ;
+		ScriptString += ",";
+		ScriptString += pkgBuf.CellID;
+		RunScriptLine(ScriptString.c_str(),true);
+	}
+	else
+	{
+		PCAddFile("Oblivion.ooc");
+		bCacheBuilt = true;
+	}
 	}
 	// Do Health here....
 	return true;
