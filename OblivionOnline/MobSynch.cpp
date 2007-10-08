@@ -48,7 +48,7 @@ CRITICAL_SECTION MCWriteLock;
 bool MCbWritten;
 std::list<MCActorBuf> MCCache;
 DWORD MobResynchTimer ; // seperate , because no seperate packet
-bool bIsMasterClient;
+bool bIsMasterClient = false;
 bool bCacheBuilt = false;
 bool MCbFlushCache()
 {
@@ -170,13 +170,17 @@ bool Cmd_MPPushNPC_Execute (COMMAND_ARGS)
 }
 bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 {
+	if(bIsMasterClient)
+	{
 	if(bCacheBuilt)
-		MCbSynchActors();	
+		MCbSynchActors();
+	}
 	return true;
 }
 bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 {
 	MCAddClientCache("Oblivion.ooc");
+	bIsMasterClient = true;
 	return true;
 }
 
@@ -232,6 +236,8 @@ bool PCAddFile(char *FileName)
 }
 bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handler
 {
+	if(!bIsMasterClient)
+	{
 	stdext::hash_map<UINT32,std::string>::iterator MobIterator;
 	std::string ScriptString;
 	MobIterator = PCList.find(pkgBuf.refID);
@@ -247,6 +253,7 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 	ScriptString += ",";
 	ScriptString += pkgBuf.CellID;
 	RunScriptLine(ScriptString.c_str(),true);
+	}
 	// Do Health here....
 	return true;
 }
