@@ -102,7 +102,7 @@ bool MCAddClientCache(char *FileName)
 	InitializeCriticalSection(&MCWriteLock);
 	while(!feof(CacheFile))
 	{
-		fscanf(CacheFile,"%s %u",RefName);  // change this format
+		fscanf(CacheFile,"%s %x",RefName);  // change this format
 		//sprintf(Script,"%s.MPPushNPC",RefName,);
 		sprintf(Script,"\"%u\".MPPushNPC",RefID);
 		EnterCriticalSection(&MCWriteLock);
@@ -230,7 +230,7 @@ bool PCAddFile(char *FileName)
 	CacheFile = fopen(FileName,"r");
 	while(!feof(CacheFile))
 	{
-		fscanf(CacheFile,"%s %u",RefName,RefID);  // change this format
+		fscanf(CacheFile,"%s %x",RefName,RefID);  // change this format
 		PCList.insert(PCPair(RefID,RefName) );
 	}
 	return true;
