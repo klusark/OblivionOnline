@@ -112,7 +112,7 @@ bool MCAddClientCache(char *FileName)
 		LeaveCriticalSection(&MCWriteLock);
 		RunScriptLine(Script,true);
 		// NOOOO REPLACE THIS WITH SEMAPHORE OR MUTEX CODE
-		MaxTests = 100;
+		MaxTests = 5;
 		while(!MCbWritten) //also add safety if script gets messed up
 		{
 			Sleep(10);

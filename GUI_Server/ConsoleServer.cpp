@@ -44,6 +44,11 @@ char LISTNAME[32];
 char ServerPassword[32];
 char AdminPassword[32];
 
+//Mob Synch Variables
+/*
+typedef std::pair< UINT32 , std::string > MobPair;
+stdext::hash_map<UINT32,std::string>  MobList;
+*/
 // Prototypes
 int StartNet(void);
 int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead);
