@@ -93,16 +93,18 @@ bool NetSynchNPC(Actor *Actor)
 bool MCAddClientCache(char *FileName)
 {
 	FILE *CacheFile;
+	FILE *LogFile;
 	MCActorBuf tempBuf;
 	char RefName[256];
 	char Script[512];
 	UINT32 RefID;
 	unsigned char MaxTests;
 	CacheFile = fopen(FileName,"r");
+	LogFile = fopen("Cache.log","w");
 	InitializeCriticalSection(&MCWriteLock);
 	while(!feof(CacheFile))
 	{
-		fscanf(CacheFile,"%s %x",RefName);  // change this format
+		fscanf(CacheFile,"%s %u",RefName,&RefID);  // change this format
 		//sprintf(Script,"%s.MPPushNPC",RefName,);
 		sprintf(Script,"\"%u\".MPPushNPC",RefID);
 		EnterCriticalSection(&MCWriteLock);
@@ -112,19 +114,18 @@ bool MCAddClientCache(char *FileName)
 		LeaveCriticalSection(&MCWriteLock);
 		RunScriptLine(Script,true);
 		// NOOOO REPLACE THIS WITH SEMAPHORE OR MUTEX CODE
-		MaxTests = 5;
-		while(!MCbWritten) //also add safety if script gets messed up
-		{
-			Sleep(10);
-			MaxTests--;
-			if(MaxTests == 0)
+		Sleep(10);
+			
+			if(!MCbWritten)
 			{
+				fprintf(LogFile,"%s %u failed injection",RefName,RefID);
 				break;
 			}
-		}
+		
 		if(MaxTests) //really really bad bad bad code here
 		{
 			MCCache.push_back(tempBuf); //ok we pushed him in
+			fprintf(LogFile,"%s %u was injected",RefName,RefID);
 		}
 		else
 		{
@@ -133,6 +134,7 @@ bool MCAddClientCache(char *FileName)
 
 	}
 	bCacheBuilt = true;
+	fclose(LogFile);
 	return true;
 }
  bool MCbSynchActors() //called nearly every frame , so extremely important
