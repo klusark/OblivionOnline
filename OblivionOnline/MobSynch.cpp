@@ -104,9 +104,9 @@ bool MCAddClientCache(char *FileName)
 	InitializeCriticalSection(&MCWriteLock);
 	while(!feof(CacheFile))
 	{
-		fscanf(CacheFile,"%s %u",RefName,&RefID);  // change this format
-		//sprintf(Script,"%s.MPPushNPC",RefName,);
-		sprintf(Script,"\"%u\".MPPushNPC",RefID);
+		fscanf(CacheFile,"%s", RefName);
+		fscanf(CacheFile,"%u",&RefID);
+		sprintf(Script,"\"%x\".MPPushNPC",RefID);
 		EnterCriticalSection(&MCWriteLock);
 		// make thread safe in the future
 		MCbWritten = false;
