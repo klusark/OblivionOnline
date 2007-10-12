@@ -118,21 +118,22 @@ bool MCAddClientCache(char *FileName)
 			
 			if(!MCbWritten)
 			{
-				fprintf(LogFile,"%s %u failed injection",RefName,RefID);
+				fprintf(LogFile,"%s %u failed injection\n",RefName,RefID);
 				break;
 			}
 		
-		if(MaxTests) //really really bad bad bad code here
-		{
+		//if(MaxTests) //really really bad bad bad code here
+		//{
 			MCCache.push_back(tempBuf); //ok we pushed him in
-			fprintf(LogFile,"%s %u was injected",RefName,RefID);
-		}
-		else
-		{
-			Console_Print("Couldn't find reference %s",RefName);
-		}
+			fprintf(LogFile,"%s %u was injected\n",RefName,RefID);
+		//}
+		//else
+		//{
+		//	Console_Print("Couldn't find reference %s",RefName);
+		//}
 
 	}
+	Console_Print("Cache build completed");
 	bCacheBuilt = true;
 	fclose(LogFile);
 	return true;
