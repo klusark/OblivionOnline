@@ -124,8 +124,11 @@ bool MCAddClientCache(char *FileName)
 		
 		//if(MaxTests) //really really bad bad bad code here
 		//{
-			MCCache.push_back(tempBuf); //ok we pushed him in
-			fprintf(LogFile,"%s %u was injected\n",RefName,RefID);
+			else
+			{
+				MCCache.push_back(tempBuf); //ok we pushed him in
+				fprintf(LogFile,"%s %u was injected\n",RefName,RefID);
+			}
 		//}
 		//else
 		//{
