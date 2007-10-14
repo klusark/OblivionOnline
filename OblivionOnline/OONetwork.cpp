@@ -35,7 +35,7 @@ This file is part of OblivionOnline.
 	exception; this exception also makes it possible to release a modified version which carries 
 	forward this exception.
 */
-
+#include "MobSynch.h"
 #include "OONetwork.h"
 
 //Prototypes
@@ -392,6 +392,8 @@ bool OOPActorUpdate_Handler(char *Packet)
 {
 	OOPkgActorUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgActorUpdate));
+	if(InPkgBuf.Flags & 1)
+	{
 	if (InPkgBuf.refID < MAXCLIENTS)
 	{
 		if(!PlayerConnected[InPkgBuf.refID])
@@ -500,6 +502,11 @@ bool OOPActorUpdate_Handler(char *Packet)
 			Players[InPkgBuf.refID].bIsInInterior = true;
 		}
 	}
+	}
+	else //Mob
+	{
+		NetHandleMobUpdate(InPkgBuf);
+		}
 	return true;
 }
 

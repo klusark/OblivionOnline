@@ -82,7 +82,7 @@ struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE
 	char Password[32]; // will be encrypted later
 };
 
-struct OOPError		//This package is for managine data errors
+struct OOPError		//This package is for managing data errors
 {
 	OOPacketType etypeID;
 	short Flags;	//Contains the flags of the bad packet

@@ -98,7 +98,7 @@ bool MCAddClientCache(char *FileName)
 	char RefName[256];
 	char Script[512];
 	UINT32 RefID;
-	unsigned char MaxTests;
+	
 	CacheFile = fopen(FileName,"r");
 	LogFile = fopen("Cache.log","w");
 	InitializeCriticalSection(&MCWriteLock);
