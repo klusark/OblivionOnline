@@ -151,6 +151,8 @@ bool MCAddClientCache(char *FileName)
 	std::list<MCActorBuf>::iterator EndIterator = MCCache.end();
 	for(ActorIterator = MCCache.begin();ActorIterator!= EndIterator;ActorIterator++)
 	{
+		if(ActorIterator->Actor)
+		{
 		if((ActorIterator->Actor->posX != ActorIterator->LastStatus.PosX)
 			|| (ActorIterator->Actor->posY != ActorIterator->LastStatus.PosY)
 			|| (ActorIterator->Actor->posZ != ActorIterator->LastStatus.PosZ))
@@ -161,6 +163,11 @@ bool MCAddClientCache(char *FileName)
 			ActorIterator->LastStatus.PosX = ActorIterator->Actor->posX;
 			ActorIterator->LastStatus.PosY = ActorIterator->Actor->posY;
 			ActorIterator->LastStatus.PosZ = ActorIterator->Actor->posZ;
+		}
+		}
+		else
+		{
+			Console_Print("Detected failed injection !");
 		}
 	}
 	MobResynchTimer = tickBuf;
@@ -236,7 +243,8 @@ bool PCAddFile(char *FileName)
 	CacheFile = fopen(FileName,"r");
 	while(!feof(CacheFile))
 	{
-		fscanf(CacheFile,"%s %x",RefName,RefID);  // change this format
+		fscanf(CacheFile,"%s", RefName);
+		fscanf(CacheFile,"%u",&RefID);
 		PCList.insert(PCPair(RefID,RefName) );
 	}
 	return true;

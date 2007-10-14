@@ -25,6 +25,7 @@ This file is part of OblivionOnline.
 #define UInt8 unsigned char
 
 #include "resource.h"
+#include "stdafx.H"
 #include <winsock.h>
 
 #define ADMINPORT 41804

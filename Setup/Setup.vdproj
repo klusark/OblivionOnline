@@ -33,19 +33,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_517FF2CCFB8C4ADB8A6AB4E37C65093B"
-        "OwnerKey" = "8:_77C102C8A8CA42E680C36007B58FF9A0"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_5D533F161C4F4136A9BA47F90F03528E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_77C102C8A8CA42E680C36007B58FF9A0"
+        "MsmKey" = "8:_6D2A47121E0B490E9FB36BC45AD0D615"
         "OwnerKey" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -123,6 +117,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_F889648C5B6442C5A2F19E70C7CAB011"
+        "OwnerKey" = "8:_6D2A47121E0B490E9FB36BC45AD0D615"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_FEAD11B321C84D369B28AAB3744226A6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -149,11 +149,16 @@
             {
             "Enabled" = "11:TRUE"
             "PromptEnabled" = "11:TRUE"
-            "PrerequisitesLocation" = "2:1"
+            "PrerequisitesLocation" = "2:2"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
                 "Items"
                 {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Visual.C++.8.0.x86"
+                    {
+                    "Name" = "8:Visual C++ Runtime Libraries (x86)"
+                    "ProductCode" = "8:Microsoft.Visual.C++.8.0.x86"
+                    }
                 }
             }
         }
@@ -181,6 +186,11 @@
             "ComponentsUrl" = "8:"
                 "Items"
                 {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Visual.C++.8.0.x86"
+                    {
+                    "Name" = "8:Visual C++ Runtime Libraries (x86)"
+                    "ProductCode" = "8:Microsoft.Visual.C++.8.0.x86"
+                    }
                 }
             }
         }
@@ -621,7 +631,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:OblivionOnline"
         "ProductCode" = "8:{00AFF182-C114-482E-9891-9F6B4B5CBE1A}"
-        "PackageCode" = "8:{0A6607EC-63EF-4951-8415-347F89C2BAF3}"
+        "PackageCode" = "8:{4219CE29-A993-4990-B4C6-C05BD337DE8B}"
         "UpgradeCode" = "8:{75CB2856-DAF1-4317-BD19-A84910A0AAFB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
@@ -1150,11 +1160,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_517FF2CCFB8C4ADB8A6AB4E37C65093B"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_6D2A47121E0B490E9FB36BC45AD0D615"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
+            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
                 "Properties"
                 {
                 }
@@ -1164,11 +1174,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_77C102C8A8CA42E680C36007B58FF9A0"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F889648C5B6442C5A2F19E70C7CAB011"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
+            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
                 "Properties"
                 {
                 }
@@ -1239,7 +1249,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5D533F161C4F4136A9BA47F90F03528E"
             {
-            "SourcePath" = "8:..\\OblivionOnline\\Release\\ConsoleServer.exe"
+            "SourcePath" = "8:..\\obliviononline\\release\\ConsoleServer.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_22F17A3109964124B89168AAC4CB4DEA"
@@ -1323,7 +1333,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_84AAAED062CB4A27A295A06D9E4E08E7"
             {
-            "SourcePath" = "8:..\\OblivionOnline\\Release\\ServerAdminGUI.exe"
+            "SourcePath" = "8:..\\obliviononline\\release\\ServerAdminGUI.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5A569FCD77C3415B9F04CEC96BF19BDE"
@@ -1379,7 +1389,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A3D1294EA0D146A3B01B22D433F65AEB"
             {
-            "SourcePath" = "8:..\\OblivionOnline\\Release\\ConsoleServer.exe"
+            "SourcePath" = "8:..\\obliviononline\\release\\ConsoleServer.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5A569FCD77C3415B9F04CEC96BF19BDE"
@@ -1407,7 +1417,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D8FC3191466C47AA91AC7CFCD033383B"
             {
-            "SourcePath" = "8:..\\OblivionOnline\\Release\\ServerBrowser.exe"
+            "SourcePath" = "8:..\\obliviononline\\release\\ServerBrowser.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_123C325CBE3745BBBBA97429E9E21FF9"
@@ -1435,7 +1445,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DB4E0A0AD1A349658CB58B64B693F1C5"
             {
-            "SourcePath" = "8:..\\OblivionOnline\\Release\\OblivionOnline.dll"
+            "SourcePath" = "8:..\\obliviononline\\release\\OblivionOnline.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_2EA12E733C5F4F699EB2DE6858B2D7BA"
