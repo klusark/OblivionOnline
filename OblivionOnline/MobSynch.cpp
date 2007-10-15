@@ -42,26 +42,13 @@ This file is part of OblivionOnline.
 #include "MobSynch.h"
 
 extern void RunScriptLine(const char *buf, bool IsTemp);
-MCActorBuf *MCWriteTarget;
-CRITICAL_SECTION MCWriteLock;
+
 
 bool MCbWritten;
 std::list<MCActorBuf> MCCache;
 DWORD MobResynchTimer ; // seperate , because no seperate packet
 bool bIsMasterClient = false;
 bool bCacheBuilt = false;
-bool MCbFlushCache()
-{
-	MCCache.erase(MCCache.begin(),MCCache.end()); // flushes it
-	return true;
-}
-bool MCbEnterZone (UINT32 Zone)  // the MC enters a new Zone , the client cache is rebuilt
-{
-	// we do not yet have a dinamyc client cahce, so we keep everything in one zone.
-	// MCbFlushCache();
-	//build client cache here
-	return true;
-}
 bool NetSynchNPC(Actor *Actor)
 {
 	OOPkgActorUpdate pkgBuf;
@@ -90,29 +77,28 @@ bool NetSynchNPC(Actor *Actor)
 	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgActorUpdate),0);
 	return true;
 }
-bool MCAddClientCache(char *FileName)
+bool MCAddClientCache(char *FileName) // add this file
 {
 	FILE *CacheFile;
 	FILE *LogFile;
 	MCActorBuf tempBuf;
 	char RefName[256];
-	char Script[512];
 	UINT32 RefID;
-	
 	CacheFile = fopen(FileName,"r");
 	LogFile = fopen("Cache.log","w");
-	InitializeCriticalSection(&MCWriteLock);
+
 	while(!feof(CacheFile))
 	{
 		fscanf(CacheFile,"%s", RefName);
 		fscanf(CacheFile,"%u",&RefID);
-		tempBuf.Actor = (Actor *) LookupFormByID(RefID);
+		tempBuf.Actor = (Actor *) LookupFormByID(RefID); // here we look it up
 		if(tempBuf.Actor)
 		{
 			if(tempBuf.Actor->refID)
 			{
+				
 				MCCache.push_back(tempBuf); //ok we pushed him in
-				fprintf(LogFile,"%s %u was detected at %u\n",RefName,RefID,tempBuf.Actor);
+				fprintf(LogFile,"%s %u was detected at %ul\n",RefName,RefID,tempBuf.Actor);
 			}
 			else
 			{
@@ -166,17 +152,22 @@ bool MCAddClientCache(char *FileName)
 }
 bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 {
+
 	if(bIsMasterClient)
 	{
 	if(bCacheBuilt)
 		MCbSynchActors();
 	}
+	
 	return true;
 }
 bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 {
+	if(bIsConnected)
+	{
 	MCAddClientCache("Oblivion.ooc");
 	bIsMasterClient = true;
+	}
 	return true;
 }
 

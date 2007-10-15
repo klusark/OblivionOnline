@@ -138,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Comctl32.lib ws2_32.lib shell32.lib shlwapi.lib libcurl.a"
+				AdditionalDependencies="Comctl32.lib ws2_32.lib shell32.lib shlwapi.lib "
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;C:\Users\Julian\Documents\Visual Studio 2005\Projects\OblivionOnline\libcurl-7.16.4&quot;"
 				GenerateDebugInformation="false"
