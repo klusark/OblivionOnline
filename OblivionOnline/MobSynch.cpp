@@ -106,37 +106,27 @@ bool MCAddClientCache(char *FileName)
 	{
 		fscanf(CacheFile,"%s", RefName);
 		fscanf(CacheFile,"%u",&RefID);
-		sprintf(Script,"\"%x\".MPPushNPC",RefID);
-		EnterCriticalSection(&MCWriteLock);
-		// make thread safe in the future
-		MCbWritten = false;
-		MCWriteTarget = &tempBuf;
-		LeaveCriticalSection(&MCWriteLock);
-		RunScriptLine(Script,true);
-		// NOOOO REPLACE THIS WITH SEMAPHORE OR MUTEX CODE
-		Sleep(10);
-			
-			if(!MCbWritten)
-			{
-				fprintf(LogFile,"%s %u failed injection\n",RefName,RefID);
-				break;
-			}
-		
-		//if(MaxTests) //really really bad bad bad code here
-		//{
-			else
+		tempBuf.Actor = (Actor *) LookupFormByID(RefID);
+		if(tempBuf.Actor)
+		{
+			if(tempBuf.Actor->refID)
 			{
 				MCCache.push_back(tempBuf); //ok we pushed him in
-				fprintf(LogFile,"%s %u was injected\n",RefName,RefID);
+				fprintf(LogFile,"%s %u was detected at %u\n",RefName,RefID,tempBuf.Actor);
 			}
-		//}
-		//else
-		//{
-		//	Console_Print("Couldn't find reference %s",RefName);
-		//}
-
+			else
+			{
+				fprintf(LogFile,"%s %u failed detection. Invalid REFID",RefName,RefID);
+				Console_Print("Couldn't find reference %s",RefName);
+			}
+		}
+		else
+		{
+			fprintf(LogFile,"%s %u failed detection.Not present",RefName,RefID);
+			Console_Print("Couldn't find reference %s",RefName);
+		}
 	}
-	Console_Print("Cache build completed");
+	Console_Print("Cache build completed, %i References found",MCCache.size());
 	bCacheBuilt = true;
 	fclose(LogFile);
 	return true;
@@ -174,14 +164,6 @@ bool MCAddClientCache(char *FileName)
 	}
 	return true;
 }
-
-bool Cmd_MPPushNPC_Execute (COMMAND_ARGS)
-{
-	//EnterCriticalSection(MCWriteLock);
-	MCWriteTarget->Actor = (Actor *)thisObj;
-	MCbWritten = true;
-	return true;
-}
 bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 {
 	if(bIsMasterClient)
@@ -198,17 +180,6 @@ bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 	return true;
 }
 
- CommandInfo kMPPushNPCCommand =
-{
-	"MPPushNPC",
-	"MPPushActor",
-	0,
-	"Adds an Object to the OO master cache . Not to be used manually",
-	0,		 // well it NEEDS one...
-	0,		
-	NULL,	// one string
-	Cmd_MPPushNPC_Execute
-};
  CommandInfo kMPSynchActorsCommand =
 {
 	"MPSynchActors",
@@ -251,14 +222,14 @@ bool PCAddFile(char *FileName)
 }
 bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handler
 {
+	std::string ScriptString;
 	if(!bIsMasterClient)
 	{
-	if(bCacheBuilt)
-	{
-		stdext::hash_map<UINT32,std::string>::iterator MobIterator;
-		std::string ScriptString;
-		MobIterator = PCList.find(pkgBuf.refID);
-		ScriptString = MobIterator->second;
+		Actor * Object;
+		Object = (Actor *)LookupFormByID(pkgBuf.refID);
+		if(Object)
+		{
+		ScriptString = Object->GetEditorName();
 		ScriptString += ".MoveTo" ;
 		ScriptString += pkgBuf.fPosX;
 		ScriptString += ",";
@@ -270,11 +241,6 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 		ScriptString += ",";
 		ScriptString += pkgBuf.CellID;
 		RunScriptLine(ScriptString.c_str(),true);
-	}
-	else
-	{
-		PCAddFile("Oblivion.ooc");
-		bCacheBuilt = true;
 	}
 	}
 	// Do Health here....

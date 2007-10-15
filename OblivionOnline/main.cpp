@@ -1390,7 +1390,6 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPLoginCommand);
 	
 	// Mod Synch
-    obse->RegisterCommand(&kMPPushNPCCommand) ;
 	obse->RegisterCommand(&kMPSynchActorsCommand);
     obse->RegisterCommand(&kMPBuildCacheCommand);
 	_MESSAGE("Done loading OO Commands");
