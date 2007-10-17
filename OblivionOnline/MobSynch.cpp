@@ -171,6 +171,8 @@ bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 	return true;
 }
 
+
+
  CommandInfo kMPSynchActorsCommand =
 {
 	"MPSynchActors",
@@ -194,6 +196,7 @@ bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 	Cmd_MPBuildCache_Execute
 };
 
+
 typedef std::pair< UINT32 , std::string > PCPair;
 stdext::hash_map<UINT32,std::string>  PCList;//fix up the hash code in itself
 bool PCAddFile(char *FileName)
@@ -211,6 +214,26 @@ bool PCAddFile(char *FileName)
 	}
 	return true;
 }
+bool Cmd_MPBuildPassiveCache_Execute(COMMAND_ARGS)
+{
+	if(bIsConnected)
+	{
+	PCAddFile("Oblivion.ooc");
+	bIsMasterClient = false;
+	}
+	return true;
+}
+CommandInfo kMPBuildPassiveCacheCommand =
+{
+	"MPBuildPassiveCache",
+	"MPBPC",
+	0,
+	"Adds an Object to the OO master cache . Not to be used manually",
+	0,		 // well it NEEDS one...
+	0,		
+	NULL,	// one string
+	Cmd_MPBuildPassiveCache_Execute
+};
 bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handler
 {
 	std::string ScriptString;

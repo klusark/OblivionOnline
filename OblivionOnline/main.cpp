@@ -1392,6 +1392,7 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	// Mod Synch
 	obse->RegisterCommand(&kMPSynchActorsCommand);
     obse->RegisterCommand(&kMPBuildCacheCommand);
+	obse->RegisterCommand(&kMPBuildPassiveCacheCommand); //remove these two for release, debug only
 	_MESSAGE("Done loading OO Commands");
 	return true;
 }
