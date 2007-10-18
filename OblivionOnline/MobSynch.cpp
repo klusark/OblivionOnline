@@ -79,6 +79,7 @@ bool NetSynchNPC(Actor *Actor)
 }
 bool MCAddClientCache(char *FileName) // add this file
 {
+	_MESSAGE("Starting to build Cache");
 	FILE *CacheFile;
 	FILE *LogFile;
 	MCActorBuf tempBuf;
@@ -119,10 +120,12 @@ bool MCAddClientCache(char *FileName) // add this file
 }
  bool MCbSynchActors() //called nearly every frame , so extremely important
 {
+	#if 1 
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
 	if((tickBuf - MobResynchTimer) > MC_MOBRESYNCH) //just synch every 50 ms 
 	{
+	
 	std::list<MCActorBuf>::iterator ActorIterator;
 	std::list<MCActorBuf>::iterator EndIterator = MCCache.end();
 	for(ActorIterator = MCCache.begin();ActorIterator!= EndIterator;ActorIterator++)
@@ -145,15 +148,26 @@ bool MCAddClientCache(char *FileName) // add this file
 		{
 			Console_Print("Detected failed injection !");
 		}
+
 	}
 	MobResynchTimer = tickBuf;
 	}
 	return true;
+	#endif
+	//brand new testing stuff, DO NOT USE. Always comment this before building
+#if 0
+	char OutputString[1200];
+	sprintf(OutputString,"Data :%512s %512s",
+	(*g_thePlayer)->parentCell->objectList->unk0.data, //some pointer. Probably an Actor Pointer- will dump data and see,
+	(*g_thePlayer)->parentCell->objectList->unk0.next);
+	Console_Print(OutputString);
+	return true;
+#endif	
 }
 bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 {
 
-	if(bIsMasterClient)
+	if(bIsMasterClient && bIsConnected)
 	{
 	if(bCacheBuilt)
 		MCbSynchActors();
@@ -197,20 +211,6 @@ bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 };
 
 
-typedef std::pair< UINT32 , std::string > PCPair;
-stdext::hash_map<UINT32,std::string>  PCList;//fix up the hash code in itself
-
-CommandInfo kMPBuildPassiveCacheCommand =
-{
-	"MPBuildPassiveCache",
-	"MPBPC",
-	0,
-	"Adds an Object to the OO master cache . Not to be used manually",
-	0,		 // well it NEEDS one...
-	0,		
-	NULL,	// one string
-	Cmd_MPBuildPassiveCache_Execute
-};
 bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handler
 {
 	std::string ScriptString;
