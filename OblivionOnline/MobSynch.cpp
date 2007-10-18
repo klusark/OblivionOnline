@@ -199,30 +199,7 @@ bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 
 typedef std::pair< UINT32 , std::string > PCPair;
 stdext::hash_map<UINT32,std::string>  PCList;//fix up the hash code in itself
-bool PCAddFile(char *FileName)
-{
-	FILE *CacheFile;
-	
-	char RefName[256];
-	UINT32 RefID;
-	CacheFile = fopen(FileName,"r");
-	while(!feof(CacheFile))
-	{
-		fscanf(CacheFile,"%s", RefName);
-		fscanf(CacheFile,"%u",&RefID);
-		PCList.insert(PCPair(RefID,RefName) );
-	}
-	return true;
-}
-bool Cmd_MPBuildPassiveCache_Execute(COMMAND_ARGS)
-{
-	if(bIsConnected)
-	{
-	PCAddFile("Oblivion.ooc");
-	bIsMasterClient = false;
-	}
-	return true;
-}
+
 CommandInfo kMPBuildPassiveCacheCommand =
 {
 	"MPBuildPassiveCache",
