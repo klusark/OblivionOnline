@@ -54,6 +54,7 @@ int StartNet(void);
 int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead);
 void info(void *);
 void adminthread(void *);
+typedef std::pair< std::string, std::string > UserPasswordPair;
 
 
 //Main entry procedure
@@ -246,6 +247,8 @@ int main(void)
 						sprintf(message,"%s - Accepted new connection #%d from %s:%u",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 						SendAdminMessage(message);
 					}
+					
+
 					easylog = fopen("Log.txt","a");
 					fprintf(easylog,"%s - Accepted new connection #(%d) from %s:%u\n",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					fprintf(easylog,"%s - We now have %d connections\n",MyTime,TotalClients);

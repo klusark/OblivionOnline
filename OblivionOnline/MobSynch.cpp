@@ -118,6 +118,13 @@ bool MCAddClientCache(char *FileName) // add this file
 	fclose(LogFile);
 	return true;
 }
+bool MCBuildCache()
+{
+	
+	MCAddClientCache("Oblivion.ooc");
+	bIsMasterClient = true;
+	return true;
+}
  bool MCbSynchActors() //called nearly every frame , so extremely important
 {
 	#if 1 
@@ -178,10 +185,7 @@ bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 {
 	if(bIsConnected)
-	{
-	MCAddClientCache("Oblivion.ooc");
-	bIsMasterClient = true;
-	}
+		MCBuildCache();
 	return true;
 }
 
@@ -213,6 +217,7 @@ bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 
 bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handler
 {
+	_ERROR("Received Mob Update"); // This should even be rpinted in release configurations-...
 	std::string ScriptString;
 	if(!bIsMasterClient)
 	{

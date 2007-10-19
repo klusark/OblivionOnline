@@ -351,7 +351,10 @@ bool OOPWelcome_Handler(char *Packet)
 	Players[LocalPlayer].Health = (*g_thePlayer)->GetActorValue(8);
 	Players[LocalPlayer].Magika = (*g_thePlayer)->GetActorValue(9);
 	Players[LocalPlayer].Fatigue = (*g_thePlayer)->GetActorValue(10);
-
+	if(InPkgBuf.Flags & 1) // Master Client
+	{
+		MCBuildCache();
+	}
 	//Tell server that we're ready to get init data from other clients
 	OOPkgWelcome pkgBuf;
 	pkgBuf.etypeID = OOPWelcome;
