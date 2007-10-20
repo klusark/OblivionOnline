@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(SolutionDir)\..\obse\obse&quot;;&quot;$(SolutionDir)\..\obse\&quot;"
+				AdditionalIncludeDirectories="&quot;C:\Programme\Microsoft DirectX SDK (April 2006)\Include&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(SolutionDir)\..\obse\obse&quot;;&quot;$(SolutionDir)\..\obse\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OBLIVION_VERSION=0x010201A0"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,8 +62,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib"
+				AdditionalDependencies="ws2_32.lib ddraw.lib dxguid.lib"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="&quot;C:\Programme\Microsoft DirectX SDK (April 2006)\Lib\x86&quot;"
 				ModuleDefinitionFile="exports.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -121,7 +122,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(SolutionDir)\..\obse\obse&quot;;&quot;$(SolutionDir)\..\obse\&quot;"
+				AdditionalIncludeDirectories="&quot;C:\Programme\Microsoft DirectX SDK (April 2006)\Include&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(SolutionDir)\..\obse\obse&quot;;&quot;$(SolutionDir)\..\obse\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBLIVION_VERSION=0x010201A0;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -141,8 +142,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib"
+				AdditionalDependencies="ws2_32.lib ddraw.lib dxguid.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;C:\Programme\Microsoft DirectX SDK (April 2006)\Lib\x86&quot;"
 				ModuleDefinitionFile="exports.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -353,6 +355,46 @@
 				RelativePath=".\OOStructs.h"
 				>
 			</File>
+			<Filter
+				Name="OverLayLib"
+				>
+				<File
+					RelativePath=".\Overlay\Exception.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Overlay\OverlayDraw.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Overlay\OverlayDraw.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Overlay\OverlayManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Overlay\OverlayManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Overlay\OverlayRectangle.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Overlay\OverlayRectangle.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Overlay\stdafx.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Overlay\stdafx.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

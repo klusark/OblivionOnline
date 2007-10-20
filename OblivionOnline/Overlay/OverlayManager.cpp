@@ -1,3 +1,4 @@
+/* These Files has been edited by masterfreek64. They have been changed to remove the dependency on the BOOST library. */
 /*
 Copyright (c) 2007 Muhammad Haggag
 
@@ -20,8 +21,6 @@ as being the original software.
 #include "stdafx.h"
 #include "OverlayManager.h"
 #include "Exception.h"
-#include <boost/format.hpp>
-
 #ifdef DEBUG
 #define DEBUG_MESSAGE(x) OutputDebugString(x)
 #else
@@ -280,9 +279,9 @@ namespace Overlay
 			return formats[4];
 		}
 		
-		throw std::out_of_range(boost::str(boost::format(
+		/* throw std::out_of_range(boost::str(boost::format(
 			"%1%: Argument 'format' is out of range. Value = %2%")
-			% __FUNCTION__ % format));
+			% __FUNCTION__ % format)); */
 	}
 
 	void OverlayManager::ShowOverlay(bool show)
@@ -393,9 +392,9 @@ namespace Overlay
 	{
 		if(!IsInitialized())
 		{
-			throw std::logic_error(boost::str(boost::format(
+				/*			throw std::logic_error(boost::str(boost::format(
 				"The function %1% was called on an uninitialized OverlayManager. Call "
-				"OverlayManager::Reset first.") % function));
+				"OverlayManager::Reset first.") % function));*/
 		}
 	}
 }

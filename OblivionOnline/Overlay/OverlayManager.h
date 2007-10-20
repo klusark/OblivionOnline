@@ -1,3 +1,4 @@
+/* These Files has been edited by masterfreek64. They have been changed to remove the dependency on the BOOST library. */
 /*
 Copyright (c) 2007 Muhammad Haggag
 
