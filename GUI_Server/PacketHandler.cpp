@@ -22,7 +22,7 @@ This file is part of OblivionOnline.
 #include "ConsoleServer.h"
 
 extern bool Connected[MAXCLIENTS];
-
+extern int MasterClient;
 bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgWelcome InPkgBuf;
@@ -86,6 +86,13 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 					SendAdminMessage(message);
 				}
 				return false;
+			}
+			if(MasterClient == -1)
+			{
+				// This one will be master client
+				OutPkgBuf.Flags = OutPkgBuf.Flags | 2;
+				MasterClient = LocalPlayer;
+				printf("Client %i was selected as master client", LocalPlayer);
 			}
 			OutPkgBuf.guidOblivionOnline = gcOOGUID;
 			OutPkgBuf.PlayerID = LocalPlayer;

@@ -49,6 +49,7 @@ char AdminPassword[32];
 typedef std::pair< UINT32 , std::string > MobPair;
 stdext::hash_map<UINT32,std::string>  MobList;
 */
+int MasterClient = -1;
 // Prototypes
 int StartNet(void);
 int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead);
@@ -141,7 +142,7 @@ int main(void)
 
 	//If no pw was in the file, use default
 	if(!strlen(ServerPassword))
-		strcpy(ServerPassword, "nopassword");
+		strcpy(ServerPassword, "");
 
 	// start WinSock
 	rc=StartNet();
@@ -296,6 +297,22 @@ int main(void)
 						sprintf(message,"%s - Client %d closed the Connection",MyTime,LocalPlayer);
 						SendAdminMessage(message);
 					}
+					if(LocalPlayer == MasterClient)
+					{
+						// Remove him and select a new master client
+						for(int i = 0;i < MAXCLIENTS;i++)
+						{
+							if(Connected[i])
+							{
+								MasterClient = i; // update that on the net
+								OOPkgWelcome OutPkgBuf;
+								OutPkgBuf.etypeID = OOPWelcome;
+								OutPkgBuf.Flags = 2 | 4;
+								send(clients[LocalPlayer],(char *)&OutPkgBuf,sizeof(OOPkgWelcome),0);
+							}
+						}
+					}
+								
 					easylog = fopen("Log.txt","a");
 					fprintf(easylog,"%s - Client %d closed the Connection\n",MyTime,LocalPlayer);
 					fprintf(easylog,"%s - We now have %d connection(s)\n",MyTime,TotalClients);
