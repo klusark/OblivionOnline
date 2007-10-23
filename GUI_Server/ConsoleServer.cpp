@@ -453,6 +453,8 @@ void info(void *arg)
 			HasPassword = true;
 
 		while(true){
+
+			// THIS IS SOOOO UGLY !!!! Replace y a proper libcurl implementation
 			char srequest[384];
 			sprintf(srequest, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", LISTFILE, LISTNAME, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION, HasPassword, LISTHOST);
 			
@@ -499,7 +501,7 @@ void adminthread(void *arg)
 	//Setup bind and listen on socket
 	memset(&sinLocal,0,sizeof(SOCKADDR_IN));
 	sinLocal.sin_family=AF_INET;
-	sinLocal.sin_port=htons(serverPort-1);
+	sinLocal.sin_port=htons(serverPort-1);//This should be fixed and customised. On most NATs this port won' be routed. Instead we should remove all Winsock Code, add the packages to the main packet stream , and route them through a std::queue with Mutex
 	sinLocal.sin_addr.s_addr=INADDR_ANY;
 	int rc = bind(acceptSocket,(SOCKADDR*)&sinLocal,sizeof(SOCKADDR_IN));
 	if (rc == SOCKET_ERROR)

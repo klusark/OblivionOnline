@@ -335,7 +335,10 @@ bool OOPWelcome_Handler(char *Packet)
 {
 	OOPkgWelcome InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
-	if (InPkgBuf.Flags)
+	if(!(InPkgBuf.Flags & 2)) // Ignore Data Flag is not set
+	{
+
+	if (InPkgBuf.Flags & 1)
 		bIsAuthenticated = true;
 	else{
 		Console_Print("Authentication failed");
@@ -351,15 +354,22 @@ bool OOPWelcome_Handler(char *Packet)
 	Players[LocalPlayer].Health = (*g_thePlayer)->GetActorValue(8);
 	Players[LocalPlayer].Magika = (*g_thePlayer)->GetActorValue(9);
 	Players[LocalPlayer].Fatigue = (*g_thePlayer)->GetActorValue(10);
-	if(InPkgBuf.Flags & 1) // Master Client
-	{
-		MCBuildCache();
-	}
-	//Tell server that we're ready to get init data from other clients
+		//Tell server that we're ready to get init data from other clients
 	OOPkgWelcome pkgBuf;
 	pkgBuf.etypeID = OOPWelcome;
 	pkgBuf.Flags = 1;
 	send(ServerSocket, (char *)&pkgBuf, sizeof(OOPkgWelcome), 0);
+	}
+	}
+// Here we hande the so -called "Mode Flags " from 4 (MC ) upwards.
+
+// Flag 4 - Master Client ...
+	if(InPkgBuf.Flags & 4) // Master Client
+	{
+		MCBuildCache();
+	}
+// other flags below here 
+
 	return true;
 }
 

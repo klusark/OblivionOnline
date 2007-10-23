@@ -74,7 +74,7 @@ struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE
 {
 	//4 bytes(most common enum) is a lot .... but better than a short and a hell of problems later
 	OOPacketType etypeID;  // has to be OOPWelcome
-	short Flags; //2 means master client , 4 means Ignore everything but Flags ( new MC)
+	short Flags; //4 means master client , 2 means Ignore everything but Flags ( new MC)
 	short PlayerID; // 0 for client
 	WORD wVersion; // LowerByte contains subversion ( or bugfix ) Higher Byte contains major release
 	GUID guidOblivionOnline; // contains OblivionOnline GUID , this is once defined by me and never to be changed.
