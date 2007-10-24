@@ -99,7 +99,7 @@ bool MCAddClientCache(char *FileName) // add this file
 			{
 				
 				MCCache.push_back(tempBuf); //ok we pushed him in
-				fprintf(LogFile,"%s %u was detected at %ul\n",RefName,RefID,tempBuf.Actor);
+				fprintf(LogFile,"%s %u was detected at %ul\n",RefName,RefID,(unsigned int)tempBuf.Actor);
 			}
 			else
 			{
@@ -120,9 +120,16 @@ bool MCAddClientCache(char *FileName) // add this file
 }
 bool MCBuildCache()
 {
-	
-	MCAddClientCache("Oblivion.ooc");
+	if(!bCacheBuilt)
+	{
+		MCAddClientCache("Oblivion.ooc");
+	}
 	bIsMasterClient = true;
+	return true;
+}
+bool MCMakePassive()		//changes client mode to passive
+{
+	bIsMasterClient = false;
 	return true;
 }
  bool MCbSynchActors() //called nearly every frame , so extremely important

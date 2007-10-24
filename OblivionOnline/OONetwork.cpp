@@ -336,8 +336,7 @@ bool OOPWelcome_Handler(char *Packet)
 	OOPkgWelcome InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
 	if(!(InPkgBuf.Flags & 2)) // Ignore Data Flag is not set
-	{
-
+	{	
 	if (InPkgBuf.Flags & 1)
 		bIsAuthenticated = true;
 	else{
@@ -360,13 +359,21 @@ bool OOPWelcome_Handler(char *Packet)
 	pkgBuf.Flags = 1;
 	send(ServerSocket, (char *)&pkgBuf, sizeof(OOPkgWelcome), 0);
 	}
+	if(InPkgBuf.Flags & 4) // Master Client
+	{
+		
 	}
+
 // Here we hande the so -called "Mode Flags " from 4 (MC ) upwards.
 
 // Flag 4 - Master Client ...
 	if(InPkgBuf.Flags & 4) // Master Client
 	{
 		MCBuildCache();
+	}
+	else
+	{
+		MCMakePassive();
 	}
 // other flags below here 
 
