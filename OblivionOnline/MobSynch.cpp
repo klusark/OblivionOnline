@@ -63,6 +63,7 @@ bool NetSynchNPC(Actor *Actor)
 	pkgBuf.Health = Actor->GetActorValue(8);
 	pkgBuf.Magika = Actor->GetActorValue(9);
 	pkgBuf.Fatigue = Actor->GetActorValue(10);
+	Console_Print("Synchronising : %s",Actor->GetEditorName());
 	if(Actor->parentCell->worldSpace)
 	{
 				pkgBuf.Flags = 2|4; //Exterior
