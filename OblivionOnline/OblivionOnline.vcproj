@@ -363,6 +363,10 @@
 				RelativePath=".\OOStructs.h"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="External Dependencies"
+			>
 			<Filter
 				Name="OverLayLib"
 				>

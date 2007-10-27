@@ -1,0 +1,8 @@
+The folders contain what they say:
+common. common OBSE stuff.
+GUI_Server - the server sources.
+obse- Obse sources
+ServerBrowser - My Launcher GUI
+Setup - The Setup Project
+OblivionOnlineModFiles - The Files for the data directory
+AdditionalFiles - Tne Files for the /oblivion/OblivionOnline directory 
