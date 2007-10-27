@@ -174,3 +174,47 @@ bool UserInterface::LoadFont()
 		}
 
 }
+bool UserInterface::FillRenderBuffer()
+{
+	if(!RenderBuffer)
+		Console_Print("No render buffer present, creating it");
+	RenderBuffer = (BYTE *)malloc(3*Width*Height); // 3 bytes per pixel , Width * Height Pixels;
+	if(!RenderBuffer)
+	{
+		Console_Print("Could not create render buffer. UserInterface::FillRenderBuffer() fails");
+		return false;
+	}
+	memcpy(RenderBuffer,BmpData,(3*Width*Height));// We fill it with the background first
+	for(int i = 1; i < 9; i++) // We leave the Row 0 out , because it is used for Input
+	{
+		size_t length = strlen(ChatLines[i]); // We use it multiple times, and strlen is slow .
+		USHORT x,y,currentchar;
+		BYTE *CurrentPixel;
+		// M-T tradeoff
+		// We now create all strings that are present ,
+		if(length) // This string exists , we can render it
+		{
+			y = 16 * i + 25; //linear function to determine our y value. Practical Math :)
+			for(int cx = 0; cx < length; cx++)
+			{
+				// here we render a single character
+				x = 10 * cx + 25; //linear function to determine our x value. Practical Math to the power of 2:)
+				for(int row = 0; row < 16;row++)
+				{
+					// we render a single character line
+					for (int col = 0; col < 10 ; col++)
+					{
+						// We get the pixel we are working on
+						CurrentPixel = (BYTE *)(RenderBuffer + ((y+row)*3*Width+((x+col)*3))); 
+						// This can for sure be changed, perhaps something incrementing
+
+						// we change it.
+						memcpy(CurrentPixel,(void *)(BmpFont + (3*((ChatLines[i][cx] / 16)*15+row)*Width)+(3*((ChatLines[i][cx] % 16)*15+col))),3); //OMG 
+						// this will be optimised
+
+					}
+				}
+			}
+		}		
+	}
+}
