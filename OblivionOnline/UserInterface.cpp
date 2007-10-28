@@ -7,6 +7,7 @@ extern UserInterface usrInterface; // Pointer to the sole instance
 UserInterface::UserInterface(void)
 {
 // 0 everything
+	_MESSAGE("User Interface Loading ...");
 	bVisible = false;
 	Height = 200;
 	Width = 400;
@@ -16,6 +17,8 @@ UserInterface::UserInterface(void)
 		Console_Print("Could not open file /gui/OOchat.bmp");
 	LoadBMP();
 	LoadFont();
+	//Hook the Keyboard
+
 }
 
 UserInterface::~UserInterface(void)
