@@ -272,6 +272,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 
 bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 {
+	_MESSAGE("MPSEndActor Called");
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPSendActor");
@@ -411,6 +412,7 @@ bool Cmd_MPSyncTime_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 {
+	_MESSAGE("X position retrieved...");
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetPosX");

@@ -57,7 +57,39 @@ bool UserInterface::RegisterChatMessage(std::string Message, std::string Sender)
 		strcpy(ChatLines[4],ChatLines[5]);
 		strcpy(ChatLines[5],ChatLines[6]);
 		strcpy(ChatLines[6],ChatLines[7]);
-		strcpy(ChatLines[7],Message.c_str());
+		strncpy(ChatLines[7],Message.c_str(),33);
+		return true;
+	}
+	if(NumLines <= 7)
+	{
+		int cx = 7;
+		do  // first we move the lines up , just like we need them
+		{
+			strcpy(ChatLines[cx-NumLines],ChatLines[cx]);
+			cx--;
+		}
+		while(cx - NumLines >= 0);
+		for(int cx = 0;cx <= NumLines;cx++)
+		{
+			// now we set our text
+			strncpy(ChatLines[(7-NumLines)],(Message.c_str()+cx*33),33); // We draw 33 Characters per line. Not bery elegant , but why care...
+		}
+		return true;		
+	}
+	else
+	{
+		//special code for people like Stalker. I know it is hard, but 6*33 = 198 characters is ok. If that is not enough write multiple messages or view the console
+		Message = "Spam blocked.See Console.Sender:";
+		Message += Sender;
+		// Easiest way for now....
+		strcpy(ChatLines[0],ChatLines[1]);
+		strcpy(ChatLines[1],ChatLines[2]);
+		strcpy(ChatLines[2],ChatLines[3]);
+		strcpy(ChatLines[3],ChatLines[4]);
+		strcpy(ChatLines[4],ChatLines[5]);
+		strcpy(ChatLines[5],ChatLines[6]);
+		strcpy(ChatLines[6],ChatLines[7]);
+		strncpy(ChatLines[7],Message.c_str(),33);
 		return true;
 	}
 	return false;
