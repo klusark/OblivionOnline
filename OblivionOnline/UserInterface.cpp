@@ -2,6 +2,7 @@
 #include <cstdio>
 #include "main.h"
 
+extern bool NetChat(char *Message);
 UserInterface::UserInterface(void)
 {
 // 0 everything
@@ -131,7 +132,7 @@ bool UserInterface::RegisterKeystroke(WPARAM Key)
 {
 	if(IsTyping)
 	{
-		if((DWORD)Key != VK_ENTER)
+		if((DWORD)Key != VK_RETURN)
 		{
 			char buf = MapVirtualKey(Key,0); // We make a char
 			strncat(ChatLines[8],&buf,1);
@@ -144,7 +145,7 @@ bool UserInterface::RegisterKeystroke(WPARAM Key)
 	}
 	else
 	{
-		if((DWORD)Key != VK_ENTER)
+		if((DWORD)Key != VK_RETURN)
 		{
 			IsTyping = true;
 		}
@@ -266,10 +267,9 @@ bool UserInterface::FillRenderBuffer()
 							// again we shift from BGR to RGB....
 							//original calculation on the pixel source pointer
 							//*(BmpFont + (3*((ChatLines[i][cx] / 16)*15+row)*Width)+(3*((ChatLines[i][cx] % 16)*15+col)));
-							// This was wrong BTW :/
-							*(CurrentPixel+2) = *SourcePixel
-							*(CurrentPixel+1) = *(SourcePixel+1);
-							*(CurrentPixel) = *(SourcePixel+2);
+							CurrentPixel[2] = SourcePixel[0];
+							CurrentPixel[1] = SourcePixel[1];
+							CurrentPixel[0] = SourcePixel[2];
 							CurrentPixel += 3; 
 						}
 						SourcePixel += 3; // next byte
@@ -294,6 +294,7 @@ LRESULT __declspec(dllexport)__stdcall  CALLBACK KeyboardHookProc(int nCode,WPAR
        
     }
 
-    LRESULT RetVal = CallNextHookEx( hkb, nCode, wParam, lParam );
-    return  RetVal;
+    //LRESULT RetVal = CallNextHookEx( hkb, nCode, wParam, lParam );
+    return  1;
+	
 }

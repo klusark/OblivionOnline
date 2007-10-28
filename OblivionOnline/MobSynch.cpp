@@ -117,6 +117,7 @@ bool MCAddClientCache(char *FileName) // add this file
 		}
 	}
 	Console_Print("Cache build completed, %i References found",MCCache.size());
+	_MESSAGE("Cache Built");
 	bCacheBuilt = true;
 	fclose(LogFile);
 	return true;
@@ -126,7 +127,7 @@ bool MCBuildCache()
 {
 	if(!bCacheBuilt)
 	{
-		MCAddClientCache("Oblivion.ooc");
+		MCAddClientCache("OblivionOnline/Oblivion.ooc");
 	}
 	bIsMasterClient = true;
 	return true;

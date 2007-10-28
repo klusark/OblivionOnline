@@ -37,6 +37,7 @@ This file is part of OblivionOnline.
 */
 
 #include "main.h"
+#include "UserInterface.h"
 #include "OONetwork.h"
 
 // Global variables
@@ -58,6 +59,7 @@ HANDLE hPredictionEngine;
 PlayerStatus Players[MAXCLIENTS];
 PlayerStatus PlayersInitial[MAXCLIENTS];
 TESObjectREFR* PlayerActorList[MAXCLIENTS];
+UserInterface usrInterface;
 
 int BadPackets[PACKET_COUNT];	//Keeps track of # of bad packets of each type
 
@@ -259,6 +261,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 				//Now try to connect with default password
 				NetWelcome("nopassword");
 				Console_Print("Oblivion connected to %s",IP[i]);
+				usrInterface.SetGlobalState(true); // we start it ...
 				break;
 			}
 		}
