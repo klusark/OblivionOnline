@@ -127,6 +127,29 @@ bool UserInterface::LoadBMP()
 
 	}
 }
+bool UserInterface::RegisterKeystroke(WPARAM Key)
+{
+	if(IsTyping)
+	{
+		if((DWORD)Key != VK_ENTER)
+		{
+			char buf = MapVirtualKey(Key,0); // We make a char
+			strncat(ChatLines[8],&buf,1);
+		}
+		else
+		{
+			IsTyping = false; // we ave to send a chat message now
+			NetChat(ChatLines[8]);
+		}
+	}
+	else
+	{
+		if((DWORD)Key != VK_ENTER)
+		{
+			IsTyping = true;
+		}
+	}
+}
 bool UserInterface::LoadFont()
 {
 	BITMAPINFOHEADER *Header;
@@ -261,4 +284,16 @@ bool UserInterface::FillRenderBuffer()
 			CurrentBasePixel += 3*(Width-10*length);
 		}		
 	}
+}
+// our Hook Procedure
+LRESULT __declspec(dllexport)__stdcall  CALLBACK KeyboardHookProc(int nCode,WPARAM wParam, 
+                            LPARAM lParam)
+{           
+    if (!((DWORD)lParam & 2147483648) &&(HC_ACTION==nCode))
+    {        
+       
+    }
+
+    LRESULT RetVal = CallNextHookEx( hkb, nCode, wParam, lParam );
+    return  RetVal;
 }

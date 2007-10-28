@@ -16,12 +16,15 @@ public:
 	void RenderingCallback(IDirectDrawSurface7* overlayBackSurface,
 								  Overlay::PixelFormat format,
 								  void* userData);
+	bool RegisterKeystroke(WPARAM Key); // This is called when we find a 
+		
 	
 private:
 	bool LoadFont(); // this creates our font
 	bool LoadBMP();
 	bool bVisible;
 	bool FillRenderBuffer(); // A function that renders the current text
+	bool IsTyping;
 	FILE *BmpFileHandle;
 	BYTE *FileData; // Raw Data of the File
 	BYTE *RenderBuffer; // This contains the raw BMP data to be rendered. Like that we only have to redo the complex font calculations when a new message is incoming
