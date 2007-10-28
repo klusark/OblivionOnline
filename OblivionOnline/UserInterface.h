@@ -1,5 +1,6 @@
 #pragma once
 #include "Overlay/OverlayManager.h"
+#include "Overlay/OverlayDraw.h"
 class UserInterface
 {
 public:

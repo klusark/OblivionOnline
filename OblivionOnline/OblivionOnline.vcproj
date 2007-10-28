@@ -327,10 +327,6 @@
 				RelativePath=".\UserInterface.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\UserInterface.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Headers"
@@ -361,6 +357,10 @@
 			</File>
 			<File
 				RelativePath=".\OOStructs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UserInterface.h"
 				>
 			</File>
 		</Filter>

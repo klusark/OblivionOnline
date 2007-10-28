@@ -49,6 +49,7 @@ std::list<MCActorBuf> MCCache;
 DWORD MobResynchTimer ; // seperate , because no seperate packet
 bool bIsMasterClient = false;
 bool bCacheBuilt = false;
+// Here we send an NPC over the net
 bool NetSynchNPC(Actor *Actor)
 {
 	OOPkgActorUpdate pkgBuf;
@@ -78,6 +79,7 @@ bool NetSynchNPC(Actor *Actor)
 	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgActorUpdate),0);
 	return true;
 }
+// We load an .ooc file
 bool MCAddClientCache(char *FileName) // add this file
 {
 	_MESSAGE("Starting to build Cache");
@@ -119,6 +121,7 @@ bool MCAddClientCache(char *FileName) // add this file
 	fclose(LogFile);
 	return true;
 }
+// We load all OOCs. And make us a Master Client
 bool MCBuildCache()
 {
 	if(!bCacheBuilt)
@@ -128,11 +131,14 @@ bool MCBuildCache()
 	bIsMasterClient = true;
 	return true;
 }
+// We set us to passive. We still keep the cache if present
 bool MCMakePassive()		//changes client mode to passive
 {
 	bIsMasterClient = false;
 	return true;
 }
+
+// This is used in a command to go thorugh the cache and look for mobs that changed position
  bool MCbSynchActors() //called nearly every frame , so extremely important
 {
 	#if 1 
@@ -179,6 +185,7 @@ bool MCMakePassive()		//changes client mode to passive
 	return true;
 #endif	
 }
+ // This just calls MCbSynchActors
 bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 {
 
@@ -190,6 +197,7 @@ bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 	
 	return true;
 }
+//Used manually to build the cache .... SHOULD NOT BE USED atm.... we use the welcome code for that
 bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 {
 	if(bIsConnected)

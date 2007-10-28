@@ -1,6 +1,7 @@
 #include "UserInterface.h"
 #include <cstdio>
 #include "main.h"
+
 UserInterface::UserInterface(void)
 {
 // 0 everything
@@ -75,7 +76,14 @@ void UserInterface::RenderingCallback(IDirectDrawSurface7* overlayBackSurface,
 								  Overlay::PixelFormat format,
 								  void* userData)
 {
-	
+	UserInterface *thisObj = (UserInterface *)userData;
+	Overlay::ImageRgb24 image =
+	{
+		RenderBuffer, // data
+		thisObj->Width,
+		thisObj->Height
+	};
+	Overlay::Blit(overlayBackSurface,0,0,image,0,0);
 	
 }
 bool UserInterface::LoadBMP()
@@ -184,33 +192,49 @@ bool UserInterface::FillRenderBuffer()
 		Console_Print("Could not create render buffer. UserInterface::FillRenderBuffer() fails");
 		return false;
 	}
-	memcpy(RenderBuffer,BmpData,(3*Width*Height));// We fill it with the background first
+	//memcpy(RenderBuffer,BmpData,(3*Width*Height));// We fill it with the background first
+	//Bitmap contains BGR, we need RGB... so we have got to cdopy it ourselves
+	int maxval = (3*Width*Height);
+	for(int i = 0 ;i < maxval;i += 3)
+	{
+		RenderBuffer[i] = BmpData[i+2]; // We copy the red value
+		RenderBuffer[i+1] = BmpData[i+1]; // We copy the green value
+		RenderBuffer[i+2] = BmpData [i]; // we copy the 
+	}
+	// now we do the text
+	//first rows
 	for(int i = 1; i < 9; i++) // We leave the Row 0 out , because it is used for Input
 	{
 		size_t length = strlen(ChatLines[i]); // We use it multiple times, and strlen is slow .
-		USHORT x,y,currentchar;
+		USHORT x,y;
 		BYTE *CurrentPixel;
 		// M-T tradeoff
 		// We now create all strings that are present ,
 		if(length) // This string exists , we can render it
 		{
 			y = 16 * i + 25; //linear function to determine our y value. Practical Math :)
+			// then column
 			for(int cx = 0; cx < length; cx++)
 			{
 				// here we render a single character
 				x = 10 * cx + 25; //linear function to determine our x value. Practical Math to the power of 2:)
+				// then pixel row
 				for(int row = 0; row < 16;row++)
 				{
-					// we render a single character line
+					// we render a single character column
 					for (int col = 0; col < 10 ; col++)
 					{
-						// We get the pixel we are working on
+						// We render the pixel we are working on
 						CurrentPixel = (BYTE *)(RenderBuffer + ((y+row)*3*Width+((x+col)*3))); 
 						// This can for sure be changed, perhaps something incrementing
 
-						// we change it.
-						memcpy(CurrentPixel,(void *)(BmpFont + (3*((ChatLines[i][cx] / 16)*15+row)*Width)+(3*((ChatLines[i][cx] % 16)*15+col))),3); //OMG 
-						// this will be optimised
+						// we change it. 
+						// again we shift from BGR to RGB....
+						*(CurrentPixel+2) = *(BmpFont + (3*((ChatLines[i][cx] / 16)*15+row)*Width)+(3*((ChatLines[i][cx] % 16)*15+col)));
+						*(CurrentPixel+1) = *(BmpFont + (3*((ChatLines[i][cx] / 16)*15+row)*Width)+(3*((ChatLines[i][cx] % 16)*15+col))+1);
+						*(CurrentPixel) = *(BmpFont + (3*((ChatLines[i][cx] / 16)*15+row)*Width)+(3*((ChatLines[i][cx] % 16)*15+col))+2);
+
+						// this will be optimised , just after I checked out , but I want to keep this , for security reasons
 
 					}
 				}
