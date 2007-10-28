@@ -202,43 +202,63 @@ bool UserInterface::FillRenderBuffer()
 		RenderBuffer[i+2] = BmpData [i]; // we copy the 
 	}
 	// now we do the text
-	//first rows
-	for(int i = 1; i < 9; i++) // We leave the Row 0 out , because it is used for Input
+	//these are variables in  the for loop , but we define them outside of the loop to save a bit of CPU time with cleanup
+	/*USHORT y = 9;// 25 is our standard offset, but we add 16 before rendering ...
+	USHORT x = 15;// 25 is our standard offset, but we add 10 before rendering ...*/
+	//CurrentPixel = (BYTE *)(RenderBuffer + ((y+row)*3*Width+((x+col)*3))); 
+	
+	BYTE *CurrentBasePixel = (BYTE *)(RenderBuffer + 25*3*Width + 25*3 ); //This defines the pointer to the upper left of the current character
+	BYTE *CurrentPixel; // The pixel the loop is working on
+	size_t length;  
+
+	BYTE *SourcePixel;
+	// Memory - Time tradeoff
+	// We now create all strings that are present 
+	for(int i = 0; i < 9; i++) // Row 8 is for input but still rendered
 	{
-		size_t length = strlen(ChatLines[i]); // We use it multiple times, and strlen is slow .
-		USHORT x,y;
-		BYTE *CurrentPixel;
-		// M-T tradeoff
-		// We now create all strings that are present ,
+		length = strlen(ChatLines[i]); // We use it multiple times, and strlen is slow .
 		if(length) // This string exists , we can render it
-		{
-			y = 16 * i + 25; //linear function to determine our y value. Practical Math :)
+		{			
 			// then column
 			for(int cx = 0; cx < length; cx++)
 			{
-				// here we render a single character
-				x = 10 * cx + 25; //linear function to determine our x value. Practical Math to the power of 2:)
-				// then pixel row
+				// here we render a single character				
+				CurrentPixel = CurrentBasePixel;
+				// We render the actual character
+				// first  row
+				//1. We get the upper left corner of our character
+				// NOTE: c does INTEGER DIVISON here -> so we cannot remove that
+				// explanation: We divide the ASCII value by 16 , thus getting our row. Then , because each row is 16 pixels high we advacne 16 lines
+				// then we take the modulo and advance to the upper left pixel
+				SourcePixel = BmpFont  + 3*256*( ChatLines[i][cx]/16)*16 + 3*(ChatLines[i][cx]%16)*16; 
 				for(int row = 0; row < 16;row++)
 				{
-					// we render a single character column
+					// then col
 					for (int col = 0; col < 10 ; col++)
 					{
-						// We render the pixel we are working on
-						CurrentPixel = (BYTE *)(RenderBuffer + ((y+row)*3*Width+((x+col)*3))); 
-						// This can for sure be changed, perhaps something incrementing
-
-						// we change it. 
-						// again we shift from BGR to RGB....
-						*(CurrentPixel+2) = *(BmpFont + (3*((ChatLines[i][cx] / 16)*15+row)*Width)+(3*((ChatLines[i][cx] % 16)*15+col)));
-						*(CurrentPixel+1) = *(BmpFont + (3*((ChatLines[i][cx] / 16)*15+row)*Width)+(3*((ChatLines[i][cx] % 16)*15+col))+1);
-						*(CurrentPixel) = *(BmpFont + (3*((ChatLines[i][cx] / 16)*15+row)*Width)+(3*((ChatLines[i][cx] % 16)*15+col))+2);
-
-						// this will be optimised , just after I checked out , but I want to keep this , for security reasons
-
+						// for font transparency we check if all values are not null
+						if(*(CurrentPixel+2) && *(CurrentPixel+1) && *CurrentPixel)
+						{
+							// We render the pixel we are working on
+							// again we shift from BGR to RGB....
+							//original calculation on the pixel source pointer
+							//*(BmpFont + (3*((ChatLines[i][cx] / 16)*15+row)*Width)+(3*((ChatLines[i][cx] % 16)*15+col)));
+							// This was wrong BTW :/
+							*(CurrentPixel+2) = *SourcePixel
+							*(CurrentPixel+1) = *(SourcePixel+1);
+							*(CurrentPixel) = *(SourcePixel+2);
+							CurrentPixel += 3; 
+						}
+						SourcePixel += 3; // next byte
 					}
+					//we advanced 30 bytes already , now advance the rest so we get a new line
+					CurrentPixel += (3 * Width - 30);
+					SourcePixel += 678; //  We advance to the next line -> 3*(256 -30)= 678
 				}
+				CurrentBasePixel += 3 * 10;  // We go to the next character
 			}
+			// we advace the rest of the line ...
+			CurrentBasePixel += 3*(Width-10*length);
 		}		
 	}
 }
