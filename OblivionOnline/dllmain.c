@@ -36,12 +36,13 @@ This file is part of OblivionOnline.
 	forward this exception.
 */
 #include <Windows.h>
-
+HANDLE hDll; // we need this for hooking the keyborad
 BOOL WINAPI DllMain(
         HANDLE  hDllHandle,
         DWORD   dwReason,
         LPVOID  lpreserved
         )
 {
+	hDll = hDllHandle;
 	return TRUE;
 }

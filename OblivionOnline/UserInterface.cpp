@@ -1,8 +1,9 @@
 #include "UserInterface.h"
 #include <cstdio>
 #include "main.h"
-
+HANDLE hDll; // we need this for hooking the keyboard
 extern bool NetChat(char *Message);
+extern UserInterface usrInterface; // Pointer to the sole instance
 UserInterface::UserInterface(void)
 {
 // 0 everything
@@ -39,6 +40,23 @@ UserInterface::~UserInterface(void)
 // Call this when a message is incoming 
 bool UserInterface::RegisterChatMessage(std::string Message, std::string Sender)
 {
+	int NumLines = (Message.length() +Sender.length() + 1)/33; // Number of Lines
+	Message = Sender + ":" + Message; // we create the real message
+	//
+
+	if(NumLines == 0) // means we got 1 line ... incomplete
+	{
+		// Easiest way for now....
+		strcpy(ChatLines[0],ChatLines[1]);
+		strcpy(ChatLines[1],ChatLines[2]);
+		strcpy(ChatLines[2],ChatLines[3]);
+		strcpy(ChatLines[3],ChatLines[4]);
+		strcpy(ChatLines[4],ChatLines[5]);
+		strcpy(ChatLines[5],ChatLines[6]);
+		strcpy(ChatLines[6],ChatLines[7]);
+		strcpy(ChatLines[7],Message.c_str());
+		return true;
+	}
 	return false;
 }
 
@@ -80,7 +98,7 @@ void UserInterface::RenderingCallback(IDirectDrawSurface7* overlayBackSurface,
 	UserInterface *thisObj = (UserInterface *)userData;
 	Overlay::ImageRgb24 image =
 	{
-		RenderBuffer, // data
+		thisObj->RenderBuffer, // data
 		thisObj->Width,
 		thisObj->Height
 	};
@@ -285,6 +303,13 @@ bool UserInterface::FillRenderBuffer()
 		}		
 	}
 }
+bool UserInterface::Update()
+{
+	FillRenderBuffer(); // We do that here....
+	while(!OverlayMgr->Update(&UserInterface::RenderingCallback,this))
+		Sleep(50); // we wait a bit until we can get the surfaces
+	return true;
+}
 // our Hook Procedure
 LRESULT __declspec(dllexport)__stdcall  CALLBACK KeyboardHookProc(int nCode,WPARAM wParam, 
                             LPARAM lParam)
@@ -294,7 +319,7 @@ LRESULT __declspec(dllexport)__stdcall  CALLBACK KeyboardHookProc(int nCode,WPAR
        
     }
 
-    //LRESULT RetVal = CallNextHookEx( hkb, nCode, wParam, lParam );
+    LRESULT RetVal = CallNextHookEx( 0, nCode, wParam, lParam );
     return  1;
 	
 }

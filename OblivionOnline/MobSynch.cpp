@@ -54,7 +54,6 @@ bool NetSynchNPC(Actor *Actor)
 {
 	OOPkgActorUpdate pkgBuf;
 	pkgBuf.etypeID = OOPActorUpdate;
-	
 	pkgBuf.fPosX = Actor->posX ; //Actor
 	pkgBuf.fPosY = Actor->posY;
 	pkgBuf.fPosZ = Actor->posZ;

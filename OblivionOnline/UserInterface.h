@@ -13,13 +13,12 @@ public:
 	// Sets if the User Interface should be displayed. Note that this DOES release all resources etc. 
 	bool SetGlobalState(bool Visible);
 	//Renders the Frame
-	void RenderingCallback(IDirectDrawSurface7* overlayBackSurface,
+	static void RenderingCallback(IDirectDrawSurface7* overlayBackSurface,
 								  Overlay::PixelFormat format,
 								  void* userData);
-	bool RegisterKeystroke(WPARAM Key); // This is called when we find a 
-		
-	
+	bool RegisterKeystroke(WPARAM Key); // This is called when we find a keystroke in the hook
 private:
+	bool Update();
 	bool LoadFont(); // this creates our font
 	bool LoadBMP();
 	bool bVisible;
