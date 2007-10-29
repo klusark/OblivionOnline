@@ -180,6 +180,7 @@ bool UserInterface::LoadBMP()
 		}
 
 	}
+	return false;
 }
 bool UserInterface::RegisterKeystroke(WPARAM Key)
 {
@@ -203,6 +204,7 @@ bool UserInterface::RegisterKeystroke(WPARAM Key)
 			IsTyping = true;
 		}
 	}
+	return true;
 }
 bool UserInterface::LoadFont()
 {
@@ -257,7 +259,7 @@ bool UserInterface::LoadFont()
 			BmpFont = (BYTE *)(FileData + ((DWORD)fileheader[10]-14)); // We use the offset - 14 bytes because we did NOT copy the file header
 			}
 		}
-
+	return false;
 }
 bool UserInterface::FillRenderBuffer()
 {
@@ -337,6 +339,7 @@ bool UserInterface::FillRenderBuffer()
 			CurrentBasePixel += 3*(Width-10*length);
 		}		
 	}
+	return false;
 }
 bool UserInterface::Update()
 {

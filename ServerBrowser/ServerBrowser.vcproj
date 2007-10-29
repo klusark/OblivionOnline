@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib ws2_32.lib shell32.lib shlwapi.lib"
+				AdditionalDependencies="curllib.lib comctl32.lib ws2_32.lib  winmm.lib shlwapi.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;C:\Users\Julian\Documents\Visual Studio 2005\Projects\OblivionOnline\libcurl-7.16.4&quot;"
 				GenerateDebugInformation="true"
@@ -120,6 +120,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="./ ../ "
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -138,7 +139,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Comctl32.lib ws2_32.lib shell32.lib shlwapi.lib "
+				AdditionalDependencies="curllib.lib comctl32.lib ws2_32.lib  winmm.lib shlwapi.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;C:\Users\Julian\Documents\Visual Studio 2005\Projects\OblivionOnline\libcurl-7.16.4&quot;"
 				GenerateDebugInformation="false"

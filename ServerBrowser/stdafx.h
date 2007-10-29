@@ -44,7 +44,7 @@ This file is part of OblivionOnline.
 #endif
 
 #include <shlobj.h>
-#include <windows.h>
+#include <Windows.h>
 // C RunTime Header Files
 #include <stdlib.h>
 #include <malloc.h>

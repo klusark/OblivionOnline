@@ -21,12 +21,25 @@ This file is part of OblivionOnline.
 // ServerBrowser.cpp : Defines the entry point for the application.
 //
 #include "stdafx.h"
+#define CURL_STATICLIB
 
 
 #include "ServerBrowser.h"
+#include "libcurl/curl.h"
 #include <queue>
 #define NETWORKERROR(x) MessageBoxA(NULL,x,"Networking Error",0); WSACleanup();
 #define MAX_LOADSTRING 100
+
+// from curl example
+#include "libcurl/types.h"
+#include "libcurl/easy.h"
+
+struct MemoryStruct {
+  char *memory;
+  size_t size;
+  size_t read;
+};
+
 
 // Global Variables:
 HINSTANCE hInst;								// current instance
@@ -77,7 +90,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 			DispatchMessage(&msg);
 		}
 	}
-	if(WSAStartup(MAKEWORD(2,0),&wsa)!=0)
+	//if(WSAStartup(MAKEWORD(2,0),&wsa)!=0)
 	return (int) msg.wParam;
 }
 
@@ -286,21 +299,66 @@ INT_PTR CALLBACK ServerAdd(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 // Message handler for Server Browser
 INT_PTR CALLBACK ServerBrowserDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	
+  CURL *curl_handle;
+
+
 	int iNumServers, iServersReceived;
-	ServerInformation **ServerArray; //Pointer to an array
-	UNREFERENCED_PARAMETER(lParam);
+	FILE *TempFile; 
 	switch (message)
 	{
 	case WM_INITDIALOG:
-		iNumServers = 0;
+		if(TempFile)
+		{
+
+		  MessageBox(NULL,"Starting to download servers from Supertreks list. Programm may freeze.","Download",0);
+		  curl_global_init(CURL_GLOBAL_ALL);
+
+		  /* init the curl session */
+		  curl_handle = curl_easy_init();
+
+		  /* specify URL to get */
+		  curl_easy_setopt(curl_handle, CURLOPT_URL, "http://71.164.181.152/list/raw.php");
+		   curl_easy_setopt(curl_handle, CURLOPT_PORT, 82);
+			
+		  /* With a .dll we have to specify the pointer to fwrite ourselves */
+		   curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, TempFile);
+		  curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, fwrite);
+			
+		  /* some servers don't like requests that are made without a user-agent
+			 field, so we provide one */
+		  curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "OblivionOnlineLauncher/4.4");
+		  /* We want no stupid output in a console :) */
+		   curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, 1);
+		  
+		   
+		  TempFile = fopen("ootemp1","a");;
+		  /* get it! */
+		  
+			curl_easy_perform(curl_handle);
+		  
+		fclose(TempFile);
+		  /* cleanup curl stuff */
+		  curl_easy_cleanup(curl_handle);
+		  
+		 
 		iServersReceived = 0;
-		SendDlgItemMessage(hDlg,IDC_SERVERS,LB_ADDSTRING,0,(LPARAM)"Currently no master server available. Server Browser not yet ready");
-		SendDlgItemMessage(hDlg,IDC_SERVERS,LB_ADDSTRING,0,(LPARAM)"Use web based server browser by supertrek32. http://ooservers.freehostia.com");
+		 // here we can read the data from the memory heap ...
+		
+		//SendDlgItemMessage(hDlg,IDC_SERVERS,LB_ADDSTRING,0,(LPARAM)"Showing Data from official server list by supertrek and stinger357");
+
+		
+		}
+		else
+		{
+			MessageBoxA(NULL,"Could not open ootemp1","File Error",NULL);
+		}
 		return (INT_PTR)TRUE;
 	case WM_COMMAND:
 		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
 		{
 			EndDialog(hDlg, LOWORD(wParam));
+			
 			return (INT_PTR)TRUE;
 		}
 		break;
@@ -350,7 +408,7 @@ bool bNetAuthenticate(SOCKADDR_IN Server)
 				// WE IGNORE THE CRC32
 				ModAuthPkg.PacketID = 65555; 
 				send(sock,(char *)&AuthPkg,sizeof(ServerAuthPacket),0);
-				for(int i = 1 ; i < ModQueue.size() ;i++) 
+				for(unsigned int i = 1 ; i < ModQueue.size() ;i++) 
 				{
 					std::string TempString = ModQueue.front();
 					sprintf(ModAuthPkg.EspName,"%64s",TempString.c_str());

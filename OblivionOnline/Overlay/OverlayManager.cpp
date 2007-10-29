@@ -124,8 +124,8 @@ namespace Overlay
 		// Check the cooperative level before rendering
 		if(FAILED(hr = directDraw_->TestCooperativeLevel()))
 		{
-			DEBUG_MESSAGE(boost::str(boost::wformat(
-				L"TestCooperativeLevel failed with hr = 0x%X\n") % hr).c_str());
+			/* DEBUG_MESSAGE(boost::str(boost::wformat(
+				L"TestCooperativeLevel failed with hr = 0x%X\n") % hr).c_str()); */
 
 			switch(hr)
 			{
