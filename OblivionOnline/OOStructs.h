@@ -52,14 +52,17 @@ struct ObjectStatus
 	float Velocity;				//Absolute linear velocity
 	UInt32 RefID;
 	UInt32 CellID;
+};struct ActorStatus : ObjectStatus
+{
+	int Health, Magika, Fatigue;
+	bool bIsInInterior;
+	bool InCombat;
 };
-
-struct ActorStatus : ObjectStatus
+struct ActorStatusEx : ActorStatus
 {
 	int Strength, Intelligence, Willpower;
 	int Agility, Speed, Endurance;
 	int Personality, Luck, Encumbrance;
-	int Health, Magika, Fatigue;
 	
 	UInt32 head,hair,upper_body,lower_body;
 	UInt32 hand,foot,right_ring,left_ring;
@@ -67,11 +70,10 @@ struct ActorStatus : ObjectStatus
 	UInt32 robes;
 
 	bool bStatsInitialized;
-	bool bIsInInterior;
-	int InCombat;
 };
 
-struct PlayerStatus : ActorStatus
+
+struct PlayerStatus : ActorStatusEx
 {
 	float Time;
 	int Day, Month, Year;
