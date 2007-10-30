@@ -181,6 +181,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\OOHashTable.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PacketHandler.cpp"
 				>
 			</File>
@@ -192,6 +196,10 @@
 			>
 			<File
 				RelativePath=".\ConsoleServer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\OOHashTable.h"
 				>
 			</File>
 			<File

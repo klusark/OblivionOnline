@@ -21,7 +21,7 @@ This file is part of OblivionOnline.
 #include "ConsoleServer.h"
 #include "OOPackets.h"
 #include "PacketHandler.h"
-
+#include "OOHashTable.h"
 // Global Server Variables
 bool bServerAlive = true;
 bool Authenticated[MAXCLIENTS];
@@ -45,11 +45,10 @@ char ServerPassword[32];
 char AdminPassword[32];
 
 //Mob Synch Variables
-
-typedef std::pair< UINT32 , ActorStatus *> MobPair;
-stdext::hash_map<UINT32, ActorStatus *>  MobList;
-
 int MasterClient = -1;
+//Initially we are just storing 2 pointers , so this can be 24kb.... it autosizes quite well
+OOHashTable MobTable(3000);  // This value generates a good spread, especially with 16 potences ... also we should about double the number of values. 
+
 // Prototypes
 int StartNet(void);
 int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead);
