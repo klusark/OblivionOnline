@@ -344,10 +344,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\OOHashTable.h"
-				>
-			</File>
-			<File
 				RelativePath=".\OONetwork.h"
 				>
 			</File>

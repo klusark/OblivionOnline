@@ -36,9 +36,9 @@ This file is part of OblivionOnline.
 	forward this exception.
 */
 #include <Windows.h>
-HANDLE hDll; // we need this for hooking the keyborad
+HINSTANCE hDll; // we need this for hooking the keyborad
 BOOL WINAPI DllMain(
-        HANDLE  hDllHandle,
+        HINSTANCE  hDllHandle,
         DWORD   dwReason,
         LPVOID  lpreserved
         )

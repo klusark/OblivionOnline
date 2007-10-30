@@ -73,7 +73,9 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 		{
 			char *SendBuf;
 			OutPkgBuf.etypeID = OOPWelcome;
+			// Passwords do not really work !!! it just wastes EVERything
 			//Replace with database check later
+			/*
 			if(!strcmp(InPkgBuf.Password, ServerPassword))
 			{
 				Authenticated[LocalPlayer] = true;
@@ -87,6 +89,9 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 				}
 				return false;
 			}
+			*/
+				Authenticated[LocalPlayer] = true;
+				OutPkgBuf.Flags = 1;
 			if(MasterClient == -1)
 			{
 				// This one will be master client

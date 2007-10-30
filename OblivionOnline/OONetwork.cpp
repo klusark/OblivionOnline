@@ -37,7 +37,7 @@ This file is part of OblivionOnline.
 */
 #include "MobSynch.h"
 #include "OONetwork.h"
-
+#include "UserInterface.h"
 //Prototypes
 extern void RunScriptLine(const char *buf, bool IsTemp);
 bool OOPWelcome_Handler(char *Packet);
@@ -544,6 +544,8 @@ bool OOPChat_Handler(char *Packet)
 	sprintf(chatScript, "Message \"Player %i: %s\"", InPkgBuf.refID, MessageDest);
 	Console_Print("Player %i: %s", InPkgBuf.refID, MessageDest);
 	RunScriptLine(chatScript, true);
+	std::string Sender = "Player "+InPkgBuf.refID;
+	//usrInterface.RegisterChatMessage(Sender,MessageDest);
 	return true;
 }
 

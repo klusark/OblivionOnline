@@ -383,7 +383,7 @@ bool bNetAuthenticate(SOCKADDR_IN Server)
                              0, 
                              szPath))) 
 	{
-		PathAppend(szPath, TEXT("Oblivion\Plugins.txt"));
+		PathAppend(szPath, TEXT("Oblivion\\Plugins.txt"));
 		Plugins_txt=fopen(szPath,"r");
 		if(Plugins_txt)
 		{

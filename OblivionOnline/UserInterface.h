@@ -43,4 +43,4 @@ private:
 	BYTE *FontFileData;
 
 };
-
+//extern UserInterface usrInterface;

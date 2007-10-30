@@ -1,9 +1,22 @@
 #include "UserInterface.h"
 #include <cstdio>
 #include "main.h"
-HANDLE hDll; // we need this for hooking the keyboard
+extern "C" HINSTANCE hDll;
 extern bool NetChat(char *Message);
-extern UserInterface usrInterface; // Pointer to the sole instance
+//extern UserInterface usrInterface; // Pointer to the sole instance
+LRESULT __declspec(dllexport)__stdcall  CALLBACK KeyboardHookProc(int nCode,WPARAM wParam, 
+                            LPARAM lParam)
+{       
+	if(HC_ACTION == nCode) // alternative codee
+   // if (!((DWORD)lParam & 2147483648) &&(HC_ACTION==nCode)) //byte 31 is set ....
+    {        
+		//usrInterface.RegisterKeystroke(wParam);
+    }
+
+    LRESULT RetVal = CallNextHookEx( 0, nCode, wParam, lParam );
+    return  1;
+	
+}
 UserInterface::UserInterface(void)
 {
 // 0 everything
@@ -18,7 +31,7 @@ UserInterface::UserInterface(void)
 	LoadBMP();
 	LoadFont();
 	//Hook the Keyboard
-
+	SetWindowsHookEx(WH_KEYBOARD,KeyboardHookProc,hDll,NULL);
 }
 
 UserInterface::~UserInterface(void)
@@ -349,15 +362,3 @@ bool UserInterface::Update()
 	return true;
 }
 // our Hook Procedure
-LRESULT __declspec(dllexport)__stdcall  CALLBACK KeyboardHookProc(int nCode,WPARAM wParam, 
-                            LPARAM lParam)
-{           
-    if (!((DWORD)lParam & 2147483648) &&(HC_ACTION==nCode))
-    {        
-       
-    }
-
-    LRESULT RetVal = CallNextHookEx( 0, nCode, wParam, lParam );
-    return  1;
-	
-}

@@ -124,6 +124,7 @@ bool MCAddClientCache(char *FileName) // add this file
 // We load all OOCs. And make us a Master Client
 bool MCBuildCache()
 {
+	Console_Print("Building Master Client Cache");
 	if(!bCacheBuilt)
 	{
 		MCAddClientCache("OblivionOnline/Oblivion.ooc");
