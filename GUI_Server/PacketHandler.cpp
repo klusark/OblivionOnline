@@ -276,16 +276,27 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		}else
 			OutPkgBuf.Fatigue = 0;
 
-		//Now send out the data
-		for(int cx=0;cx<MAXCLIENTS;cx++)
-		{
-			if (cx != LocalPlayer)
-				send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
-		}
-	}
-	}
-	else
+	//Now send out the data
+	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
+		if (cx != LocalPlayer)
+			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
+	}
+	}
+	}
+
+
+
+
+	else// It is an NPC
+	{
+		OOMobHashTableEntry *ptr;
+		ptr = (OOMobHashTableEntry *)MobTable.Find(InPkgBuf.refID);
+		if(!ptr) // We got to insert it
+		{
+			//Make one , insert it....
+			//Do note that it this has to be done
+		}
 		OutPkgBuf.etypeID = OOPActorUpdate;
 		OutPkgBuf.Flags = InPkgBuf.Flags;
 		OutPkgBuf.refID = InPkgBuf.refID;
@@ -303,7 +314,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 				send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
 		}
 	}
-	// Mob Handling is down below
+	
 	return true;
 }
 

@@ -21,7 +21,7 @@ This file is part of OblivionOnline.
 #include "ConsoleServer.h"
 #include "OOPackets.h"
 #include "PacketHandler.h"
-#include "OOHashTable.h"
+
 // Global Server Variables
 bool bServerAlive = true;
 bool Authenticated[MAXCLIENTS];
@@ -47,7 +47,11 @@ char AdminPassword[32];
 //Mob Synch Variables
 int MasterClient = -1;
 //Initially we are just storing 2 pointers , so this can be 24kb.... it autosizes quite well
-OOHashTable MobTable(3000);  // This value generates a good spread, especially with 16 potences ... also we should about double the number of values. 
+OOHashTable MobTable(3000);  // This value generates a good spread, especially with 16 potences ... also we should about double the number of values necessary to avoid collisions. 
+//The hashing algorithm here relies on the fact that we do a) not have a string hash , but a good modulo hash
+// Therefore we need sequential FormIDs to create a good spread
+// b) lots and lots of memory- time tradeoffs
+
 
 // Prototypes
 int StartNet(void);

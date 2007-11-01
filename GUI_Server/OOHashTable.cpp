@@ -16,7 +16,7 @@ OOHashTable::~OOHashTable(void)
 		while(entry = table[i])
 		{
 			table[i] = entry->next;
-			free(entry->obj);
+			free(entry->obj); // we need to free it somehow else as well...
 			free(entry);
 		}
 	}

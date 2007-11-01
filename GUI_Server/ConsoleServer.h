@@ -29,6 +29,7 @@ This file is part of OblivionOnline.
 #include <time.h>
 #include <process.h>
 #include "OOStructs.h"
+#include "OOHashTable.h"
 
 #define MAXCLIENTS 4
 #define PORT 41805
@@ -67,5 +68,6 @@ extern int ScanBuffer(char *acReadBuffer, short LocalPlayer);
 extern bool BroadcastMessage(char *Message, int Player);
 extern bool Kick(int Player);
 extern int SendAdminMessage(char message[256]);
+extern class OOHashTable MobTable;
 
 #endif
