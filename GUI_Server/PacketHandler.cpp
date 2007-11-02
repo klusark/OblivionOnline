@@ -295,8 +295,55 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		if(!ptr) // We got to insert it
 		{
 			//Make one , insert it....
-			//Do note that it this has to be done
+			ptr = (OOMobHashTableEntry *)malloc(sizeof(OOMobHashTableEntry)); // We free that in the cleanup code ...
+			ptr->ID = InPkgBuf.refID;
+			ptr->Status.RefID = InPkgBuf.refID;
+			ptr->Status.CellID = InPkgBuf.CellID;
+			ptr->Status.PosX = InPkgBuf.fPosX;
+			ptr->Status.PosY = InPkgBuf.fPosY;
+			ptr->Status.PosZ = InPkgBuf.fPosZ;
+			ptr->Status.RotX = InPkgBuf.fRotX;
+			ptr->Status.RotY = InPkgBuf.fRotY;
+			ptr->Status.RotZ = InPkgBuf.fRotZ;
+			ptr->Status.InCombat = InPkgBuf.InCombat;
+
+			ptr->Status.Fatigue = InPkgBuf.Fatigue;
+			ptr->Status.Magika = InPkgBuf.Magika;
+			
+			if(!MobTable.Insert((void *)ptr))
+			{
+				printf("Could not store actor %u in Database ... hash not unique \n",ptr->ID);
+				// This message would mean your CPU has too much alcohol ... if there was a non unique hash we would have found it
+			}
+			else
+			{
+				//We give a message
+				printf("Actor %u spawned with %i Health in cell %u  \n",ptr->ID,ptr->Status.Health,ptr->Status.CellID);
+			}
 		}
+		// Health Magicka and Fatigue -....
+		if(ptr->Status.Health != InPkgBuf.Health)
+		{
+				OutPkgBuf.Health = InPkgBuf.Health - ptr->Status.Health;
+				ptr->Status.Health += OutPkgBuf.Health;
+				// Handle dying here ... we should remove all mobs dying from the DB
+				if(ptr->Status.Health < 0)
+				{
+					printf("Actor %u died in cell %u \n",ptr->ID,ptr->Status.CellID);
+					// Handle despawning here
+				}
+		}
+		if(ptr->Status.Magika != InPkgBuf.Magika)
+		{
+				OutPkgBuf.Magika = InPkgBuf.Magika - ptr->Status.Magika;
+				ptr->Status.Magika += OutPkgBuf.Magika;
+		}
+		if(ptr->Status.Fatigue != InPkgBuf.Fatigue)
+		{
+				OutPkgBuf.Fatigue = InPkgBuf.Fatigue - ptr->Status.Fatigue;
+				ptr->Status.Fatigue += OutPkgBuf.Fatigue;
+		}
+		//Position
 		OutPkgBuf.etypeID = OOPActorUpdate;
 		OutPkgBuf.Flags = InPkgBuf.Flags;
 		OutPkgBuf.refID = InPkgBuf.refID;

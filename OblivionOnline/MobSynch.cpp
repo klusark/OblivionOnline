@@ -254,7 +254,14 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 		ScriptString += ",";
 		ScriptString += pkgBuf.CellID;
 		RunScriptLine(ScriptString.c_str(),true);
-		_ERROR("Injected script: \" %s! \"",ScriptString.c_str());
+		_MESSAGE("Injected script: \" %s! \"",ScriptString.c_str());
+		if(pkgBuf.Health)
+			Object->ModActorBaseValue(8,pkgBuf.Health,0);
+		if(pkgBuf.Magika)
+			Object->ModActorBaseValue(8,pkgBuf.Magika,0);
+		if(pkgBuf.Fatigue)
+			Object->ModActorBaseValue(8,pkgBuf.Fatigue,0);
+
 	}
 	}
 	// Do Health here....
