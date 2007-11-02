@@ -180,7 +180,7 @@ bool OOPDisconnect_Handler(char *Packet,short LocalPlayer)
 		}
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
-			if (cx != LocalPlayer)
+			if (cx != LocalPlayer&&clients[cx])
 				send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgDisconnect),0);
 		}
 	}
@@ -279,7 +279,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 	//Now send out the data
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
-		if (cx != LocalPlayer)
+		if (cx != LocalPlayer&&clients[cx])
 			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
 	}
 	}
@@ -357,7 +357,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		OutPkgBuf.InCombat = InPkgBuf.InCombat;
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
-			if (cx != LocalPlayer)
+			if (cx != LocalPlayer&&clients[cx])
 				send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgActorUpdate),0);
 		}
 	}
@@ -371,7 +371,7 @@ bool OOPChat_Handler(char *Packet,short LocalPlayer)
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgChat));
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
-		if (cx != LocalPlayer)
+		if (cx != LocalPlayer&&clients[cx])
 			send(clients[cx],Packet,sizeof(OOPkgChat)+InPkgBuf.Length,0);
 	}
 	if (InPkgBuf.Length < 1024)
@@ -461,7 +461,7 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 		}
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
-			if (cx != LocalPlayer)
+			if (cx != LocalPlayer&&clients[cx])
 				send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgFullStatUpdate),0);
 		}
 	}
@@ -480,7 +480,8 @@ bool OOPTimeUpdate_Handler(char *Packet,short LocalPlayer)
 	OutPkgBuf.Hours = (int)(ServerTime / 3600) % 24;
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
-		send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgTimeUpdate),0);
+		if(clients[cx])
+			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgTimeUpdate),0);
 	}
 	return true;
 }
@@ -491,7 +492,7 @@ bool OOPEquipped_Handler(char *Packet,short LocalPlayer)
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgEquipped));
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
-		if (cx != LocalPlayer)
+		if (cx != LocalPlayer&&clients[cx])
 			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgEquipped),0);
 	}
 	return true;
@@ -520,7 +521,7 @@ bool OOPModOffsetList_Handler(char *Packet,short LocalPlayer)
 	}
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
-		if (cx != LocalPlayer)
+		if (cx != LocalPlayer&&clients[cx])
 			send(clients[cx],Packet,sizeof(OOPkgModOffsetList)+InPkgBuf.NumOfMods,0);
 	}
 	return true;
