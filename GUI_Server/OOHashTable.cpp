@@ -72,6 +72,6 @@ bool OOHashTable::Remove(UINT32 id)
 {
 	// this is not yet necessary, as we cannot detect that
 	// I will implement it at the given time
-#pragma warning (" OOHashTable::Remove not yet implemented. Masterfreek64 truly is a lazy fellow :) ");
+		#pragma message ("OOHashTable::Remove not yet implemented. Masterfreek64 truly is a lazy fellow :) ")
 	return false;
 }

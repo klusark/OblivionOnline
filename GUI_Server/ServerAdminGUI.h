@@ -30,9 +30,12 @@ This file is part of OblivionOnline.
 
 #define ADMINPORT 41804
 
-#define SUPER_VERSION 0	//Not used yet
+#define SUPER_VERSION 0 //Not used yet
 #define MAIN_VERSION 4
-#define SUB_VERSION 3	//Release 4, bugfix 3
+#define SUB_VERSION 5 
+//The 2 below here are nothing but UI . Not on the netcode
+#define RELEASE_CODENAME "Release V" // The Name . Can be empty
+#define ADDITIONAL_VERSION_COMMENT "Internal Alpha") // For betas and special builds only
 
 //Defines for remote admin control
 #define CONNECTMSG 0
