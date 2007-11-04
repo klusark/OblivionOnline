@@ -66,7 +66,7 @@ bool NetSynchNPC(Actor *Actor)
 	pkgBuf.Health = Actor->GetActorValue(8);
 	pkgBuf.Magika = Actor->GetActorValue(9);
 	pkgBuf.Fatigue = Actor->GetActorValue(10);
-	_MESSAGE("Synchronising : %s",Actor->GetEditorName());
+	_MESSAGE("Synchronising : %u %s",Actor->refID,Actor->GetEditorName());
 	if(Actor->parentCell->worldSpace)
 	{
 				pkgBuf.Flags = 2|4; //Exterior
@@ -104,26 +104,11 @@ bool MCAddClientCache(char *FileName) // add this file
 	{
 		fscanf(CacheFile,"%s", RefName);
 		fscanf(CacheFile,"%u",&RefID);
-		tempBuf.Actor = (Actor *) LookupFormByID(RefID); // here we look it up
-		if(tempBuf.Actor)
-		{
-			if(tempBuf.Actor->refID)
-			{
-				
-				MCCache.push_back(tempBuf); //ok we pushed him in
-				fprintf(LogFile,"%s %u was detected at %ul\n",RefName,RefID,(unsigned int)tempBuf.Actor);
-			}
-			else
-			{
-				fprintf(LogFile,"%s %u failed detection. Invalid REFID",RefName,RefID);
-				Console_Print("Couldn't find reference %s",RefName);
-			}
-		}
-		else
-		{
-			fprintf(LogFile,"%s %u failed detection.Not present",RefName,RefID);
-			Console_Print("Couldn't find reference %s",RefName);
-		}
+		tempBuf.RefID = RefID;
+		MCCache.push_back(tempBuf); //ok we pushed him in
+		fprintf(LogFile,"%s %u was injected\n",RefName,RefID);
+			
+		
 	}
 	Console_Print("Cache build completed, %i References found",MCCache.size());
 	_MESSAGE("Cache Built");
@@ -154,6 +139,7 @@ bool MCMakePassive()		//changes client mode to passive
 {
 
 	#if 1 
+	
 	try
 	{
 	if(!ActorSynchCalled)
@@ -171,19 +157,28 @@ bool MCMakePassive()		//changes client mode to passive
 	std::list<MCActorBuf>::iterator EndIterator = MCCache.end();
 	for(ActorIterator = MCCache.begin();ActorIterator!= EndIterator;ActorIterator++)
 	{
-		if(ActorIterator->Actor)
+		Actor * TempActor = reinterpret_cast<Actor *> (LookupFormByID(ActorIterator->RefID));
+		if(TempActor)
 		{
-		if((ActorIterator->Actor->posX != ActorIterator->LastStatus.PosX)
-			|| (ActorIterator->Actor->posY != ActorIterator->LastStatus.PosY)
-			|| (ActorIterator->Actor->posZ != ActorIterator->LastStatus.PosZ))
-		{
-			//Update this Actor on the net 
-			NetSynchNPC(ActorIterator->Actor);
-			//Update LastPos
-			ActorIterator->LastStatus.PosX = ActorIterator->Actor->posX;
-			ActorIterator->LastStatus.PosY = ActorIterator->Actor->posY;
-			ActorIterator->LastStatus.PosZ = ActorIterator->Actor->posZ;
-		}
+			if(TempActor->refID && TempActor->IsActor()) // Always a good idea to check the refid
+			{
+				if((TempActor->posX != ActorIterator->LastStatus.PosX)
+					|| (TempActor->posY != ActorIterator->LastStatus.PosY)
+					|| (TempActor->posZ != ActorIterator->LastStatus.PosZ))
+				{
+					//Update this Actor on the net 
+					NetSynchNPC(TempActor);
+					//Update LastPos
+					ActorIterator->LastStatus.PosX = TempActor->posX;
+					ActorIterator->LastStatus.PosY = TempActor->posY;
+					ActorIterator->LastStatus.PosZ = TempActor->posZ;
+				}
+			}
+			else
+			{
+				_MESSAGE("Found Actor * without refid , removing it"); 
+				MCCache.erase(ActorIterator);
+			}
 		}
 		else
 		{
@@ -260,7 +255,7 @@ bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 
 bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handler
 {
-	_ERROR("Received Mob Update"); // This should even be rpinted in release configurations-...
+	_MESSAGE("Received Mob Update"); 
 	std::string ScriptString;
 	if(!bIsMasterClient)
 	{

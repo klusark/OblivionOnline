@@ -28,7 +28,6 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	OOPkgWelcome InPkgBuf;
 	OOPkgWelcome OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
-
 	//If this is an "I'm ready for init data" welcome, send init data
 	if(InPkgBuf.Flags & 1)
 	{

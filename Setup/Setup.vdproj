@@ -15,14 +15,32 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_018DA26BA4E6463E85D0008CEBE9FA57"
+        "OwnerKey" = "8:_84AAAED062CB4A27A295A06D9E4E08E7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_018DA26BA4E6463E85D0008CEBE9FA57"
+        "OwnerKey" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_074E2EA2ACEF403DB28C8C5E6A8A6E4B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_22D9060FCC30420BA8A5D958DA96E423"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_1D3DFAB19F1446E980B90362E28F771F"
+        "OwnerKey" = "8:_1D5CD292859249348790493C6FAE329F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1D5CD292859249348790493C6FAE329F"
+        "OwnerKey" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -39,8 +57,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6D2A47121E0B490E9FB36BC45AD0D615"
-        "OwnerKey" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
+        "MsmKey" = "8:_7E6C49FF46504514B2F24F12BBF0D31D"
+        "OwnerKey" = "8:_018DA26BA4E6463E85D0008CEBE9FA57"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -113,12 +131,6 @@
         {
         "MsmKey" = "8:_F3B705333EC249068A08BEAF426E7D4C"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F889648C5B6442C5A2F19E70C7CAB011"
-        "OwnerKey" = "8:_6D2A47121E0B490E9FB36BC45AD0D615"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -220,26 +232,6 @@
             "TargetName" = "8:obse_command_doc.html"
             "Tag" = "8:"
             "Folder" = "8:_DC58B7A30A9345F186E102386A49AB33"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_22D9060FCC30420BA8A5D958DA96E423"
-            {
-            "SourcePath" = "8:..\\OblivionOnlineModFiles\\OOArenaMod.esp"
-            "TargetName" = "8:OOArenaMod.esp"
-            "Tag" = "8:"
-            "Folder" = "8:_FC5BC94A5A444502879DB43FAF18E253"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1160,7 +1152,35 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_6D2A47121E0B490E9FB36BC45AD0D615"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_018DA26BA4E6463E85D0008CEBE9FA57"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:Microsoft_VC80_DebugCRT_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_1D3DFAB19F1446E980B90362E28F771F"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_1D5CD292859249348790493C6FAE329F"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1174,11 +1194,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F889648C5B6442C5A2F19E70C7CAB011"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_7E6C49FF46504514B2F24F12BBF0D31D"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
+            "SourcePath" = "8:policy_8_0_microsoft_vc80_debugcrt_x86.msm"
                 "Properties"
                 {
                 }
@@ -1249,7 +1269,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5D533F161C4F4136A9BA47F90F03528E"
             {
-            "SourcePath" = "8:..\\obliviononline\\release\\ConsoleServer.exe"
+            "SourcePath" = "8:..\\OblivionOnline\\Release\\ConsoleServer.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_22F17A3109964124B89168AAC4CB4DEA"
@@ -1333,7 +1353,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_84AAAED062CB4A27A295A06D9E4E08E7"
             {
-            "SourcePath" = "8:..\\obliviononline\\release\\ServerAdminGUI.exe"
+            "SourcePath" = "8:..\\OblivionOnline\\Debug\\ServerAdminGUI.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5A569FCD77C3415B9F04CEC96BF19BDE"
@@ -1389,7 +1409,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A3D1294EA0D146A3B01B22D433F65AEB"
             {
-            "SourcePath" = "8:..\\obliviononline\\release\\ConsoleServer.exe"
+            "SourcePath" = "8:..\\OblivionOnline\\Release\\ConsoleServer.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5A569FCD77C3415B9F04CEC96BF19BDE"
@@ -1417,7 +1437,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D8FC3191466C47AA91AC7CFCD033383B"
             {
-            "SourcePath" = "8:..\\obliviononline\\release\\ServerBrowser.exe"
+            "SourcePath" = "8:..\\OblivionOnline\\Debug\\ServerBrowser.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_123C325CBE3745BBBBA97429E9E21FF9"
@@ -1445,7 +1465,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DB4E0A0AD1A349658CB58B64B693F1C5"
             {
-            "SourcePath" = "8:..\\obliviononline\\release\\OblivionOnline.dll"
+            "SourcePath" = "8:..\\OblivionOnline\\Release\\OblivionOnline.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_2EA12E733C5F4F699EB2DE6858B2D7BA"

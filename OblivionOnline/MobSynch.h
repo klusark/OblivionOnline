@@ -8,9 +8,10 @@
 //Everything has MC prefix
 struct MCActorBuf
 {
-	Actor *Actor;
+	UINT32 RefID;
 	ActorStatus LastStatus; //to compare it...
 };
+
 extern std::list<MCActorBuf> MCCache;
 extern bool MCBuildCache();
 extern bool MCMakePassive();

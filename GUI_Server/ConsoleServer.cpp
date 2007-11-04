@@ -93,7 +93,7 @@ int main(void)
 
 	Sleep(100);
 
-	printf("OblivionOnline Basic Server, v.%i.%i.%i\n \"%s \" %s",SUPER_VERSION,MAIN_VERSION,SUB_VERSION,RELEASE_CODENAME,RELEASE_COMMENT);
+	printf("OblivionOnline Basic Server, v.%i.%i.%i\"%s \" %s \n \n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION,RELEASE_CODENAME,RELEASE_COMMENT);
 	printf("Wrtten by masterfreek64 aka Julian Bangert, Chessmaster42 aka Joseph Pearson\n");
 	printf("and bobjr777 aka Joel Teichroeb\n");
 	printf("--------------------------\n");
@@ -352,7 +352,6 @@ int StartNet()
 int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 {
 	OOPacketType ePacketType = SelectType(acReadBuffer);
-
 	//If this is run from the admin thread
 	if(LocalPlayer == -1)
 	{
@@ -366,7 +365,7 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 		};
 		return true;
 	}
-
+	/*
 	//Only welcome is allowed for non-auth clients
 	if(!Authenticated[LocalPlayer])
 	{
@@ -380,7 +379,7 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 		};
 		return true;
 	}
-
+	*/
 	switch (ePacketType)
 	{
 	case OOPWelcome:
