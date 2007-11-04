@@ -49,9 +49,12 @@ std::list<MCActorBuf> MCCache;
 DWORD MobResynchTimer ; // seperate , because no seperate packet
 bool bIsMasterClient = false;
 bool bCacheBuilt = false;
+bool ActorSynchCalled = false;
 // Here we send an NPC over the net
 bool NetSynchNPC(Actor *Actor)
 {
+	try
+	{
 	OOPkgActorUpdate pkgBuf;
 	pkgBuf.etypeID = OOPActorUpdate;
 	pkgBuf.fPosX = Actor->posX ; //Actor
@@ -63,7 +66,7 @@ bool NetSynchNPC(Actor *Actor)
 	pkgBuf.Health = Actor->GetActorValue(8);
 	pkgBuf.Magika = Actor->GetActorValue(9);
 	pkgBuf.Fatigue = Actor->GetActorValue(10);
-	Console_Print("Synchronising : %s",Actor->GetEditorName());
+	_MESSAGE("Synchronising : %s",Actor->GetEditorName());
 	if(Actor->parentCell->worldSpace)
 	{
 				pkgBuf.Flags = 2|4; //Exterior
@@ -77,6 +80,13 @@ bool NetSynchNPC(Actor *Actor)
 	pkgBuf.refID = Actor->refID;
 	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgActorUpdate),0);
 	return true;
+	}
+	catch(...)
+	{
+		_MESSAGE("Failed Actor Network Synch");
+		throw 1;
+		return false;
+	}
 }
 // We load an .ooc file
 bool MCAddClientCache(char *FileName) // add this file
@@ -142,7 +152,16 @@ bool MCMakePassive()		//changes client mode to passive
 // This is used in a command to go thorugh the cache and look for mobs that changed position
  bool MCbSynchActors() //called nearly every frame , so extremely important
 {
+
 	#if 1 
+	try
+	{
+	if(!ActorSynchCalled)
+	{
+		Console_Print("Actor Synchronysation working");
+		_MESSAGE("WORKING MCBActorSynch");
+		ActorSynchCalled = true;
+	}
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
 	if((tickBuf - MobResynchTimer) > MC_MOBRESYNCH) //just synch every 50 ms 
@@ -175,6 +194,13 @@ bool MCMakePassive()		//changes client mode to passive
 	MobResynchTimer = tickBuf;
 	}
 	return true;
+	}
+	catch (...)
+	{
+		_MESSAGE("Failed to Synchronise Actors");
+		return false;
+	}
+
 	#endif
 	//brand new testing stuff, DO NOT USE. Always comment this before building
 #if 0
@@ -255,12 +281,21 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 		ScriptString += pkgBuf.CellID;
 		RunScriptLine(ScriptString.c_str(),true);
 		_MESSAGE("Injected script: \" %s! \"",ScriptString.c_str());
+		if(pkgBuf.Flags & 8)
+		{
+			Object->ModActorBaseValue(8,(pkgBuf.Health -Object->GetActorValue(8)),0);
+			Object->ModActorBaseValue(9,(pkgBuf.Magika -Object->GetActorValue(9)),0);
+			Object->ModActorBaseValue(10,(pkgBuf.Fatigue -Object->GetActorValue(10)),0);
+		}
+		else
+		{
 		if(pkgBuf.Health)
 			Object->ModActorBaseValue(8,pkgBuf.Health,0);
 		if(pkgBuf.Magika)
-			Object->ModActorBaseValue(8,pkgBuf.Magika,0);
+			Object->ModActorBaseValue(9,pkgBuf.Magika,0);
 		if(pkgBuf.Fatigue)
-			Object->ModActorBaseValue(8,pkgBuf.Fatigue,0);
+			Object->ModActorBaseValue(10,pkgBuf.Fatigue,0);
+		}
 
 	}
 	}
