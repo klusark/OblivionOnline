@@ -51,6 +51,7 @@ bool bIsMasterClient = false;
 bool bCacheBuilt = false;
 bool ActorSynchCalled = false;
 // Here we send an NPC over the net
+// The bug persists ....
 bool NetSynchNPC(Actor *Actor)
 {
 	try
@@ -157,6 +158,7 @@ bool MCMakePassive()		//changes client mode to passive
 	std::list<MCActorBuf>::iterator EndIterator = MCCache.end();
 	for(ActorIterator = MCCache.begin();ActorIterator!= EndIterator;ActorIterator++)
 	{
+		// This is more secure than SVN 354. If there are performance problems with that solution , try to revert to SVN 354
 		Actor * TempActor = reinterpret_cast<Actor *> (LookupFormByID(ActorIterator->RefID));
 		if(TempActor)
 		{
