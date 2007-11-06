@@ -1,7 +1,7 @@
 #pragma once
 /*
 
-Copyright 2007  Julian aka masterfreek64 and Joseph Pearson aka chessmaster42 
+Copyright 2007   Julian Bangert aka masterfreek64 and Joseph Pearson aka chessmaster42 
 
 This file is part of OblivionOnline.
 

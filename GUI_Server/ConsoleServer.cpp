@@ -1,6 +1,6 @@
 /*
 
-Copyright 2007  Julian aka masterfreek64 and Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
+Copyright 2007   Julian Bangert aka masterfreek64 and Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
 
 This file is part of OblivionOnline.
 
@@ -94,7 +94,7 @@ int main(void)
 	Sleep(100);
 
 	printf("OblivionOnline Basic Server, v.%i.%i.%i\"%s \" %s \n \n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION,RELEASE_CODENAME,RELEASE_COMMENT);
-	printf("Wrtten by masterfreek64 aka Julian Bangert, Chessmaster42 aka Joseph Pearson\n");
+	printf("Wrtten by masterfreek64 aka  Julian Bangert Bangert, Chessmaster42 aka Joseph Pearson\n");
 	printf("and bobjr777 aka Joel Teichroeb\n");
 	printf("--------------------------\n");
 
