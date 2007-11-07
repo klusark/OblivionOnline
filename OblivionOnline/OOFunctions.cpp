@@ -60,7 +60,7 @@ int GetActorID(UInt32 refID)
 	// Compare reference ID's and determine which actor we have selected in-game
 	int retVal = -1;
 	bool foundID = false;
-	if (refID == 20)
+	if (refID == (*g_thePlayer)->refID)
 	{
 		retVal =  LocalPlayer;
 		foundID = true;
@@ -71,7 +71,8 @@ int GetActorID(UInt32 refID)
 		{
 			if(PlayerConnected[i] && (i != LocalPlayer))
 			{
-				switch(LocalPlayer)
+
+				switch(LocalPlayer) /* We have to leave ourselves out. */
 				{
 				case 0:
 					if (refID == SpawnID[i-1])
@@ -98,6 +99,7 @@ int GetActorID(UInt32 refID)
 						retVal = i;
 					break;
 				};
+				
 			}
 		}
 	}

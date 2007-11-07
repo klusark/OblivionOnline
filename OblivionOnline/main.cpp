@@ -44,7 +44,7 @@ This file is part of OblivionOnline.
 IDebugLog gLog("OblivionOnline.log");
 
 bool bIsConnected = false;
-bool bIsAuthenticated = false;
+
 bool PlayerConnected[MAXCLIENTS];
 int LocalPlayer;
 int TotalPlayers;
@@ -64,7 +64,7 @@ TESObjectREFR* PlayerActorList[MAXCLIENTS];
 int BadPackets[PACKET_COUNT];	//Keeps track of # of bad packets of each type
 
 DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.'
-DWORD VelocityTime[MAXCLIENTS], VelocityOldTime[MAXCLIENTS];	//Timers to calculate NPC velocity
+
 
 UInt8 ModList[MAXCLIENTS][256];	//List of supported mods from each client
 
@@ -101,9 +101,6 @@ int OO_Initialize()
 		Players[i].RotX = 0;
 		Players[i].RotY = 0;
 		Players[i].RotZ = 0;
-		Players[i].VelX = 0;
-		Players[i].VelY = 0;
-		Players[i].VelZ = 0;
 		Players[i].CellID = 0;
 		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
@@ -126,9 +123,6 @@ int OO_Initialize()
 		PlayerConnected[i] = false;
 
 		SpawnID[i] = 0;
-
-		for(int j=0; j<256; j++)
-			ModList[i][j] = 0;
 	}
 	return rc;
 }
@@ -143,9 +137,6 @@ int OO_Deinitialize ()
 		Players[i].RotX = 0;
 		Players[i].RotY = 0;
 		Players[i].RotZ = 0;
-		Players[i].VelX = 0;
-		Players[i].VelY = 0;
-		Players[i].VelZ = 0;
 		Players[i].CellID = 0;
 		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
@@ -171,7 +162,7 @@ int OO_Deinitialize ()
 	TerminateThread(hRecvThread, 0);
 	CloseHandle(hRecvThread);
 	TerminateThread(hPredictionEngine, 0);
-	CloseHandle(hPredictionEngine);
+	
 	closesocket(ServerSocket);
 	ServerSocket = INVALID_SOCKET;
 	WSACleanup();
@@ -191,26 +182,7 @@ DWORD WINAPI RecvThread(LPVOID Params)
 	return 0;
 }
 
-DWORD WINAPI PredictionEngine(LPVOID Params)
-{
-	/*
-	while(bIsConnected)
-	{
-		for(int i=0; i<MAXCLIENTS; i++)
-		{
-			//Keep the NPC moving between packets
-			//Console_Print("VelX: %f, VelY: %f, VelZ: %f", Players[i].VelX, Players[i].VelY, Players[i].VelZ);
-			//Players[i].PosX += Players[i].VelX;
-			//Players[i].PosY += Players[i].VelY;
-			//Players[i].PosZ += Players[i].VelZ;
-		}
-		//Wait a bit to allow other processes work
-		Sleep(20);
-	}
-	*/
-	return 0;
-	
-}
+
 
 //-----------------------------
 //---Begin Command Functions---

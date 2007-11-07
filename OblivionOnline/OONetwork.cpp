@@ -246,13 +246,6 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 	OOPacketType ePacketType = SelectType(acReadBuffer);
 
 	//If the client isn't authenticated, only option is waiting for auth from server via welcome
-	if (!bIsAuthenticated)
-	{
-		if (ePacketType != OOPWelcome)
-			return true;
-		OOPWelcome_Handler(acReadBuffer);
-		return true;
-	}
 
 	switch (ePacketType)
 	{
@@ -337,12 +330,7 @@ bool OOPWelcome_Handler(char *Packet)
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
 	if(!(InPkgBuf.Flags & 2)) // Ignore Data Flag is not set
 	{	
-	if (InPkgBuf.Flags & 1)
-		bIsAuthenticated = true;
-	else{
-		Console_Print("Authentication failed");
-		return false;
-	}
+	
 	sscanf(InPkgBuf.NickName, "Player%2d", &LocalPlayer);
 	_MESSAGE("Received Player ID %u",LocalPlayer);
 	Console_Print(InPkgBuf.NickName);
@@ -424,16 +412,7 @@ bool OOPActorUpdate_Handler(char *Packet)
 		}
 		Players[InPkgBuf.refID].InCombat = InPkgBuf.InCombat;
 		
-		/*
-		VelocityOldTime[InPkgBuf.refID] = VelocityTime[InPkgBuf.refID];
-		VelocityTime[InPkgBuf.refID] = GetTickCount();
-	
-		UInt32 TimeDiff = VelocityTime[InPkgBuf.refID] - VelocityOldTime[InPkgBuf.refID];
-
-		Players[InPkgBuf.refID].VelX = (InPkgBuf.fPosX - Players[InPkgBuf.refID].PosX) / (float)TimeDiff;
-		Players[InPkgBuf.refID].VelY = (InPkgBuf.fPosY - Players[InPkgBuf.refID].PosY) / (float)TimeDiff;
-		Players[InPkgBuf.refID].VelZ = (InPkgBuf.fPosZ - Players[InPkgBuf.refID].PosZ) / (float)TimeDiff;
-		*/ 
+ 
 		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
 		Players[InPkgBuf.refID].PosY = InPkgBuf.fPosY;
 		Players[InPkgBuf.refID].PosZ = InPkgBuf.fPosZ;

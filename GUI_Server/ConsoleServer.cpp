@@ -24,7 +24,6 @@ This file is part of OblivionOnline.
 
 // Global Server Variables
 bool bServerAlive = true;
-bool Authenticated[MAXCLIENTS];
 int TotalClients = 0;
 SOCKET clients[MAXCLIENTS];
 SOCKET adminSocket;
@@ -276,6 +275,7 @@ int main(void)
 		
 				if(rc==0 || rc==SOCKET_ERROR)
 				{
+
 					OOPkgDisconnect OutPkgBuf;
 					OutPkgBuf.etypeID = OOPDisconnect;
 					OutPkgBuf.PlayerID = LocalPlayer;
@@ -353,7 +353,7 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 {
 	OOPacketType ePacketType = SelectType(acReadBuffer);
 	//If this is run from the admin thread
-	if(LocalPlayer == -1)
+	/*if(LocalPlayer == -1)
 	{
 		switch (ePacketType)
 		{
@@ -364,9 +364,10 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 			break;
 		};
 		return true;
-	}
+	}*/
 	/*
 	//Only welcome is allowed for non-auth clients
+	/*
 	if(!Authenticated[LocalPlayer])
 	{
 		switch (ePacketType)
@@ -549,7 +550,6 @@ void adminthread(void *arg)
 			}else
 				break;
 		} while (nReadBytes != 0);
-
 		time(&TimeStamp);
 		Seconds = (int)TimeStamp % 60;
 		Minutes = (int)(TimeStamp / 60) % 60;

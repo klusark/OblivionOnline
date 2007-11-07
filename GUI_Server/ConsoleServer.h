@@ -30,7 +30,7 @@ This file is part of OblivionOnline.
 #include <process.h>
 #include "OOStructs.h"
 #include "OOHashTable.h"
-
+#include "../common/IDebugLog.h"
 #define MAXCLIENTS 4
 #define PORT 41805
 #define ADMINPORT (PORT - 1)
@@ -54,7 +54,6 @@ This file is part of OblivionOnline.
 
 extern int TotalClients;
 extern bool bServerAlive;
-extern bool Authenticated[MAXCLIENTS];
 extern SOCKET clients[MAXCLIENTS];
 extern SOCKET adminSocket;
 extern sockaddr_in ConnectionInfo[MAXCLIENTS];
@@ -67,7 +66,7 @@ extern char ServerPassword[32];
 extern char AdminPassword[32];
 
 extern int StartNet(void);
-extern int ScanBuffer(char *acReadBuffer, short LocalPlayer);
+extern int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead);
 extern bool BroadcastMessage(char *Message, int Player);
 extern bool Kick(int Player);
 extern int SendAdminMessage(char message[256]);

@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib"
+				AdditionalDependencies="ws2_32.lib common.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -134,7 +134,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib"
+				AdditionalDependencies="ws2_32.lib common.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -181,6 +181,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IOSystem.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\OOHashTable.cpp"
 				>
 			</File>
@@ -196,6 +200,10 @@
 			>
 			<File
 				RelativePath=".\ConsoleServer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IOSystem.h"
 				>
 			</File>
 			<File

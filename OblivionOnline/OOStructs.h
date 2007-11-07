@@ -47,9 +47,6 @@ struct ObjectStatus
 {
 	float PosX,PosY,PosZ;
 	float RotX,RotY,RotZ;
-	float VelX,VelY,VelZ;		//Linear velocities
-	float RVelX,RVelY,RVelZ;	//Rotaional velocities
-	float Velocity;				//Absolute linear velocity
 	UInt32 RefID;
 	UInt32 CellID;
 };struct ActorStatus : ObjectStatus

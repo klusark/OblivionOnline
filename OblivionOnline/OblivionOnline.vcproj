@@ -275,10 +275,6 @@
 				RelativePath="..\obse\obse\NiRTTI.h"
 				>
 			</File>
-			<File
-				RelativePath="..\obse\obse\ParamInfos.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Source"
@@ -321,6 +317,10 @@
 			</File>
 			<File
 				RelativePath=".\OONetwork.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\ParamInfos.h"
 				>
 			</File>
 			<File
@@ -404,6 +404,10 @@
 				</File>
 			</Filter>
 		</Filter>
+		<File
+			RelativePath="..\GUI_Server\PacketHandler.cpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

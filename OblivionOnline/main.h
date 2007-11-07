@@ -64,7 +64,6 @@ This file is part of OblivionOnline.
 //Externals
 extern IDebugLog gLog;
 extern bool bIsConnected;
-extern bool bIsAuthenticated;
 extern int LocalPlayer;
 extern int TotalPlayers;
 extern bool PlayerConnected[MAXCLIENTS];
@@ -77,7 +76,6 @@ extern TESObjectREFR* PlayerActorList[MAXCLIENTS];
 extern UInt32 SpawnID[MAXCLIENTS];
 extern int BadPackets[PACKET_COUNT];
 extern DWORD PacketTime[PACKET_COUNT];
-extern DWORD VelocityTime[MAXCLIENTS], VelocityOldTime[MAXCLIENTS];
 extern UInt8 ModList[MAXCLIENTS][256];
 
 #endif
