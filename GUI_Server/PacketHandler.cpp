@@ -89,7 +89,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 				return false;
 			}
 			*/
-				Authenticated[LocalPlayer] = true;
+				
 				OutPkgBuf.Flags = 1;
 			if(MasterClient == -1)
 			{
