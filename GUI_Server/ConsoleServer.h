@@ -39,8 +39,8 @@ This file is part of OblivionOnline.
 #define MAIN_VERSION 4
 #define SUB_VERSION 5 
 //The 2 below here are nothing but UI . Not on the netcode
-#define RELEASE_CODENAME "Release V" // The Name . Can be empty
-#define RELEASE_COMMENT "Internal Alpha" // For betas and special builds only
+#define RELEASE_CODENAME "Fix Release" // The Name . Can be empty
+#define RELEASE_COMMENT "" // For betas and special builds only
 
 //Defines for remote admin control
 #define CONNECTMSG 0

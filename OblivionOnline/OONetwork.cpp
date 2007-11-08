@@ -79,7 +79,6 @@ bool NetDisconnect()
 bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC, bool Initial) 
 {
 	static PlayerStatus LastPlayer;
-	Console_Print("NetActorUpdate called");
 	OOPkgActorUpdate pkgBuf;
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
@@ -219,43 +218,26 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 	switch (ePacketType)
 	{
 	case OOPWelcome:
-		if (Length == sizeof(OOPkgWelcome))
-			OOPWelcome_Handler(acReadBuffer);
-		else
-			BadPackets[OOPWelcome]++;
+		OOPWelcome_Handler(acReadBuffer);
+
 		break;
 	case OOPDisconnect:
-		if (Length == sizeof(OOPkgDisconnect))
-			OOPDisconnect_Handler(acReadBuffer);
-		else{
-			OOPDisconnect_Handler(acReadBuffer);
-			BadPackets[OOPDisconnect]++;
-		}
+		OOPDisconnect_Handler(acReadBuffer);
+
 		break;
 	case OOPActorUpdate:
-		if (Length == sizeof(OOPkgActorUpdate))
-			OOPActorUpdate_Handler(acReadBuffer);
-		else{
-			OOPActorUpdate_Handler(acReadBuffer);
-			// Now we run a recursive call to examine the extra data
-			NetReadBuffer(acReadBuffer+(sizeof(OOPkgActorUpdate)), Length - sizeof(OOPkgActorUpdate));
-			BadPackets[OOPActorUpdate]++;
-		}
+		OOPActorUpdate_Handler(acReadBuffer);
 		break;
 	case OOPChat:
 		OOPChat_Handler(acReadBuffer);
 		break;
 	case OOPEvent:
-		if (Length == sizeof(OOPkgEvent))
-			OOPEvent_Handler(acReadBuffer);
-		else
-			BadPackets[OOPEvent]++;
+		OOPEvent_Handler(acReadBuffer);
 		break;
+	
 	case OOPEventRegister:
-		if (Length == sizeof(OOPkgEventRegister))
+		
 			OOPEventRegister_Handler(acReadBuffer);
-		else
-			BadPackets[OOPEventRegister]++;
 		break;
 	case OOPFullStatUpdate:
 		if (Length == sizeof(OOPkgFullStatUpdate))
@@ -264,21 +246,12 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 			BadPackets[OOPFullStatUpdate]++;
 		break;
 	case OOPTimeUpdate:
-		if (Length == sizeof(OOPkgTimeUpdate))
 			OOPTimeUpdate_Handler(acReadBuffer);
-		else
-			BadPackets[OOPTimeUpdate]++;
+		
 		break;
 	case OOPEquipped:
-		if (Length == sizeof(OOPkgEquipped))
 			OOPEquipped_Handler(acReadBuffer);
-		else{
-			OOPEquipped_Handler(acReadBuffer);
-			// Now we run a recursive call to examine the extra data
-			
-			NetReadBuffer((acReadBuffer+sizeof(OOPkgEquipped)), Length - sizeof(OOPkgEquipped));
-			BadPackets[OOPEquipped]++;
-		}
+		
 		break;
 	default: 
 		break;
@@ -292,14 +265,13 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 
 bool OOPWelcome_Handler(char *Packet)
 {
-	OOPkgWelcome InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
-	if(!(InPkgBuf.Flags & 2)) // Ignore Data Flag is not set
+	OOPkgWelcome * InPkgBuf = (OOPkgWelcome *)Packet;
+	if(!(InPkgBuf->Flags & 2)) // Ignore Data Flag is not set
 	{	
 	
-	sscanf(InPkgBuf.NickName, "Player%2d", &LocalPlayer);
+	sscanf(InPkgBuf->NickName, "Player%2d", &LocalPlayer);
 	_MESSAGE("Received Player ID %u",LocalPlayer);
-	Console_Print(InPkgBuf.NickName);
+	Console_Print(InPkgBuf->NickName);
 	PlayerConnected[LocalPlayer] = true;
 	PlayersInitial[LocalPlayer].Health = (*g_thePlayer)->GetActorValue(8);
 	PlayersInitial[LocalPlayer].Magika = (*g_thePlayer)->GetActorValue(9);
@@ -313,7 +285,7 @@ bool OOPWelcome_Handler(char *Packet)
 	pkgBuf.Flags = 1;
 	send(ServerSocket, (char *)&pkgBuf, sizeof(OOPkgWelcome), 0);
 	}
-	if(InPkgBuf.Flags & 4) // Master Client
+	if(InPkgBuf->Flags & 4) // Master Client
 	{
 		
 	}
@@ -321,7 +293,7 @@ bool OOPWelcome_Handler(char *Packet)
 // Here we hande the so -called "Mode Flags " from 4 (MC ) upwards.
 
 // Flag 4 - Master Client ...
-	if(InPkgBuf.Flags & 4) // Master Client
+	if(InPkgBuf->Flags & 4) // Master Client
 	{
 		MCBuildCache();
 	}
@@ -336,9 +308,8 @@ bool OOPWelcome_Handler(char *Packet)
 
 bool OOPDisconnect_Handler(char *Packet)
 {
-	OOPkgDisconnect InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgDisconnect));
-	if (InPkgBuf.PlayerID == LocalPlayer && InPkgBuf.Flags == 1)
+	OOPkgDisconnect * InPkgBuf = (OOPkgDisconnect *)Packet;
+	if (InPkgBuf->PlayerID == LocalPlayer && InPkgBuf->Flags == 1)
 	{
 		bIsConnected = false;
 		Console_Print("You have been disconnected");
@@ -355,33 +326,33 @@ bool OOPDisconnect_Handler(char *Packet)
 		ServerSocket = INVALID_SOCKET;
 		WSACleanup();
 	}else{
-		PlayerConnected[InPkgBuf.PlayerID] = false;
+		PlayerConnected[InPkgBuf->PlayerID] = false;
 		TotalPlayers--;
-		Console_Print("Player %i disconnected", InPkgBuf.PlayerID);
-		Players[InPkgBuf.PlayerID].PosX = 3200; // In testcave 1.  a location that is in every esm ...
-		Players[InPkgBuf.PlayerID].PosY = 0;
-		Players[InPkgBuf.PlayerID].PosZ = 0;
-		Players[InPkgBuf.PlayerID].RotX = 0;
-		Players[InPkgBuf.PlayerID].RotY = 0;
-		Players[InPkgBuf.PlayerID].RotZ = 0;
-		Players[InPkgBuf.PlayerID].CellID = 0x34E1D; // TestCave01
-		Players[InPkgBuf.PlayerID].Health = 1;
-		Players[InPkgBuf.PlayerID].bStatsInitialized = false;
-		Players[InPkgBuf.PlayerID].bIsInInterior = true;
-		Players[InPkgBuf.PlayerID].head = 0;
-		Players[InPkgBuf.PlayerID].hair = 0;
-		Players[InPkgBuf.PlayerID].upper_body = 0;
-		Players[InPkgBuf.PlayerID].lower_body = 0;
-		Players[InPkgBuf.PlayerID].hand = 0;
-		Players[InPkgBuf.PlayerID].foot = 0;
-		Players[InPkgBuf.PlayerID].right_ring = 0;
-		Players[InPkgBuf.PlayerID].left_ring = 0;
-		Players[InPkgBuf.PlayerID].amulet = 0;
-		Players[InPkgBuf.PlayerID].shield = 0;
-		Players[InPkgBuf.PlayerID].tail = 0;
-		Players[InPkgBuf.PlayerID].weapon = 0;
-		Players[InPkgBuf.PlayerID].ammo = 0;
-		Players[InPkgBuf.PlayerID].robes = 0;
+		Console_Print("Player %i disconnected", InPkgBuf->PlayerID);
+		Players[InPkgBuf->PlayerID].PosX = 3200; // In testcave 1.  a location that is in every esm ...
+		Players[InPkgBuf->PlayerID].PosY = 0;
+		Players[InPkgBuf->PlayerID].PosZ = 0;
+		Players[InPkgBuf->PlayerID].RotX = 0;
+		Players[InPkgBuf->PlayerID].RotY = 0;
+		Players[InPkgBuf->PlayerID].RotZ = 0;
+		Players[InPkgBuf->PlayerID].CellID = 0x34E1D; // TestCave01
+		Players[InPkgBuf->PlayerID].Health = 1;
+		Players[InPkgBuf->PlayerID].bStatsInitialized = false;
+		Players[InPkgBuf->PlayerID].bIsInInterior = true;
+		Players[InPkgBuf->PlayerID].head = 0;
+		Players[InPkgBuf->PlayerID].hair = 0;
+		Players[InPkgBuf->PlayerID].upper_body = 0;
+		Players[InPkgBuf->PlayerID].lower_body = 0;
+		Players[InPkgBuf->PlayerID].hand = 0;
+		Players[InPkgBuf->PlayerID].foot = 0;
+		Players[InPkgBuf->PlayerID].right_ring = 0;
+		Players[InPkgBuf->PlayerID].left_ring = 0;
+		Players[InPkgBuf->PlayerID].amulet = 0;
+		Players[InPkgBuf->PlayerID].shield = 0;
+		Players[InPkgBuf->PlayerID].tail = 0;
+		Players[InPkgBuf->PlayerID].weapon = 0;
+		Players[InPkgBuf->PlayerID].ammo = 0;
+		Players[InPkgBuf->PlayerID].robes = 0;
 	}
 	return true;
 }
@@ -389,126 +360,126 @@ bool OOPDisconnect_Handler(char *Packet)
 bool OOPActorUpdate_Handler(char *Packet)
 {
 	
-	OOPkgActorUpdate InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgActorUpdate));
-	if(InPkgBuf.Flags & 1)
+	OOPkgActorUpdate * InPkgBuf = (OOPkgActorUpdate *) Packet;
+	
+	if(InPkgBuf->Flags & 1)
 	{
-	if (InPkgBuf.refID < MAXCLIENTS)
+	if (InPkgBuf->refID < MAXCLIENTS)
 	{
-		if(!PlayerConnected[InPkgBuf.refID])
+		if(!PlayerConnected[InPkgBuf->refID])
 		{
 			/*
 			char Script [256];
 			TotalPlayers++;
-			PlayerConnected[InPkgBuf.refID] = true;
-			if(InPkgBuf.Flags & 4)
+			PlayerConnected[InPkgBuf->refID] = true;
+			if(InPkgBuf->Flags & 4)
 			{
-				sprintf(Script,"%s.PositionWorld %f,%f,%f,%i,%s",((Actor *)LookupFormByID(SpawnID[InPkgBuf.refID]))->GetEditorName(),InPkgBuf.fPosX,InPkgBuf.fPosY,InPkgBuf.fPosZ,InPkgBuf.fRotZ,LookupFormByID(InPkgBuf.CellID)->GetEditorName());
+				sprintf(Script,"%s.PositionWorld %f,%f,%f,%i,%s",((Actor *)LookupFormByID(SpawnID[InPkgBuf->refID]))->GetEditorName(),InPkgBuf->fPosX,InPkgBuf->fPosY,InPkgBuf->fPosZ,InPkgBuf->fRotZ,LookupFormByID(InPkgBuf->CellID)->GetEditorName());
 			}
 			else
 			{
-				sprintf(Script,"%s.PositionCell %f,%f,%f,%i,%s",((Actor *)LookupFormByID(SpawnID[InPkgBuf.refID]))->GetEditorName(),InPkgBuf.fPosX,InPkgBuf.fPosY,InPkgBuf.fPosZ,InPkgBuf.fRotZ,LookupFormByID(InPkgBuf.CellID)->GetEditorName());
+				sprintf(Script,"%s.PositionCell %f,%f,%f,%i,%s",((Actor *)LookupFormByID(SpawnID[InPkgBuf->refID]))->GetEditorName(),InPkgBuf->fPosX,InPkgBuf->fPosY,InPkgBuf->fPosZ,InPkgBuf->fRotZ,LookupFormByID(InPkgBuf->CellID)->GetEditorName());
 			}
 			Console_Print("Injecting Script : %s",Script);
 			RunScriptLine(Script,false);
-			Console_Print("Player %i connected", InPkgBuf.refID);
+			Console_Print("Player %i connected", InPkgBuf->refID);
 			*/
 			//this just crashes. We do it from the .esp
 		}
-		Players[InPkgBuf.refID].InCombat = InPkgBuf.InCombat;
+		Players[InPkgBuf->refID].InCombat = InPkgBuf->InCombat;
 		
  
-		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
-		Players[InPkgBuf.refID].PosY = InPkgBuf.fPosY;
-		Players[InPkgBuf.refID].PosZ = InPkgBuf.fPosZ;
-		Players[InPkgBuf.refID].RotX = InPkgBuf.fRotX;
-		Players[InPkgBuf.refID].RotY = InPkgBuf.fRotY;
-		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
-		UInt32 oldCell = Players[InPkgBuf.refID].CellID;
-		Players[InPkgBuf.refID].CellID = InPkgBuf.CellID;
+		Players[InPkgBuf->refID].PosX = InPkgBuf->fPosX;
+		Players[InPkgBuf->refID].PosY = InPkgBuf->fPosY;
+		Players[InPkgBuf->refID].PosZ = InPkgBuf->fPosZ;
+		Players[InPkgBuf->refID].RotX = InPkgBuf->fRotX;
+		Players[InPkgBuf->refID].RotY = InPkgBuf->fRotY;
+		Players[InPkgBuf->refID].RotZ = InPkgBuf->fRotZ;
+		UInt32 oldCell = Players[InPkgBuf->refID].CellID;
+		Players[InPkgBuf->refID].CellID = InPkgBuf->CellID;
 		_MESSAGE("X : %f Y %f Z %f");
 
 		//Is this a set of initial data?
-		if (InPkgBuf.Flags & 8)
+		if (InPkgBuf->Flags & 8)
 		{
-			if(!Players[InPkgBuf.refID].bStatsInitialized)
+			if(!Players[InPkgBuf->refID].bStatsInitialized)
 			{
-				Players[InPkgBuf.refID].Health = InPkgBuf.Health;
-				Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
-				Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
-				Console_Print("Player %i basic stats initialized", (int)InPkgBuf.refID);
-				Players[InPkgBuf.refID].bStatsInitialized = true;
+				Players[InPkgBuf->refID].Health = InPkgBuf->Health;
+				Players[InPkgBuf->refID].Magika = InPkgBuf->Magika;
+				Players[InPkgBuf->refID].Fatigue = InPkgBuf->Fatigue;
+				Console_Print("Player %i basic stats initialized", (int)InPkgBuf->refID);
+				Players[InPkgBuf->refID].bStatsInitialized = true;
 			}else{
-				Console_Print("Player %i reinialized basic stats. Error perhaps?", (int)InPkgBuf.refID);
+				Console_Print("Player %i reinialized basic stats. Error perhaps?", (int)InPkgBuf->refID);
 			}
 		}else{
-			Players[InPkgBuf.refID].Health += InPkgBuf.Health;
-			Players[InPkgBuf.refID].Magika += InPkgBuf.Magika;
-			Players[InPkgBuf.refID].Fatigue += InPkgBuf.Fatigue;
+			Players[InPkgBuf->refID].Health += InPkgBuf->Health;
+			Players[InPkgBuf->refID].Magika += InPkgBuf->Magika;
+			Players[InPkgBuf->refID].Fatigue += InPkgBuf->Fatigue;
 			// If we know the mem location of the NPC, mod the stats
-			if (InPkgBuf.refID == LocalPlayer)
+			if (InPkgBuf->refID == LocalPlayer)
 			{
-				if (Players[InPkgBuf.refID].Health >= 0)
-					(*g_thePlayer)->ModActorBaseValue(8, InPkgBuf.Health, 0);
+				if (Players[InPkgBuf->refID].Health >= 0)
+					(*g_thePlayer)->ModActorBaseValue(8, InPkgBuf->Health, 0);
 				else
-					Players[InPkgBuf.refID].Health = 0;
-				if (Players[InPkgBuf.refID].Magika >= 0)
-					(*g_thePlayer)->ModActorBaseValue(9, InPkgBuf.Magika, 0);
+					Players[InPkgBuf->refID].Health = 0;
+				if (Players[InPkgBuf->refID].Magika >= 0)
+					(*g_thePlayer)->ModActorBaseValue(9, InPkgBuf->Magika, 0);
 				else
-					Players[InPkgBuf.refID].Magika = 0;
-				if (Players[InPkgBuf.refID].Fatigue >= 0)
-					(*g_thePlayer)->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
+					Players[InPkgBuf->refID].Magika = 0;
+				if (Players[InPkgBuf->refID].Fatigue >= 0)
+					(*g_thePlayer)->ModActorBaseValue(10, InPkgBuf->Fatigue, 0);
 				else
-					Players[InPkgBuf.refID].Fatigue = 0;
+					Players[InPkgBuf->refID].Fatigue = 0;
 			}else{
-				if (PlayerActorList[InPkgBuf.refID])
+				if (PlayerActorList[InPkgBuf->refID])
 				{
-					Actor *ActorBuf = (Actor*)PlayerActorList[InPkgBuf.refID];
-					if (Players[InPkgBuf.refID].Health >= 0)
-						ActorBuf->ModActorBaseValue(8, InPkgBuf.Health, 0);
+					Actor *ActorBuf = (Actor*)PlayerActorList[InPkgBuf->refID];
+					if (Players[InPkgBuf->refID].Health >= 0)
+						ActorBuf->ModActorBaseValue(8, InPkgBuf->Health, 0);
 					else
-						Players[InPkgBuf.refID].Health = 0;
-					if (Players[InPkgBuf.refID].Magika >= 0)
-						ActorBuf->ModActorBaseValue(9, InPkgBuf.Magika, 0);
+						Players[InPkgBuf->refID].Health = 0;
+					if (Players[InPkgBuf->refID].Magika >= 0)
+						ActorBuf->ModActorBaseValue(9, InPkgBuf->Magika, 0);
 					else
-						Players[InPkgBuf.refID].Magika = 0;
-					if (Players[InPkgBuf.refID].Fatigue >= 0)
-						ActorBuf->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
+						Players[InPkgBuf->refID].Magika = 0;
+					if (Players[InPkgBuf->refID].Fatigue >= 0)
+						ActorBuf->ModActorBaseValue(10, InPkgBuf->Fatigue, 0);
 					else
-						Players[InPkgBuf.refID].Fatigue = 0;
+						Players[InPkgBuf->refID].Fatigue = 0;
 				}
 			}
 		}
-		if (InPkgBuf.Flags & 4) //Is in an exterior?
+		if (InPkgBuf->Flags & 4) //Is in an exterior?
 		{
-			Players[InPkgBuf.refID].bIsInInterior = false;
+			Players[InPkgBuf->refID].bIsInInterior = false;
 		}else{
-			Players[InPkgBuf.refID].bIsInInterior = true;
+			Players[InPkgBuf->refID].bIsInInterior = true;
 		}
 	}
 	}
 	else //Mob
 	{
-		NetHandleMobUpdate(InPkgBuf);
+		NetHandleMobUpdate(*InPkgBuf);
 	}
 	return true;
 }
 
 bool OOPChat_Handler(char *Packet)
 {
-	OOPkgChat InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgChat));
+	OOPkgChat * InPkgBuf = (OOPkgChat *)Packet;
+
 	char MessageDest[1024] = "\0";
-	for(int i=0; i<InPkgBuf.Length; i++)
+	for(int i=0; i<InPkgBuf->Length; i++)
 	{
 		MessageDest[i] = Packet[i+sizeof(OOPkgChat)];
 	}
-	MessageDest[InPkgBuf.Length] = '\0';
+	MessageDest[InPkgBuf->Length] = '\0';
 	char chatScript[1024];
-	sprintf(chatScript, "Message \"Player %i: %s\"", InPkgBuf.refID, MessageDest);
-	Console_Print("Player %i: %s", InPkgBuf.refID, MessageDest);
+	sprintf(chatScript, "Message \"Player %i: %s\"", InPkgBuf->refID, MessageDest);
+	Console_Print("Player %i: %s", InPkgBuf->refID, MessageDest);
 	RunScriptLine(chatScript, true);
-	std::string Sender = "Player "+InPkgBuf.refID;
+	std::string Sender = "Player "+InPkgBuf->refID;
 	//usrInterface.RegisterChatMessage(Sender,MessageDest);
 	return true;
 }
@@ -525,94 +496,92 @@ bool OOPEventRegister_Handler(char *Packet)
 
 bool OOPEquipped_Handler(char *Packet)
 {
-	OOPkgEquipped InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgEquipped));
-	if ((InPkgBuf.refID < MAXCLIENTS) && (InPkgBuf.refID != LocalPlayer))
+	OOPkgEquipped * InPkgBuf = (OOPkgEquipped *)Packet;
+	if ((InPkgBuf->refID < MAXCLIENTS) && (InPkgBuf->refID != LocalPlayer))
 	{
-		Players[InPkgBuf.refID].head = InPkgBuf.head;
-		Players[InPkgBuf.refID].hair = InPkgBuf.hair;
-		Players[InPkgBuf.refID].upper_body = InPkgBuf.upper_body;
-		Players[InPkgBuf.refID].lower_body = InPkgBuf.lower_body;
-		Players[InPkgBuf.refID].hand = InPkgBuf.hand;
-		Players[InPkgBuf.refID].foot = InPkgBuf.foot;
-		Players[InPkgBuf.refID].right_ring = InPkgBuf.right_ring;
-		Players[InPkgBuf.refID].left_ring = InPkgBuf.left_ring;
-		Players[InPkgBuf.refID].amulet = InPkgBuf.amulet;
-		Players[InPkgBuf.refID].shield = InPkgBuf.shield;
-		Players[InPkgBuf.refID].tail = InPkgBuf.tail;
-		Players[InPkgBuf.refID].weapon = InPkgBuf.weapon;
-		Players[InPkgBuf.refID].ammo = InPkgBuf.ammo;
-		Players[InPkgBuf.refID].robes = InPkgBuf.robes;
+		Players[InPkgBuf->refID].head = InPkgBuf->head;
+		Players[InPkgBuf->refID].hair = InPkgBuf->hair;
+		Players[InPkgBuf->refID].upper_body = InPkgBuf->upper_body;
+		Players[InPkgBuf->refID].lower_body = InPkgBuf->lower_body;
+		Players[InPkgBuf->refID].hand = InPkgBuf->hand;
+		Players[InPkgBuf->refID].foot = InPkgBuf->foot;
+		Players[InPkgBuf->refID].right_ring = InPkgBuf->right_ring;
+		Players[InPkgBuf->refID].left_ring = InPkgBuf->left_ring;
+		Players[InPkgBuf->refID].amulet = InPkgBuf->amulet;
+		Players[InPkgBuf->refID].shield = InPkgBuf->shield;
+		Players[InPkgBuf->refID].tail = InPkgBuf->tail;
+		Players[InPkgBuf->refID].weapon = InPkgBuf->weapon;
+		Players[InPkgBuf->refID].ammo = InPkgBuf->ammo;
+		Players[InPkgBuf->refID].robes = InPkgBuf->robes;
 	}
 	return true;
 }
 
 bool OOPFullStatUpdate_Handler(char *Packet)
 {
-	OOPkgFullStatUpdate InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
-	if (InPkgBuf.refID < MAXCLIENTS)
+	OOPkgFullStatUpdate *InPkgBuf = (OOPkgFullStatUpdate *)Packet;
+	if (InPkgBuf->refID < MAXCLIENTS)
 	{
-		if (InPkgBuf.Flags & 8)
+		if (InPkgBuf->Flags & 8)
 		{
-			Players[InPkgBuf.refID].Agility = InPkgBuf.Agility;
-			Players[InPkgBuf.refID].Encumbrance = InPkgBuf.Encumbrance;
-			Players[InPkgBuf.refID].Endurance = InPkgBuf.Endurance;
-			Players[InPkgBuf.refID].Intelligence = InPkgBuf.Intelligence;
-			Players[InPkgBuf.refID].Luck = InPkgBuf.Luck;
-			Players[InPkgBuf.refID].Personality = InPkgBuf.Personality;
-			Players[InPkgBuf.refID].Speed = InPkgBuf.Speed;
-			Players[InPkgBuf.refID].Strength = InPkgBuf.Strength;
-			Players[InPkgBuf.refID].Willpower = InPkgBuf.Willpower;
-			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
-			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
-			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
-			Players[InPkgBuf.refID].bStatsInitialized = true;
-			Console_Print("Player %i full stats initialized", InPkgBuf.refID);
+			Players[InPkgBuf->refID].Agility = InPkgBuf->Agility;
+			Players[InPkgBuf->refID].Encumbrance = InPkgBuf->Encumbrance;
+			Players[InPkgBuf->refID].Endurance = InPkgBuf->Endurance;
+			Players[InPkgBuf->refID].Intelligence = InPkgBuf->Intelligence;
+			Players[InPkgBuf->refID].Luck = InPkgBuf->Luck;
+			Players[InPkgBuf->refID].Personality = InPkgBuf->Personality;
+			Players[InPkgBuf->refID].Speed = InPkgBuf->Speed;
+			Players[InPkgBuf->refID].Strength = InPkgBuf->Strength;
+			Players[InPkgBuf->refID].Willpower = InPkgBuf->Willpower;
+			Players[InPkgBuf->refID].Health = InPkgBuf->Health;
+			Players[InPkgBuf->refID].Magika = InPkgBuf->Magika;
+			Players[InPkgBuf->refID].Fatigue = InPkgBuf->Fatigue;
+			Players[InPkgBuf->refID].bStatsInitialized = true;
+			Console_Print("Player %i full stats initialized", InPkgBuf->refID);
 		}else{
-			Players[InPkgBuf.refID].Agility += InPkgBuf.Agility;
-			Players[InPkgBuf.refID].Encumbrance += InPkgBuf.Encumbrance;
-			Players[InPkgBuf.refID].Endurance += InPkgBuf.Endurance;
-			Players[InPkgBuf.refID].Intelligence += InPkgBuf.Intelligence;
-			Players[InPkgBuf.refID].Luck += InPkgBuf.Luck;
-			Players[InPkgBuf.refID].Personality += InPkgBuf.Personality;
-			Players[InPkgBuf.refID].Speed += InPkgBuf.Speed;
-			Players[InPkgBuf.refID].Strength += InPkgBuf.Strength;
-			Players[InPkgBuf.refID].Willpower += InPkgBuf.Willpower;
-			Players[InPkgBuf.refID].Health += InPkgBuf.Health;
-			Players[InPkgBuf.refID].Magika += InPkgBuf.Magika;
-			Players[InPkgBuf.refID].Fatigue += InPkgBuf.Fatigue;
+			Players[InPkgBuf->refID].Agility += InPkgBuf->Agility;
+			Players[InPkgBuf->refID].Encumbrance += InPkgBuf->Encumbrance;
+			Players[InPkgBuf->refID].Endurance += InPkgBuf->Endurance;
+			Players[InPkgBuf->refID].Intelligence += InPkgBuf->Intelligence;
+			Players[InPkgBuf->refID].Luck += InPkgBuf->Luck;
+			Players[InPkgBuf->refID].Personality += InPkgBuf->Personality;
+			Players[InPkgBuf->refID].Speed += InPkgBuf->Speed;
+			Players[InPkgBuf->refID].Strength += InPkgBuf->Strength;
+			Players[InPkgBuf->refID].Willpower += InPkgBuf->Willpower;
+			Players[InPkgBuf->refID].Health += InPkgBuf->Health;
+			Players[InPkgBuf->refID].Magika += InPkgBuf->Magika;
+			Players[InPkgBuf->refID].Fatigue += InPkgBuf->Fatigue;
 			// If we know the mem location of the NPC, mod the stats
-			if (InPkgBuf.refID == LocalPlayer)
+			if (InPkgBuf->refID == LocalPlayer)
 			{
-				//(*g_thePlayer)->ModActorBaseValue(0, InPkgBuf.Strength, 0);
-				//(*g_thePlayer)->ModActorBaseValue(1, InPkgBuf.Intelligence, 0);
-				//(*g_thePlayer)->ModActorBaseValue(2, InPkgBuf.Willpower, 0);
-				//(*g_thePlayer)->ModActorBaseValue(3, InPkgBuf.Agility, 0);
-				//(*g_thePlayer)->ModActorBaseValue(4, InPkgBuf.Speed, 0);
-				//(*g_thePlayer)->ModActorBaseValue(5, InPkgBuf.Endurance, 0);
-				//(*g_thePlayer)->ModActorBaseValue(6, InPkgBuf.Personality, 0);
-				//(*g_thePlayer)->ModActorBaseValue(7, InPkgBuf.Luck, 0);
-				(*g_thePlayer)->ModActorBaseValue(8, InPkgBuf.Health, 0);
-				(*g_thePlayer)->ModActorBaseValue(9, InPkgBuf.Magika, 0);
-				(*g_thePlayer)->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
-				//(*g_thePlayer)->ModActorBaseValue(11, InPkgBuf.Encumbrance, 0);
+				//(*g_thePlayer)->ModActorBaseValue(0, InPkgBuf->Strength, 0);
+				//(*g_thePlayer)->ModActorBaseValue(1, InPkgBuf->Intelligence, 0);
+				//(*g_thePlayer)->ModActorBaseValue(2, InPkgBuf->Willpower, 0);
+				//(*g_thePlayer)->ModActorBaseValue(3, InPkgBuf->Agility, 0);
+				//(*g_thePlayer)->ModActorBaseValue(4, InPkgBuf->Speed, 0);
+				//(*g_thePlayer)->ModActorBaseValue(5, InPkgBuf->Endurance, 0);
+				//(*g_thePlayer)->ModActorBaseValue(6, InPkgBuf->Personality, 0);
+				//(*g_thePlayer)->ModActorBaseValue(7, InPkgBuf->Luck, 0);
+				(*g_thePlayer)->ModActorBaseValue(8, InPkgBuf->Health, 0);
+				(*g_thePlayer)->ModActorBaseValue(9, InPkgBuf->Magika, 0);
+				(*g_thePlayer)->ModActorBaseValue(10, InPkgBuf->Fatigue, 0);
+				//(*g_thePlayer)->ModActorBaseValue(11, InPkgBuf->Encumbrance, 0);
 			}else{
-				if (PlayerActorList[InPkgBuf.refID])
+				if (PlayerActorList[InPkgBuf->refID])
 				{
-					Actor *ActorBuf = (Actor*)PlayerActorList[InPkgBuf.refID];
-					ActorBuf->ModActorBaseValue(0, InPkgBuf.Strength, 0);
-					ActorBuf->ModActorBaseValue(1, InPkgBuf.Intelligence, 0);
-					ActorBuf->ModActorBaseValue(2, InPkgBuf.Willpower, 0);
-					ActorBuf->ModActorBaseValue(3, InPkgBuf.Agility, 0);
-					ActorBuf->ModActorBaseValue(4, InPkgBuf.Speed, 0);
-					ActorBuf->ModActorBaseValue(5, InPkgBuf.Endurance, 0);
-					ActorBuf->ModActorBaseValue(6, InPkgBuf.Personality, 0);
-					ActorBuf->ModActorBaseValue(7, InPkgBuf.Luck, 0);
-					ActorBuf->ModActorBaseValue(8, InPkgBuf.Health, 0);
-					ActorBuf->ModActorBaseValue(9, InPkgBuf.Magika, 0);
-					ActorBuf->ModActorBaseValue(10, InPkgBuf.Fatigue, 0);
-					ActorBuf->ModActorBaseValue(11, InPkgBuf.Encumbrance, 0);
+					Actor *ActorBuf = (Actor*)PlayerActorList[InPkgBuf->refID];
+					ActorBuf->ModActorBaseValue(0, InPkgBuf->Strength, 0);
+					ActorBuf->ModActorBaseValue(1, InPkgBuf->Intelligence, 0);
+					ActorBuf->ModActorBaseValue(2, InPkgBuf->Willpower, 0);
+					ActorBuf->ModActorBaseValue(3, InPkgBuf->Agility, 0);
+					ActorBuf->ModActorBaseValue(4, InPkgBuf->Speed, 0);
+					ActorBuf->ModActorBaseValue(5, InPkgBuf->Endurance, 0);
+					ActorBuf->ModActorBaseValue(6, InPkgBuf->Personality, 0);
+					ActorBuf->ModActorBaseValue(7, InPkgBuf->Luck, 0);
+					ActorBuf->ModActorBaseValue(8, InPkgBuf->Health, 0);
+					ActorBuf->ModActorBaseValue(9, InPkgBuf->Magika, 0);
+					ActorBuf->ModActorBaseValue(10, InPkgBuf->Fatigue, 0);
+					ActorBuf->ModActorBaseValue(11, InPkgBuf->Encumbrance, 0);
 				}
 			}
 		}
@@ -622,8 +591,7 @@ bool OOPFullStatUpdate_Handler(char *Packet)
 
 bool OOPTimeUpdate_Handler(char *Packet)
 {
-	OOPkgTimeUpdate InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgTimeUpdate));
-	Players[LocalPlayer].Time = InPkgBuf.Hours + (float)InPkgBuf.Minutes / 60.0 + (float)InPkgBuf.Seconds / 3600.0;
+	OOPkgTimeUpdate * InPkgBuf = (OOPkgTimeUpdate *)Packet;
+	Players[LocalPlayer].Time = InPkgBuf->Hours + (float)InPkgBuf->Minutes / 60.0 + (float)InPkgBuf->Seconds / 3600.0;
 	return true;
 }

@@ -116,7 +116,6 @@ struct OOPkgActorUpdate
 	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
 	bool InCombat;
 };
-
 struct OOPkgChat //THIS PACKAGE IS NOT DIRECTLY MAPPED , but has to be converted
 {
 	OOPacketType etypeID;

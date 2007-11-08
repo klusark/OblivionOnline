@@ -380,7 +380,6 @@ bool Cmd_MPSyncTime_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 {
-	_MESSAGE("X position retrieved...");
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetPosX");
@@ -565,28 +564,7 @@ bool Cmd_MPGetStat_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetDebugData_Execute (COMMAND_ARGS)
 {
-	if (!thisObj)
-	{
-		Console_Print("Error, no reference given for MPGetDebugData");
-		return true;
-	}
-	if (thisObj->IsActor())
-	{
-		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
-
-		if (actorNumber != -1)
-		{
-			if (actorNumber == -2)
-				actorNumber = LocalPlayer;
-			//Console_Print("VelX: %f, VelY: %f, VelZ: %f", Players[actorNumber].VelX, Players[actorNumber].VelY, Players[actorNumber].VelZ);
-			//Console_Print("Badpackets: ActorUpdate(%i), FSU(%i)", BadPackets[OOPActorUpdate], BadPackets[OOPFullStatUpdate]);
-			for(int i=0; i<MAXCLIENTS; i++)
-			{
-				Console_Print("Spawnlist[%i]: %x", i, SpawnID[i]);
-			}
-		}
-	}
+	Console_Print("%f %f %f %u",((Actor *)LookupFormByID(SpawnID[0]))->posX,((Actor *)LookupFormByID(SpawnID[0]))->posY,((Actor *)LookupFormByID(SpawnID[0]))->posZ,((Actor *)LookupFormByID(SpawnID[0]))->parentCell->refID);
 	return true;
 }
 

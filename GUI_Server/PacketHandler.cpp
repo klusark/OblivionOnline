@@ -25,11 +25,11 @@ extern bool Connected[MAXCLIENTS];
 extern int MasterClient;
 bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 {
-	OOPkgWelcome InPkgBuf;
+	OOPkgWelcome * InPkgBuf = (OOPkgWelcome *)Packet;
 	OOPkgWelcome OutPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgWelcome));
+
 	//If this is an "I'm ready for init data" welcome, send init data
-	if(InPkgBuf.Flags & 1)
+	if(InPkgBuf->Flags & 1)
 	{
 		for(int i=0; i<MAXCLIENTS; i++)
 		{
@@ -66,24 +66,24 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	//If player is already connected, ignore welcome
 	if (Connected[LocalPlayer])
 		return true;
-	if(InPkgBuf.guidOblivionOnline == gcOOGUID)
+	if(InPkgBuf->guidOblivionOnline == gcOOGUID)
 	{
-		if(InPkgBuf.wVersion == MAKEWORD(MAIN_VERSION,SUB_VERSION))
+		if(InPkgBuf->wVersion == MAKEWORD(MAIN_VERSION,SUB_VERSION))
 		{
 			char *SendBuf;
 			OutPkgBuf.etypeID = OOPWelcome;
 			// Passwords do not really work !!! it just wastes EVERything
 			//Replace with database check later
 			/*
-			if(!strcmp(InPkgBuf.Password, ServerPassword))
+			if(!strcmp(InPkgBuf->Password, ServerPassword))
 			{
 				Authenticated[LocalPlayer] = true;
 				OutPkgBuf.Flags = 1;
 			}else{
-				printf("Player%2d tried to use wrong password: %s\n", LocalPlayer, InPkgBuf.Password);
+				printf("Player%2d tried to use wrong password: %s\n", LocalPlayer, InPkgBuf->Password);
 				if(adminSocket){
 					char message[256];
-					sprintf(message,"Player%2d tried to use wrong password: %s", LocalPlayer, InPkgBuf.Password);
+					sprintf(message,"Player%2d tried to use wrong password: %s", LocalPlayer, InPkgBuf->Password);
 					SendAdminMessage(message);
 				}
 				return false;
@@ -126,8 +126,8 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
 
 			TotalClients--;
-			int MinorVersion = (InPkgBuf.wVersion & 0xff00) >> 8;
-			int MajorVersion = InPkgBuf.wVersion & 0x00ff;
+			int MinorVersion = (InPkgBuf->wVersion & 0xff00) >> 8;
+			int MajorVersion = InPkgBuf->wVersion & 0x00ff;
 			printf("%s - Client tried to authenticate with wrong client version(%i.%i.%i)\n", MyTime, 0, MajorVersion, MinorVersion);
 			if(adminSocket){
 				char message[256];
@@ -169,12 +169,11 @@ bool OOPDisconnect_Handler(char *Packet,short LocalPlayer)
 {
 	if (Connected[LocalPlayer])
 	{
-		OOPkgDisconnect InPkgBuf;
-		memcpy(&InPkgBuf,Packet,sizeof(OOPkgDisconnect));
-		printf("Received disconnect from %i\n", InPkgBuf.PlayerID);
+		OOPkgDisconnect  * InPkgBuf = (OOPkgDisconnect *) Packet;
+		printf("Received disconnect from %i\n", InPkgBuf->PlayerID);
 		if(adminSocket){
 			char message[256];
-			sprintf(message,"Received disconnect from %i", InPkgBuf.PlayerID);
+			sprintf(message,"Received disconnect from %i", InPkgBuf->PlayerID);
 			SendAdminMessage(message);
 		}
 		for(int cx=0;cx<MAXCLIENTS;cx++)
@@ -189,91 +188,90 @@ bool OOPDisconnect_Handler(char *Packet,short LocalPlayer)
 bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 {
 
-	OOPkgActorUpdate InPkgBuf;
+	OOPkgActorUpdate * InPkgBuf = (OOPkgActorUpdate *) Packet;
 	OOPkgActorUpdate OutPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgActorUpdate));
-	printf("X %f Y %f Z %f \n",InPkgBuf.fPosX,InPkgBuf.fPosY,InPkgBuf.fPosZ);
-	if(InPkgBuf.Flags | 1)
+	printf("X %f Y %f Z %f \n",InPkgBuf->fPosX,InPkgBuf->fPosY,InPkgBuf->fPosZ);
+	if(InPkgBuf->Flags | 1)
 	{
-	if (InPkgBuf.refID < MAXCLIENTS)
+	if (InPkgBuf->refID < MAXCLIENTS)
 	{
 		OutPkgBuf.etypeID = OOPActorUpdate;
-		OutPkgBuf.Flags = InPkgBuf.Flags;
-		OutPkgBuf.refID = InPkgBuf.refID;
-		OutPkgBuf.CellID = InPkgBuf.CellID;
-		OutPkgBuf.fPosX = InPkgBuf.fPosX;
-		OutPkgBuf.fPosY = InPkgBuf.fPosY;
-		OutPkgBuf.fPosZ = InPkgBuf.fPosZ;
-		OutPkgBuf.fRotX = InPkgBuf.fRotX;
-		OutPkgBuf.fRotY = InPkgBuf.fRotY;
-		OutPkgBuf.fRotZ = InPkgBuf.fRotZ;
-		OutPkgBuf.InCombat = InPkgBuf.InCombat;
+		OutPkgBuf.Flags = InPkgBuf->Flags;
+		OutPkgBuf.refID = InPkgBuf->refID;
+		OutPkgBuf.CellID = InPkgBuf->CellID;
+		OutPkgBuf.fPosX = InPkgBuf->fPosX;
+		OutPkgBuf.fPosY = InPkgBuf->fPosY;
+		OutPkgBuf.fPosZ = InPkgBuf->fPosZ;
+		OutPkgBuf.fRotX = InPkgBuf->fRotX;
+		OutPkgBuf.fRotY = InPkgBuf->fRotY;
+		OutPkgBuf.fRotZ = InPkgBuf->fRotZ;
+		OutPkgBuf.InCombat = InPkgBuf->InCombat;
 
-		UInt32 tempCell = Players[InPkgBuf.refID].CellID;
-		Players[InPkgBuf.refID].CellID = OutPkgBuf.CellID;
-		if (Players[InPkgBuf.refID].CellID != tempCell){
-			printf("  Player %i moved from cell %x to cell %x\n", InPkgBuf.refID, tempCell, Players[InPkgBuf.refID].CellID);
+		UInt32 tempCell = Players[InPkgBuf->refID].CellID;
+		Players[InPkgBuf->refID].CellID = OutPkgBuf.CellID;
+		if (Players[InPkgBuf->refID].CellID != tempCell){
+			printf("  Player %i moved from cell %x to cell %x\n", InPkgBuf->refID, tempCell, Players[InPkgBuf->refID].CellID);
 			if(adminSocket){
 				char message[256];
-				sprintf(message,"  Player %i moved from cell %x to cell %x", InPkgBuf.refID, tempCell, Players[InPkgBuf.refID].CellID);
+				sprintf(message,"  Player %i moved from cell %x to cell %x", InPkgBuf->refID, tempCell, Players[InPkgBuf->refID].CellID);
 				SendAdminMessage(message);
 			}
 		}
 
 		//If the intialize flag is set, set init to true
-		if(!Players[InPkgBuf.refID].bStatsInitialized)
+		if(!Players[InPkgBuf->refID].bStatsInitialized)
 		{
-			printf("  Initializing player %i basic stats", InPkgBuf.refID);
+			printf("  Initializing player %i basic stats", InPkgBuf->refID);
 			if(adminSocket){
 				char message[256];
-				sprintf(message,"  Initializing player %i basic stats", InPkgBuf.refID);
+				sprintf(message,"  Initializing player %i basic stats", InPkgBuf->refID);
 				SendAdminMessage(message);
 			}
-			Players[InPkgBuf.refID].bStatsInitialized = true;
+			Players[InPkgBuf->refID].bStatsInitialized = true;
 			OutPkgBuf.Flags = OutPkgBuf.Flags | 8;
 		}
 
 		//Now check for changes in the basic stats
-		if(Players[InPkgBuf.refID].Health != InPkgBuf.Health)
+		if(Players[InPkgBuf->refID].Health != InPkgBuf->Health)
 		{
-			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
-			Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
-			if (Players[InPkgBuf.refID].Health < 0)
+			OutPkgBuf.Health = InPkgBuf->Health - Players[InPkgBuf->refID].Health;
+			Players[InPkgBuf->refID].Health += OutPkgBuf.Health;
+			if (Players[InPkgBuf->refID].Health < 0)
 			{
-				OutPkgBuf.Health += Players[InPkgBuf.refID].Health;
-				Players[InPkgBuf.refID].Health = 0;
+				OutPkgBuf.Health += Players[InPkgBuf->refID].Health;
+				Players[InPkgBuf->refID].Health = 0;
 			}else{
-				printf("  Player %i HP is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
+				printf("  Player %i HP is %i (change of %i)\n", InPkgBuf->refID, Players[InPkgBuf->refID].Health, OutPkgBuf.Health);
 				/*if(adminSocket){
 					char message[256];
-					sprintf(message,"  Player %i HP is %i (change of %i)", InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
+					sprintf(message,"  Player %i HP is %i (change of %i)", InPkgBuf->refID, Players[InPkgBuf->refID].Health, OutPkgBuf.Health);
 					SendAdminMessage(message);
 				}*/
 			}
 		}else
 			OutPkgBuf.Health = 0;
-		if(Players[InPkgBuf.refID].Magika != InPkgBuf.Magika)
+		if(Players[InPkgBuf->refID].Magika != InPkgBuf->Magika)
 		{
-			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
-			Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
-			if (Players[InPkgBuf.refID].Magika < 0)
+			OutPkgBuf.Magika = InPkgBuf->Magika - Players[InPkgBuf->refID].Magika;
+			Players[InPkgBuf->refID].Magika += OutPkgBuf.Magika;
+			if (Players[InPkgBuf->refID].Magika < 0)
 			{
-				OutPkgBuf.Magika += Players[InPkgBuf.refID].Magika;
-				Players[InPkgBuf.refID].Magika = 0;
+				OutPkgBuf.Magika += Players[InPkgBuf->refID].Magika;
+				Players[InPkgBuf->refID].Magika = 0;
 			}
-			//printf("  Player %i MP is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Magika, OutPkgBuf.Magika);
+			//printf("  Player %i MP is %i (change of %i)\n", InPkgBuf->refID, Players[InPkgBuf->refID].Magika, OutPkgBuf.Magika);
 		}else
 			OutPkgBuf.Magika = 0;
-		if(Players[InPkgBuf.refID].Fatigue != InPkgBuf.Fatigue)
+		if(Players[InPkgBuf->refID].Fatigue != InPkgBuf->Fatigue)
 		{
-			OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
-			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
-			if (Players[InPkgBuf.refID].Fatigue < 0)
+			OutPkgBuf.Fatigue = InPkgBuf->Fatigue - Players[InPkgBuf->refID].Fatigue;
+			Players[InPkgBuf->refID].Fatigue += OutPkgBuf.Fatigue;
+			if (Players[InPkgBuf->refID].Fatigue < 0)
 			{
-				OutPkgBuf.Fatigue += Players[InPkgBuf.refID].Fatigue;
-				Players[InPkgBuf.refID].Fatigue = 0;
+				OutPkgBuf.Fatigue += Players[InPkgBuf->refID].Fatigue;
+				Players[InPkgBuf->refID].Fatigue = 0;
 			}
-			//printf("  Player %i Fatigue is %i (change of %i)\n", InPkgBuf.refID, Players[InPkgBuf.refID].Fatigue, OutPkgBuf.Fatigue);
+			//printf("  Player %i Fatigue is %i (change of %i)\n", InPkgBuf->refID, Players[InPkgBuf->refID].Fatigue, OutPkgBuf.Fatigue);
 		}else
 			OutPkgBuf.Fatigue = 0;
 
@@ -292,24 +290,24 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 	else// It is an NPC
 	{
 		OOMobHashTableEntry *ptr;
-		ptr = (OOMobHashTableEntry *)MobTable.Find(InPkgBuf.refID);
+		ptr = (OOMobHashTableEntry *)MobTable.Find(InPkgBuf->refID);
 		if(!ptr) // We got to insert it
 		{
 			//Make one , insert it....
 			ptr = (OOMobHashTableEntry *)malloc(sizeof(OOMobHashTableEntry)); // We free that in the cleanup code ...
-			ptr->ID = InPkgBuf.refID;
-			ptr->Status.RefID = InPkgBuf.refID;
-			ptr->Status.CellID = InPkgBuf.CellID;
-			ptr->Status.PosX = InPkgBuf.fPosX;
-			ptr->Status.PosY = InPkgBuf.fPosY;
-			ptr->Status.PosZ = InPkgBuf.fPosZ;
-			ptr->Status.RotX = InPkgBuf.fRotX;
-			ptr->Status.RotY = InPkgBuf.fRotY;
-			ptr->Status.RotZ = InPkgBuf.fRotZ;
-			ptr->Status.InCombat = InPkgBuf.InCombat;
+			ptr->ID = InPkgBuf->refID;
+			ptr->Status.RefID = InPkgBuf->refID;
+			ptr->Status.CellID = InPkgBuf->CellID;
+			ptr->Status.PosX = InPkgBuf->fPosX;
+			ptr->Status.PosY = InPkgBuf->fPosY;
+			ptr->Status.PosZ = InPkgBuf->fPosZ;
+			ptr->Status.RotX = InPkgBuf->fRotX;
+			ptr->Status.RotY = InPkgBuf->fRotY;
+			ptr->Status.RotZ = InPkgBuf->fRotZ;
+			ptr->Status.InCombat = InPkgBuf->InCombat;
 
-			ptr->Status.Fatigue = InPkgBuf.Fatigue;
-			ptr->Status.Magika = InPkgBuf.Magika;
+			ptr->Status.Fatigue = InPkgBuf->Fatigue;
+			ptr->Status.Magika = InPkgBuf->Magika;
 			
 			if(!MobTable.Insert((void *)ptr))
 			{
@@ -323,9 +321,9 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 			}
 		}
 		// Health Magicka and Fatigue -....
-		if(ptr->Status.Health != InPkgBuf.Health)
+		if(ptr->Status.Health != InPkgBuf->Health)
 		{
-				OutPkgBuf.Health = InPkgBuf.Health - ptr->Status.Health;
+				OutPkgBuf.Health = InPkgBuf->Health - ptr->Status.Health;
 				ptr->Status.Health += OutPkgBuf.Health;
 				// Handle dying here ... we should remove all mobs dying from the DB
 				if(ptr->Status.Health < 0)
@@ -334,28 +332,28 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 					// Handle despawning here
 				}
 		}
-		if(ptr->Status.Magika != InPkgBuf.Magika)
+		if(ptr->Status.Magika != InPkgBuf->Magika)
 		{
-				OutPkgBuf.Magika = InPkgBuf.Magika - ptr->Status.Magika;
+				OutPkgBuf.Magika = InPkgBuf->Magika - ptr->Status.Magika;
 				ptr->Status.Magika += OutPkgBuf.Magika;
 		}
-		if(ptr->Status.Fatigue != InPkgBuf.Fatigue)
+		if(ptr->Status.Fatigue != InPkgBuf->Fatigue)
 		{
-				OutPkgBuf.Fatigue = InPkgBuf.Fatigue - ptr->Status.Fatigue;
+				OutPkgBuf.Fatigue = InPkgBuf->Fatigue - ptr->Status.Fatigue;
 				ptr->Status.Fatigue += OutPkgBuf.Fatigue;
 		}
 		//Position
 		OutPkgBuf.etypeID = OOPActorUpdate;
-		OutPkgBuf.Flags = InPkgBuf.Flags;
-		OutPkgBuf.refID = InPkgBuf.refID;
-		OutPkgBuf.CellID = InPkgBuf.CellID;
-		OutPkgBuf.fPosX = InPkgBuf.fPosX;
-		OutPkgBuf.fPosY = InPkgBuf.fPosY;
-		OutPkgBuf.fPosZ = InPkgBuf.fPosZ;
-		OutPkgBuf.fRotX = InPkgBuf.fRotX;
-		OutPkgBuf.fRotY = InPkgBuf.fRotY;
-		OutPkgBuf.fRotZ = InPkgBuf.fRotZ;
-		OutPkgBuf.InCombat = InPkgBuf.InCombat;
+		OutPkgBuf.Flags = InPkgBuf->Flags;
+		OutPkgBuf.refID = InPkgBuf->refID;
+		OutPkgBuf.CellID = InPkgBuf->CellID;
+		OutPkgBuf.fPosX = InPkgBuf->fPosX;
+		OutPkgBuf.fPosY = InPkgBuf->fPosY;
+		OutPkgBuf.fPosZ = InPkgBuf->fPosZ;
+		OutPkgBuf.fRotX = InPkgBuf->fRotX;
+		OutPkgBuf.fRotY = InPkgBuf->fRotY;
+		OutPkgBuf.fRotZ = InPkgBuf->fRotZ;
+		OutPkgBuf.InCombat = InPkgBuf->InCombat;
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
 			if (cx != LocalPlayer&&clients[cx])
@@ -368,17 +366,17 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 
 bool OOPChat_Handler(char *Packet,short LocalPlayer)
 {
-	OOPkgChat InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgChat));
+	OOPkgChat *InPkgBuf = (OOPkgChat *)Packet;
+	
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
 		if (cx != LocalPlayer&&clients[cx])
-			send(clients[cx],Packet,sizeof(OOPkgChat)+InPkgBuf.Length,0);
+			send(clients[cx],Packet,sizeof(OOPkgChat)+InPkgBuf->Length,0);
 	}
-	if (InPkgBuf.Length < 1024)
+	if (InPkgBuf->Length < 1024)
 	{
 		char MessageDest[1024] = "\0";
-		for(int i=0; i<InPkgBuf.Length; i++)
+		for(int i=0; i<InPkgBuf->Length; i++)
 		{
 			MessageDest[i] = Packet[i+sizeof(OOPkgChat)];
 		}
@@ -406,57 +404,57 @@ bool OOPEventRegister_Handler(char *Packet,short LocalPlayer)
 
 bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 {
-	OOPkgFullStatUpdate InPkgBuf;
+	OOPkgFullStatUpdate *InPkgBuf = (OOPkgFullStatUpdate *) Packet;
 	OOPkgFullStatUpdate OutPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgFullStatUpdate));
-	if (InPkgBuf.refID < MAXCLIENTS)
+
+	if (InPkgBuf->refID < MAXCLIENTS)
 	{
 		OutPkgBuf.etypeID = OOPFullStatUpdate;
-		OutPkgBuf.refID = InPkgBuf.refID;
-		OutPkgBuf.Flags = InPkgBuf.Flags;
+		OutPkgBuf.refID = InPkgBuf->refID;
+		OutPkgBuf.Flags = InPkgBuf->Flags;
 		//Are we setting initial values?
-		if (InPkgBuf.Flags & 8)
+		if (InPkgBuf->Flags & 8)
 		{
-			OutPkgBuf.Health = InPkgBuf.Health;
-			OutPkgBuf.Magika = InPkgBuf.Magika;
-			OutPkgBuf.Fatigue = InPkgBuf.Fatigue;
-			Players[InPkgBuf.refID].Health = InPkgBuf.Health;
-			Players[InPkgBuf.refID].Magika = InPkgBuf.Magika;
-			Players[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
-			PlayersInitial[InPkgBuf.refID].Health = InPkgBuf.Health;
-			PlayersInitial[InPkgBuf.refID].Magika = InPkgBuf.Magika;
-			PlayersInitial[InPkgBuf.refID].Fatigue = InPkgBuf.Fatigue;
-			printf("Client %i full stats initialized\n", InPkgBuf.refID);
+			OutPkgBuf.Health = InPkgBuf->Health;
+			OutPkgBuf.Magika = InPkgBuf->Magika;
+			OutPkgBuf.Fatigue = InPkgBuf->Fatigue;
+			Players[InPkgBuf->refID].Health = InPkgBuf->Health;
+			Players[InPkgBuf->refID].Magika = InPkgBuf->Magika;
+			Players[InPkgBuf->refID].Fatigue = InPkgBuf->Fatigue;
+			PlayersInitial[InPkgBuf->refID].Health = InPkgBuf->Health;
+			PlayersInitial[InPkgBuf->refID].Magika = InPkgBuf->Magika;
+			PlayersInitial[InPkgBuf->refID].Fatigue = InPkgBuf->Fatigue;
+			printf("Client %i full stats initialized\n", InPkgBuf->refID);
 			if(adminSocket){
 				char message[256];
-				sprintf(message,"Client %i full stats initialized", InPkgBuf.refID);
+				sprintf(message,"Client %i full stats initialized", InPkgBuf->refID);
 				SendAdminMessage(message);
 			}
-			printf(" HP: %i\n", Players[InPkgBuf.refID].Health);
+			printf(" HP: %i\n", Players[InPkgBuf->refID].Health);
 			if(adminSocket){
 				char message[256];
-				sprintf(message," HP: %i", Players[InPkgBuf.refID].Health);
+				sprintf(message," HP: %i", Players[InPkgBuf->refID].Health);
 				SendAdminMessage(message);
 			}
-			printf(" MP: %i\n", Players[InPkgBuf.refID].Magika);
+			printf(" MP: %i\n", Players[InPkgBuf->refID].Magika);
 			if(adminSocket){
 				char message[256];
-				sprintf(message," MP: %i", Players[InPkgBuf.refID].Magika);
+				sprintf(message," MP: %i", Players[InPkgBuf->refID].Magika);
 				SendAdminMessage(message);
 			}
 		}else{
-			OutPkgBuf.Health = InPkgBuf.Health - Players[InPkgBuf.refID].Health;
-			OutPkgBuf.Magika = InPkgBuf.Magika - Players[InPkgBuf.refID].Magika;
-			OutPkgBuf.Fatigue = InPkgBuf.Fatigue - Players[InPkgBuf.refID].Fatigue;
-			//printf("Player HP: %i | Incoming HP: %i (FSU)\n", Players[InPkgBuf.refID].Health, InPkgBuf.Health);
-			Players[InPkgBuf.refID].Health += OutPkgBuf.Health;
-			Players[InPkgBuf.refID].Magika += OutPkgBuf.Magika;
-			Players[InPkgBuf.refID].Fatigue += OutPkgBuf.Fatigue;
+			OutPkgBuf.Health = InPkgBuf->Health - Players[InPkgBuf->refID].Health;
+			OutPkgBuf.Magika = InPkgBuf->Magika - Players[InPkgBuf->refID].Magika;
+			OutPkgBuf.Fatigue = InPkgBuf->Fatigue - Players[InPkgBuf->refID].Fatigue;
+			//printf("Player HP: %i | Incoming HP: %i (FSU)\n", Players[InPkgBuf->refID].Health, InPkgBuf->Health);
+			Players[InPkgBuf->refID].Health += OutPkgBuf.Health;
+			Players[InPkgBuf->refID].Magika += OutPkgBuf.Magika;
+			Players[InPkgBuf->refID].Fatigue += OutPkgBuf.Fatigue;
 			if (OutPkgBuf.Health != 0)
-				printf("  Player %i HP is %i (change of %i)(FSU)\n", LocalPlayer, InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
+				printf("  Player %i HP is %i (change of %i)(FSU)\n", LocalPlayer, InPkgBuf->refID, Players[InPkgBuf->refID].Health, OutPkgBuf.Health);
 				if(adminSocket){
 					char message[256];
-					sprintf(message,"  Player %i HP is %i (change of %i)(FSU)", LocalPlayer, InPkgBuf.refID, Players[InPkgBuf.refID].Health, OutPkgBuf.Health);
+					sprintf(message,"  Player %i HP is %i (change of %i)(FSU)", LocalPlayer, InPkgBuf->refID, Players[InPkgBuf->refID].Health, OutPkgBuf.Health);
 					SendAdminMessage(message);
 				}
 		}
@@ -489,8 +487,8 @@ bool OOPTimeUpdate_Handler(char *Packet,short LocalPlayer)
 
 bool OOPEquipped_Handler(char *Packet,short LocalPlayer)
 {
-	OOPkgEquipped InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgEquipped));
+	OOPkgEquipped *InPkgBuf = (OOPkgEquipped *) Packet;
+
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
 		if (cx != LocalPlayer&&clients[cx])
@@ -539,12 +537,11 @@ bool AdminKick_Handler(char *Data, short Length)
 
 bool OOPAdminInfo_Handler(char *Packet, short Length)
 {
-	OOPkgAdminInfo InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgAdminInfo));
+	OOPkgAdminInfo * InPkgBuf = (OOPkgAdminInfo *)Packet;
 	char MessageDest[512];
 	memcpy(&MessageDest, Packet + sizeof(OOPkgAdminInfo), Length - sizeof(OOPkgAdminInfo));
 	MessageDest[Length - sizeof(OOPkgAdminInfo)] = '\0';
-	switch(InPkgBuf.ControlCommand)
+	switch(InPkgBuf->ControlCommand)
 	{
 	case MSGCONTROL:
 		AdminMsg_Handler(MessageDest, Length);
