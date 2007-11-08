@@ -247,14 +247,15 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 	if(thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
+		/*
 		int actorNumber = GetActorID(ActorBuf->refID);
-
+	
 		if (actorNumber == -1)
 			return true;
 		if (actorNumber == -2)
 			actorNumber = LocalPlayer;
 		if (!PlayerConnected[actorNumber])
-			return true;
+			return true; */
 
 		PlayerStatus DummyStatus;
 		DummyStatus.RefID = ActorBuf->refID;
@@ -267,7 +268,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		DummyStatus.Health = ActorBuf->GetActorValue(8);
 		DummyStatus.Magika = ActorBuf->GetActorValue(9);
 		DummyStatus.Fatigue = ActorBuf->GetActorValue(10);
-		DummyStatus.InCombat = Players[actorNumber].InCombat;
+		DummyStatus.InCombat = Players[LocalPlayer].InCombat;
 		if(ActorBuf->parentCell->worldSpace)
 		{
 			DummyStatus.bIsInInterior = false;
@@ -278,20 +279,21 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 			DummyStatus.bIsInInterior = true;
 			DummyStatus.CellID = ActorBuf->parentCell->refID;
 		}
+		/*
 		if (actorNumber != LocalPlayer)
 		{
 			NetActorUpdate(&DummyStatus, actorNumber, false, false);
-		}else{
-			if (Players[actorNumber].bStatsInitialized)
+		}
+		else{*/
+			if (Players[LocalPlayer].bStatsInitialized)
 			{
-				NetActorUpdate(&DummyStatus, actorNumber, true, false);
+				NetActorUpdate(&DummyStatus, LocalPlayer, true, false);
 			}else{
-				Console_Print("Initializing player %i basic stats ...", actorNumber);
-				NetActorUpdate(&DummyStatus, actorNumber, true, true);
-				Players[actorNumber].bStatsInitialized = true;
+				Console_Print("Initializing player %i basic stats ...", LocalPlayer);
+				NetActorUpdate(&DummyStatus, LocalPlayer, true, true);
+				Players[LocalPlayer].bStatsInitialized = true;
 			}
 		}
-	}
 	return true;
 }
 

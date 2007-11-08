@@ -188,9 +188,11 @@ bool OOPDisconnect_Handler(char *Packet,short LocalPlayer)
 
 bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 {
+
 	OOPkgActorUpdate InPkgBuf;
 	OOPkgActorUpdate OutPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgActorUpdate));
+	printf("X %f Y %f Z %f \n",InPkgBuf.fPosX,InPkgBuf.fPosY,InPkgBuf.fPosZ);
 	if(InPkgBuf.Flags | 1)
 	{
 	if (InPkgBuf.refID < MAXCLIENTS)

@@ -79,7 +79,7 @@ bool NetDisconnect()
 bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC, bool Initial) 
 {
 	static PlayerStatus LastPlayer;
-	
+	Console_Print("NetActorUpdate called");
 	OOPkgActorUpdate pkgBuf;
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
@@ -388,6 +388,7 @@ bool OOPDisconnect_Handler(char *Packet)
 
 bool OOPActorUpdate_Handler(char *Packet)
 {
+	
 	OOPkgActorUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgActorUpdate));
 	if(InPkgBuf.Flags & 1)
@@ -396,6 +397,7 @@ bool OOPActorUpdate_Handler(char *Packet)
 	{
 		if(!PlayerConnected[InPkgBuf.refID])
 		{
+			/*
 			char Script [256];
 			TotalPlayers++;
 			PlayerConnected[InPkgBuf.refID] = true;
@@ -410,6 +412,8 @@ bool OOPActorUpdate_Handler(char *Packet)
 			Console_Print("Injecting Script : %s",Script);
 			RunScriptLine(Script,false);
 			Console_Print("Player %i connected", InPkgBuf.refID);
+			*/
+			//this just crashes. We do it from the .esp
 		}
 		Players[InPkgBuf.refID].InCombat = InPkgBuf.InCombat;
 		
@@ -422,7 +426,7 @@ bool OOPActorUpdate_Handler(char *Packet)
 		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
 		UInt32 oldCell = Players[InPkgBuf.refID].CellID;
 		Players[InPkgBuf.refID].CellID = InPkgBuf.CellID;
-		
+		_MESSAGE("X : %f Y %f Z %f");
 
 		//Is this a set of initial data?
 		if (InPkgBuf.Flags & 8)
