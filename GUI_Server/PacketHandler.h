@@ -33,7 +33,6 @@ extern bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer);
 extern bool OOPEventRegister_Handler(char *Packet,short LocalPlayer);
 extern bool OOPTimeUpdate_Handler(char *Packet,short LocalPlayer);
 extern bool OOPEquipped_Handler(char *Packet,short LocalPlayer);
-extern bool OOPModOffsetList_Handler(char *Packet,short LocalPlayer);
 extern bool OOPAdminInfo_Handler(char *Packet,short Length);
 
 #endif

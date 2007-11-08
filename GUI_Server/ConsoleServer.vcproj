@@ -181,10 +181,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\IOSystem.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\OOHashTable.cpp"
 				>
 			</File>
@@ -200,10 +196,6 @@
 			>
 			<File
 				RelativePath=".\ConsoleServer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IOSystem.h"
 				>
 			</File>
 			<File

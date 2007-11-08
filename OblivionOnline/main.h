@@ -51,7 +51,7 @@ This file is part of OblivionOnline.
 #include "OOStructs.h"
 #include "OBSEFunctions.h"
 #include "MobSynch.h"
-#define MAXCLIENTS 4
+#define MAXCLIENTS 12
 #define MAXSERVERS 8
 
 #define SUPER_VERSION 0 //Not used yet
@@ -76,6 +76,6 @@ extern TESObjectREFR* PlayerActorList[MAXCLIENTS];
 extern UInt32 SpawnID[MAXCLIENTS];
 extern int BadPackets[PACKET_COUNT];
 extern DWORD PacketTime[PACKET_COUNT];
-extern UInt8 ModList[MAXCLIENTS][256];
+
 
 #endif

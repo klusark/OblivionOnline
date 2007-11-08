@@ -31,7 +31,7 @@ This file is part of OblivionOnline.
 #include "OOStructs.h"
 #include "OOHashTable.h"
 #include "../common/IDebugLog.h"
-#define MAXCLIENTS 4
+#define MAXCLIENTS 12
 #define PORT 41805
 #define ADMINPORT (PORT - 1)
 
@@ -59,7 +59,7 @@ extern SOCKET adminSocket;
 extern sockaddr_in ConnectionInfo[MAXCLIENTS];
 extern PlayerStatus Players[MAXCLIENTS];
 extern PlayerStatus PlayersInitial[MAXCLIENTS];
-extern UInt8 ModList[MAXCLIENTS][255];
+
 extern FILE *easylog;
 
 extern char ServerPassword[32];

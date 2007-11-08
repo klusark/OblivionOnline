@@ -404,10 +404,6 @@
 				</File>
 			</Filter>
 		</Filter>
-		<File
-			RelativePath="..\GUI_Server\PacketHandler.cpp"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

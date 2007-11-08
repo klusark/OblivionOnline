@@ -178,7 +178,7 @@ bool MCMakePassive()		//changes client mode to passive
 			}
 			else
 			{
-				_MESSAGE("Found Actor * without refid , removing it"); 
+				_MESSAGE("Found incorrect actor , removing it"); 
 				MCCache.erase(ActorIterator);
 			}
 		}

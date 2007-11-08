@@ -49,8 +49,6 @@ bool OOPEventRegister_Handler(char *Packet);
 bool OOPFullStatUpdate_Handler(char *Packet);
 bool OOPTimeUpdate_Handler(char *Packet);
 bool OOPEquipped_Handler(char *Packet);
-bool OOPModOffsetList_Handler(char *Packet);
-
 //----------------------------------
 //--Begin Incoming packet handlers--
 //----------------------------------
@@ -63,7 +61,7 @@ bool NetWelcome(char *Password)
 	pkgBuf.PlayerID = 0;
 	pkgBuf.wVersion = MAKEWORD(MAIN_VERSION,SUB_VERSION);
 	pkgBuf.guidOblivionOnline = gcOOGUID;
-	strcpy(pkgBuf.Password, Password);
+	//strcpy(pkgBuf.Password, Password);
 	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgWelcome),0);
 	return true;
 }
@@ -207,35 +205,6 @@ bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool Is
 	return true;
 }
 
-bool NetSendModList(void)
-{
-	char Mods[256];
-	char *SendBuf;
-	void *ListDest;
-	OOPkgModOffsetList pkgBuf;
-	pkgBuf.etypeID = OOPModOffsetList;
-	pkgBuf.Flags = 0;
-	pkgBuf.refID = LocalPlayer;
-
-	pkgBuf.NumOfMods = 1;
-	Mods[0] = ModList[LocalPlayer][0];	//Base Oblivion (should equal 0)
-	for(int i=1; i<256; i++)
-	{
-		if (ModList[LocalPlayer][i])
-		{
-			Mods[pkgBuf.NumOfMods] = ModList[LocalPlayer][i];
-			pkgBuf.NumOfMods++;
-		}
-	}
-
-	SendBuf = (char *)malloc(sizeof(OOPkgModOffsetList)+pkgBuf.NumOfMods);
-	memcpy(SendBuf,&pkgBuf,sizeof(OOPkgModOffsetList));
-	ListDest=(SendBuf+sizeof(OOPkgModOffsetList));
-	memcpy(ListDest,Mods,pkgBuf.NumOfMods);
-	send(ServerSocket,SendBuf,sizeof(OOPkgModOffsetList)+pkgBuf.NumOfMods,0);
-	free(SendBuf);
-	return true;
-}
 
 //---------------------------
 //--End Outgoing Handlers----
@@ -311,9 +280,6 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 			BadPackets[OOPEquipped]++;
 		}
 		break;
-	case OOPModOffsetList:
-		OOPModOffsetList_Handler(acReadBuffer);
-		break;
 	default: 
 		break;
 	}
@@ -381,8 +347,8 @@ bool OOPDisconnect_Handler(char *Packet)
 			PlayerConnected[i] = false;
 		}
 		TotalPlayers = 1;
-		//TerminateThread(hRecvThread, 0);
-		//CloseHandle(hRecvThread);
+		TerminateThread(hRecvThread, 0);
+		CloseHandle(hRecvThread);
 		//TerminateThread(hPredictionEngine, 0);
 		//CloseHandle(hPredictionEngine);
 		closesocket(ServerSocket);
@@ -392,6 +358,30 @@ bool OOPDisconnect_Handler(char *Packet)
 		PlayerConnected[InPkgBuf.PlayerID] = false;
 		TotalPlayers--;
 		Console_Print("Player %i disconnected", InPkgBuf.PlayerID);
+		Players[InPkgBuf.PlayerID].PosX = 3200; // In testcave 1.  a location that is in every esm ...
+		Players[InPkgBuf.PlayerID].PosY = 0;
+		Players[InPkgBuf.PlayerID].PosZ = 0;
+		Players[InPkgBuf.PlayerID].RotX = 0;
+		Players[InPkgBuf.PlayerID].RotY = 0;
+		Players[InPkgBuf.PlayerID].RotZ = 0;
+		Players[InPkgBuf.PlayerID].CellID = 0x34E1D; // TestCave01
+		Players[InPkgBuf.PlayerID].Health = 1;
+		Players[InPkgBuf.PlayerID].bStatsInitialized = false;
+		Players[InPkgBuf.PlayerID].bIsInInterior = true;
+		Players[InPkgBuf.PlayerID].head = 0;
+		Players[InPkgBuf.PlayerID].hair = 0;
+		Players[InPkgBuf.PlayerID].upper_body = 0;
+		Players[InPkgBuf.PlayerID].lower_body = 0;
+		Players[InPkgBuf.PlayerID].hand = 0;
+		Players[InPkgBuf.PlayerID].foot = 0;
+		Players[InPkgBuf.PlayerID].right_ring = 0;
+		Players[InPkgBuf.PlayerID].left_ring = 0;
+		Players[InPkgBuf.PlayerID].amulet = 0;
+		Players[InPkgBuf.PlayerID].shield = 0;
+		Players[InPkgBuf.PlayerID].tail = 0;
+		Players[InPkgBuf.PlayerID].weapon = 0;
+		Players[InPkgBuf.PlayerID].ammo = 0;
+		Players[InPkgBuf.PlayerID].robes = 0;
 	}
 	return true;
 }
@@ -406,8 +396,19 @@ bool OOPActorUpdate_Handler(char *Packet)
 	{
 		if(!PlayerConnected[InPkgBuf.refID])
 		{
+			char Script [256];
 			TotalPlayers++;
 			PlayerConnected[InPkgBuf.refID] = true;
+			if(InPkgBuf.Flags & 4)
+			{
+				sprintf(Script,"%s.PositionWorld %f,%f,%f,%i,%s",((Actor *)LookupFormByID(SpawnID[InPkgBuf.refID]))->GetEditorName(),InPkgBuf.fPosX,InPkgBuf.fPosY,InPkgBuf.fPosZ,InPkgBuf.fRotZ,LookupFormByID(InPkgBuf.CellID)->GetEditorName());
+			}
+			else
+			{
+				sprintf(Script,"%s.PositionCell %f,%f,%f,%i,%s",((Actor *)LookupFormByID(SpawnID[InPkgBuf.refID]))->GetEditorName(),InPkgBuf.fPosX,InPkgBuf.fPosY,InPkgBuf.fPosZ,InPkgBuf.fRotZ,LookupFormByID(InPkgBuf.CellID)->GetEditorName());
+			}
+			Console_Print("Injecting Script : %s",Script);
+			RunScriptLine(Script,false);
 			Console_Print("Player %i connected", InPkgBuf.refID);
 		}
 		Players[InPkgBuf.refID].InCombat = InPkgBuf.InCombat;
@@ -421,27 +422,7 @@ bool OOPActorUpdate_Handler(char *Packet)
 		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
 		UInt32 oldCell = Players[InPkgBuf.refID].CellID;
 		Players[InPkgBuf.refID].CellID = InPkgBuf.CellID;
-		if (oldCell != Players[InPkgBuf.refID].CellID)
-		{
-			//Console_Print("Player %i cell change from %x to %x", InPkgBuf.refID, oldCell, Players[InPkgBuf.refID].CellID);
-			//Check to see if cell is from a mod
-			UInt8 cellOffset = (InPkgBuf.CellID & 0xff000000) >> 24;
-			if (cellOffset)
-			{
-				//Console_Print("Mod cell");
-				//If so, change the offset to match this client
-				for(int i=1;i<ModList[InPkgBuf.refID][0]; i++)
-					if (cellOffset == ModList[InPkgBuf.refID][i])
-						cellOffset = ModList[LocalPlayer][i];
-				//If local offset doesn't exist print error, otherwise set CellID
-				if (!cellOffset)
-					Console_Print("Player %i moved to unsupported mod location", (int)InPkgBuf.refID);
-				else{
-					//Console_Print("Player %i moved to mod location successfully", InPkgBuf.refID);
-					Players[InPkgBuf.refID].CellID = (Players[InPkgBuf.refID].CellID & 0x00ffffff) | (cellOffset << 24);
-				}
-			}
-		}
+		
 
 		//Is this a set of initial data?
 		if (InPkgBuf.Flags & 8)
@@ -505,7 +486,7 @@ bool OOPActorUpdate_Handler(char *Packet)
 	else //Mob
 	{
 		NetHandleMobUpdate(InPkgBuf);
-		}
+	}
 	return true;
 }
 
@@ -640,21 +621,5 @@ bool OOPTimeUpdate_Handler(char *Packet)
 	OOPkgTimeUpdate InPkgBuf;
 	memcpy(&InPkgBuf,Packet,sizeof(OOPkgTimeUpdate));
 	Players[LocalPlayer].Time = InPkgBuf.Hours + (float)InPkgBuf.Minutes / 60.0 + (float)InPkgBuf.Seconds / 3600.0;
-	return true;
-}
-
-bool OOPModOffsetList_Handler(char *Packet)
-{
-	OOPkgModOffsetList InPkgBuf;
-	memcpy(&InPkgBuf,Packet,sizeof(OOPkgModOffsetList));
-	if (InPkgBuf.NumOfMods >= 255)
-		return false;
-	Console_Print("Mod list (%i mods) from %i:", InPkgBuf.NumOfMods, InPkgBuf.refID);
-	for(int i=0; i<InPkgBuf.NumOfMods; i++)
-	{
-		ModList[InPkgBuf.refID][i] = Packet[i+sizeof(OOPkgModOffsetList)];
-		Console_Print("  Mod %i: %i", i, (int)ModList[InPkgBuf.refID][i]);
-	}
-	ModList[InPkgBuf.refID][0] = InPkgBuf.NumOfMods;	//Set the first slot to NumMods
 	return true;
 }

@@ -65,9 +65,6 @@ int BadPackets[PACKET_COUNT];	//Keeps track of # of bad packets of each type
 
 DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.'
 
-
-UInt8 ModList[MAXCLIENTS][256];	//List of supported mods from each client
-
 // Prototypes
 extern void RunScriptLine(const char *buf, bool IsTemp);
 extern int GetActorID(UInt32 refID);
@@ -80,7 +77,7 @@ extern bool NetChat(char *Message);
 extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC);
 extern bool NetReadBuffer(char *acReadBuffer, int Length);
 extern bool NetEquipped(PlayerStatus *Player, int PlayerID, bool Initial);
-extern bool NetSendModList(void);
+
 
 extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEquippedFunctor, double* result);
 
@@ -95,13 +92,13 @@ int OO_Initialize()
 	// Initialize the arrays
 	for(int i=0; i<MAXCLIENTS; i++)
 	{
-		Players[i].PosX = 0;
+		Players[i].PosX = 3200; // In testcave 1.  a location that is in every esm ...
 		Players[i].PosY = 0;
-		Players[i].PosZ = -196;
+		Players[i].PosZ = 0;
 		Players[i].RotX = 0;
 		Players[i].RotY = 0;
 		Players[i].RotZ = 0;
-		Players[i].CellID = 0;
+		Players[i].CellID = 0x34E1D; // TestCave01
 		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
 		Players[i].bIsInInterior = true;
@@ -131,13 +128,13 @@ int OO_Deinitialize ()
 {
 	for(int i=0; i<MAXCLIENTS; i++)
 	{
-		Players[i].PosX = 0;
+			Players[i].PosX = 3200; // In testcave 1.  a location that is in every esm ...
 		Players[i].PosY = 0;
-		Players[i].PosZ = -196;
+		Players[i].PosZ = 0;
 		Players[i].RotX = 0;
 		Players[i].RotY = 0;
 		Players[i].RotZ = 0;
-		Players[i].CellID = 0;
+		Players[i].CellID = 0x34E1D; // TestCave01
 		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
 		Players[i].bIsInInterior = true;
@@ -182,8 +179,6 @@ DWORD WINAPI RecvThread(LPVOID Params)
 	return 0;
 }
 
-
-
 //-----------------------------
 //---Begin Command Functions---
 //-----------------------------
@@ -226,7 +221,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 			}
 			else 
 			{
-				_MESSAGE("Successfully Connected to %s",IP[i]);
+				_MESSAGE("Successfully Connected to %s:%u",IP[i],ClientPort[i]);
 				bIsConnected = true;
 				hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
 				//hPredictionEngine = CreateThread(NULL,NULL,PredictionEngine,NULL,NULL,NULL);
@@ -620,12 +615,22 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
 		UInt32 actorNumber = ActorBuf->refID;
+		for(int i=0; i< MAXCLIENTS ; i++)
+		{
+			if(SpawnID[i] == actorNumber)
+			{
+				// conflict here
+				Console_Print("This reference is already used as a controlled actor");
+				return false;
+				break;
+			}
+		}
 		for(int i=0; i<MAXCLIENTS; i++)
 		{
 			if (!SpawnID[i])
 			{
-				SpawnID[i] = actorNumber & 0x00ffffff;	//Mask off the mod offset for OblivionOnline
-				ModList[LocalPlayer][1] = (actorNumber & 0xff000000) >> 24;	//Read off the mod offset for OblivionOnline
+				SpawnID[i] = actorNumber;
+				
 				Console_Print("Spawn %i ID: %u", i, SpawnID[i]);
 				int actorNum = GetActorID(ActorBuf->refID);
 				PlayerActorList[actorNum] = thisObj;
@@ -668,7 +673,7 @@ bool Cmd_MPClearSpawn_Execute (COMMAND_ARGS)
 		Actor *ActorBuf = (Actor *)thisObj;
 		for(int i=0; i<MAXCLIENTS; i++)
 		{
-			if (SpawnID[i] == (ActorBuf->refID & 0x00ffffff))
+			if (SpawnID[i] == (ActorBuf->refID))
 			{
 				SpawnID[i] = 0;
 				//Console_Print("SpawnID cleared");
@@ -829,27 +834,7 @@ bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 	return true;
 }
 
-bool Cmd_MPSendModList_Execute (COMMAND_ARGS)
-{
-	NetSendModList();
-	return true;
-}
 
-bool Cmd_MPLogModOffset_Execute (COMMAND_ARGS)
-{
-	if (!thisObj)
-	{
-		Console_Print("Error, no reference given for MPLogModOffset");
-		return true;
-	}
-	int ModID;	//0 - Oblivion, 1 - OblivionOnline.esp, 2 - OOArenaMod.esp
-	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &ModID)) return true;
-	if (ModID > 255)
-		return true;
-	ModList[LocalPlayer][ModID] = (thisObj->refID & 0xff000000) >> 24;
-	Console_Print("Offset of %i set for modID %i", ModList[LocalPlayer][ModID], ModID);
-	return true;
-}
 
 bool Cmd_MPGetMyID_Execute (COMMAND_ARGS)
 {
@@ -1196,29 +1181,6 @@ static CommandInfo kMPGetEquipmentCommand =
 	Cmd_MPGetEquipment_Execute
 };
 
-static CommandInfo kMPSendModListCommand =
-{
-	"MPSendModList",
-	"MPSML",
-	0,
-	"Sends the local mod list",
-	0,		// requires parent obj
-	0,		// no params
-	NULL,	// no param table
-	Cmd_MPSendModList_Execute
-};
-
-static CommandInfo kMPLogModOffsetCommand =
-{
-	"MPLogModOffset",
-	"MPLMO",
-	0,
-	"Logs the mod offset of the calling ref",
-	0,		// requires parent obj
-	1,		// 1 param
-	kParams_OneInt,	// int param table
-	Cmd_MPLogModOffset_Execute
-};
 
 static CommandInfo kMPGetMyIDCommand =
 {
@@ -1353,9 +1315,7 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPSendEquippedCommand);
 	obse->RegisterCommand(&kMPGetEquipmentCommand);
 
-	//Mod support
-	obse->RegisterCommand(&kMPSendModListCommand);
-	obse->RegisterCommand(&kMPLogModOffsetCommand);
+
 
 	obse->RegisterCommand(&kMPGetMyIDCommand);
 

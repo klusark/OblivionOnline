@@ -61,7 +61,6 @@ enum OOPacketType
 	OOPTimeUpdate,		//Send the time to all clients
 	OOPDisconnect,		//Tells other clients that the player is disconnecting
 	OOPEquipped,		//Tells the clients what the actor is wearing
-	OOPModOffsetList,	//Contains a list of mod offsets to support mod items and locations
 	OOPAdminInfo,		//Contains admin control data and console messages
 	OOPAdminMessage,
 	OOPACModVerify = 65555,
@@ -163,16 +162,6 @@ struct OOPkgEquipped
 	UInt32 amulet,shield,tail,weapon,ammo; 
 	UInt32 robes;
 };
-
-struct OOPkgModOffsetList
-{
-	OOPacketType etypeID;
-	short Flags;		// none
-	UInt32 refID;		// the player #
-	short NumOfMods;	// total supported mods enabled on client
-	//Mod ID's and offsets are each merged into a short (2 bytes) at the end of the packet
-};
-
 struct OOPkgAdminInfo
 {
 	OOPacketType etypeID;

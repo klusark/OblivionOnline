@@ -56,7 +56,7 @@ void RunScriptLine(const char *buf, bool IsTemp)
 
 int GetActorID(UInt32 refID)
 {
-	refID = refID & 0x00ffffff;	//Mask off the mod offset
+	refID = refID;
 	// Compare reference ID's and determine which actor we have selected in-game
 	int retVal = -1;
 	bool foundID = false;

@@ -30,7 +30,7 @@ SOCKET adminSocket;
 sockaddr_in ConnectionInfo[MAXCLIENTS];
 PlayerStatus Players[MAXCLIENTS];
 PlayerStatus PlayersInitial[MAXCLIENTS];
-UInt8 ModList[MAXCLIENTS][255];
+
 bool Connected[MAXCLIENTS];
 unsigned short serverPort = 0;
 FILE *easylog;
@@ -351,6 +351,7 @@ int StartNet()
 
 int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 {
+	printf("%u",*acReadBuffer);
 	OOPacketType ePacketType = SelectType(acReadBuffer);
 	//If this is run from the admin thread
 	/*if(LocalPlayer == -1)
@@ -406,9 +407,6 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 		break;
 	case OOPEquipped:
 		OOPEquipped_Handler(acReadBuffer,LocalPlayer);
-		break;
-	case OOPModOffsetList:
-		OOPModOffsetList_Handler(acReadBuffer,LocalPlayer);
 		break;
 	default: 
 		OOPTimeUpdate_Handler(acReadBuffer,LocalPlayer);
@@ -615,7 +613,8 @@ bool Kick(int Player)
 	return true;
 }
 
-int SendAdminMessage(char message[256]){
+int SendAdminMessage(char message[256])
+{
 	OOPkgAdminMessage AdminMessage;
 	AdminMessage.etypeID=OOPAdminMessage;
 	strcpy(AdminMessage.message,message);
