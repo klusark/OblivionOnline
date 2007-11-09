@@ -162,9 +162,7 @@ bool MCMakePassive()		//changes client mode to passive
 		Actor * TempActor = reinterpret_cast<Actor *> (LookupFormByID(ActorIterator->RefID));
 		if(TempActor)
 		{
-			if(TempActor->refID && TempActor->IsActor()) // Always a good idea to check the refid
-			{
-				if((TempActor->posX != ActorIterator->LastStatus.PosX)
+			if((TempActor->posX != ActorIterator->LastStatus.PosX)
 					|| (TempActor->posY != ActorIterator->LastStatus.PosY)
 					|| (TempActor->posZ != ActorIterator->LastStatus.PosZ))
 				{
@@ -175,29 +173,25 @@ bool MCMakePassive()		//changes client mode to passive
 					ActorIterator->LastStatus.PosY = TempActor->posY;
 					ActorIterator->LastStatus.PosZ = TempActor->posZ;
 				}
-			}
-			else
-			{
-				_MESSAGE("Found incorrect actor , removing it"); 
-				MCCache.erase(ActorIterator);
-			}
 		}
+		
 		else
 		{
-			Console_Print("Detected failed injection !");
+			Console_Print("Found a Mob not present . Removing it");
+				MCCache.erase(ActorIterator);
 		}
 
 	}
 	MobResynchTimer = tickBuf;
+		return true;
 	}
-	return true;
 	}
 	catch (...)
 	{
 		_MESSAGE("Failed to Synchronise Actors");
 		return false;
 	}
-
+	return false;
 	#endif
 	//brand new testing stuff, DO NOT USE. Always comment this before building
 #if 0

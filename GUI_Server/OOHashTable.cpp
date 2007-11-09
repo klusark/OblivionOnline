@@ -73,5 +73,35 @@ bool OOHashTable::Remove(UINT32 id)
 	// this is not yet necessary, as we cannot detect that
 	// I will implement it at the given time
 		#pragma message ("OOHashTable::Remove not yet implemented. Masterfreek64 truly is a lazy fellow :) ")
+	unsigned int hash;
+	HashEntry *entry, *prev;
+	hash = Hash(id,tablesize);
+	entry = table[hash];
+	if(GetName(entry->obj) == id) // no collision , we do not need to fix it ....
+	{
+		free(entry->obj);
+		free(entry);
+		return true;
+	}
+	
+	prev = entry;
+	for(;entry; entry = entry->next) //we go through the list
+	{
+		if(GetName(entry->obj)==id)
+		{
+			if(entry->next)
+			{
+				prev->next = entry->next; // We fix the pointer
+			}
+			else
+			{
+				prev->next = NULL;
+			}
+			free(entry->obj);
+			free(entry);
+			return true;
+		}
+		prev = entry;
+	}
 	return false;
 }

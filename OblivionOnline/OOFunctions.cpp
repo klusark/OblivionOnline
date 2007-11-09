@@ -54,70 +54,49 @@ void RunScriptLine(const char *buf, bool IsTemp)
 	tempScriptObj->StaticDestructor();
 }
 
-int GetActorID(UInt32 refID)
+int GetPlayerNumber(UInt32 refID) // retrieves a player number from a refID
 {
-	refID = refID;
+
 	// Compare reference ID's and determine which actor we have selected in-game
-	int retVal = -1;
+
 	bool foundID = false;
 	if (refID == (*g_thePlayer)->refID)
 	{
-		retVal =  LocalPlayer;
+		return  LocalPlayer;
 		foundID = true;
 	}else{
-
+		/*
+		modus operandi:
+		We check the spawn list , leaving the localplayer out
+		*/
+		// The player the current spawnID respresents
+		int currentplayer = (0 == LocalPlayer) ? 1 : 0; // If LocalPlayer is 0 we start at 1 ...
 		//If not the player, check the SpawnID list
-		for (int i=0; i<MAXCLIENTS; i++)
-		{
-			int reali;
-			if(PlayerConnected[i] && (i != LocalPlayer))
-			{
+		//currentspawn += ((i == LocalPlayer)?0:1)
+		//A really complex but fast statement , selectíng the proper player id\
+		translates into \
+		if(i == LocalPlayer) \
+			LocalPlayer ++\
+		// more safe than any evaluation of the type currentspawn += (LocalPlayer == i) , this is not dependent on bool int conversion
 
-				switch(LocalPlayer) /* We have to leave ourselves out. */
+		for (int i=0; i<MAXCLIENTS; i++,currentplayer += ((i == LocalPlayer)?0:1))
+		{
+			if(SpawnID[i] == refID) // we find it quite fast. 12 cmp cycles 12 add cycles
+			{
+				if(PlayerConnected[i])
 				{
-				case 0:
-					if (refID == SpawnID[i-1])
-						retVal = i;
-					break;
-				case 1:
-					if (refID == SpawnID[0])
-						retVal = 0;
-					if (refID == SpawnID[1])
-						retVal = 2;
-					if (refID == SpawnID[2])
-						retVal = 3;
-					break;
-				case 2:
-					if (refID == SpawnID[0])
-						retVal = 0;
-					if (refID == SpawnID[1])
-						retVal = 1;
-					if (refID == SpawnID[2])
-						retVal = 3;
-					break;
-				case 3:
-					if (refID == SpawnID[i])
-						retVal = i;
-					break;
-				};
-				
+					return currentplayer;
+				}
 			}
 		}
 	}
-
-	//Is only 1 player connected? and is ref valid?
-	if ((TotalPlayers <= 1) && (retVal != -1))
-	{
-		retVal = -2;
-	}
-
-	return retVal;
+	return -2;
 }
 
 float GetStat(Actor* ActorBuf, int statNum)
 {
 	float statValue = -1;
-	int PlayerNum = GetActorID(ActorBuf->refID);
+	int PlayerNum = GetPlayerNumber(ActorBuf->refID);
 
 	//If actorID is valid and stats have been initialized, retrieve the stat we want
 	if (PlayerNum != -1 && PlayerNum != -2)

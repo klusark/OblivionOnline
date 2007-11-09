@@ -67,7 +67,7 @@ DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.'
 
 // Prototypes
 extern void RunScriptLine(const char *buf, bool IsTemp);
-extern int GetActorID(UInt32 refID);
+extern int GetPlayerNumber(UInt32 refID);
 extern float GetStat(Actor *ActorBuf, int statNum);
 
 extern bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC, bool Initial);
@@ -247,15 +247,14 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 	if(thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-		/*
-		int actorNumber = GetActorID(ActorBuf->refID);
+		int actorNumber = GetPlayerNumber(ActorBuf->refID);
 	
 		if (actorNumber == -1)
 			return true;
 		if (actorNumber == -2)
 			actorNumber = LocalPlayer;
 		if (!PlayerConnected[actorNumber])
-			return true; */
+			return true; 
 
 		PlayerStatus DummyStatus;
 		DummyStatus.RefID = ActorBuf->refID;
@@ -307,7 +306,7 @@ bool Cmd_MPSendFullStat_Execute (COMMAND_ARGS)
 	if (thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
+		int actorNumber = GetPlayerNumber(ActorBuf->refID);
 
 		if (actorNumber != -1 && actorNumber != -2)
 		{
@@ -388,7 +387,7 @@ bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 	if (thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
+		int actorNumber = GetPlayerNumber(ActorBuf->refID);
 
 		if (actorNumber != -1 && actorNumber != -2)
 		{
@@ -411,7 +410,7 @@ bool Cmd_MPGetPosY_Execute (COMMAND_ARGS)
 	if (thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
+		int actorNumber = GetPlayerNumber(ActorBuf->refID);
 
 		if (actorNumber != -1 && actorNumber != -2)
 		{
@@ -434,7 +433,7 @@ bool Cmd_MPGetPosZ_Execute (COMMAND_ARGS)
 	if (thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
+		int actorNumber = GetPlayerNumber(ActorBuf->refID);
 
 		if (actorNumber != -1 && actorNumber != -2)
 		{
@@ -457,7 +456,7 @@ bool Cmd_MPGetRotZ_Execute (COMMAND_ARGS)
 	if (thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
+		int actorNumber = GetPlayerNumber(ActorBuf->refID);
 
 		if (actorNumber != -1 && actorNumber != -2)
 		{
@@ -482,7 +481,7 @@ bool Cmd_MPGetCell_Execute (COMMAND_ARGS)
 	if (thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
+		int actorNumber = GetPlayerNumber(ActorBuf->refID);
 
 		if (actorNumber != -1 && actorNumber != -2)
 		{
@@ -530,7 +529,7 @@ bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 	if (thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
+		int actorNumber = GetPlayerNumber(ActorBuf->refID);
 
 		if (actorNumber != -1 && actorNumber != -2)
 		{
@@ -612,7 +611,7 @@ bool Cmd_MPSpawned_Execute (COMMAND_ARGS)
 				SpawnID[i] = actorNumber;
 				
 				Console_Print("Spawn %i ID: %u", i, SpawnID[i]);
-				int actorNum = GetActorID(ActorBuf->refID);
+				int actorNum = GetPlayerNumber(ActorBuf->refID);
 				PlayerActorList[actorNum] = thisObj;
 				return true;
 			}
@@ -671,7 +670,7 @@ bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
 	}
 	if (thisObj->IsActor())
 	{
-		int actorNumber = GetActorID(thisObj->refID);
+		int actorNumber = GetPlayerNumber(thisObj->refID);
 
 		if (actorNumber != -1)
 		{
@@ -756,7 +755,7 @@ bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 	if (thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
+		int actorNumber = GetPlayerNumber(ActorBuf->refID);
 		int SlotID;
 		if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &SlotID)) return true;
 		if (actorNumber != -1 && actorNumber != -2)
@@ -826,7 +825,7 @@ bool Cmd_MPGetMyID_Execute (COMMAND_ARGS)
 	if (thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
+		int actorNumber = GetPlayerNumber(ActorBuf->refID);
 		Console_Print("Id: %i", actorNumber);
 		*result = (float)actorNumber;
 	}
@@ -843,7 +842,7 @@ bool Cmd_MPSetInCombat_Execute (COMMAND_ARGS)
 	if (thisObj->IsActor())
 	{
 		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetActorID(ActorBuf->refID);
+		int actorNumber = GetPlayerNumber(ActorBuf->refID);
 		int* intResult = (int*)result;
 		*intResult = Players[actorNumber].InCombat;
 	}

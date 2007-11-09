@@ -88,7 +88,7 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC, bool Initial)
 		{
 			memcpy(&LastPlayer,Player,sizeof(PlayerStatus));
 			pkgBuf.etypeID = OOPActorUpdate;
-			pkgBuf.Flags = IsPC | 2 | (!Player->bIsInInterior << 2) | (Initial << 3);
+			pkgBuf.Flags = IsPC | 2 | (!((int)Player->bIsInInterior) << 2) | (Initial << 3);
 			pkgBuf.fPosX = Player->PosX;
 			pkgBuf.fPosY = Player->PosY;
 			pkgBuf.fPosZ = Player->PosZ;
@@ -371,11 +371,31 @@ bool OOPActorUpdate_Handler(char *Packet)
 			/*
 			char Script [256];
 			TotalPlayers++;
+<<<<<<< .mine
+			PlayerConnected[InPkgBuf.refID] = true;
+			Console_Print("Player %i connected", InPkgBuf.refID);
+		}
+		Players[InPkgBuf.refID].InCombat = InPkgBuf.InCombat;
+		
+ 
+		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
+		Players[InPkgBuf.refID].PosY = InPkgBuf.fPosY;
+		Players[InPkgBuf.refID].PosZ = InPkgBuf.fPosZ;
+		Players[InPkgBuf.refID].RotX = InPkgBuf.fRotX;
+		Players[InPkgBuf.refID].RotY = InPkgBuf.fRotY;
+		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
+		UInt32 oldCell = Players[InPkgBuf.refID].CellID;
+		Players[InPkgBuf.refID].CellID = InPkgBuf.CellID;
+		if (oldCell != Players[InPkgBuf.refID].CellID)
+		{
+			Players[InPkgBuf.refID].CellID = Players[InPkgBuf.refID].CellID ;
+=======
 			PlayerConnected[InPkgBuf->refID] = true;
 			if(InPkgBuf->Flags & 4)
 			{
 				sprintf(Script,"%s.PositionWorld %f,%f,%f,%i,%s",((Actor *)LookupFormByID(SpawnID[InPkgBuf->refID]))->GetEditorName(),InPkgBuf->fPosX,InPkgBuf->fPosY,InPkgBuf->fPosZ,InPkgBuf->fRotZ,LookupFormByID(InPkgBuf->CellID)->GetEditorName());
 			}
+>>>>>>> .r363
 			else
 			{
 				sprintf(Script,"%s.PositionCell %f,%f,%f,%i,%s",((Actor *)LookupFormByID(SpawnID[InPkgBuf->refID]))->GetEditorName(),InPkgBuf->fPosX,InPkgBuf->fPosY,InPkgBuf->fPosZ,InPkgBuf->fRotZ,LookupFormByID(InPkgBuf->CellID)->GetEditorName());
