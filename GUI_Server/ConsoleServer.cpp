@@ -79,14 +79,11 @@ int main(void)
 		Players[i].RotX = 0;
 		Players[i].RotY = 0;
 		Players[i].RotZ = 0;
-		Players[i].CellID = 0;
+		Players[i].CellID = 0x2C16E;
 
 		Players[i].Health = 1;
 		Players[i].Magika = 0;
 		Players[i].Fatigue = 0;
-
-		Players[i].hair = 0;
-
 		Connected[i] = false;
 	}
 

@@ -51,6 +51,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 						SendPkgBuf.Flags = 1 | 2 | 8;
 					else
 						SendPkgBuf.Flags = 1 | 2 | 4 | 8;
+					SendPkgBuf.fPosX = 
 					SendPkgBuf.refID = Players[i].RefID;
 					SendPkgBuf.CellID = Players[i].CellID;
 					SendPkgBuf.Health = Players[i].Health; // we send the full values now , s that the client can make sense out of the differences
@@ -190,7 +191,6 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 
 	OOPkgActorUpdate * InPkgBuf = (OOPkgActorUpdate *) Packet;
 	OOPkgActorUpdate OutPkgBuf;
-	printf("X %f Y %f Z %f \n",InPkgBuf->fPosX,InPkgBuf->fPosY,InPkgBuf->fPosZ);
 	if(InPkgBuf->Flags | 1)
 	{
 	if (InPkgBuf->refID < MAXCLIENTS)

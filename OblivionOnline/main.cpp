@@ -92,13 +92,13 @@ int OO_Initialize()
 	// Initialize the arrays
 	for(int i=0; i<MAXCLIENTS; i++)
 	{
-		Players[i].PosX = 3200; // In testcave 1.  a location that is in every esm ...
-		Players[i].PosY = 0;
-		Players[i].PosZ = 0;
+		Players[i].PosX = -539; // In testcave 1.  a location that is in every esm ...
+		Players[i].PosY = 416;
+		Players[i].PosZ = -205;
 		Players[i].RotX = 0;
 		Players[i].RotY = 0;
 		Players[i].RotZ = 0;
-		Players[i].CellID = 0x34E1D; // TestCave01
+		Players[i].CellID = 0x2C16E; // First edition
 		Players[i].Health = 1;
 		Players[i].bStatsInitialized = false;
 		Players[i].bIsInInterior = true;
