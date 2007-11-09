@@ -810,6 +810,7 @@ bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 			}
 		}
 	}
+
 	return true;
 }
 

@@ -417,7 +417,7 @@ bool OOPActorUpdate_Handler(char *Packet)
 		Players[InPkgBuf->refID].RotZ = InPkgBuf->fRotZ;
 		UInt32 oldCell = Players[InPkgBuf->refID].CellID;
 		Players[InPkgBuf->refID].CellID = InPkgBuf->CellID;
-		_MESSAGE("X : %f Y %f Z %f");
+		
 
 		//Is this a set of initial data?
 		if (InPkgBuf->Flags & 8)
