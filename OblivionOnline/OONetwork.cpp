@@ -110,14 +110,28 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC, bool Initial)
 
 bool NetEquipped(PlayerStatus *Player, int PlayerID, bool Initial)
 {
-	static PlayerStatus EquipLastPlayer;
+	static PlayerStatus EquipLastPlayer; // change this to some variables that do not waste as much memory
 	
 	OOPkgEquipped pkgBuf;
 	DWORD tickBuf;
 	tickBuf=GetTickCount();
 	if((tickBuf - PacketTime[OOPEquipped]) > NET_EQUIPUPDATE_RESEND)
 	{
-		if(memcmp(&EquipLastPlayer,Player,sizeof(PlayerStatus))) //changed since last package
+		if((Player->ammo != EquipLastPlayer.ammo)||
+			(Player->amulet != EquipLastPlayer.amulet)||
+			(Player->foot != EquipLastPlayer.foot)||
+			(Player->hair != EquipLastPlayer.hair)||
+			(Player->hand != EquipLastPlayer.hand)||
+			(Player->head != EquipLastPlayer.head)||
+			(Player->left_ring != EquipLastPlayer.left_ring)||
+			(Player->lower_body != EquipLastPlayer.lower_body)||
+			(Player->right_ring != EquipLastPlayer.right_ring)||
+			(Player->robes != EquipLastPlayer.robes)||
+			(Player->shield != EquipLastPlayer.shield)||
+			(Player->tail != EquipLastPlayer.tail)||
+			(Player->upper_body != EquipLastPlayer.upper_body)||
+			(Player->weapon != EquipLastPlayer.weapon)
+			|| Initial) // It has been changed since last time
 		{
 			pkgBuf.etypeID = OOPEquipped;
 			pkgBuf.refID = PlayerID;
@@ -138,6 +152,20 @@ bool NetEquipped(PlayerStatus *Player, int PlayerID, bool Initial)
 			pkgBuf.weapon=Player->weapon;
 			pkgBuf.ammo=Player->ammo;
 			pkgBuf.robes=Player->robes;
+			//Update last Equipment
+			EquipLastPlayer.ammo = pkgBuf.ammo; // faster , pointers do not need to be dereferenced and added
+			EquipLastPlayer.amulet = pkgBuf.amulet;
+			EquipLastPlayer.hair = pkgBuf.hair;
+			EquipLastPlayer.foot = pkgBuf.foot;
+			EquipLastPlayer.hand = pkgBuf.hand;
+			EquipLastPlayer.head = pkgBuf.head;
+			EquipLastPlayer.left_ring = pkgBuf.left_ring;
+			EquipLastPlayer.lower_body = pkgBuf.lower_body;
+			EquipLastPlayer.right_ring = pkgBuf.right_ring;
+			EquipLastPlayer.robes = pkgBuf.robes;
+			EquipLastPlayer.shield = pkgBuf.shield;
+			EquipLastPlayer.robes = pkgBuf.robes;
+			EquipLastPlayer.tail  = pkgBuf.tail;
 			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgEquipped),0);
 			PacketTime[OOPEquipped] = tickBuf;
 		}
@@ -368,47 +396,12 @@ bool OOPActorUpdate_Handler(char *Packet)
 	{
 		if(!PlayerConnected[InPkgBuf->refID])
 		{
-			/*
-			char Script [256];
 			TotalPlayers++;
-<<<<<<< .mine
-			PlayerConnected[InPkgBuf.refID] = true;
-			Console_Print("Player %i connected", InPkgBuf.refID);
-		}
-		Players[InPkgBuf.refID].InCombat = InPkgBuf.InCombat;
-		
- 
-		Players[InPkgBuf.refID].PosX = InPkgBuf.fPosX;
-		Players[InPkgBuf.refID].PosY = InPkgBuf.fPosY;
-		Players[InPkgBuf.refID].PosZ = InPkgBuf.fPosZ;
-		Players[InPkgBuf.refID].RotX = InPkgBuf.fRotX;
-		Players[InPkgBuf.refID].RotY = InPkgBuf.fRotY;
-		Players[InPkgBuf.refID].RotZ = InPkgBuf.fRotZ;
-		UInt32 oldCell = Players[InPkgBuf.refID].CellID;
-		Players[InPkgBuf.refID].CellID = InPkgBuf.CellID;
-		if (oldCell != Players[InPkgBuf.refID].CellID)
-		{
-			Players[InPkgBuf.refID].CellID = Players[InPkgBuf.refID].CellID ;
-=======
 			PlayerConnected[InPkgBuf->refID] = true;
-			if(InPkgBuf->Flags & 4)
-			{
-				sprintf(Script,"%s.PositionWorld %f,%f,%f,%i,%s",((Actor *)LookupFormByID(SpawnID[InPkgBuf->refID]))->GetEditorName(),InPkgBuf->fPosX,InPkgBuf->fPosY,InPkgBuf->fPosZ,InPkgBuf->fRotZ,LookupFormByID(InPkgBuf->CellID)->GetEditorName());
-			}
->>>>>>> .r363
-			else
-			{
-				sprintf(Script,"%s.PositionCell %f,%f,%f,%i,%s",((Actor *)LookupFormByID(SpawnID[InPkgBuf->refID]))->GetEditorName(),InPkgBuf->fPosX,InPkgBuf->fPosY,InPkgBuf->fPosZ,InPkgBuf->fRotZ,LookupFormByID(InPkgBuf->CellID)->GetEditorName());
-			}
-			Console_Print("Injecting Script : %s",Script);
-			RunScriptLine(Script,false);
 			Console_Print("Player %i connected", InPkgBuf->refID);
-			*/
-			//this just crashes. We do it from the .esp
+			NetEquipped(&Players[LocalPlayer],LocalPlayer,true); // we send our equipment
 		}
-		Players[InPkgBuf->refID].InCombat = InPkgBuf->InCombat;
-		
- 
+		Players[InPkgBuf->refID].InCombat = InPkgBuf->InCombat; 
 		Players[InPkgBuf->refID].PosX = InPkgBuf->fPosX;
 		Players[InPkgBuf->refID].PosY = InPkgBuf->fPosY;
 		Players[InPkgBuf->refID].PosZ = InPkgBuf->fPosZ;

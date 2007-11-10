@@ -175,14 +175,7 @@ struct OOPkgAdminInfo
 
 //Gui admin packets
 //Put non gui packets befor this
-struct OOPkgAccseptMessage 
-{
-	OOPacketType etypeID;
-	char MyTime[8];
-	short LocalPlayer;
-	char *inet_ntoa;
-	u_short ntohs;
-};
+
 
 #pragma pack(pop)
 

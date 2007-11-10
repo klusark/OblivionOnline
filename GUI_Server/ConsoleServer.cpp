@@ -89,8 +89,9 @@ int main(void)
 
 	Sleep(100);
 	printf("OblivionOnline Basic Server, v.%i.%i.%i\"%s \" %s \n \n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION,RELEASE_CODENAME,RELEASE_COMMENT);
-	printf("Wrtten by masterfreek64 aka  Julian Bangert Bangert, Chessmaster42 aka Joseph Pearson\n");
-	printf("and bobjr777 aka Joel Teichroeb\n");
+	printf("Wrtten by masterfreek64 aka  Julian Bangert Bangert ");
+	printf(",bobjr777 aka Joel Teichroeb\n");
+	printf("For other contributors , see source code \n");
 	printf("--------------------------\n");
 
 	SOCKET acceptSocket;

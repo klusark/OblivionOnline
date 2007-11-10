@@ -1,7 +1,6 @@
 /*
 
-Copyright 2007   Julian Bangert aka masterfreek64, Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
-
+Copyright 2007   Julian Bangert aka masterfreek64
 This file is part of OblivionOnline.
 
     OblivionOnline is free software; you can redistribute it and/or modify
@@ -53,8 +52,7 @@ void RunScriptLine(const char *buf, bool IsTemp)
 	tempScriptObj->CompileAndRun(*((void **)scriptState), 1, NULL);
 	tempScriptObj->StaticDestructor();
 }
-
-int GetPlayerNumber(UInt32 refID) // retrieves a player number from a refID
+int GetPlayerNumberFromRefID(UInt32 refID) // retrieves a player number from a refID in spawn
 {
 
 	// Compare reference ID's and determine which actor we have selected in-game
@@ -70,7 +68,9 @@ int GetPlayerNumber(UInt32 refID) // retrieves a player number from a refID
 		We check the spawn list , leaving the localplayer out
 		*/
 		// The player the current spawnID respresents
-		int currentplayer = (0 == LocalPlayer) ? 1 : 0; // If LocalPlayer is 0 we start at 1 ...
+		//(0 == LocalPlayer) ? 1 : 0; // If LocalPlayer is 0 we start at 1 ... , because we have to leave him out 
+		// if not at 0
+		
 		//If not the player, check the SpawnID list
 		//currentspawn += ((i == LocalPlayer)?0:1)
 		//A really complex but fast statement , selectíng the proper player id\
@@ -78,25 +78,27 @@ int GetPlayerNumber(UInt32 refID) // retrieves a player number from a refID
 		if(i == LocalPlayer) \
 			LocalPlayer ++\
 		// more safe than any evaluation of the type currentspawn += (LocalPlayer == i) , this is not dependent on bool int conversion
-
-		for (int i=0; i<MAXCLIENTS; i++,currentplayer += ((i == LocalPlayer)?0:1))
+		//,currentplayer += ((i == LocalPlayer)?0:1)
+		int currentplayer = ((0 == LocalPlayer) ? 1 : 0);
+		for (int currentspawn = 0 ;  currentspawn<MAXCLIENTS; currentplayer++ ,
+			currentspawn += ((currentplayer == LocalPlayer)?0:1))
 		{
-			if(SpawnID[i] == refID) // we find it quite fast. 12 cmp cycles 12 add cycles
+			if(SpawnID[currentspawn] == refID) // we find it quite fast. 12 cmp cycles 12 add cycles
 			{
-				if(PlayerConnected[i])
+				if(PlayerConnected[currentplayer])
 				{
 					return currentplayer;
 				}
 			}
 		}
 	}
-	return -2;
+	return -1;
 }
 
 float GetStat(Actor* ActorBuf, int statNum)
 {
 	float statValue = -1;
-	int PlayerNum = GetPlayerNumber(ActorBuf->refID);
+	int PlayerNum = GetPlayerNumberFromRefID(ActorBuf->refID);
 
 	//If actorID is valid and stats have been initialized, retrieve the stat we want
 	if (PlayerNum != -1 && PlayerNum != -2)

@@ -492,7 +492,7 @@ bool OOPEquipped_Handler(char *Packet,short LocalPlayer)
 	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
 		if (cx != LocalPlayer&&clients[cx])
-			send(clients[cx],(char *)&InPkgBuf,sizeof(OOPkgEquipped),0);
+			send(clients[cx],(char *)InPkgBuf,sizeof(OOPkgEquipped),0);
 	}
 	return true;
 }

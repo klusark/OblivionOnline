@@ -345,6 +345,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\OOFunctions.h"
+				>
+			</File>
+			<File
 				RelativePath=".\OONetwork.h"
 				>
 			</File>

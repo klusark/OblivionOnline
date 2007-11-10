@@ -50,6 +50,7 @@ This file is part of OblivionOnline.
 #include "OONetwork.h"
 #include "OOStructs.h"
 #include "OBSEFunctions.h"
+#include "OOFunctions.H"
 #include "MobSynch.h"
 #define MAXCLIENTS 12
 #define MAXSERVERS 8

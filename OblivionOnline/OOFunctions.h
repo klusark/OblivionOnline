@@ -1,6 +1,6 @@
 /*
 
-Copyright 2007   Julian Bangert aka masterfreek64, Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
+Copyright 2007   Julian Bangert aka masterfreek64
 
 This file is part of OblivionOnline.
 
@@ -35,28 +35,20 @@ This file is part of OblivionOnline.
 	exception; this exception also makes it possible to release a modified version which carries 
 	forward this exception.
 */
+#ifndef _OOFUNCTIONS_H
+#define _OOFUNCTIONS_H
 
-#ifndef OONETWORK_H
-#define OONETWORK_H
-#include "OOStructs.h"
-#include "OOPackets.h"
 #include "main.h"
+extern void RunScriptLine(const char *buf, bool IsTemp);
+extern int GetPlayerNumberFromRefID(UInt32 refID);
+extern float GetStat(Actor *ActorBuf, int statNum);
+extern int LocalPlayer;
 
-//Update times for packets (in milliseconds)
-#define NET_POSUPDATE_RESEND 100
-#define NET_FULLSTATUPDATE_RESEND 500
-#define NET_TIMEUPDATE_RESEND 1000
-#define NET_EQUIPUPDATE_RESEND 1000
-
-
-
-
-extern bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC, bool Initial);
-extern bool NetWelcome(char *Password);
-extern bool NetDisconnect();
-extern bool NetChat(char *Message);
-extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC);
-extern bool NetReadBuffer(char *acReadBuffer, int Length);
-extern bool NetEquipped(PlayerStatus *Player, int PlayerID, bool Initial);
-
+inline int GetPlayerNumberFromSpawnNumber(short SpawnNumber) // gets player number i  from spawn[i]
+{
+	if(SpawnNumber < LocalPlayer) // they are the same
+		return SpawnNumber;
+	else 
+		return (SpawnNumber +1 );// Localplayer has a lower number
+};
 #endif
