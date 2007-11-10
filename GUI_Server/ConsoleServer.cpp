@@ -89,9 +89,8 @@ int main(void)
 
 	Sleep(100);
 	printf("OblivionOnline Basic Server, v.%i.%i.%i\"%s \" %s \n \n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION,RELEASE_CODENAME,RELEASE_COMMENT);
-	printf("Wrtten by masterfreek64 aka  Julian Bangert Bangert ");
-	printf(",bobjr777 aka Joel Teichroeb\n");
-	printf("For other contributors , see source code \n");
+	printf("Main Developers : Written by masterfreek64 aka  Julian Bangert Bangert , bobjr 777 aka Joel Teichroeb \n\n");
+	printf("Former Developers : Chessmaster42 aka Joseph Pearson \ n");
 	printf("--------------------------\n");
 
 	SOCKET acceptSocket;
