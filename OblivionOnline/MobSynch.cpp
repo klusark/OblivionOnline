@@ -107,9 +107,7 @@ bool MCAddClientCache(char *FileName) // add this file
 		fscanf(CacheFile,"%u",&RefID);
 		tempBuf.RefID = RefID;
 		MCCache.push_back(tempBuf); //ok we pushed him in
-		fprintf(LogFile,"%s %u was injected\n",RefName,RefID);
-			
-		
+		fprintf(LogFile,"%s %u was injected\n",RefName,RefID);		
 	}
 	Console_Print("Cache build completed, %i References found",MCCache.size());
 	_MESSAGE("Cache Built");
@@ -145,7 +143,7 @@ bool MCMakePassive()		//changes client mode to passive
 	{
 	if(!ActorSynchCalled)
 	{
-		Console_Print("Actor Synchronysation working");
+		Console_Print("Actor Synchronisation working");
 		_MESSAGE("WORKING MCBActorSynch");
 		ActorSynchCalled = true;
 	}
