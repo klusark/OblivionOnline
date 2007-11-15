@@ -33,7 +33,6 @@ This file is part of OblivionOnline.
 // from curl example
 #include "libcurl/types.h"
 #include "libcurl/easy.h"
-
 struct MemoryStruct {
   char *memory;
   size_t size;
@@ -143,7 +142,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    HWND hWnd;
-
    hInst = hInstance; // Store instance handle in our global variable
 
    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,

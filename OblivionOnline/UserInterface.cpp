@@ -10,7 +10,7 @@ LRESULT __declspec(dllexport)__stdcall  CALLBACK KeyboardHookProc(int nCode,WPAR
 	if(HC_ACTION == nCode) // alternative codee
    // if (!((DWORD)lParam & 2147483648) &&(HC_ACTION==nCode)) //byte 31 is set ....
     {        
-		//usrInterface.RegisterKeystroke(wParam);
+		usrInterface.RegisterKeystroke(wParam);
     }
 
     LRESULT RetVal = CallNextHookEx( 0, nCode, wParam, lParam );
@@ -206,13 +206,17 @@ bool UserInterface::RegisterKeystroke(WPARAM Key)
 		}
 		else
 		{
-			IsTyping = false; // we ave to send a chat message now
-			NetChat(ChatLines[8]);
+			if(IsTyping)
+			{
+				IsTyping = false; // we have to send a chat message now
+				NetChat(ChatLines[8]);
+				strcpy(ChatLines[8],"\0");
+			}
 		}
 	}
 	else
 	{
-		if((DWORD)Key != VK_RETURN)
+		if((DWORD)Key == VK_RETURN)
 		{
 			IsTyping = true;
 		}
@@ -354,7 +358,7 @@ bool UserInterface::FillRenderBuffer()
 	}
 	return false;
 }
-bool UserInterface::Update()
+bool UserInterface::Update( // This can indeed waste CPU time ... I will have to think of a way to place EVERYTHING in a special thread.
 {
 	FillRenderBuffer(); // We do that here....
 	while(!OverlayMgr->Update(&UserInterface::RenderingCallback,this))

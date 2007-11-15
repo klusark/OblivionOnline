@@ -181,6 +181,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\EventSystem.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\OOHashTable.cpp"
 				>
 			</File>
@@ -196,6 +200,14 @@
 			>
 			<File
 				RelativePath=".\ConsoleServer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Events.h"
+				>
+			</File>
+			<File
+				RelativePath=".\EventSystem.h"
 				>
 			</File>
 			<File
