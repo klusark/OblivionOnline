@@ -51,12 +51,13 @@ public:
 	bool AddPlugin();
 	bool TriggerEvent(eEvent evt,DWORD Param1,DWORD Param2);
 	//bHandlerCallback(eEvent evt,DWORD Param1,DWORD Param2);
-	bool HookEvent(eEvent evt,unsigned int PluginID,bool (*bHandlerCallback)(eEvent,DWORD,DWORD,unsigned int PluginID));
+	bool HookEvent(eEvent evt,unsigned int PluginID,bool (*bHandlerCallback)(eEvent,DWORD,DWORD));
 	EventSystem(void);
 	~EventSystem(void);
 private:	
 	Event EventList[(int)eEvent::eMaxEvents]; // this contains the events, one by one :D ... Note the there is NO eMaxEvents event ..
 	std::list<Plugin *> PluginList;
+	unsigned int CurrentPluginID ; //  We assign them based on load order
 };
 #endif
 #endif

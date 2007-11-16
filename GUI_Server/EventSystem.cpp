@@ -29,6 +29,7 @@ EventSystem::EventSystem(void)
 	{
 		EventList[i].EventId = (eEvent) i;
 	}
+	CurrentPluginID = 0;
 }
 
 EventSystem::~EventSystem(void)
@@ -38,12 +39,23 @@ EventSystem::~EventSystem(void)
 bool EventSystem::LoadPlugins()
 {
 	std::string  DllName;
+	Plugin *TempPlugin;
 	std::ifstream PluginsCfg("Plugins.cfg");
 	if(PluginsCfg.is_open)
 	{
 		while(!PluginsCfg.eof())
 		{
 			PluginsCfg>>DllName;	// Trigger this Plugin here
+			if(DllName.size() > 0)
+			{
+				TempPlugin = new Plugin(); // c++ initialises all subconstructors this way
+				TempPlugin->PluginID = CurrentPluginID++; // afterwards we increase it by 1
+				TempPlugin->hDLL = LoadLibrary(DllName);
+				if(!TempPlugin->hDLL)
+				{
+					delete TempPlugin;
+				}
+			}
 		}
 	}
 	else
@@ -57,7 +69,7 @@ bool EventSystem::TriggerEvent(eEvent evt, DWORD Param1, DWORD Param2)
 {
 	return false;
 }
-bool EventSystem::HookEvent(eEvent evt, unsigned int PluginID, bool (*bHandlerCallback)(eEvent, DWORD, DWORD, unsigned int))
+bool EventSystem::HookEvent(eEvent evt, unsigned int PluginID, bool (*bHandlerCallback)(eEvent, DWORD, DWORD))
 {
 	return false;
 }
