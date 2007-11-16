@@ -1,7 +1,7 @@
 
 /*
 
-Copyright 2007   Julian Bangert aka masterfreek64 and Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
+Copyright 2007   Julian Bangert aka masterfreek64
 
 This file is part of OblivionOnline.
 
@@ -19,4 +19,59 @@ This file is part of OblivionOnline.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "IOSystem.h"
+#include <fstream>
 //defines input , output and logging methods .
+
+
+IOSystem::IOSystem(std::string FileName,unsigned int FileLogLevel,unsigned int ConsoleLogLevel)
+{
+	mFileName = FileName; // we do store the filename ...
+	mFileLogLevel = FileLogLevel;
+	mConsoleLogLevel = ConsoleLogLevel;
+	std::fstream File(FileName.c_str(),std::ios_base::out);
+	if(File.is_open())
+	{
+		File<<" Log File opened \n" ;
+		printf("Log File opened \n");
+		mbFile = true;
+	}
+	else
+	{
+		printf("Could not open log file \n");
+		mbFile = false;
+	}
+	File.close();
+}
+
+IOSystem::~IOSystem(void)
+{
+}
+
+bool IOSystem::DoOutput(std::string Message, unsigned int LogLevel)
+{
+	/* this actually just does the full debug message*/
+	if(LogLevel >= mConsoleLogLevel)
+	{
+		cout << Message << endl;
+	}
+	if(LogLevel >= mFileLogLevel && mbFile)
+	{
+		std::fstream File(mFileName,std::ios_base::app);
+		if(File.is_open())
+		{
+			File<<Message;
+			mbFile = true;
+		}
+		else
+		{
+			cout << "Log file could not be opened anymore" << endl;
+		}
+	}
+	else
+	{
+		printf("Could not open log file \n");
+		mbFile = false;
+	}
+	}
+	return false;
+}

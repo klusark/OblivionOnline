@@ -1,4 +1,25 @@
+
+/*
+
+Copyright 2007   Julian Bangert aka masterfreek64
+
+This file is part of OblivionOnline.
+
+    OblivionOnline is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    OblivionOnline is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include "EventSystem.h"
+
 
 EventSystem::EventSystem(void)
 {
@@ -13,28 +34,30 @@ EventSystem::EventSystem(void)
 EventSystem::~EventSystem(void)
 {
 }
-bool EventSystem::AddPlugin()
-{
-	return true;
-}
+
 bool EventSystem::LoadPlugins()
 {
-	std::string PluginName , DllName;
+	std::string  DllName;
 	std::ifstream PluginsCfg("Plugins.cfg");
-	/*
-	if(Plugins_Cfg)
+	if(PluginsCfg.is_open)
 	{
-		
+		while(!PluginsCfg.eof())
+		{
+			PluginsCfg>>DllName;	// Trigger this Plugin here
+		}
 	}
 	else
 	{
-		//Do some error handling here
-		printf ("Couldn't open Plugins.cfg");
-	}*/
+		printf("Could not open plugins.cfg");
+	}
 	return false;
 
 }
 bool EventSystem::TriggerEvent(eEvent evt, DWORD Param1, DWORD Param2)
+{
+	return false;
+}
+bool EventSystem::HookEvent(eEvent evt, unsigned int PluginID, bool (*bHandlerCallback)(eEvent, DWORD, DWORD, unsigned int))
 {
 	return false;
 }
