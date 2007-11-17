@@ -1,0 +1,5 @@
+19:34:14 - Server Up and running
+19:35:13 - Accepted new connection #(0) from 127.0.0.1:3258
+19:35:13 - We now have 1 connections
+19:35:26 - Client 0 closed the Connection
+19:35:26 - We now have 0 connection(s)
