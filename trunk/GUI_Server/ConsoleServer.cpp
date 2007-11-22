@@ -43,6 +43,8 @@ char LISTNAME[32];
 char ServerPassword[32];
 char AdminPassword[32];
 
+
+lua_State* g_LuaInstance = NULL;
 //Mob Synch Variables
 int MasterClient = -1;
 //Initially we are just storing 2 pointers , so this can be 24kb.... it autosizes quite well
@@ -90,7 +92,7 @@ int main(void)
 	Sleep(100);
 	printf("OblivionOnline Basic Server, v.%i.%i.%i\"%s \" %s \n \n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION,RELEASE_CODENAME,RELEASE_COMMENT);
 	printf("Main Developers : Written by masterfreek64 aka  Julian Bangert Bangert , bobjr 777 aka Joel Teichroeb \n\n");
-	printf("Former Developers : Chessmaster42 aka Joseph Pearson \ n");
+	printf("Former Developers : Chessmaster42 aka Joseph Pearson \n");
 	printf("--------------------------\n");
 
 	SOCKET acceptSocket;
@@ -100,8 +102,18 @@ int main(void)
 	//Clean out the server log
 	easylog = fopen("Log.txt","w");
 	fclose(easylog);
+	g_LuaInstance = lua_open();
+	// UGGGHHH - moving to LUA
+	// first we sett default values:
+	lua_pushnumber(g_LuaInstance,PORT);
+	lua_setglobal(g_LuaInstance,"OO_Port");
+	lua_pushstring(g_LuaInstance,"NONE");
+	lua_setglobal(g_LuaInstance,"OOServerListURI");
+	lua_pushstring(g_LuaInstance,"Unnamed_Server");
+	lua_setglobal(g_LuaInstance,"OOServerName");
+	luaL_dofile(g_LuaInstance,"ServerLaunch.lua");
+	lua_getglobal(g_LuaInstance,"OO_Port");
 
-	serverSettings = fopen("ServerSettings.ini","r");
 	if (serverSettings)
 	{
 		bool portFound = false;
@@ -327,6 +339,7 @@ int main(void)
 		}
 	}
 	fclose(easylog);
+	lua_close(g_LuaInstance); // Not thread safe...
 }
 
 int StartNet()

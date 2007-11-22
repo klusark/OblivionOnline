@@ -3,7 +3,7 @@
 ** Lua compiler (saves bytecodes to files; also list bytecodes)
 ** See Copyright Notice in lua.h
 */
-
+//Modified by Julian Bangert
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -183,6 +183,7 @@ static int pmain(lua_State* L)
  return 0;
 }
 
+/*
 int main(int argc, char* argv[])
 {
  lua_State* L;
@@ -197,4 +198,4 @@ int main(int argc, char* argv[])
  if (lua_cpcall(L,pmain,&s)!=0) fatal(lua_tostring(L,-1));
  lua_close(L);
  return EXIT_SUCCESS;
-}
+} */

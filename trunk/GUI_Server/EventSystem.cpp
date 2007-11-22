@@ -19,7 +19,7 @@ This file is part of OblivionOnline.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "EventSystem.h"
-
+#include <sstream>
 
 EventSystem::EventSystem(void)
 {
@@ -41,16 +41,16 @@ bool EventSystem::LoadPlugins()
 	std::string  DllName;
 	Plugin *TempPlugin;
 	std::ifstream PluginsCfg("Plugins.cfg");
-	if(PluginsCfg.is_open)
+	if(PluginsCfg.is_open())
 	{
 		while(!PluginsCfg.eof())
 		{
-			PluginsCfg>>DllName;	// Trigger this Plugin here
+			PluginsCfg >> DllName;	// Trigger this Plugin here
 			if(DllName.size() > 0)
 			{
 				TempPlugin = new Plugin(); // c++ initialises all subconstructors this way
 				TempPlugin->PluginID = CurrentPluginID++; // afterwards we increase it by 1
-				TempPlugin->hDLL = LoadLibrary(DllName);
+				TempPlugin->hDLL = LoadLibraryA(DllName.c_str());
 				if(!TempPlugin->hDLL)
 				{
 					delete TempPlugin;

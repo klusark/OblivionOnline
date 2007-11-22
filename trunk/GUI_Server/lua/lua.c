@@ -3,7 +3,7 @@
 ** Lua stand-alone interpreter
 ** See Copyright Notice in lua.h
 */
-
+//Changed by masterfreek64 aka Julian Bagert for Source compatibility
 
 #include <signal.h>
 #include <stdio.h>
@@ -371,6 +371,7 @@ static int pmain (lua_State *L) {
   return 0;
 }
 
+#if 0
 
 int main (int argc, char **argv) {
   int status;
@@ -387,4 +388,5 @@ int main (int argc, char **argv) {
   lua_close(L);
   return (status || s.status) ? EXIT_FAILURE : EXIT_SUCCESS;
 }
-
+*/
+#endif

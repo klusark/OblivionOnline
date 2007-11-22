@@ -28,16 +28,17 @@ This file is part of OblivionOnline.
 #include <list>
 #include "Events.h"
 #include <fstream>
-struct Plugin
-{
-	unsigned int PluginID;
-	HANDLE *hDLL;
-	std::list<EventHook *> hooks;
-};
+struct Plugin;
 struct EventHook
 {
 	Plugin *plugin;
 	bool (*callback)(eEvent evt,DWORD Param1,DWORD Param2);
+};
+struct Plugin
+{
+	unsigned int PluginID;
+	HMODULE hDLL;
+	std::list<EventHook *> hooks;
 };
 struct Event
 {
@@ -51,7 +52,7 @@ public:
 	bool AddPlugin();
 	bool TriggerEvent(eEvent evt,DWORD Param1,DWORD Param2);
 	//bHandlerCallback(eEvent evt,DWORD Param1,DWORD Param2);
-	bool HookEvent(eEvent evt,unsigned int PluginID,bool (*bHandlerCallback)(eEvent,DWORD,DWORD));
+	bool HookEvent(eEvent evt,unsigned int PluginID,bool (*bHandlerCallback)(eEvent evt  ,DWORD P1, DWORD P2));
 	EventSystem(void);
 	~EventSystem(void);
 private:	

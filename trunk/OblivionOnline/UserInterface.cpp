@@ -10,7 +10,7 @@ LRESULT __declspec(dllexport)__stdcall  CALLBACK KeyboardHookProc(int nCode,WPAR
 	if(HC_ACTION == nCode) // alternative codee
    // if (!((DWORD)lParam & 2147483648) &&(HC_ACTION==nCode)) //byte 31 is set ....
     {        
-		usrInterface.RegisterKeystroke(wParam);
+		//usrInterface.RegisterKeystroke(wParam);
     }
 
     LRESULT RetVal = CallNextHookEx( 0, nCode, wParam, lParam );
@@ -358,7 +358,7 @@ bool UserInterface::FillRenderBuffer()
 	}
 	return false;
 }
-bool UserInterface::Update( // This can indeed waste CPU time ... I will have to think of a way to place EVERYTHING in a special thread.
+bool UserInterface::Update() // This can indeed waste CPU time ... I will have to think of a way to place EVERYTHING in a special thread.
 {
 	FillRenderBuffer(); // We do that here....
 	while(!OverlayMgr->Update(&UserInterface::RenderingCallback,this))

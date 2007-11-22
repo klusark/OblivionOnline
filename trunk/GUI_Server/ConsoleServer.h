@@ -31,6 +31,12 @@ This file is part of OblivionOnline.
 #include "OOStructs.h"
 #include "OOHashTable.h"
 #include "../common/IDebugLog.h"
+extern "C"
+{
+	#include "lua/lua.h"
+	#include "lua/lualib.h"
+	#include "lua/lauxlib.h"
+}
 #define MAXCLIENTS 12
 #define PORT 41805
 #define ADMINPORT (PORT - 1)

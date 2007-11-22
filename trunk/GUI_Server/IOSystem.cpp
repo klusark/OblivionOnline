@@ -20,8 +20,9 @@ This file is part of OblivionOnline.
 */
 #include "IOSystem.h"
 #include <fstream>
+#include <iostream>
 //defines input , output and logging methods .
-
+using namespace std;
 
 IOSystem::IOSystem(std::string FileName,unsigned int FileLogLevel,unsigned int ConsoleLogLevel)
 {
@@ -52,11 +53,11 @@ bool IOSystem::DoOutput(std::string Message, unsigned int LogLevel)
 	/* this actually just does the full debug message*/
 	if(LogLevel >= mConsoleLogLevel)
 	{
-		cout << Message << endl;
+		std::cout << Message << endl;
 	}
 	if(LogLevel >= mFileLogLevel && mbFile)
 	{
-		std::fstream File(mFileName,std::ios_base::app);
+		std::fstream File(mFileName.c_str(),std::ios_base::app);
 		if(File.is_open())
 		{
 			File<<Message;
@@ -71,7 +72,6 @@ bool IOSystem::DoOutput(std::string Message, unsigned int LogLevel)
 	{
 		printf("Could not open log file \n");
 		mbFile = false;
-	}
 	}
 	return false;
 }
