@@ -21,6 +21,12 @@ This file is part of OblivionOnline.
 #ifndef _IO_SYSTEM_H
 #define _IO_SYSTEM_H
 #include <string>
+#define LOG_DEBUGMESSAGE 0
+#define LOG_DEBUGWARNING 1
+#define LOG_WARNING 2
+#define LOG_ERROR 3
+#define LOG_MESSAGE 4
+#define LOG_FATALERROR 5
 class IOSystem
 {
 	bool mbFile;
@@ -29,7 +35,7 @@ class IOSystem
 public:
 	IOSystem(std::string FileName,unsigned int FileLogLevel,unsigned int ConsoleLogLevel);
 	~IOSystem(void);
-	bool DoOutput(std::string Message, unsigned int LogLevel);
+	bool DoOutput(unsigned int LogLevel,char *Message,... );
 };
 
 #endif

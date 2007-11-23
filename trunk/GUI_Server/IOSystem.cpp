@@ -21,6 +21,9 @@ This file is part of OblivionOnline.
 #include "IOSystem.h"
 #include <fstream>
 #include <iostream>
+#include <cstdio>
+#include <cstdarg>
+#include <ctime>
 //defines input , output and logging methods .
 using namespace std;
 
@@ -32,7 +35,7 @@ IOSystem::IOSystem(std::string FileName,unsigned int FileLogLevel,unsigned int C
 	std::fstream File(FileName.c_str(),std::ios_base::out);
 	if(File.is_open())
 	{
-		File<<" Log File opened \n" ;
+		File<<"Log File opened \n" ;
 		printf("Log File opened \n");
 		mbFile = true;
 	}
@@ -48,30 +51,60 @@ IOSystem::~IOSystem(void)
 {
 }
 
-bool IOSystem::DoOutput(std::string Message, unsigned int LogLevel)
+bool IOSystem::DoOutput(unsigned int LogLevel,char *Message,... )
 {
+	va_list arglist;
 	/* this actually just does the full debug message*/
 	if(LogLevel >= mConsoleLogLevel)
 	{
-		std::cout << Message << endl;
+		va_start(arglist,Message);
+		vprintf(Message,arglist);
+		va_end(arglist);
 	}
-	if(LogLevel >= mFileLogLevel && mbFile)
+	if((LogLevel >= mFileLogLevel) && mbFile)
 	{
-		std::fstream File(mFileName.c_str(),std::ios_base::app);
-		if(File.is_open())
+		FILE *File = fopen(mFileName.c_str(),"a");
+		if(File)
 		{
-			File<<Message;
-			mbFile = true;
+			time_t timestamp = time(NULL);
+			tm *UTCtime = gmtime(&timestamp);
+			char * tempString  = asctime(UTCtime); // Saves time ... - should be memory safe
+			fwrite(tempString,(strlen(tempString)-1),1,File);
+			fputc((int)' ',File);
+			va_start(arglist,Message);
+			vfprintf(File,Message,arglist);
+			va_end(arglist);
 		}
 		else
 		{
-			cout << "Log file could not be opened anymore" << endl;
+			printf("Log file could not be opened anymore \n");
 		}
-	}
-	else
-	{
-		printf("Could not open log file \n");
-		mbFile = false;
+		fclose(File);
 	}
 	return false;
 }
+/*
+bool IOSystem::Warning(std::string text)
+{
+	return DoOutput(text,LOG_WARNING);
+}
+bool IOSystem::Error(std::string text)
+{
+	return DoOutput(text,LOG_ERROR);
+}
+bool IOSystem::FatalError(std::string text)
+{
+	return DoOutput(text,LOG_FATALERROR);
+}
+bool IOSystem::Message(std::string text)
+{
+	return DoOutput(text,LOG_MESSAGE);
+}
+bool IOSystem::DebugMessage(std::string text)
+{
+	return DoOutput(text,LOG_DEBUGMESSAGE);
+}
+bool IOSystem::DebugWarning(std::string text)
+{
+	return DoOutput(text,LOG_DEBUGWARNING);
+}*/

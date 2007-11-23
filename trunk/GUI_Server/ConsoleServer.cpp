@@ -21,7 +21,7 @@ This file is part of OblivionOnline.
 #include "ConsoleServer.h"
 #include "OOPackets.h"
 #include "PacketHandler.h"
-
+#include "IOSystem.h"
 // Global Server Variables
 bool bServerAlive = true;
 int TotalClients = 0;
@@ -53,6 +53,7 @@ OOHashTable MobTable(3000);  // This value generates a good spread, especially w
 // Therefore we need sequential FormIDs to create a good spread
 // b) lots and lots of memory- time tradeoffs
 
+IOSystem GenericLog("Server.log",LOG_WARNING,LOG_WARNING);
 
 // Prototypes
 int StartNet(void);
@@ -90,10 +91,10 @@ int main(void)
 	}
 
 	Sleep(100);
-	printf("OblivionOnline Basic Server, v.%i.%i.%i\"%s \" %s \n \n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION,RELEASE_CODENAME,RELEASE_COMMENT);
-	printf("Main Developers : Written by masterfreek64 aka  Julian Bangert Bangert , bobjr 777 aka Joel Teichroeb \n\n");
-	printf("Former Developers : Chessmaster42 aka Joseph Pearson \n");
-	printf("--------------------------\n");
+	GenericLog.DoOutput(LOG_MESSAGE,"OblivionOnline Basic Server, v.%i.%i.%i\"%s \" %s \n \n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION,RELEASE_CODENAME,RELEASE_COMMENT);
+	GenericLog.DoOutput(LOG_MESSAGE,"Main Developers : Written by masterfreek64 aka  Julian Bangert Bangert , bobjr 777 aka Joel Teichroeb \n\n");
+	GenericLog.DoOutput(LOG_MESSAGE,"Former Developers : Chessmaster42 aka Joseph Pearson \n");
+	GenericLog.DoOutput(LOG_MESSAGE,"--------------------------\n");
 
 	SOCKET acceptSocket;
 	SOCKADDR_IN addr;
@@ -113,46 +114,8 @@ int main(void)
 	lua_setglobal(g_LuaInstance,"OOServerName");
 	luaL_dofile(g_LuaInstance,"ServerLaunch.lua");
 	lua_getglobal(g_LuaInstance,"OO_Port");
+	//Ok ...
 
-	if (serverSettings)
-	{
-		bool portFound = false;
-		char settingLine[128];
-		while(!portFound)
-		{
-			fscanf(serverSettings, "%s", settingLine);
-			if (!strcmp(settingLine, "#PORT"))
-				portFound = true;
-		}
-		fscanf(serverSettings, "%u", &serverPort);
-		if (!serverPort || serverPort < 1024)
-			serverPort = PORT;
-		printf("Opening on port %u\n", serverPort);
-		bool passwordFound = false;
-		while(!passwordFound)
-		{
-			fscanf(serverSettings, "%s", settingLine);
-			if (!strcmp(settingLine, "#PASSWORD"))
-				passwordFound = true;
-		}
-		fscanf(serverSettings, "%s", &ServerPassword);
-		bool adminPasswordFound = false;
-		while(!adminPasswordFound)
-		{
-			fscanf(serverSettings, "%s", settingLine);
-			if (!strcmp(settingLine, "#ADMINPASSWORD"))
-				adminPasswordFound = true;
-		}
-		fscanf(serverSettings, "%s", &AdminPassword);
-	}else{
-		serverPort = PORT;
-		printf("ServerSettings.ini not found. Using default port.\n");
-	}
-
-
-	//If no pw was in the file, use default
-	if(!strlen(ServerPassword))
-		strcpy(ServerPassword, "");
 
 	// start WinSock
 	rc=StartNet();
@@ -161,12 +124,12 @@ int main(void)
 
 	if(acceptSocket==INVALID_SOCKET)
 	{
-		printf("Error the AcceptSocket couldn't be created: %d\n",WSAGetLastError());
+		GenericLog.DoOutput(LOG_ERROR,"The AcceptSocket couldn't be created: %d\n",WSAGetLastError());
 		return 1;
 	}
 	else
 	{
-		printf("Created Socket-");
+		GenericLog.DoOutput(LOG_MESSAGE,"Created Socket-\n");
 	}
 
 	memset(&addr,0,sizeof(SOCKADDR_IN));
@@ -176,35 +139,24 @@ int main(void)
 	rc=bind(acceptSocket,(SOCKADDR*)&addr,sizeof(SOCKADDR_IN));
 	if(rc==SOCKET_ERROR)
 	{
-		printf("Error calling bind: %d\n",WSAGetLastError());
+		GenericLog.DoOutput(LOG_ERROR,"Error calling bind: %d\n",WSAGetLastError());
 		return 1;
 	}
 	else
 	{
-		printf("Socket bound-");
+		GenericLog.DoOutput(LOG_MESSAGE,"Socket bound-\n");
 	}
 
 	// Start listener
 	rc=listen(acceptSocket,10);
 	if(rc==SOCKET_ERROR)
 	{
-		printf("Error calling listen: %d\n",WSAGetLastError());
+		GenericLog.DoOutput(LOG_ERROR,"Error calling listen: %d\n",WSAGetLastError());
 		return 1;
 	}
 	else
 	{
-		time_t TimeStamp;
-		time(&TimeStamp);
-		int Seconds = (int)TimeStamp % 60;
-		int Minutes = (int)(TimeStamp / 60) % 60;
-		int Hours = (int)(TimeStamp / 3600) % 24;
-		char MyTime[8];
-		sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
-
-		printf("Listening for incoming connections\n");
-		easylog = fopen("Log.txt","a");
-		fprintf(easylog,"%s - Server Up and running\n",MyTime);
-		fclose(easylog);
+		GenericLog.DoOutput(LOG_MESSAGE,"Listening for incoming connections\n");		
 	}
 	for(LocalPlayer=0;LocalPlayer<MAXCLIENTS;LocalPlayer++) 
 	{
@@ -227,7 +179,7 @@ int main(void)
 		rc=select(0,&fdSet,NULL,NULL,NULL); 
 		if(rc==SOCKET_ERROR) 
 		{
-			printf("Error: select, error code: %s\n",WSAGetLastError());
+			GenericLog.DoOutput(LOG_ERROR,"select, error code: %s\n",WSAGetLastError());
 			return 1;
 		}
     
@@ -238,32 +190,12 @@ int main(void)
 			{
 				if(clients[LocalPlayer]==INVALID_SOCKET) 
 				{
-					time_t TimeStamp;
-					time(&TimeStamp);
-					int Seconds = (int)TimeStamp % 60;
-					int Minutes = (int)(TimeStamp / 60) % 60;
-					int Hours = (int)(TimeStamp / 3600) % 24;
-					char MyTime[8];
-					sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
-
 					sockaddr_in NewAddr;
 					int nAddrSize = sizeof(NewAddr);
 					clients[LocalPlayer]=accept(acceptSocket, (sockaddr*)&NewAddr, &nAddrSize);
 					ConnectionInfo[LocalPlayer] = NewAddr;
 					TotalClients++;
-					printf("%s - Accepted new connection #%d from %s:%u\n",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
-
-					if(adminSocket){
-						char message[256];
-						sprintf(message,"%s - Accepted new connection #%d from %s:%u",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
-						SendAdminMessage(message);
-					}
-					
-
-					easylog = fopen("Log.txt","a");
-					fprintf(easylog,"%s - Accepted new connection #(%d) from %s:%u\n",MyTime,LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
-					fprintf(easylog,"%s - We now have %d connections\n",MyTime,TotalClients);
-					fclose(easylog);
+					GenericLog.DoOutput(LOG_MESSAGE,"%s - Accepted new connection #%d from %s:%u\n",LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					break;
 				}
 			}
@@ -292,22 +224,8 @@ int main(void)
 						if (cx != LocalPlayer)
 							send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgDisconnect),0);
 					}
-
-					time_t TimeStamp;
-					time(&TimeStamp);
-					int Seconds = (int)TimeStamp % 60;
-					int Minutes = (int)(TimeStamp / 60) % 60;
-					int Hours = (int)(TimeStamp / 3600) % 24;
-					char MyTime[8];
-					sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
-
 					TotalClients--;
-					printf("%s - Client %d closed the Connection\n",MyTime,LocalPlayer);
-					if(adminSocket){
-						char message[256];
-						sprintf(message,"%s - Client %d closed the Connection",MyTime,LocalPlayer);
-						SendAdminMessage(message);
-					}
+					GenericLog.DoOutput(LOG_MESSAGE,"%s - Client %d closed the Connection\n",LocalPlayer);
 					if(LocalPlayer == MasterClient)
 					{
 						// Remove him and select a new master client
@@ -323,11 +241,6 @@ int main(void)
 							}
 						}
 					}
-								
-					easylog = fopen("Log.txt","a");
-					fprintf(easylog,"%s - Client %d closed the Connection\n",MyTime,LocalPlayer);
-					fprintf(easylog,"%s - We now have %d connection(s)\n",MyTime,TotalClients);
-					fclose(easylog);
 					closesocket(clients[LocalPlayer]); 
 					clients[LocalPlayer]=INVALID_SOCKET;
 					Connected[LocalPlayer] = false;
@@ -347,13 +260,13 @@ int StartNet()
 	WSADATA wsa;
 	if(WSAStartup(MAKEWORD(2,0),&wsa) == 0)
 	{
-		printf("WinSock2 started \n");
+		GenericLog.DoOutput(LOG_MESSAGE,"WinSock2 started \n");
 		bServerAlive = true;
 		return 1;
 	}
 	else
 	{
-		printf("Couldn't Start Winsock 2 : %d\n",WSAGetLastError());
+		GenericLog.DoOutput(LOG_ERROR,"Couldn't Start Winsock 2 : %d\n",WSAGetLastError());
 		return 0;
 	}
 }
@@ -423,7 +336,7 @@ void info(void *arg)
 		struct hostent *he;
 		while((he = gethostbyname(LISTHOST)) == NULL)
 		{
-			printf("Error resolving serverlist hostname. Retrying in 60 seconds.\n");
+			GenericLog.DoOutput(LOG_ERROR,"Error resolving serverlist hostname. Retrying in 60 seconds.\n");
 			Sleep(60000);	//Sleep for 60 seconds and then try again
 		}
 
@@ -449,7 +362,7 @@ void info(void *arg)
 			rcs=connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
 			if(rcs==SOCKET_ERROR) 
 			{
-				printf("Error: Serverlist connect error, code: %i\n",WSAGetLastError());
+				GenericLog.DoOutput(LOG_ERROR,"Error: Serverlist connect error, code: %i\n",WSAGetLastError());
 			}
 			rcs=send(sock, srequest, strlen(srequest), 0);
 			if(rcs==SOCKET_ERROR) 
@@ -461,7 +374,7 @@ void info(void *arg)
 		}
 		WSACleanup();
 	}else{
-		printf("ServerSettings.ini not found. This server will not be listed online.\n");
+		GenericLog.DoOutput(LOG_ERROR,"ServerSettings.ini not found. This server will not be listed online.\n");
 	}	
 }
 
@@ -488,13 +401,13 @@ void adminthread(void *arg)
 	int rc = bind(acceptSocket,(SOCKADDR*)&sinLocal,sizeof(SOCKADDR_IN));
 	if (rc == SOCKET_ERROR)
 	{
-		printf("Error on bind socket for remote admin.\n");
+		GenericLog.DoOutput(LOG_ERROR,"Error on bind socket for remote admin.\n");
 		return;
 	}
 	rc = listen(acceptSocket,10);
 	if (rc == SOCKET_ERROR)
 	{
-		printf("Error on listen socket for remote admin.\n");
+		GenericLog.DoOutput(LOG_ERROR,"Error on listen socket for remote admin.\n");
 		return;
 	}
 
@@ -505,18 +418,8 @@ void adminthread(void *arg)
 		int nAddrSize = sizeof(SOCKADDR_IN);
 		adminSocket = accept(acceptSocket, (sockaddr*)&sinRemote, &nAddrSize);
 
-		time_t TimeStamp;
-		time(&TimeStamp);
-		int Seconds = (int)TimeStamp % 60;
-		int Minutes = (int)(TimeStamp / 60) % 60;
-		int Hours = (int)(TimeStamp / 3600) % 24;
-		char MyTime[8];
-		sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
-		printf("%s - Admin connected from %s:%i\n", MyTime, inet_ntoa(sinRemote.sin_addr), ntohs(sinRemote.sin_port));
-		easylog = fopen("Log.txt","a");
-		fprintf(easylog,"%s - Admin connected from %s:%i\n", MyTime, inet_ntoa(sinRemote.sin_addr), ntohs(sinRemote.sin_port));
-		fclose(easylog);
-
+		
+		GenericLog.DoOutput(LOG_MESSAGE,"%s - Admin connected from %s:%i\n",inet_ntoa(sinRemote.sin_addr), ntohs(sinRemote.sin_port));
 		//Enter the send / receive loop
 		char acReadBuffer[512];
 		int nReadBytes;
@@ -529,15 +432,7 @@ void adminthread(void *arg)
 			}else
 				break;
 		} while (nReadBytes != 0);
-		time(&TimeStamp);
-		Seconds = (int)TimeStamp % 60;
-		Minutes = (int)(TimeStamp / 60) % 60;
-		Hours = (int)(TimeStamp / 3600) % 24;
-		sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
-		printf("%s - Admin disconnected from %s:%i\n", MyTime, inet_ntoa(sinRemote.sin_addr), ntohs(sinRemote.sin_port));
-		easylog = fopen("Log.txt","a");
-		fprintf(easylog,"%s - Admin disconnected from %s:%i\n", MyTime, inet_ntoa(sinRemote.sin_addr), ntohs(sinRemote.sin_port));
-		fclose(easylog);
+		GenericLog.DoOutput(LOG_MESSAGE,"%s - Admin disconnected from %s:%i\n",inet_ntoa(sinRemote.sin_addr), ntohs(sinRemote.sin_port));
 	}
 
 	//Clean up
@@ -549,12 +444,13 @@ void adminthread(void *arg)
 bool BroadcastMessage(char *Message, int Player)
 {
 	//Print message on console
-	printf("Server: %s\n", Message);
+	GenericLog.DoOutput(LOG_MESSAGE,"Server: %s\n", Message);
 
 	//Send out the chat message
 	OOPkgChat pkgBuf;
 	char *SendBuf;
 	void *MessageDest;
+
 	pkgBuf.etypeID = OOPChat;
 	pkgBuf.refID = 1337;
 	pkgBuf.Length = (int)strlen(Message);
@@ -585,7 +481,7 @@ bool Kick(int Player)
 		OutPkgBuf.PlayerID = Player;
 		OutPkgBuf.etypeID = OOPDisconnect;
 		OutPkgBuf.Flags = 1;
-		printf("Kicking Player %i ...\n", OutPkgBuf.PlayerID);
+		GenericLog.DoOutput(LOG_MESSAGE,"Kicking Player %i ...\n", OutPkgBuf.PlayerID);
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
 			send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgDisconnect),0);
@@ -603,7 +499,7 @@ int SendAdminMessage(char message[256])
 	rc=send(adminSocket,(char *)&AdminMessage,sizeof(AdminMessage),0);
 		if (rc == SOCKET_ERROR)
 	{
-		printf("Error on send for remote admin.\n");
+		GenericLog.DoOutput(LOG_ERROR,"Error on send for remote admin.\n");
 		return 0;
 	}
 	return 1;
