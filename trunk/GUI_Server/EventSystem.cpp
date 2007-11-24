@@ -25,7 +25,7 @@ EventSystem::EventSystem(void)
 {
 	//initialise all EventIDs ... 
 	// nothing more to do here
-	for(int i = 0;i<eEvent::eMaxEvents;i++)
+	for(int i = 0;i<(int)eEvent::eMaxEvents;i++)
 	{
 		EventList[i].EventId = (eEvent) i;
 	}
@@ -67,9 +67,37 @@ bool EventSystem::LoadPlugins()
 }
 bool EventSystem::TriggerEvent(eEvent evt, DWORD Param1, DWORD Param2)
 {
+	std::list<EventHook *>::iterator Iter , End;
+	Iter = EventList[evt].Hooks.begin();
+	End = EventList[evt].Hooks.end();
+	for(;Iter != End;Iter++)
+	{
+		(*Iter)->callback(evt,Param1,Param2); // Parameters ...
+	}
 	return false;
 }
 bool EventSystem::HookEvent(eEvent evt, unsigned int PluginID, bool (*bHandlerCallback)(eEvent, DWORD, DWORD))
 {
+	std::list<Plugin *>::iterator Iter , End;
+	Iter = PluginList.begin();
+	End = PluginList.end();
+	EventHook *tmpHook;
+	for(;Iter != End;Iter++)
+	{
+		if((*Iter)->PluginID != PluginID)
+		{
+			continue;
+		}
+		else
+		{
+			// add it to the plugin hooks
+			tmpHook = (EventHook *)malloc(sizeof(EventHook));
+			tmpHook->callback = bHandlerCallback;
+			tmpHook->plugin = (*Iter);
+			(*Iter)->hooks.push_back(tmpHook);
+			EventList[evt].Hooks.push_back(tmpHook);
+			return true;
+		}	
+	}
 	return false;
 }

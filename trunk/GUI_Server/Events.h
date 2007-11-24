@@ -23,6 +23,25 @@ enum eEvent
 	Pointer to a CSTRING with the name
 	*/
 	ePlayerLeaves,
+	/* Event Name:
+	ePlayerDies
+	Description :
+	A Player dies
+	Param 1:
+	Player ID 
+	Param 2:
+	Last Attacker - not yet used
+	*/
+	ePlayerDies,
+	/* Event Name:
+	ePlayerRespawns
+	Description :
+	A Player dies
+	Param 1:
+	Player ID 
+	Param 2:
+	*/
+	ePlayerRespawns,
 	/* ****
 
 	unused .. for calculation purposes ONLY 
