@@ -1,16 +1,27 @@
-Oblivion Script Extender v0012
-by Ian Patterson and Stephen Abel
+Oblivion Script Extender v0013
+by Ian Patterson and Stephen Abel and Paul Connolly
+(ianpatt, behippo and scruggsywuggsy the ferret)
 
 The Oblivion Script Extender, or OBSE for short, is a modder's resource that expands the scripting capabilities of Oblivion. It doesn't make any modifications to oblivion.exe, TESConstructionSet.exe, or any other files in your oblivion install, so don't worry about permanent side effects. It is compatible with the 1.2.0.416, 1.2.0.214, and 1.1.0.511 Oblivion patches, as well as the 1.0 and 1.2 versions of the Construction Set.
 
-This release is much smaller than the previous two.  It introduces:
-- functions to get the race bonus skills and attibutes
-- functions to get and set a merchant's container of goods
-- some weather and climate functions
-- the ability to copy, clone and add scripted effect items as well as change a script effect item's name and what script to use
-- the ability to get, remove and set the script on scripted objects
-
-A plugin system has also been added to allow modders to implement functionality that doesn't fit well in to the core OBSE code.
+This release adds:
+- climate manipulation functions
+- new easier-to-use input functions
+- active magic effect manipulation and querying functions
+- plugin querying API
+- cell water level functions
+- leveled list functions
+- weather manipulation functions
+- get/set travel horse
+- get/set open key
+- get creature reach, soul level and base scale
+- set/copy hair and eyes (changes not saved on NPCs)
+- get owner, get owning faction required rank
+- get parent cell owner, get parent cell owner faction required rank
+- get/set container respawns (changes not saved)
+- IsLoadDoor, GetLinkedDoor, GetTeleportCell
+- RefreshControlMap
+- GetFirstRef, GetNextRef, GetNumRefs
 
 [ Installation ]
 
@@ -60,13 +71,17 @@ Crashes or other strange behavior:
 
 - Let me know how you made it crash, and I'll see about fixing it.
 
-Xbox 360 version?
+Xbox 360 or PS3 version?
 
 - Impossible.
 
 Running OBSE and Oldblivion at the same time:
 
 - Copy your oldblivion support files in to the Oblivion folder (oldblivion.dll, oldblivion.cfg, shaders.sdp), then run the loader with the -old command argument.
+
+I'm using Windows 2000 and some mods (specifically mods using IsKeyPressed) don't work correctly. What should I do?
+
+- Open your Oblivion.ini (found in My Documents/My Games/Oblivion) and change the "bBackground Keyboard=0" line to "bBackground Keyboard=1".
 
 How do I change the script editor font?
 

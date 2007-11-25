@@ -1,4 +1,27 @@
-0012 : Official plugin support, race attribute and skill functions, some climate and weather functions, enable effect item functions for ScriptEffects, add SetNthEIScript and SetNthEIScriptName, Get/SetSpellExplodesWithNoTarget, GetScript, RemoveScript, SetScript
+0013:
+- climate manipulation functions
+- new easier-to-use input functions
+- active magic effect manipulation and querying functions
+- plugin querying API
+- cell water level functions
+- con_LoadGame, SetPCAMurderer
+- internal visitor class framework
+- improve speed of inventory walking via higher-level data structures
+- fix Set/GetAttackDamage for creatures
+- fix Set/GetEquippedWeaponPoison from stopping the script
+- get/set travel horse and open key
+- weather manipulation functions
+- leveled list functions
+- set/copy hair and eyes
+- get creature base scale, reach and soul level
+- get/set container respawns
+- ownership functions
+- linked and teleport door functions
+- RefreshControlMap
+- GetFirstRef, GetNextRef, GetNumRefs
+- bugfixes for GetEnchantmentCost, GetSpellMagickaCost, IsAutoCalc, SetAutoCalc
+
+0012: Official plugin support, race attribute and skill functions, some climate and weather functions, enable effect item functions for ScriptEffects, add SetNthEIScript and SetNthEIScriptName, Get/SetSpellExplodesWithNoTarget, GetScript, RemoveScript, SetScript
 
 0011: Skill experience functions, AddFullEffectItem, RunBatchScript, global collision setting functions, more console commands, ModName and AppendName and several defect fixes
 - fixes GetBaseObject
