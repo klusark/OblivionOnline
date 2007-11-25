@@ -17,6 +17,8 @@ public:
 	bool	m_setPriority;
 	DWORD	m_priority;
 
+	bool	m_crcOnly;
+
 	std::string	m_altEXE;
 	std::string	m_altDLL;
 

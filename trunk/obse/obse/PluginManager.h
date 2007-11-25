@@ -14,6 +14,8 @@ public:
 	bool	Init(void);
 	void	DeInit(void);
 
+	PluginInfo *	GetInfoByName(const char * name);
+
 private:
 	bool	FindPluginDirectory(void);
 	void	InstallPlugins(void);
@@ -34,3 +36,6 @@ private:
 };
 
 extern PluginManager	g_pluginManager;
+
+extern CommandInfo kCommandInfo_IsPluginInstalled;
+extern CommandInfo kCommandInfo_GetPluginVersion;

@@ -164,24 +164,40 @@ public:
 	bool	Includes(const char* toFind) const;
 	bool	Replace(const char* toReplace, const char* replaceWith); // replaces instance of toReplace with replaceWith
 	bool	Append(const char* toAppend);
+	double	Compare(const String& compareTo, bool caseSensitive = false);
 };
 
+// not sure how much of this is in NiTListBase and how much is in NiTPointerListBase
 // 10
-class NiTArray
+template <typename T>
+class NiTListBase
 {
 public:
-	NiTArray();
-	~NiTArray();
+	NiTListBase();
+	~NiTListBase();
+
+	// may also be next, prev, data
+	struct Node
+	{
+		Node	* next;
+		Node	* prev;
+		T		* data;
+	};
 
 	virtual void	Destructor(void);
+	virtual Node *	AllocateNode(void);
+	virtual void	FreeNode(Node * node);
 
 //	void	** _vtbl;	// 000
-	void	* data;		// 004
-	UInt8	unk8;		// 008
-	UInt8	pad9;		// 009
-	UInt16	unkA;		// 00A
-	UInt16	unkC;		// 00C
-	UInt16	unkE;		// 00E - init'd to 1
+	Node	* start;	// 004
+	Node	* end;		// 008
+	UInt32	numItems;	// 00C
+};
 
-	// should probably be a size here?
+template <typename T>
+class NiTPointerListBase : public NiTListBase <T>
+{
+public:
+	NiTPointerListBase();
+	~NiTPointerListBase();
 };

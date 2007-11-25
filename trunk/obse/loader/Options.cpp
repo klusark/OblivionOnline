@@ -8,6 +8,7 @@ Options::Options()
 ,m_threadTimeout(1000 * 30)
 ,m_setPriority(false)
 ,m_priority(0)
+,m_crcOnly(false)
 {
 	//
 }
@@ -126,6 +127,10 @@ bool Options::Read(int argc, char ** argv)
 				{
 					m_threadTimeout = INFINITE;
 				}
+				else if(!_stricmp(arg, "crconly"))
+				{
+					m_crcOnly = true;
+				}
 				else
 				{
 					_ERROR("unknown switch (%s)", arg);
@@ -171,6 +176,7 @@ void Options::PrintUsage(void)
 	_MESSAGE("  -altdll <path> - set alternate dll path");
 	_MESSAGE("  -notimeout - wait forever for oblivion to launch");
 	_MESSAGE("               this overrides the default five second timeout");
+	_MESSAGE("  -crconly - just print the crc of the EXE, don't launch anything");
 }
 
 bool Options::Verify(void)

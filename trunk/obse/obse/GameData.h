@@ -61,7 +61,7 @@ public:
 	BoundObjectListHead		* boundObjects;			// 000
 	UInt32					unk004[0xB8 >> 2];		// 004
 	TESRegionList			* regionList;			// 0BC
-	NiTArray				cellArray;				// 0C0 - NiTArray <TESObjectCELL *>
+	NiTArray <TESObjectCELL *>	cellArray;			// 0C0
 	TESSkill				skills[0x15];			// 0D0
 	UInt32					unk8B0[0x424 >> 2];		// 8B0
 	TESRegionDataManager	* regionDataManager;	// CD4
@@ -82,7 +82,7 @@ public:
 	BoundObjectListHead		* boundObjects;					// 000
 	UInt32					unk004[(0xBC - 0x04) >> 2];		// 004
 	TESRegionList			* regionList;					// 0BC
-	NiTArray				cellArray;						// 0C0 - NiTArray <TESObjectCELL *>
+	NiTArray <TESObjectCELL *>	cellArray;					// 0C0
 	UInt32					unk0D0[2];						// 0D0
 	TESSkill				skills[0x15];					// 0D8
 	UInt32					unk8B8[(0xCD8 - 0x8B8) >> 2];	// 8B8

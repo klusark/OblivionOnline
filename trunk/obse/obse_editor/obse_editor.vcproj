@@ -362,6 +362,14 @@
 			Name="commands"
 			>
 			<File
+				RelativePath="..\obse\Commands_ActiveEffect.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_ActiveEffect.h"
+				>
+			</File>
+			<File
 				RelativePath="..\obse\Commands_Console.cpp"
 				>
 			</File>
@@ -410,6 +418,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\obse\Commands_MagicEffect.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_MagicEffect.h"
+				>
+			</File>
+			<File
 				RelativePath="..\obse\Commands_Math.cpp"
 				>
 			</File>
@@ -423,6 +439,14 @@
 			</File>
 			<File
 				RelativePath="..\obse\Commands_Player.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_Weather.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_Weather.h"
 				>
 			</File>
 		</Filter>

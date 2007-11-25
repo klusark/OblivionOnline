@@ -1,5 +1,11 @@
 #include "Commands_Input.h"
 #include "ParamInfos.h"
+#include "GameForms.h"
+
+#include <set>
+#include <map>
+#include <ctime>
+#include "Commands_Console.h"
 
 // 32	spacebar
 // 48	0
@@ -378,7 +384,219 @@ static bool Cmd_EnableMouse_Execute(COMMAND_ARGS)
 	return true;
 }
 
+#define VK_TABLE_SIZE 212
+#define NOKEY 0xFFFF
+
+static const UINT VKTable[VK_TABLE_SIZE] = {	NOKEY, 27, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 189, 187, 8, 9, 81, 87, 69, 
+								   		82, 84, 89, 85, 73, 79, 80, 219, 221, 13, 162, 65, 83, 68, 70, 71, 72, 74, 
+          								75, 76, 186, 222, 192, 160, 220, 90, 88, 67, 86, 66, 78, 77, 188, 190, 191, 
+            							161, 106, 164, 32, 20, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 144, 
+										145, 103, 104, 105, 109, 100, 101, 102, 107, 97, 98, 99, 96, 110, NOKEY, NOKEY,
+										NOKEY, 122, 123, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
+										NOKEY, NOKEY, 124, 125, 126, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, 
+										NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
+										NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
+										NOKEY, NOKEY, NOKEY, NOKEY,	NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
+										NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
+										NOKEY, NOKEY, 13, 163, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
+										NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
+										NOKEY, NOKEY, 108, NOKEY, 111, NOKEY, NOKEY, 165, NOKEY, NOKEY, NOKEY, NOKEY,
+										NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, 36, 38,
+										33, NOKEY, 37, NOKEY, 39, NOKEY, 35, 40, 34, 45, 46};
+
+
+static UINT _dx2vk(UINT dx){
+	if (dx >= VK_TABLE_SIZE) return NOKEY;
+	return VKTable[dx];
+}
+
+static bool _isKeyPressed(UINT keyCode)
+{
+	if (keyCode < 255)	//use IsKeyPressed
+	{
+		keyCode = _dx2vk(keyCode);
+		if (!(keyCode == NOKEY))		return (GetAsyncKeyState(keyCode) & 0x8000) ? true : false;
+	}
+	else	//use IsKeyPressed2
+	{
+		//code below recognizes 255 and 256 for LMB - intentional?
+		if (keyCode % 256 == 255 && keyCode < 2048)	keyCode = 255 + (keyCode + 1) / 256;
+		if (keyCode < kMaxMacros)	return DI_data.LastBytes[keyCode] ? true : false;
+	}
+
+	return false;
+}
+
+static bool _isControlPressed(UINT ctrl)
+{
+	if (ctrl >= CONTROLSMAPPED)	return false;
+	if (!InputControls)		GetControlMap();
+	
+	if (_isKeyPressed(InputControls[ctrl]))	return true;
+	if (_isKeyPressed(AltInputControls[ctrl]))	return true;
+
+	return false;
+}
+
+static bool Cmd_IsKeyPressed3_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	UINT keyCode = NOKEY;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &keyCode)) return true;
+	if (_isKeyPressed(keyCode))	*result = 1;
+	return true;
+}
+
+static bool Cmd_IsControlPressed_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	UINT ctrl;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &ctrl))	return true;
+	if (_isControlPressed(ctrl))	*result = 1;
+	return true;
+}
+
+static bool Cmd_DisableControl_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	UInt32	ctrl = 0;
+
+	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &ctrl)) return true;
+
+	if (IsKeycodeValid(InputControls[ctrl]))	DI_data.DisallowStates[InputControls[ctrl]] = 0x00;
+	ctrl = AltInputControls[ctrl];
+	if (ctrl%256==255 && ctrl < 2048)	ctrl = 255 + (ctrl + 1) / 256;
+	if (IsKeycodeValid(ctrl))	DI_data.DisallowStates[ctrl] = 0x00;
+
+	return true;
+}
+
+static bool Cmd_EnableControl_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	UInt32	ctrl = 0;
+
+	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &ctrl)) return true;
+
+	if (IsKeycodeValid(InputControls[ctrl]))	DI_data.DisallowStates[InputControls[ctrl]] = 0x80;
+	ctrl = AltInputControls[ctrl];
+	if (ctrl%256==255 && ctrl < 2048)	ctrl = 255 + (ctrl + 1) / 256;
+	if (IsKeycodeValid(ctrl))	DI_data.DisallowStates[ctrl] = 0x80;
+
+	return true;
+}
+
+static bool Cmd_OnKeyDown_Execute(COMMAND_ARGS)
+{
+	// key is refID, data is a set of key events that have been returned for that script
+	static std::map< UINT, std::set<UINT> > KeyListeners;
+	UINT keyCode = 0;
+	*result = 0;
+
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &keyCode))	return true;
+
+	if (scriptObj)
+	{
+		std::set<UINT>	* keyList = &KeyListeners[scriptObj->refID];
+
+		if (_isKeyPressed(keyCode))
+		{
+			if (keyList->find(keyCode) == keyList->end())
+			{
+				keyList->insert(keyCode);
+				*result = 1;
+			}
+		}
+		else if (keyList->find(keyCode) != keyList->end())
+		{
+			keyList->erase(keyCode);
+		}
+	}
+
+	return true;
+}
+
+static bool Cmd_OnControlDown_Execute(COMMAND_ARGS)
+{
+	// key is refID, data is a set of key events that have been returned for that script
+	static std::map< UINT, std::set<UINT> > CtrlListeners;
+	UINT ctrl = 0;
+	*result = 0;
+
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &ctrl))	return true;
+
+	if (scriptObj)
+	{
+		std::set<UINT> *	ctrlList = &CtrlListeners[scriptObj->refID];
+
+		if (_isControlPressed(ctrl))
+		{
+			if (ctrlList->find(ctrl) == ctrlList->end())
+			{
+				ctrlList->insert(ctrl);
+				*result = 1;
+			}
+		}
+		else if (ctrlList->find(ctrl) != ctrlList->end())
+		{
+			ctrlList->erase(ctrl);
+		}
+	}
+
+	return true;
+}
+
+static bool Cmd_TapControl_Execute(COMMAND_ARGS)
+{
+	//returns false if control is not assigned
+	*result = 0;
+	UINT ctrl = 0;
+	UINT keyCode = 0;
+
+	if (!(ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &ctrl)))	return true;
+
+	if (ctrl >= CONTROLSMAPPED)	return true;
+	if (!InputControls)			GetControlMap();
+
+	keyCode = InputControls[ctrl];
+    if (IsKeycodeValid(keyCode))
+	{
+		DI_data.TapStates[keyCode] = 0x80;
+		*result = 1;
+	}
+	else
+	{
+		keyCode = AltInputControls[ctrl];
+		if (keyCode % 256 == 255 && keyCode < 2048) keyCode = 255 + (keyCode + 1) / 256;
+		if (IsKeycodeValid(keyCode))
+		{
+			DI_data.TapStates[keyCode] = 0x80;
+			*result = 1;
+		}
+	}
+
+	return true;
+}
+
+static bool Cmd_RefreshControlMap_Execute(COMMAND_ARGS)
+{
+	//This is a MAJOR hack. Need to find control map in memory to do it properly
+
+	static const UInt32 timeOut = 90;		//time-out between function calls, in seconds
+	static clock_t lastCallTime = 0;
+
+	if(!lastCallTime || (clock() - lastCallTime) / CLOCKS_PER_SEC > timeOut || clock() < lastCallTime)
+	{
+		lastCallTime = clock();
+		RunScriptLine("con_SaveIni");
+		GetControlMap();
+	}
+
+	return true;
+}
+
 #endif
+
 
 CommandInfo kCommandInfo_GetControl =
 {
@@ -750,6 +968,129 @@ CommandInfo kCommandInfo_EnableMouse =
 	0,
 	0,
 	HANDLER(Cmd_EnableMouse_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+/**********************************
+New input functions params (scruggs)
+**********************************/
+
+CommandInfo kCommandInfo_IsKeyPressed3 =
+{
+	"IsKeyPressed3",
+	"ikp3",
+	0,
+	"returns true if key/button pressed, even when disabled",
+	0,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_IsKeyPressed3_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_IsControlPressed =
+{
+	"IsControlPressed",
+	"ICP",
+	0,
+	"returns true if the key or button assigned to control is pressed",
+	0,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_IsControlPressed_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_DisableControl =
+{
+	"DisableControl",
+	"dc",
+	0,
+	"disables the key and button bound to a control",
+	0,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_DisableControl_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_EnableControl =
+{
+	"EnableControl",
+	"ec",
+	0,
+	"enables the key and button assigned to a control",
+	0,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_EnableControl_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_OnKeyDown =
+{
+	"OnKeyDown",
+	"okd",
+	0,
+	"returns true each time the key is depressed",
+	0,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_OnKeyDown_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_OnControlDown =
+{
+	"OnControlDown",
+	"ocd",
+	0,
+	"returns true each time the key or button assigned to control is depressed",
+	0,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_OnControlDown_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_TapControl =
+{
+	"TapControl",
+	"tc",
+	0,
+	"taps the key or mouse button assigned to control",
+	0,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_TapControl_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_RefreshControlMap =
+{
+	"RefreshControlMap", "",
+	0,
+	"refreshes the control map from Oblivion.ini",
+	0,
+	0,
+	NULL,
+	HANDLER(Cmd_RefreshControlMap_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0

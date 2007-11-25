@@ -33,11 +33,11 @@
  *	1C	?		ExtraWornLeft
  *	1D	?		
  *	1E	20		ExtraPackageStartLocation
- *	1F	?		ExtraPackage
+ *	1F	1C		ExtraPackage
  *	20	10		ExtraTresPassPackage
  *	21	10		ExtraRunOncePacks
  *	22	?		ExtraReferencePointer
- *	23	?		ExtraFollower
+ *	23	10		ExtraFollower
  *	24	10		ExtraLevCreaModifier
  *	25	C		ExtraGhost
  *	26	?		ExtraOriginalReference
@@ -50,17 +50,17 @@
  *	2D	10		ExtraTimeLeft
  *	2E	10		ExtraCharge
  *	2F	10		ExtraSoul
- *	30	?		ExtraLight
+ *	30	10		ExtraLight
  *	31	10		ExtraLock
  *	32	?		ExtraTeleport
  *	33	?		ExtraMapMarker
  *	34	?										animation-related?
- *	35	?		ExtraLeveledCreature
+ *	35	C		ExtraLeveledCreature
  *	36	14		ExtraLeveledItem
  *	37	?		ExtraScale
  *	38	?		ExtraSeed
  *	39	?		
- *	3A	?		
+ *	3A	?		NonActorMagicTarget
  *	3B	?		
  *	3C	?		
  *	3D	?		ExtraCrimeGold
@@ -68,7 +68,7 @@
  *	3F	?		ExtraEnableStateParent
  *	40	?		ExtraEnableStateChildren
  *	41	?		ExtraItemDropper
- *	42	?		ExtraDroppedItemList
+ *	42	14		ExtraDroppedItemList
  *	43	?		ExtraRandomTeleportMarker
  *	44	10		ExtraMerchantContainer
  *	45	?		
@@ -81,7 +81,7 @@
  *	4C	10		ExtraNorthRotation
  *	4D	10		ExtraXTarget
  *	4E	10		ExtraFriendHitList
- *	4F	?		ExtraHeadingTarget
+ *	4F	10		ExtraHeadingTarget
  *	50	C		ExtraBoundArmor
  *	51	?		ExtraRefractionProperty
  *	52	?		ExtraInvestmentGold
@@ -115,6 +115,21 @@
  **/
 
 // ### incomplete
+
+#include "Utilities.h"
+
+class AlchemyItem;
+class TESForm;
+class TESObjectREFR;
+class TESObjectCELL;
+class TESPackage;
+class Character;
+class NiAVObject;
+class TESKey;
+class TESFaction;
+class TESNPC;
+class TESGlobal;
+class TESClimate;
 
 enum ExtraDataType
 {
@@ -197,8 +212,6 @@ enum ExtraDataType
 	kExtraData_HaggleAmount =			0x5C,
 };
 
-class AlchemyItem;
-
 // C+?
 class BSExtraData
 {
@@ -216,14 +229,11 @@ public:
 	BSExtraData	* next;		// 008
 };
 
-class TESObjectREFR;
-class TESForm;
-
 // 014+
 struct BaseExtraList
 {
-	bool			HasType(UInt32 type);
-	BSExtraData *	GetByType(UInt32 type);
+	bool			HasType(UInt32 type) const;
+	BSExtraData *	GetByType(UInt32 type) const;
 
 	void			MarkType(UInt32 type, bool bCleared);
 	bool			Remove(BSExtraData* toRemove);
@@ -250,6 +260,9 @@ public:
 	{
 		ExtraDataList	* data;
 		EntryExtendData	* next;
+
+		ExtraDataList* Info() const { return data; }
+		EntryExtendData* Next() const { return next; }
 	};
 
 	struct EntryData
@@ -263,6 +276,9 @@ public:
 	{
 		EntryData	* data;
 		Entry		* next;
+
+		EntryData* Info() const { return data; }
+		Entry* Next() const { return next; }
 	};
 
 	struct Data
@@ -278,6 +294,49 @@ public:
 	EntryData *	GetByType(TESForm * type);
 };
 
+typedef Visitor<ExtraContainerChanges::Entry, ExtraContainerChanges::EntryData> ExtraEntryVisitor;
+
+// cell and position where the current package was started?
+class ExtraPackageStartLocation : public BSExtraData
+{
+public:
+	ExtraPackageStartLocation();
+	virtual ~ExtraPackageStartLocation();
+
+	TESObjectCELL	* cell;		// 0C
+	float			x, y, z;	// 10
+	UInt32			pad1C;		// 1C
+};
+
+// current package
+class ExtraPackage : public BSExtraData
+{
+public:
+	ExtraPackage();
+	virtual ~ExtraPackage();
+
+	TESPackage	* package;	// 0C
+	UInt32		unk10;		// 10
+	UInt32		unk14;		// 14
+	UInt32		unk18;		// 18
+};
+
+// list of all characters following the owner via a package
+class ExtraFollower : public BSExtraData
+{
+public:
+	ExtraFollower();
+	virtual ~ExtraFollower();
+
+	struct ListNode
+	{
+		Character	* character;
+		ListNode	* next;
+	};
+
+	ListNode	* followers;
+};
+
 class ExtraHealth : public BSExtraData
 {
 public:
@@ -286,6 +345,15 @@ public:
 	float health;
 
 	static ExtraHealth* Create();
+};
+
+class ExtraUses : public BSExtraData
+{
+public:
+	ExtraUses();
+	~ExtraUses();
+	UInt32 unk0;
+	static ExtraUses* Create();
 };
 
 class ExtraCharge : public BSExtraData
@@ -297,13 +365,28 @@ public:
 	static ExtraCharge* Create();
 };
 
-class ExtraUses : public BSExtraData
+class ExtraSoul: public BSExtraData
 {
 public:
-	ExtraUses();
-	~ExtraUses();
-	UInt32 unk0;
-	static ExtraUses* Create();
+	ExtraSoul();
+	~ExtraSoul();
+	UInt32 soul;
+};
+
+// used by torches, etc (implies one light per object?)
+class ExtraLight : public BSExtraData
+{
+public:
+	ExtraLight();
+	virtual ~ExtraLight();
+
+	struct Data
+	{
+		NiAVObject	* light;	// probably NiLight
+		float		unk4;		// intensity? only seen 1.0f
+	};
+
+	Data	* data;	// C
 };
 
 class ExtraPoison : public BSExtraData
@@ -316,14 +399,6 @@ public:
 	static ExtraPoison* Create();
 };
 
-class ExtraSoul: public BSExtraData
-{
-public:
-	ExtraSoul();
-	~ExtraSoul();
-	UInt32 soul;
-};
-
 class ExtraMerchantContainer : public BSExtraData
 {
 public:
@@ -332,3 +407,110 @@ public:
 	TESObjectREFR* containerRef;
 };
 
+class ExtraWaterHeight : public BSExtraData
+{
+public:
+	ExtraWaterHeight();
+	~ExtraWaterHeight();
+	float waterHeight;
+};
+
+class ExtraTravelHorse : public BSExtraData
+{
+public:
+	ExtraTravelHorse();
+	~ExtraTravelHorse();
+
+	TESObjectREFR*	horseRef;	// Horse
+	static ExtraTravelHorse* Create();
+};
+
+class ExtraLock : public BSExtraData
+{
+public:
+	ExtraLock();
+	~ExtraLock();
+
+	enum
+	{
+		kLock_isLocked =	1 << 0,
+		//..?
+		kLock_Leveled =		1 << 2,
+	};
+
+	struct Data
+	{
+		UInt32	lockLevel;
+		TESKey	* key;
+		UInt8	flags;
+		UInt8	pad[3];
+	};
+
+	Data	* data;
+	static ExtraLock* Create();
+};
+
+class ExtraOwnership : public BSExtraData
+{
+public:
+	ExtraOwnership();
+	~ExtraOwnership();
+
+	TESForm*	owner;	//maybe this should be a union {TESFaction*; TESNPC*} but it would be more unwieldy to access and modify
+};
+
+class ExtraRank	: public BSExtraData
+{								//ownership data, stored separately from ExtraOwnership
+public:
+	ExtraRank();
+	~ExtraRank();
+
+	UInt32	rank;
+};
+
+class ExtraGlobal : public BSExtraData
+{								//ownership data, stored separately from ExtraOwnership
+public:
+	ExtraGlobal();
+	~ExtraGlobal();
+
+	TESGlobal*	globalVar;
+};
+
+class ExtraTeleport : public BSExtraData
+{
+public:
+	ExtraTeleport();
+	~ExtraTeleport();
+
+	struct Data
+	{
+		TESObjectREFR*	linkedDoor;
+		float			x; //x, y, z, zRot refer to teleport marker's position and rotation
+		float			y; 
+		float			z;
+		float			zRot;
+		UInt32			unk1;	//looks like flags (have only seen 0x80000000)
+		UInt32			unk2;
+	};
+
+	Data *	data;
+};
+
+class ExtraRandomTeleportMarker : public BSExtraData
+{
+public:
+	ExtraRandomTeleportMarker();
+	~ExtraRandomTeleportMarker();
+
+	TESObjectREFR *	teleportRef;
+};
+
+class ExtraCellClimate : public BSExtraData
+{
+public:
+	ExtraCellClimate();
+	~ExtraCellClimate();
+
+	TESClimate* climate;
+};

@@ -5,6 +5,7 @@
 extern CommandInfo kCommandInfo_GetActiveSpell;
 extern CommandInfo kCommandInfo_SetActiveSpell;
 extern CommandInfo kCommandInfo_GetParentCell;
+extern CommandInfo kCommandInfo_GetParentWorldspace;
 extern CommandInfo kCommandInfo_HasSpell;
 extern CommandInfo kCommandInfo_GetPlayerSpellCount;
 extern CommandInfo kCommandInfo_GetNthPlayerSpell;
@@ -18,11 +19,6 @@ extern CommandInfo kCommandInfo_ModActorValue2;
 extern CommandInfo kCommandInfo_IsRefEssential;
 extern CommandInfo kCommandInfo_SetRefEssential;
 extern CommandInfo kCommandInfo_GetActorLightAmount;
-extern CommandInfo kCommandInfo_IsCreature;
-extern CommandInfo kCommandInfo_GetCreatureType;
-extern CommandInfo kCommandInfo_GetCreatureCombatSkill;
-extern CommandInfo kCommandInfo_GetCreatureMagicSkill;
-extern CommandInfo kCommandInfo_GetCreatureStealthSkill;
 extern CommandInfo kCommandInfo_IsThirdPerson;
 extern CommandInfo kCommandInfo_GetPlayerSkillUse;
 extern CommandInfo kCommandInfo_GetSkillUseIncrement;
@@ -38,3 +34,44 @@ extern CommandInfo kCommandInfo_IsRaceBonusSkillC;
 extern CommandInfo kCommandInfo_GetMerchantContainer;
 extern CommandInfo kCommandInfo_SetMerchantContainer;
 extern CommandInfo kCommandInfo_RemoveAllSpells;
+extern CommandInfo kCommandInfo_SetPCAMurderer;
+
+extern CommandInfo kCommandInfo_IsCreature;
+extern CommandInfo kCommandInfo_GetCreatureType;
+extern CommandInfo kCommandInfo_GetCreatureCombatSkill;
+extern CommandInfo kCommandInfo_GetCreatureMagicSkill;
+extern CommandInfo kCommandInfo_GetCreatureStealthSkill;
+extern CommandInfo kCommandInfo_GetCreatureReach;
+extern CommandInfo kCommandInfo_GetCreatureBaseScale;
+extern CommandInfo kCommandInfo_GetCreatureSoulLevel;
+
+extern CommandInfo kCommandInfo_ParentCellHasWater;
+extern CommandInfo kCommandInfo_GetParentCellWaterHeight;
+extern CommandInfo kCommandInfo_IsUnderWater;
+
+extern CommandInfo kCommandInfo_AddToLeveledList;
+extern CommandInfo kCommandInfo_RemoveFromLeveledList;
+extern CommandInfo kCommandInfo_CalcLeveledItem;
+
+extern CommandInfo kCommandInfo_GetTravelHorse;
+extern CommandInfo kCommandInfo_SetTravelHorse;
+extern CommandInfo kCommandInfo_GetOpenKey;
+extern CommandInfo kCommandInfo_SetOpenKey;
+
+extern CommandInfo kCommandInfo_GetParentCellOwner;
+extern CommandInfo kCommandInfo_GetOwner;
+extern CommandInfo kCommandInfo_GetOwningFactionRequiredRank;
+extern CommandInfo kCommandInfo_GetParentCellOwningFactionRequiredRank;
+
+extern CommandInfo kCommandInfo_SetHair;
+extern CommandInfo kCommandInfo_CopyHair;
+extern CommandInfo kCommandInfo_SetEyes;
+extern CommandInfo kCommandInfo_CopyEyes;
+
+extern CommandInfo kCommandInfo_IsLoadDoor;
+extern CommandInfo kCommandInfo_GetLinkedDoor;
+extern CommandInfo kCommandInfo_GetTeleportCell;
+
+extern CommandInfo kCommandInfo_GetFirstRef;
+extern CommandInfo kCommandInfo_GetNextRef;
+extern CommandInfo kCommandInfo_GetNumRefs;

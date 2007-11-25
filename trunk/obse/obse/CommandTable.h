@@ -78,6 +78,12 @@ bool Cmd_Default_Parse(UInt32 arg0, UInt32 arg1, UInt32 arg2, UInt32 arg3);
 #define HANDLER(x)	Cmd_Default_Execute
 #endif
 
+// unk3 args:
+// TESObjectREFR * thisObj
+// TESForm * param
+// TESForm * param2
+// double * result
+
 struct CommandInfo
 {
 	const char	* longName;		//  0

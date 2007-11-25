@@ -2,10 +2,10 @@
 #define __OBSE_VERSION_H__
 
 // these have to be macros so they can be used in the .rc
-#define OBSE_VERSION_INTEGER		12
-#define OBSE_VERSION_INTEGER_MINOR	1
-#define OBSE_VERSION_VERSTRING		"0, 0, 12, 1"
-#define OBSE_VERSION_PADDEDSTRING	"0012"
+#define OBSE_VERSION_INTEGER		13
+#define OBSE_VERSION_INTEGER_MINOR	5
+#define OBSE_VERSION_VERSTRING		"0, 0, 13, 5"
+#define OBSE_VERSION_PADDEDSTRING	"0013"
 
 // build numbers are the month and date each build was made
 #define MAKE_OBLIVION_VERSION(major, minor, build) (((major & 0xFF) << 24) | ((minor & 0xFF) << 16) | (build & 0xFFFF))

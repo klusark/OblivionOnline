@@ -6,6 +6,7 @@ class Script;
 struct ParamInfo;
 class DataHandler;
 class MemoryHeap;
+class Tile;
 
 // only records individual objects if there's a block that matches it
 // ### how can it tell?
@@ -67,6 +68,15 @@ extern const _FormHeap_Free FormHeap_Free;
 
 typedef void * (* _GetGlobalScriptStateObj)(void);
 extern const _GetGlobalScriptStateObj GetGlobalScriptStateObj;
+
+// callback, unk2 and unk4 can be 0, unk3 can be an empty string
+typedef void (* _ShowMessageBox_Callback)(void);
+typedef bool (* _ShowMessageBox)(const char * str, _ShowMessageBox_Callback callback, UInt32 unk2, const char * unk3, UInt32 unk4);
+extern const _ShowMessageBox ShowMessageBox;
+
+// unk1 = 0, unk2 = 1
+typedef bool (* _QueueUIMessage)(const char * string, UInt32 unk1, UInt32 unk2, float duration);
+extern const _QueueUIMessage QueueUIMessage;
 
 extern MemoryHeap	* g_formHeap;
 
@@ -758,3 +768,28 @@ struct SettingInfo
 };
 
 bool GetGameSetting(char *settingName, SettingInfo** setting);
+
+// 134
+class InterfaceManager
+{
+public:
+	InterfaceManager();
+	~InterfaceManager();
+
+	static InterfaceManager *	GetSingleton(void);
+
+	UInt32			unk000[(0x01C - 0x000) >> 2];	// 000
+	Tile			* cursor;						// 01C
+	UInt32			unk020[(0x068 - 0x020) >> 2];	// 020
+	Tile			* menuRoot;						// 068
+	Tile			* strings;						// 06C
+	UInt32			unk070[(0x080 - 0x070) >> 2];	// 070
+	Tile			* hudReticule;					// 080
+	UInt32			unk084;							// 084
+	Tile			* unk088;						// 088
+	UInt32			unk08C[(0x0BC - 0x08C) >> 2];	// 08C
+	TESObjectREFR	* debugSelection;				// 0BC
+	UInt32			unk0C0[(0x134 - 0x0C0) >> 2];	// 0C0
+};
+
+STATIC_ASSERT(sizeof(InterfaceManager) == 0x134);

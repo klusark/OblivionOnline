@@ -2,6 +2,7 @@
 
 #include "obse/GameForms.h"
 #include "obse/GameExtraData.h"
+#include "obse/GameProcess.h"
 
 /*** class hierarchy
  *	
@@ -287,8 +288,6 @@
  *	
  *	Menu vtbl + 0x0C = event handler
  *	
- *	LowProcess is 0x90 bytes
- *	
  ***/
 
 class Actor;
@@ -299,263 +298,12 @@ class Sun;
 class Clouds;
 class Moon;
 class Precipitation;
-
-// 004+
-class BaseProcess
-{
-public:
-	BaseProcess();
-	~BaseProcess();
-
-	virtual void	Destructor(void);
-	virtual void	Unk_01(void) = 0;
-	virtual void	Unk_02(void) = 0;
-	virtual void	Unk_03(void) = 0;
-	virtual void	Unk_04(void) = 0;
-	virtual void	Unk_05(void) = 0;
-	virtual void	Unk_06(void) = 0;
-	virtual void	Unk_07(void) = 0;
-	virtual void	Unk_08(void) = 0;
-	virtual void	Unk_09(void) = 0;
-	virtual void	Unk_0A(void) = 0;
-	virtual void	Unk_0B(void) = 0;
-	virtual void	Unk_0C(void) = 0;
-	virtual void	Unk_0D(void) = 0;
-	virtual void	Unk_0E(void) = 0;
-	virtual void	Unk_0F(void) = 0;
-	virtual void	Unk_10(void) = 0;
-	virtual void	Unk_11(void) = 0;
-	virtual void	Unk_12(void) = 0;
-	virtual void	Unk_13(void) = 0;
-	virtual void	Unk_14(void) = 0;
-	virtual void	Unk_15(void) = 0;
-	virtual void	Unk_16(void) = 0;
-	virtual void	Unk_17(void) = 0;
-	virtual void	Unk_18(void) = 0;
-	virtual void	Unk_19(void) = 0;
-	virtual void	Unk_1A(void) = 0;
-	virtual void	Unk_1B(void) = 0;
-	virtual void	Unk_1C(void) = 0;
-	virtual void	Unk_1D(void) = 0;
-	virtual void	Unk_1E(void) = 0;
-	virtual void	Unk_1F(void) = 0;
-	virtual void	Unk_20(void) = 0;
-	virtual void	Unk_21(void) = 0;
-	virtual void	Unk_22(void) = 0;
-	virtual void	Unk_23(void) = 0;
-	virtual void	Unk_24(void) = 0;
-	virtual void	Unk_25(void) = 0;
-	virtual void	Unk_26(void) = 0;
-	virtual void	Unk_27(void) = 0;
-	virtual void	Unk_28(void) = 0;
-	virtual void	Unk_29(void) = 0;
-	virtual void	Unk_2A(void) = 0;
-	virtual void	Unk_2B(void) = 0;
-	virtual void	Unk_2C(void) = 0;
-
-#if OBLIVION_VERSION >= OBLIVION_VERSION_1_2
-	virtual void	Unk_2C_1_2(void) = 0;	// added in 1.2 patch
-#endif
-
-	virtual void	Unk_2D(void) = 0;
-	virtual void	Unk_2E(void) = 0;
-	virtual void	Unk_2F(void) = 0;
-	virtual void	Unk_30(void) = 0;
-	virtual void	Unk_31(void) = 0;
-	virtual void	Unk_32(void) = 0;
-	virtual void	Unk_33(void) = 0;
-	virtual void	Unk_34(void) = 0;
-	virtual void	Unk_35(void) = 0;
-	virtual void	Unk_36(void) = 0;
-	virtual void	Unk_37(void) = 0;
-	virtual void	Unk_38(void) = 0;
-	virtual void	Unk_39(void) = 0;
-	virtual void	Unk_3A(void) = 0;
-	virtual void	Unk_3B(void) = 0;
-	virtual void	Unk_3C(void) = 0;
-	virtual void	Unk_3D(void) = 0;
-	virtual void	Unk_3E(void) = 0;
-	virtual void	Unk_3F(void) = 0;
-	virtual void	Unk_40(void) = 0;
-	virtual void	Unk_41(void) = 0;
-	virtual void	Unk_42(void) = 0;
-	virtual void	Unk_43(void) = 0;
-	virtual void	Unk_44(void) = 0;
-	virtual void	Unk_45(void) = 0;
-	virtual void	Unk_46(void) = 0;
-	virtual void	Unk_47(void) = 0;
-	virtual void	Unk_48(void) = 0;
-	virtual void	Unk_49(void) = 0;
-	virtual void	Unk_4A(void) = 0;
-	virtual void	Unk_4B(void) = 0;
-	virtual void	Unk_4C(void) = 0;
-	virtual void	Unk_4D(void) = 0;
-	virtual void	Unk_4E(void) = 0;
-	virtual void	Unk_4F(void) = 0;
-	virtual void	Unk_50(void) = 0;
-	virtual void	Unk_51(void) = 0;
-	virtual void	Unk_52(void) = 0;
-	virtual void	Unk_53(void) = 0;
-	virtual void	Unk_54(void) = 0;
-	virtual void	Unk_55(void) = 0;
-	virtual void	Unk_56(void) = 0;
-	virtual void	Unk_57(void) = 0;
-	virtual void	Unk_58(void) = 0;
-	virtual void	Unk_59(void) = 0;
-	virtual void	Unk_5A(void) = 0;
-	virtual void	Unk_5B(void) = 0;
-	virtual void	Unk_5C(void) = 0;
-	virtual void	Unk_5D(void) = 0;
-	virtual void	Unk_5E(void) = 0;
-	virtual void	Unk_5F(void) = 0;
-	virtual void	Unk_60(void) = 0;
-	virtual void	Unk_61(void) = 0;
-	virtual void	Unk_62(void) = 0;
-	virtual void	Unk_63(void) = 0;
-	virtual void	Unk_64(void) = 0;
-	virtual void	Unk_65(void) = 0;
-	virtual void	Unk_66(void) = 0;
-	virtual void	Unk_67(void) = 0;
-	virtual void	Unk_68(void) = 0;
-	virtual void	Unk_69(void) = 0;
-	virtual void	Unk_6A(void) = 0;
-	virtual void	Unk_6B(void) = 0;
-	virtual void	Unk_6C(void) = 0;
-	virtual void	Unk_6D(void) = 0;
-	virtual void	Unk_6E(void) = 0;
-	virtual void	Unk_6F(void) = 0;
-	virtual void	Unk_70(void) = 0;
-	virtual void	Unk_71(void) = 0;
-	virtual void	Unk_72(void) = 0;
-	virtual void	Unk_73(void) = 0;
-	virtual void	Unk_74(void) = 0;
-	virtual void	Unk_75(void) = 0;
-	virtual void	Unk_76(void) = 0;
-	virtual void	Unk_77(void) = 0;
-	virtual void	Unk_78(void) = 0;
-	virtual void	Unk_79(void) = 0;
-	virtual void	Unk_7A(void) = 0;
-	virtual void	Unk_7B(void) = 0;
-	virtual void	Unk_7C(void) = 0;
-	virtual void	Unk_7D(void) = 0;
-	virtual void	Unk_7E(void) = 0;
-	virtual void	Unk_7F(void) = 0;
-	virtual void	Unk_80(void) = 0;
-	virtual void	Unk_81(void) = 0;
-	virtual void	Unk_82(void) = 0;
-	virtual void	Unk_83(void) = 0;
-	virtual void	Unk_84(void) = 0;
-	virtual void	Unk_85(void) = 0;
-	virtual void	Unk_86(void) = 0;
-	virtual void	Unk_87(void) = 0;
-	virtual void	Unk_88(void) = 0;
-	virtual void	Unk_89(void) = 0;
-	virtual void	Unk_8A(void) = 0;
-	virtual void	Unk_8B(void) = 0;
-	virtual void	Unk_8C(void) = 0;
-	virtual void	Unk_8D(void) = 0;
-	virtual void	Unk_8E(void) = 0;
-	virtual void	Unk_8F(void) = 0;
-	virtual void	Unk_90(void) = 0;
-	virtual void	Unk_91(void) = 0;
-	virtual void	Unk_92(void) = 0;
-	virtual void	Unk_93(void) = 0;
-	virtual void	Unk_94(void) = 0;
-	virtual void	Unk_95(void) = 0;
-	virtual void	Unk_96(void) = 0;
-	virtual void	Unk_97(void) = 0;
-	virtual void	Unk_98(void) = 0;
-	virtual void	Unk_99(void) = 0;
-	virtual void	Unk_9A(void) = 0;
-	virtual void	Unk_9B(void) = 0;
-	virtual void	Unk_9C(void) = 0;
-	virtual void	Unk_9D(void) = 0;
-	virtual void	Unk_9E(void) = 0;
-	virtual void	Unk_9F(void) = 0;
-	virtual void	Unk_A0(void) = 0;
-	virtual void	Unk_A1(void) = 0;
-	virtual void	Unk_A2(void) = 0;
-	virtual void	Unk_A3(void) = 0;
-	virtual void	Unk_A4(void) = 0;
-	virtual void	Unk_A5(void) = 0;
-	virtual void	Unk_A6(void) = 0;
-	virtual void	Unk_A7(void) = 0;
-	virtual void	Unk_A8(void) = 0;
-	virtual void	Unk_A9(void) = 0;
-	virtual void	Unk_AA(void) = 0;
-	virtual void	Unk_AB(void) = 0;
-	virtual void	Unk_AC(void) = 0;
-	virtual void	Unk_AD(void) = 0;
-	virtual void	Unk_AE(void) = 0;
-	virtual void	Unk_AF(void) = 0;
-	virtual void	Unk_B0(void) = 0;
-	virtual void	Unk_B1(void) = 0;
-	virtual void	Unk_B2(void) = 0;
-	virtual void	Unk_B3(void) = 0;
-	virtual void	Unk_B4(void) = 0;
-	virtual void	Unk_B5(void) = 0;
-	virtual void	Unk_B6(void) = 0;
-	virtual void	Unk_B7(void) = 0;
-	virtual void	Unk_B8(void) = 0;
-	virtual void	Unk_B9(void) = 0;
-	virtual void	Unk_BA(void) = 0;
-	virtual void	Unk_BB(void) = 0;
-	virtual void	Unk_BC(void) = 0;
-	virtual void	Unk_BD(void) = 0;
-	virtual void	Unk_BE(void) = 0;
-	virtual void	Unk_BF(void) = 0;
-	virtual void	Unk_C0(void) = 0;
-	virtual void	Unk_C1(void) = 0;
-	virtual void	Unk_C2(void) = 0;
-	virtual void	Unk_C3(void) = 0;
-	virtual void	Unk_C4(void) = 0;
-	virtual void	Unk_C5(void) = 0;
-	virtual void	Unk_C6(void) = 0;
-	virtual void	Unk_C7(void) = 0;
-	virtual void	Unk_C8(void) = 0;
-	virtual void	Unk_C9(void) = 0;
-	virtual void	Unk_CA(void) = 0;
-	virtual void	Unk_CB(void) = 0;
-	virtual void	Unk_CC(void) = 0;
-	virtual void	Unk_CD(void) = 0;
-	virtual void	Unk_CE(void) = 0;
-	virtual void	Unk_CF(void) = 0;
-	virtual void	Unk_D0(void) = 0;
-	virtual void	Unk_D1(void) = 0;
-	virtual void	Unk_D2(void) = 0;
-	virtual void	Unk_D3(void) = 0;
-	virtual void	Unk_D4(void) = 0;
-	virtual void	Unk_D5(void) = 0;
-	virtual void	Unk_D6(void) = 0;
-	virtual void	Unk_D7(void) = 0;
-	virtual void	Unk_D8(void) = 0;
-	virtual void	Unk_D9(void) = 0;
-	virtual void	Unk_DA(void) = 0;
-	virtual void	Unk_DB(void) = 0;
-	virtual void	Unk_DC(void) = 0;
-	virtual void	Unk_DD(void) = 0;
-	virtual void	Unk_DE(void) = 0;
-	virtual void	Unk_DF(void) = 0;
-	virtual void	Unk_E0(void) = 0;
-	virtual void	Unk_E1(void) = 0;
-	virtual void	Unk_E2(void) = 0;
-	virtual void	Unk_E3(void) = 0;
-	virtual void	Unk_E4(void) = 0;
-	virtual void	Unk_E5(void) = 0;
-	virtual void	Unk_E6(void) = 0;
-	virtual void	Unk_E7(void) = 0;
-	virtual void	Unk_E8(void) = 0;
-	virtual void	Unk_E9(void) = 0;
-	virtual float	GetLightAmount(Actor * actor, UInt32 unk1) = 0;
-	virtual void	Unk_EB(void) = 0;
-	virtual void	Unk_EC(void) = 0;
-	virtual void	Unk_ED(void) = 0;
-	virtual void	Unk_EE(void) = 0;
-	virtual void	Unk_EF(void) = 0;
-	// there are 0x141 virtual functions
-
-//	void	** _vtbl;	// 000
-};
+class MagicTarget;
+class MagicCaster;
+class EffectItem;
+class ActiveEffect;
+class DialoguePackage;
+class Creature;
 
 // 00C
 class MagicCaster
@@ -564,7 +312,22 @@ public:
 	MagicCaster();
 	~MagicCaster();
 
-	virtual void	Destructor(void);
+	virtual void	Unk_00(UInt32 arg0, UInt32 arg1);
+	virtual void	Unk_01(UInt32 arg0, UInt32 arg1, UInt32 arg2);
+	virtual void	Unk_02(UInt32 arg0, UInt32 arg1, UInt32 arg2);
+	virtual void	Unk_03(void);
+	virtual void	Unk_04(void);
+	virtual void	Unk_05(void);
+	virtual void	Unk_06(void);
+	virtual void	Unk_07(UInt32 arg0, UInt32 arg1, UInt32 arg2, UInt32 arg3);
+	virtual void	Unk_08(void);
+	virtual void	Unk_09(void);
+	virtual void	Unk_0A(void);
+	virtual void	Unk_0B(void);
+	virtual void	Unk_0C(void);
+	virtual void	Unk_0D(void);
+	virtual void	Unk_0E(void);
+	virtual void	Unk_0F(void);
 
 //	void	** _vtbl;	// 000
 	UInt32	unk0;		// 004
@@ -578,7 +341,19 @@ public:
 	MagicTarget();
 	~MagicTarget();
 
+	// 8
+	struct EffectNode
+	{
+		ActiveEffect	* data;
+		EffectNode		* next;
+
+		ActiveEffect* Info() const { return data; }
+		EffectNode* Next() const { return next; }
+	};
+
 	virtual void	Destructor(void);
+	virtual TESObjectREFR *	GetParent(void);
+	virtual EffectNode *	GetEffectList(void);
 
 //	void	** _vtbl;	// 000
 	UInt32	unk0;		// 004
@@ -676,7 +451,7 @@ public:
 	virtual void	Unk_46(void) = 0;
 	virtual void	Unk_47(void) = 0;
 	virtual void	Unk_48(void) = 0;
-	virtual void	Unk_49(void) = 0;
+	virtual MagicTarget *	GetMagicTarget(void) = 0;
 	virtual void	Unk_4A(void) = 0;
 	virtual void	Unk_4B(void) = 0;
 	virtual void	Unk_4C(void) = 0;
@@ -687,10 +462,10 @@ public:
 	virtual void	Unk_51(void) = 0;
 	virtual void	Unk_52(void) = 0;
 	virtual void	Unk_53(void) = 0;
-	virtual void	Unk_54(void) = 0;
-	virtual NiNode *	GetNiNode(const char * nodeName) = 0;
+	virtual void	Unk_54(void * object) = 0;	// Set3D? object is a NiNode* ?
+	virtual NiNode *	GetNiNode(void) = 0;
 	virtual void	Unk_56(void) = 0;
-	virtual void	Unk_57(void) = 0;
+	virtual void	Unk_57(UInt32 arg0) = 0;
 	virtual void	Unk_58(void) = 0;
 	virtual void	Unk_59(void) = 0;
 	virtual void	Unk_5A(void) = 0;
@@ -704,7 +479,7 @@ public:
 	virtual void	Unk_62(void) = 0;
 	virtual void	Unk_63(void) = 0;
 	virtual bool	IsActor(void) = 0;
-	virtual void	Unk_65(void) = 0;
+	virtual void	ChangeCell(TESObjectCELL * newCell) = 0;
 	virtual void	Unk_66(void) = 0;
 	virtual void	Unk_67(void) = 0;
 	virtual void	Unk_68(void) = 0;
@@ -725,6 +500,16 @@ public:
 class MobileObject : public TESObjectREFR
 {
 public:
+	enum
+	{
+		//	UInt8	processLevel;
+		//		FF - none
+		//		00 - high
+		//		01 - medium high
+		//		02 - medium low
+		//		03 - low
+	};
+
 	MobileObject();
 	~MobileObject();
 
@@ -837,8 +622,8 @@ public:
 	virtual void	Unk_C9(void) = 0;
 	virtual void	Unk_CA(void) = 0;
 	virtual void	Unk_CB(void) = 0;
-	virtual void	Unk_CC(void) = 0;
-	virtual void	Unk_CD(void) = 0;
+	virtual void	Unk_CC(void) = 0;	// get combat controller
+	virtual bool	IsInCombat(bool unk) = 0;	// is in combat?
 	virtual void	Unk_CE(void) = 0;
 	virtual void	Unk_CF(void) = 0;
 	virtual void	Unk_D0(void) = 0;	// D0
@@ -868,17 +653,58 @@ public:
 	virtual void	Unk_E8(void) = 0;
 	virtual void	Unk_E9(void) = 0;
 	virtual void	Unk_EA(void) = 0;
-	virtual void	Unk_EB(void) = 0;	// attack handling, 'this' is attacker, arg2 is target
+	virtual void	Unk_EB(UInt32 arg0, UInt32 arg1, TESObjectREFR * target) = 0;	// attack handling, 'this' is attacker
 	virtual void	Unk_EC(void) = 0;
 	virtual void	Unk_ED(void) = 0;
 	virtual void	Unk_EE(void) = 0;
 
 	void	EquipItem(TESObjectREFR * objType, UInt32 unk1, UInt32 unk2, UInt32 unk3, bool lockEquip);
 
+	// 8
+	struct Unk09C
+	{
+		// C+
+		struct Data
+		{
+			UInt32		unk0;
+			UInt32		unk4;
+			SpellItem	* unk8;
+		};
+
+		Data	* data;
+		Unk09C	* next;
+	};
+
+	// 8
+	struct Unk0A4
+	{
+		// 8+
+		struct Data
+		{
+			UInt32	unk0;
+			Actor	* unk4;
+		};
+
+		Data	* data;
+		Unk0A4	* next;
+	};
+
 	// bases
-	MagicCaster	magicCaster;	// 05C
-	MagicTarget	magicTarget;	// 068
-	UInt32		unk070[37];		// 070
+	MagicCaster		magicCaster;					// 05C
+	MagicTarget		magicTarget;					// 068
+
+	UInt32			unk070[(0x07C - 0x070) >> 2];	// 070
+	Actor			* unk07C;						// 07C
+	UInt32			unk080[(0x09C - 0x080) >> 2];	// 080
+	Unk09C			unk09C;							// 09C
+	Unk0A4			unk0A4;							// 0A4
+	UInt32			unk0AC[(0x0CC - 0x0AC) >> 2];	// 0AC
+	TESObjectREFR	* unk0CC;						// 0CC
+	UInt32			unk0D0;							// 0D0
+	Character		* unk0D4;						// 0D4
+	UInt32			unk0D8[(0x0E4 - 0x0D8) >> 2];	// 0D8
+	Actor			* unk0E4;						// 0E4
+	UInt32			unk0E8[(0x104 - 0x0E8) >> 2];	// 0E8
 	// 104
 };
 
@@ -894,6 +720,46 @@ public:
 class PlayerCharacter : public Character
 {
 public:
+	enum
+	{
+		kMiscStat_DaysInPrison = 0,
+		kMiscStat_DaysPassed,
+		kMiscStat_SkillIncreases,
+		kMiscStat_TrainingSessions,
+		kMiscStat_LargestBounty,
+		kMiscStat_CreaturesKilled,
+		kMiscStat_PeopleKilled,
+		kMiscStat_PlacesDiscovered,
+		kMiscStat_LocksPicked,
+		kMiscStat_LockpicksBroken,
+		kMiscStat_SoulsTrapped,	// 10
+		kMiscStat_IngredientsEaten,
+		kMiscStat_PotionsMade,
+		kMiscStat_OblivionGatesShut,
+		kMiscStat_HorsesOwned,
+		kMiscStat_HousesOwned,
+		kMiscStat_StoresInvestedIn,
+		kMiscStat_BooksRead,
+		kMiscStat_SkillBooksRead,
+		kMiscStat_ArtifactsFound,
+		kMiscStat_HoursSlept,	// 20
+		kMiscStat_HoursWaited,
+		kMiscStat_DaysAsAVampire,
+		kMiscStat_LastDayAsAVampire,
+		kMiscStat_PeopleFedOn,
+		kMiscStat_JokesTold,
+		kMiscStat_DiseasesContracted,
+		kMiscStat_NirnrootsFound,
+		kMiscStat_ItemsStolen,
+		kMiscStat_ItemsPickpocketed,
+		kMiscStat_Trespasses,	// 30
+		kMiscStat_Assaults,
+		kMiscStat_Murders,
+		kMiscStat_HorsesStolen,
+
+		kMiscStat_Max			// 34
+	};
+
 	PlayerCharacter();
 	~PlayerCharacter();
 
@@ -926,20 +792,42 @@ public:
 	// [ data ]
 	// +11C haggle amount?
 	// +588 UInt8, bit 0x01 is true if we're in third person?
+	// +658	UInt32, misc stat array
+	// +70C	'initial state' buffer
 
-	UInt32		unk104[11];		// 104
-	float		skillAdv[21];
-	UInt32		unkXXX[257];
-	UInt8		isThirdPerson;		// 588
-	UInt8		pad589[3];			// 589
-	UInt32		unk58C[38];			// 58C
-	MagicItem	* activeMagicItem;	// 624
-	UInt32		unk628[118];		// 628
+	UInt32		unk104[(0x118 - 0x104) >> 2];	// 104
+	DialoguePackage	* dialoguePackage;			// 118
+	UInt32		unk11C[(0x130 - 0x11C) >> 2];	// 11C
+	float		skillAdv[21];					// 130
+	UInt32		unk184[(0x1E0 - 0x184) >> 2];	// 184
+	Creature	* unk1E0;						// 1E0
+	UInt32		unk1E4[(0x570 - 0x1E4) >> 2];	// 1E4
+	TESObjectREFR	* unk570;					// 570
+	UInt32		unk574[(0x588 - 0x574) >> 2];	// 574
+	UInt8		isThirdPerson;					// 588
+	UInt8		pad589[3];						// 589
+	UInt32		unk58C[(0x610 - 0x58C) >> 2];	// 58C
+	UInt8		unk610;							// 610
+	UInt8		isAMurderer;					// 611
+	UInt8		pad612[2];						// 612
+	UInt32		unk614[(0x624 - 0x614) >> 2];	// 614
+	MagicItem	* activeMagicItem;				// 624
+	TESObjectBOOK	* book;						// 628
+	UInt32		unk62C[(0x644 - 0x62C) >> 2];	// 62C
+	BirthSign	* birthSign;					// 644
+	UInt32		unk648[(0x650 - 0x648) >> 2];	// 648
+	TESClass	* classForm;					// 650
+	UInt32		unk654;							// 654
+	UInt32		miscStats[kMiscStat_Max];		// 658
+	AlchemyItem	* alchemyItem;					// 6E0
+	UInt32		unk6E4[(0x800 - 0x6E4) >> 2];	// 6E4
+	// 800
 
 	bool	SetActiveSpell(MagicItem * item);
 };
 
 STATIC_ASSERT(sizeof(PlayerCharacter) == 0x800);
+STATIC_ASSERT(offsetof(PlayerCharacter, isAMurderer) == 0x611);
 STATIC_ASSERT(offsetof(PlayerCharacter, activeMagicItem) == 0x624);
 
 class Creature : public Character
@@ -963,11 +851,13 @@ public:
 
 	static Sky *	GetSingleton(void);
 
+	void	RefreshClimate(TESClimate * climate, UInt32 unk1);	// pass 1 for unk1 to pick new random weather etc
+
 //	void		** _vtbl;						// 000
 	NiNode*		niNode004;						// 004
 	NiNode*		niNode008;						// 008
-	TESClimate*	currentClimate;					// 00C
-	TESWeather* currentWeather;					// 010
+	TESClimate	* firstClimate;					// 00C
+	TESWeather	* firstWeather;					// 010
 	UInt32		unk014;							// 014
 	TESWeather*	weather018;						// 018
 	UInt32		unk01C;							// 01C

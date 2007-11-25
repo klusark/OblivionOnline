@@ -1,14 +1,14 @@
 #include "obse/GameExtraData.h"
 #include "obse/GameAPI.h"
 
-bool BaseExtraList::HasType(UInt32 type)
+bool BaseExtraList::HasType(UInt32 type) const
 {
 	UInt32 index = (type >> 3);
 	UInt8 bitMask = 1 << (type % 8);
 	return (m_presenceBitfield[index] & bitMask) != 0;
 }
 
-BSExtraData * BaseExtraList::GetByType(UInt32 type)
+BSExtraData * BaseExtraList::GetByType(UInt32 type) const
 {
 	if (!HasType(type)) return NULL;
 
@@ -99,6 +99,10 @@ static const UInt32 s_ExtraUsesSize = 0x10;
 static const UInt32 s_ExtraUsesVtbl = 0x00A022A0;
 static const UInt32 s_ExtraPoisonSize = 0x10;
 static const UInt32 s_ExtraPoisonVtbl = 0x00A02420;
+static const UInt32 s_ExtraTravelHorseSize = 0x10;
+static const UInt32 s_ExtraTravelHorseVtbl = 0x00A023FC;
+static const UInt32 s_ExtraLockSize = 0x10;
+static const UInt32 s_ExtraLockVtbl = 0x00A02210;
 
 #elif OBLIVION_VERSION == OBLIVION_VERSION_1_2
 
@@ -110,6 +114,10 @@ static const UInt32 s_ExtraUsesSize = 0x10;
 static const UInt32 s_ExtraUsesVtbl = 0x00A358BC;
 static const UInt32 s_ExtraPoisonSize = 0x10;
 static const UInt32 s_ExtraPoisonVtbl = 0x00A35A48;
+static const UInt32 s_ExtraTravelHorseSize = 0x10;
+static const UInt32 s_ExtraTravelHorseVtbl = 0x00A35A24;
+static const UInt32 s_ExtraLockSize = 0x10;
+static const UInt32 s_ExtraLockVtbl = 0x00A35820;
 
 #elif OBLIVION_VERSION == OBLIVION_VERSION_1_2_416
 
@@ -121,6 +129,10 @@ static const UInt32 s_ExtraUsesSize = 0x10;
 static const UInt32 s_ExtraUsesVtbl = 0x00A35854;
 static const UInt32 s_ExtraPoisonSize = 0x10;
 static const UInt32 s_ExtraPoisonVtbl = 0x00A359E0;
+static const UInt32 s_ExtraTravelHorseSize = 0x10;
+static const UInt32 s_ExtraTravelHorseVtbl = 0x00A359BC;
+static const UInt32 s_ExtraLockSize = 0x10;
+static const UInt32 s_ExtraLockVtbl = 0x00A357B8;
 
 #else
 #error unsupported oblivion version
@@ -163,4 +175,20 @@ ExtraPoison* ExtraPoison::Create()
 {
 	ExtraPoison* xPoison = (ExtraPoison*)BSExtraData::Create(kExtraData_Poison, s_ExtraPoisonSize, s_ExtraPoisonVtbl);
 	return xPoison;
+}
+
+ExtraTravelHorse* ExtraTravelHorse::Create()
+{
+	ExtraTravelHorse* xHorse = (ExtraTravelHorse*)BSExtraData::Create(kExtraData_TravelHorse, s_ExtraTravelHorseSize,
+																	  s_ExtraTravelHorseVtbl);
+	return xHorse;
+}
+
+ExtraLock* ExtraLock::Create()
+{
+	ExtraLock* xLock = (ExtraLock*)BSExtraData::Create(kExtraData_Lock, s_ExtraLockSize, s_ExtraLockVtbl);
+	ExtraLock::Data* lockData = (ExtraLock::Data*)FormHeap_Allocate(sizeof(ExtraLock::Data));
+	memset(lockData, 0, sizeof(ExtraLock::Data));
+	xLock->data = lockData;
+	return xLock;
 }

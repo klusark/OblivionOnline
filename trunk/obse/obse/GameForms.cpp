@@ -2,6 +2,8 @@
 #include "obse/GameData.h"
 #include <map>
 #include <functional>
+#include <ctime>			//for time()
+#include <cstdlib>			//for rand(), srand()
 
 static const UInt32 kSEFF = Swap32('SEFF');
 
@@ -178,6 +180,21 @@ void TESObjectARMO::SetHeavyArmor(bool bHeavyArmor) {
 	}
 }
 
+MagicItem::EType MagicItem::Type() const 
+{
+	void* pVoid = (void*)this;
+	if (Oblivion_DynamicCast(pVoid, 0, RTTI_MagicItem, RTTI_SpellItem, 0)) {
+		return kType_Spell;
+	} else if (Oblivion_DynamicCast(pVoid, 0, RTTI_MagicItem, RTTI_EnchantmentItem, 0)) {
+		return kType_Enchantment;
+	} else if (Oblivion_DynamicCast(pVoid, 0, RTTI_MagicItem, RTTI_AlchemyItem, 0)) {
+		return kType_Alchemy;
+	} else if (Oblivion_DynamicCast(pVoid, 0, RTTI_MagicItem, RTTI_IngredientItem, 0)) {
+		return kType_Ingredient;
+	}
+	return kType_None;
+}
+
 bool IngredientItem::_IsFlagSet(UInt32 mask) const
 {
 	return (ingredFlags & mask) != 0;
@@ -228,6 +245,19 @@ bool EnchantmentItem::MatchesType(TESForm* form)
 	return false;
 }
 
+bool EnchantmentItem::IsAutoCalc() const 
+{
+	return (flags040 & kEnchant_NoAutoCalc) == 0;
+}
+
+void EnchantmentItem::SetAutoCalc(bool bAutoCalc) {
+	if (bAutoCalc) {
+		flags040 &= ~kEnchant_NoAutoCalc;
+	} else {
+		flags040 |= kEnchant_NoAutoCalc;
+	}
+}
+
 bool SpellItem::IsAutoCalc() const 
 {
 	return (spellFlags & kFlag_NoAutoCalc) == 0;
@@ -267,15 +297,20 @@ static float SkillFactor(TESForm* actorCasting, UInt32 school);
 UInt32 SpellItem::GetMagickaCost(TESForm *form) const
 {
 	bool bIsSpellType = (spellType == kType_Spell);
+	UInt32 spellCost = 0;
 	if (IsAutoCalc()) {
-		return magicItem.list.GetMagickaCost(bIsSpellType ? form : NULL);
+		spellCost = magicItem.list.GetMagickaCost(bIsSpellType ? form : NULL);
+		if (bIsSpellType && spellCost == 0) spellCost = 1;
 	} else {
 		float skillFactor = 1.0;
 		if (form && bIsSpellType) {
 			skillFactor = SkillFactor(form, GetSchool());
+			spellCost = magickaCost * skillFactor;
+		} else {
+			spellCost = magickaCost;
 		}
-		return magickaCost * skillFactor;
 	}
+	return spellCost;
 }
 
 static float GetSpellLevelMin(short whichLevel)
@@ -469,20 +504,8 @@ void Script::CompileAndRun(void * unk0, UInt32 unk1, void * unk2)
 
 TESForm* TESSpellList::GetNthSpell(UInt32 whichSpell) const
 {
-	UInt32 nSpell = 0;
-	const Entry* curEntry = &spellList;
-	while (curEntry != NULL && curEntry->type != NULL) {
-		if (nSpell != whichSpell) {
-			++nSpell;
-			curEntry = curEntry->next;
-		} else {
-			break;
-		}
-	}
-	if (curEntry && curEntry->type) {
-		return curEntry->type;
-	}
-	return NULL;
+	SpellListVisitor visitor(&spellList);
+	return visitor.GetNthInfo(whichSpell);
 }
 
 UInt32 TESSpellList::RemoveAllSpells()
@@ -676,7 +699,7 @@ void EffectItem::CopyFrom(const EffectItem* copyFrom)
 		scriptEffectInfo = copyFrom->scriptEffectInfo->Clone();
 	}
 	setting = copyFrom->setting;
-	unk1 = copyFrom->unk1;
+	cost = copyFrom->cost;
 }
 
 EffectItem* EffectItem::Clone() const
@@ -779,7 +802,7 @@ typedef std::map<UInt32, EffectItem> EffectProxyMap;
 typedef std::pair<UInt32, EffectItem> EffectProxyPair;
 static EffectProxyMap gProxyMap;
 
-void InitProxy(UInt32 effectCode, UInt32 magnitude, UInt32 area, UInt32 duration, UInt32 range, UInt32 actorValueOrOther, float unk1)
+void InitProxy(UInt32 effectCode, UInt32 magnitude, UInt32 area, UInt32 duration, UInt32 range, UInt32 actorValueOrOther, float cost)
 {
 	EffectSetting* magicEffect = EffectSetting::EffectSettingForC(effectCode);
 	if (magicEffect) {
@@ -792,7 +815,7 @@ void InitProxy(UInt32 effectCode, UInt32 magnitude, UInt32 area, UInt32 duration
 		effectItem.actorValueOrOther = actorValueOrOther;
 		effectItem.scriptEffectInfo = NULL;
 		effectItem.setting = magicEffect;
-		effectItem.unk1 = unk1;
+		effectItem.cost = cost;
 		gProxyMap.insert(EffectProxyPair(effectCode, effectItem));
 	}
 }
@@ -1102,6 +1125,8 @@ static float SkillFactor(TESForm* actorCasting, UInt32 school)
 				}
 				break;
 			}
+		default:
+			return 1.0;
 	}
 
 	float fMagicCasterSkillCostBase = 1.0;
@@ -1115,7 +1140,7 @@ static float SkillFactor(TESForm* actorCasting, UInt32 school)
 	if (GetGameSetting("fMagicCasterSkillCostMult", &setting)) {
 		fMagicCasterSkillCostMult = setting->f;
 	}
-	skillFactor = fMagicCasterSkillCostBase + ((1 - skillLevel/100) * fMagicCasterSkillCostMult);
+	skillFactor = fMagicCasterSkillCostBase + ((1.0 - skillLevel*.01) * fMagicCasterSkillCostMult);
 	return skillFactor;
 }
 
@@ -1207,58 +1232,75 @@ bool EffectItemList::RemoveItem(UInt32 whichItem)
 	return bFound;
 }
 
+static const bool kFindHostile = true;
+static const bool kFindNonHostile = false;
+class HostileItemCounter {
+	UInt32 m_count;
+	bool m_bFindHostile;
+	bool m_bStopAtFirst;
+public:
+	HostileItemCounter(bool bFindHostile, bool bStopAtFirst) : 
+		m_count(0), m_bFindHostile(bFindHostile), m_bStopAtFirst(bStopAtFirst) { }
+	
+	bool Accept(EffectItem* pEffectItem) {
+		if (pEffectItem && pEffectItem->IsHostile() == m_bFindHostile) {
+			m_count++;
+			if (m_bStopAtFirst) return false;
+		}
+		return true;
+	}
+
+	UInt32 Count() const { return m_count; }
+};
+
 bool EffectItemList::HasNonHostileItem() const
 {
-	const Entry* entry = &effectList;
-	bool bNonHostileFound = false;
-	while (entry && !bNonHostileFound) {
-		if (entry->effectItem) {
-			bNonHostileFound = !entry->effectItem->IsHostile();
-		}
-		entry = entry->next;
-	}
-	return bNonHostileFound;
+	EffectItemVisitor visitor(&effectList);
+	HostileItemCounter countNonHostile(kFindNonHostile, true);
+	visitor.Visit(countNonHostile);
+	return countNonHostile.Count() != 0;
 }
 
 UInt32 EffectItemList::CountItems() const
 {
-	const Entry* entry = &effectList;
-	UInt32 count = 0;
-	while (entry && entry->effectItem) {
-		entry = entry->next;
-		count++;
-	}
-	return count;
+	EffectItemVisitor visitor(&effectList);
+	return visitor.Count();
 }
 
 UInt32 EffectItemList::CountHostileItems() const
 {
-	const Entry* entry = &effectList;
-	UInt32 hostileCount = 0;
-	while (entry && entry->effectItem && entry->effectItem->setting) {
-		if (entry->effectItem->setting->IsHostile()) {
-			hostileCount++;
-		}
-		entry = entry->next;
-	}
-	return hostileCount;
+	EffectItemVisitor visitor(&effectList);
+	HostileItemCounter counter(kFindHostile, false);
+	visitor.Visit(counter);
+	return counter.Count();
 }
 
 EffectItem* EffectItemList::ItemAt(UInt32 whichItem)
 {
-	UInt32 count = 0;
-	const Entry* entry = &effectList;
-	while (entry && entry->effectItem && count < whichItem) {
-		count++;
-		entry = entry->next;
-	}
-	return (count == whichItem && entry) ? entry->effectItem : NULL;
+	EffectItemVisitor visitor(&effectList);
+	return visitor.GetNthInfo(whichItem);
 }
+
+class HighMagickaCostFinder {
+	EffectItem* m_pEffectItem;
+	UInt32 m_highCost;
+public:
+	HighMagickaCostFinder() : m_pEffectItem(NULL), m_highCost(0) {}
+	bool Accept(EffectItem* pEffectItem) {
+		if (pEffectItem) {
+			UInt32 cost = pEffectItem->MagickaCost();
+			if (cost > m_highCost) {
+				m_highCost = cost;
+				m_pEffectItem = pEffectItem;
+			}
+		}
+		return true;
+	}
+	EffectItem* HighestItem() const { return m_pEffectItem; }
+};
 
 EffectItem* EffectItemList::ItemWithHighestMagickaCost() const
 {
-	EffectItem* highest = NULL;
-	UInt32 highCost = 0;
 	const Entry* entry = &effectList;
 
 	// quick exit for the common case with only one effect item
@@ -1266,27 +1308,34 @@ EffectItem* EffectItemList::ItemWithHighestMagickaCost() const
 		return entry->effectItem;
 	}
 
-	while (entry && entry->effectItem) {
-		UInt32 cost = entry->effectItem->MagickaCost();
-		if (cost > highCost) {
-			highCost = cost;
-			highest = entry->effectItem;
-		}
-		entry = entry->next;
-	}
-	return highest;
+	EffectItemVisitor visitor(entry);
+	HighMagickaCostFinder finder;
+	visitor.Visit(finder);
+	return finder.HighestItem();
 }
+
+class MagickaCostCounter
+{
+	TESForm* m_pForm;
+	UInt32 m_cost;
+public:
+	MagickaCostCounter(TESForm* pForm) : m_pForm(pForm), m_cost(0) {}
+	bool Accept(EffectItem* pEffectItem) {
+		if (pEffectItem) {
+			m_cost += pEffectItem->MagickaCost(m_pForm);
+		}
+		return true;
+	}
+
+	UInt32 Cost() const { return m_cost; }
+};
 
 UInt32 EffectItemList::GetMagickaCost(TESForm* form) const
 {
-	UInt32 magickaCost = 0;
-	const Entry* entry = &effectList;
-	while (entry && entry->effectItem) {
-		UInt32 cost = entry->effectItem->MagickaCost(form);
-		magickaCost += cost;
-		entry = entry->next;
-	}
-	return magickaCost;
+	EffectItemVisitor visitor(&effectList);
+	MagickaCostCounter counter(form);
+	visitor.Visit(counter);
+	return counter.Cost();
 }
 
 UInt32 EffectItemList::AddItem(EffectItem* effectItem)
@@ -1328,7 +1377,7 @@ UInt32 EffectItemList::CopyItemFrom(EffectItemList& fromList, UInt32 whichEffect
 {
 	UInt32 nuIndex = -1;
 	EffectItem* effectItem = fromList.ItemAt(whichEffect);
-	if (effectItem /*&& effectItem->effectCode != kSEFF*/) {
+	if (effectItem) {
 		nuIndex = AddItemCopy(effectItem);		
 	}
 	return nuIndex;
@@ -1484,4 +1533,270 @@ bool TESClimate::HasSecunda() const
 UInt8 TESClimate::GetPhaseLength() const
 {
 	return moonInfo & kClimate_PhaseLengthMask;
+}
+
+void TESClimate::SetPhaseLength(UInt8 nuVal) 
+{
+	moonInfo |= (nuVal & kClimate_PhaseLengthMask);
+}
+
+void TESClimate::SetHasMasser(bool bHasMasser)
+{
+	if (bHasMasser) {
+		moonInfo |= kClimate_Masser;
+	} else {
+		moonInfo &= ~kClimate_Masser;
+	}
+}
+
+void TESClimate::SetHasSecunda(bool bHasSecunda)
+{
+	if (bHasSecunda) {
+		moonInfo |= kClimate_Secunda;
+	} else {
+		moonInfo &= ~kClimate_Secunda;
+	}
+}
+
+void TESClimate::SetSunriseBegin(UInt8 nuVal)
+{
+	if (nuVal < sunriseEnd) {
+		sunriseBegin = nuVal;
+	}
+}
+
+void TESClimate::SetSunriseEnd(UInt8 nuVal)
+{
+	if (nuVal > sunriseBegin && nuVal < sunsetBegin) {
+		sunriseEnd = nuVal;
+	}
+}
+
+void TESClimate::SetSunsetBegin(UInt8 nuVal) 
+{
+	if (nuVal > sunriseEnd && nuVal < sunsetEnd) {
+		sunsetBegin = nuVal;
+	}
+}
+
+void TESClimate::SetSunsetEnd(UInt8 nuVal)
+{
+	if (nuVal > sunsetBegin) {
+		sunsetEnd = nuVal;
+	}
+}
+
+bool TESObjectCELL::HasWater() const
+{
+	return IsInterior() ? ((flags0 & kFlags0_HasWater) != 0) : true;
+}
+
+bool TESObjectCELL::IsInterior() const
+{
+	return worldSpace == NULL;
+}
+
+float TESObjectCELL::GetWaterHeight() const
+{
+	float waterHeight = 0;
+	if (HasWater()) {
+		BSExtraData* xData = extraData.GetByType(kExtraData_WaterHeight);
+		if (xData) {
+			ExtraWaterHeight* xHeight = (ExtraWaterHeight*)Oblivion_DynamicCast(xData, 0, RTTI_BSExtraData, RTTI_ExtraWaterHeight, 0);
+			if (xHeight) {
+				waterHeight = xHeight->waterHeight;
+			}	
+		}
+	}
+	return waterHeight;
+}
+
+TESLeveledList::ListData*	TESLeveledList::CreateData(TESForm* form, UInt16 level, UInt16 count)
+{
+	ListData*	newData = (ListData*)FormHeap_Allocate(sizeof(ListData));
+	newData->form = form;
+	newData->level = level;
+	newData->count = count;
+
+	return newData;
+}
+TESLeveledList::ListEntry*	TESLeveledList::CreateEntry(TESLeveledList::ListData* data)
+{
+	ListEntry*	newEntry = (ListEntry*)FormHeap_Allocate(sizeof(ListEntry));
+	newEntry->data = data;
+	newEntry->next = NULL;
+
+	return newEntry;
+}
+
+void TESLeveledList::AddItem(TESForm* form, UInt16 level, UInt16 count)
+{
+	ListEntry*	oldEntry = &list;
+	ListData*	newData = CreateData(form, level, count);
+
+	if (!list.data)		//empty list
+	{
+		list.data = newData;
+		return;
+	}
+	
+	ListEntry*	newEntry = CreateEntry(newData);
+
+	while (oldEntry->data->level < level)
+	{
+		if (!oldEntry->next)		//add at end of list
+		{
+			oldEntry->next = newEntry;
+			return;
+		}
+		oldEntry = oldEntry->next;
+	}
+
+	ListData*	swapData = oldEntry->data;
+	ListEntry*	swapNext = oldEntry->next;
+	oldEntry->data = newData;
+	oldEntry->next = newEntry;
+	newEntry->data = swapData;
+	newEntry->next = swapNext;
+
+	return;
+}
+
+UInt32 TESLeveledList::RemoveItem(TESForm* form)
+{
+	UInt32 numRemoved = 0;
+	TESLeveledList::ListData*	curData;
+	TESLeveledList::ListEntry*	curEntry;
+
+	if (!(list.data))		//empty list
+		return 0;
+	
+	while (list.data && list.data->form == form)	//removal from head requires shifting next element
+	{
+		numRemoved++;
+		curData = list.data;
+		curEntry = list.next;
+		if (!curEntry)
+		{
+			FormHeap_Free(list.data);
+			list.data = NULL;
+			return numRemoved;
+		}
+		list.data = curEntry->data;
+		list.next = curEntry->next;
+		FormHeap_Free(curData);
+		FormHeap_Free(curEntry);
+	}
+
+	curEntry = list.next;
+	TESLeveledList::ListEntry*	prevEntry = &list;
+	while (curEntry)
+	{
+		if (curEntry->data && curEntry->data->form == form)
+		{
+			numRemoved++;
+			prevEntry->next = curEntry->next;
+			TESLeveledList::ListEntry* temp = curEntry->next;
+			FormHeap_Free(curEntry->data);
+			FormHeap_Free(curEntry);
+			curEntry = prevEntry->next;
+		}
+		else
+		{
+			prevEntry = curEntry;
+			curEntry = curEntry->next;
+		}
+	}
+
+	return numRemoved;
+}
+
+class LeveledListEntryDumper
+{
+public:
+	bool Accept(TESLeveledList::ListData* data)
+	{
+		if (data)
+			Console_Print("%32s (%0x) Level: %d Count: %d",	GetFullName(data->form),
+															data->form->refID,
+															data->level,
+															data->count);
+			_MESSAGE("%32s (%0x) Level: %d Count: %d",	GetFullName(data->form),
+															data->form->refID,
+															data->level,
+															data->count);
+		
+			return true;
+	}
+};
+
+void TESLeveledList::Dump()
+{
+	LeveledListVisitor visitor(&list);
+	LeveledListEntryDumper dumper;
+	visitor.Visit(dumper);
+}
+
+TESForm* TESLeveledList::CalcElement(UInt32 cLevel, bool useChanceNone, UInt32 levelDiff)
+{
+	static bool seeded = false;
+	ListEntry* curEntry = &list;
+	UInt32 minLevel = 0;
+	UInt32 maxLevel = 0;
+	TESForm* item = NULL;
+
+	if (!seeded)
+	{
+		std::srand(std::time(0));
+		seeded = true;
+	}
+
+	if (useChanceNone && rand() % 100 < chanceNone)
+		return NULL;
+
+	//find max/min for level range
+	if (!(flags & kFlags_CalcAllLevels))
+	{
+		while (curEntry && curEntry->data && curEntry->data->level <= cLevel)
+		{
+			maxLevel = curEntry->data->level;
+			curEntry = curEntry->next;
+		}
+		if ( maxLevel > levelDiff)
+			minLevel = maxLevel - levelDiff;
+	}
+	else
+		maxLevel = cLevel;
+
+	//skip entries below minLevel
+	curEntry = &list;
+	while (curEntry && curEntry->data->level < minLevel)
+		curEntry = curEntry->next;
+
+	//pick an item with 1/numMatches probability
+	UInt32 numMatches = 0;
+	while (curEntry && curEntry->data->level <= maxLevel)
+	{
+		if (rand() % ++numMatches == 0)
+			item = curEntry->data->form;
+		curEntry = curEntry->next;
+	}
+
+	//Recurse if a nested leveled item was chosen
+	TESLeveledList* nestedList = (TESLeveledList*)Oblivion_DynamicCast(item, 0, RTTI_TESForm, RTTI_TESLeveledList, 0);
+	if (nestedList)
+		item = nestedList->CalcElement(cLevel, useChanceNone, levelDiff);
+
+	return item;
+}
+
+TESWeather::RGBA& TESWeather::GetColor(UInt32 whichColor, UInt8 time)
+{
+	static RGBA bogus;
+	if (whichColor > eColor_Lightning || time > eTime_Night) return bogus;
+	if (whichColor == eColor_Lightning)	{
+		return lightningColor;
+	} else {
+		return colors[whichColor].colors[time];
+	}
 }

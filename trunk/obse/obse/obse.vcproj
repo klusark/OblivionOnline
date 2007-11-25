@@ -572,11 +572,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GameMagicEffects.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GameMagicEffects.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GameMenus.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GameMenus.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GameObjects.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\GameObjects.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GameProcess.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GameProcess.h"
 				>
 			</File>
 			<File
@@ -589,6 +613,14 @@
 			</File>
 			<File
 				RelativePath=".\GameRTTI_1_2_416.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\GameTiles.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GameTiles.h"
 				>
 			</File>
 			<File
@@ -627,6 +659,14 @@
 		<Filter
 			Name="commands"
 			>
+			<File
+				RelativePath=".\Commands_ActiveEffect.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_ActiveEffect.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Commands_Console.cpp"
 				>
@@ -676,6 +716,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Commands_MagicEffect.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_MagicEffect.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Commands_Math.cpp"
 				>
 			</File>
@@ -689,6 +737,14 @@
 			</File>
 			<File
 				RelativePath=".\Commands_Player.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_Weather.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_Weather.h"
 				>
 			</File>
 		</Filter>

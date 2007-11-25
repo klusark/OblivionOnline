@@ -50,6 +50,9 @@ ScriptEventList::Var * ScriptEventList::GetVariable(UInt32 id)
 	return NULL;
 }
 
+// arg1 = 1, ignored if canCreateNew is false, passed to 'init' function if a new object is created
+typedef void * (* _GetSingleton)(bool canCreateNew, bool arg1);
+
 #if OBLIVION_VERSION == OBLIVION_VERSION_1_1
 
 const _Console_Print Console_Print = (_Console_Print)0x0056CDAD;
@@ -59,7 +62,10 @@ const _LookupFormByID LookupFormByID = (_LookupFormByID)0x00465750;
 const _FormHeap_Allocate FormHeap_Allocate = (_FormHeap_Allocate)0x00401FA0;
 const _FormHeap_Free FormHeap_Free = (_FormHeap_Free)0x00401FC0;
 const _GetGlobalScriptStateObj GetGlobalScriptStateObj = (_GetGlobalScriptStateObj)0x005790C0;
-MemoryHeap * g_formHeap = (MemoryHeap *)0x00000000;	// ### TODO
+const _GetSingleton InterfaceManager_GetSingleton = (_GetSingleton)0x00575230;
+const _ShowMessageBox ShowMessageBox = (_ShowMessageBox)0x0056CE20;
+const _QueueUIMessage QueueUIMessage = (_QueueUIMessage)0x0056DF90;
+MemoryHeap * g_formHeap = (MemoryHeap *)0x00AC3EC0;
 
 #elif OBLIVION_VERSION == OBLIVION_VERSION_1_2
 
@@ -70,6 +76,9 @@ const _LookupFormByID LookupFormByID = (_LookupFormByID)0x0046B150;
 const _FormHeap_Allocate FormHeap_Allocate = (_FormHeap_Allocate)0x00401F10;
 const _FormHeap_Free FormHeap_Free = (_FormHeap_Free)0x00401F30;
 const _GetGlobalScriptStateObj GetGlobalScriptStateObj = (_GetGlobalScriptStateObj)0x00585BE0;
+const _GetSingleton InterfaceManager_GetSingleton = (_GetSingleton)0x005820B0;
+const _ShowMessageBox ShowMessageBox = (_ShowMessageBox)0x00579B10;
+const _QueueUIMessage QueueUIMessage = (_QueueUIMessage)0x0057ABC0;
 MemoryHeap * g_formHeap = (MemoryHeap *)0x00000000;	// ### TODO
 
 #elif OBLIVION_VERSION == OBLIVION_VERSION_1_2_416
@@ -81,6 +90,9 @@ const _LookupFormByID LookupFormByID = (_LookupFormByID)0x0046B250;
 const _FormHeap_Allocate FormHeap_Allocate = (_FormHeap_Allocate)0x00401F00;
 const _FormHeap_Free FormHeap_Free = (_FormHeap_Free)0x00401F20;
 const _GetGlobalScriptStateObj GetGlobalScriptStateObj = (_GetGlobalScriptStateObj)0x00585C10;
+const _GetSingleton InterfaceManager_GetSingleton = (_GetSingleton)0x00582160;
+const _ShowMessageBox ShowMessageBox = (_ShowMessageBox)0x00579C10;
+const _QueueUIMessage QueueUIMessage = (_QueueUIMessage)0x0057ACC0;
 MemoryHeap * g_formHeap = (MemoryHeap *)0x00B02020;
 
 #else
@@ -389,6 +401,18 @@ bool ExtractArgsEx(ParamInfo * paramInfo, void * scriptDataIn, UInt32 * scriptDa
 					}
 					break;
 
+					case 0x47: // "G"
+					{
+						UInt16 varIndx = *((UInt16 *)scriptData);
+						scriptData += 2;
+						Script::RefVariable* refVar = scriptObj->GetVariable(varIndx);
+						if (!refVar || !refVar) return false;
+						TESGlobal* global = (TESGlobal*)Oblivion_DynamicCast(refVar->form, 0, RTTI_TESForm, RTTI_TESGlobal, 0);
+						if (!global) return false;
+						*out = global->data;
+					}
+					break;
+
 					default:
 						return false;
 				}
@@ -400,10 +424,40 @@ bool ExtractArgsEx(ParamInfo * paramInfo, void * scriptDataIn, UInt32 * scriptDa
 				float	* out = va_arg(args, float *);
 
 				UInt8	type = *scriptData++;
-				if(type != 0x7A) return false;
+				switch(type)
+				{
+					case 0x7A:
+						*out = *((double *)scriptData);
+						scriptData += sizeof(double);
+						break;
 
-				*out = *((double *)scriptData);
-				scriptData += sizeof(double);
+					case 0x66:
+					case 0x73: // "s"
+					{
+						UInt16	varIdx = *((UInt16 *)scriptData);
+						scriptData += 2;
+
+						ScriptEventList::Var	* var = eventList->GetVariable(varIdx);
+						if(!var) return false;
+
+						*out = var->data;
+					}
+					break;
+
+					case 0x47: // "G"
+					{
+						UInt16 varIndx = *((UInt16 *)scriptData);
+						scriptData += 2;
+						Script::RefVariable* refVar = scriptObj->GetVariable(varIndx);
+						if (!refVar || !refVar) return false;
+						TESGlobal* global = (TESGlobal*)Oblivion_DynamicCast(refVar->form, 0, RTTI_TESForm, RTTI_TESGlobal, 0);
+						if (!global) return false;
+						*out = global->data;
+					}
+					break;
+					default:
+						return false;
+				}
 			}
 			break;
 
@@ -448,7 +502,31 @@ bool ExtractArgsEx(ParamInfo * paramInfo, void * scriptDataIn, UInt32 * scriptDa
 
 				var->Resolve(eventList);
 
-				*out = var->form;
+				TESForm	* result = var->form;
+
+				// ### temp hack to replicate the behavior of ExtractArgs (TESObjectREFR -> referring object)
+				if(info->typeID == kParamType_InventoryObject)
+				{
+					// TESForm::Unk_2A returns if the form is a reference?
+					TESObjectREFR	* refr = (TESObjectREFR *)Oblivion_DynamicCast(result, 0, RTTI_TESForm, RTTI_TESObjectREFR, 0);
+
+					if(refr && refr->baseForm)
+						result = refr->baseForm;
+				}
+
+				*out = result;
+			}
+			break;
+
+			case kParamType_ActorValue:
+			case kParamType_AnimationGroup:
+			case kParamType_Sex:
+			case kParamType_CrimeType:
+			{
+				UInt32	* out = va_arg(args, UInt32 *);
+
+				*out = *((UInt16 *)scriptData);
+				scriptData += 2;
 			}
 			break;
 
@@ -508,4 +586,9 @@ SettingInfo::EType SettingInfo::Type() const
 bool GetGameSetting(char* settingName, SettingInfo** setting)
 {
 	return (NiTPointerMap_Lookup(g_gameSettingsTable, settingName, (void **)setting) != 0);
+}
+
+InterfaceManager * InterfaceManager::GetSingleton(void)
+{
+	return (InterfaceManager *)InterfaceManager_GetSingleton(false, true);
 }

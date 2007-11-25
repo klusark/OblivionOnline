@@ -5,6 +5,8 @@
 #include "ParamInfos.h"
 #include "GameForms.h"
 #include <string>
+#include <set>
+#include <map>
 
 #if OBLIVION
 
@@ -15,6 +17,37 @@ static void PrintItemType(TESForm * form)
 
 // TODO: get rid of this duplicate code
 // make an iterator, maybe?
+
+typedef std::vector<ExtraContainerChanges::EntryData*> ExtraDataVec;
+typedef std::map<TESForm*, UInt32> ExtraContainerMap;
+
+class ExtraContainerInfo
+{
+public:
+	ExtraContainerInfo(ExtraContainerChanges::Entry* entryList): m_map(), m_vec()
+	{
+		m_vec.reserve(128);
+		if (entryList) {
+			ExtraEntryVisitor visitor(entryList);
+			visitor.Visit(*this);
+		}
+	}
+
+	bool Accept(ExtraContainerChanges::EntryData* data)
+	{
+		if (data) {
+			m_vec.push_back(data);
+			m_map[data->type] = m_vec.size()-1;
+		}
+		return true;
+	}
+
+	ExtraDataVec	m_vec;
+	ExtraContainerMap m_map;
+};
+
+
+typedef std::set<TESForm*> FormSet;
 
 static bool Cmd_GetNumItems_Execute(COMMAND_ARGS)
 {
@@ -29,8 +62,12 @@ static bool Cmd_GetNumItems_Execute(COMMAND_ARGS)
 
 	// get pointers
 	ExtraContainerChanges	* containerChanges = static_cast <ExtraContainerChanges *>(thisObj->baseExtraList.GetByType(kExtraData_ContainerChanges));
-	TESContainer			* container = NULL;
+	
+	// initialize a map of the ExtraData information
+	// this will walk through the containerChanges once
+	ExtraContainerInfo info(containerChanges ? containerChanges->data->objList : NULL);
 
+	TESContainer			* container = NULL;
 	TESForm	* baseForm = thisObj->GetBaseForm();
 	if(baseForm)
 	{
@@ -51,58 +88,41 @@ static bool Cmd_GetNumItems_Execute(COMMAND_ARGS)
 				if(Oblivion_DynamicCast(containerData->type, 0, RTTI_TESForm, RTTI_TESLevItem, 0))
 					continue;
 
-				// we've got an object, see if it's removed by extra changes
-				if(containerChanges)
-				{
-					ExtraContainerChanges::EntryData	* extraData = containerChanges->GetByType(containerData->type);
+				ExtraContainerMap::iterator it = info.m_map.find(containerData->type);
+				ExtraContainerMap::iterator itEnd = info.m_map.end();
+				if (it != itEnd) {
+					UInt32 index = (*it).second;
+					ExtraContainerChanges::EntryData* extraData = info.m_vec[index];
 					if(extraData)
 					{
 						numObjects += extraData->countDelta;
 					}
+					// let's clear this item from the vector
+					// this way we don't bother to look for it in the second step
+					info.m_vec[index] = NULL;
 				}
 
 				// is at least one still here?
 				if(numObjects > 0)
 				{
-					PrintItemType(containerData->type);
+					//PrintItemType(containerData->type);
 					count++;
 				}
+
 			}
 		}
 	}
 
-	// now walk the extra info
-	if(containerChanges && containerChanges->data)
-	{
-		for(ExtraContainerChanges::Entry * extraTraverse = containerChanges->data->objList; extraTraverse; extraTraverse = extraTraverse->next)
-		{
-			ExtraContainerChanges::EntryData	* extraData = extraTraverse->data;
-
-			// we only care about objects that were added via extra data, everything else was taken in to account earlier
-			if(extraData && (extraData->countDelta > 0))
-			{
-				bool	alreadyAdded = false;
-
-				// was this already added?
-				if(container)
-				{
-					for(TESContainer::Entry	* containerEntry = &container->list; containerEntry; containerEntry = containerEntry->next)
-					{
-						if(containerEntry->data && containerEntry->data->type == extraData->type)
-						{
-							alreadyAdded = true;
-							break;
-						}
-					}
-				}
-
-				if(!alreadyAdded)
-				{
-					PrintItemType(extraData->type);
-					count++;
-				}
-			}
+	// now walk the remaining items 
+	ExtraDataVec::iterator itEnd = info.m_vec.end();
+	ExtraDataVec::iterator it = info.m_vec.begin();
+	while (it != itEnd) {
+		ExtraContainerChanges::EntryData* extraData = (*it);
+		if (extraData && (extraData->countDelta > 0)) {
+			//PrintItemType(extraData->type);
+			count++;
 		}
+		++it;
 	}
 
 	*result = count;
@@ -122,13 +142,18 @@ static TESForm * GetItemByIdx(TESObjectREFR * thisObj, UInt32 objIdx, SInt32 * o
 
 	// get pointers
 	ExtraContainerChanges	* containerChanges = static_cast <ExtraContainerChanges *>(thisObj->baseExtraList.GetByType(kExtraData_ContainerChanges));
-	TESContainer			* container = NULL;
 
+	// initialize a map of the ExtraData information
+	// this will walk through the containerChanges once
+	ExtraContainerInfo info(containerChanges ? containerChanges->data->objList : NULL);
+
+	TESContainer			* container = NULL;
 	TESForm	* baseForm = thisObj->GetBaseForm();
 	if(baseForm)
 	{
 		container = (TESContainer *)Oblivion_DynamicCast(baseForm, 0, RTTI_TESForm, RTTI_TESContainer, 0);
 	}
+
 
 	// first walk the base container
 	if(container)
@@ -144,14 +169,18 @@ static TESForm * GetItemByIdx(TESObjectREFR * thisObj, UInt32 objIdx, SInt32 * o
 				if(Oblivion_DynamicCast(containerData->type, 0, RTTI_TESForm, RTTI_TESLevItem, 0))
 					continue;
 
-				// we've got an object, see if it's removed by extra changes
-				if(containerChanges)
-				{
-					ExtraContainerChanges::EntryData	* extraData = containerChanges->GetByType(containerData->type);
+				ExtraContainerMap::iterator it = info.m_map.find(containerData->type);
+				ExtraContainerMap::iterator itEnd = info.m_map.end();
+				if (it != itEnd) {
+					UInt32 index = (*it).second;
+					ExtraContainerChanges::EntryData* extraData = info.m_vec[index];
 					if(extraData)
 					{
 						numObjects += extraData->countDelta;
 					}
+					// lets clear the EntryData from the vector
+					// this way we don't bother to look for it in the second step
+					info.m_vec[index] = NULL;
 				}
 
 				// is at least one still here?
@@ -162,52 +191,28 @@ static TESForm * GetItemByIdx(TESObjectREFR * thisObj, UInt32 objIdx, SInt32 * o
 						if(outNumItems) *outNumItems = numObjects;
 						return containerData->type;
 					}
-
 					count++;
 				}
 			}
 		}
 	}
 
-	// now walk the extra info
-	if(containerChanges && containerChanges->data)
-	{
-		for(ExtraContainerChanges::Entry * extraTraverse = containerChanges->data->objList; extraTraverse; extraTraverse = extraTraverse->next)
-		{
-			ExtraContainerChanges::EntryData	* extraData = extraTraverse->data;
+	// now walk the remaining items in the map
 
-			// we only care about objects that were added via extra data, everything else was taken in to account earlier
-			if(extraData && (extraData->countDelta > 0))
+	ExtraDataVec::iterator itEnd = info.m_vec.end();
+	ExtraDataVec::iterator it = info.m_vec.begin();
+	while (it != itEnd) {
+		ExtraContainerChanges::EntryData* extraData = (*it);
+		if (extraData && (extraData->countDelta > 0)) {
+			if(count == objIdx)
 			{
-				bool	alreadyAdded = false;
-
-				// was this already added?
-				if(container)
-				{
-					for(TESContainer::Entry	* containerEntry = &container->list; containerEntry; containerEntry = containerEntry->next)
-					{
-						if(containerEntry->data && containerEntry->data->type == extraData->type)
-						{
-							alreadyAdded = true;
-							break;
-						}
-					}
-				}
-
-				if(!alreadyAdded)
-				{
-					if(count == objIdx)
-					{
-						if(outNumItems) *outNumItems = extraData->countDelta;
-						return extraData->type;
-					}
-
-					count++;
-				}
+				if(outNumItems) *outNumItems = extraData->countDelta;
+				return extraData->type;
 			}
+			count++;
 		}
+		++it;
 	}
-
 	if(outNumItems) *outNumItems = 0;
 
 	return NULL;
@@ -228,7 +233,7 @@ static bool Cmd_GetInventoryItemType_Execute(COMMAND_ARGS)
 	TESForm	* type = GetItemByIdx(thisObj, objIdx, NULL);
 	if(type)
 	{
-		PrintItemType(type);
+		//PrintItemType(type);
 
 		UInt32	id = type->refID;
 		//Console_Print("refID = %08X", id);
@@ -508,15 +513,6 @@ static bool GetWeaponBaseValue(TESForm * type, UInt32 valueType, double * result
 	}
 
 	switch (valueType) {
-		case kVal_Damage:
-		{
-			TESAttackDamageForm* damageForm = (TESAttackDamageForm*)Oblivion_DynamicCast(type, 0, RTTI_TESForm, RTTI_TESAttackDamageForm, 0);
-			if (damageForm) {
-				*result = damageForm->damage;
-				return true;
-			}
-		}
-
 		case kVal_Reach:
 		{
 			if (weapon) {
@@ -598,7 +594,7 @@ enum EMode {
 
 static bool GetBaseValue(TESForm * type, UInt32 valueType, double * result)
 {
-	if (!type || !result) return false;
+	if (!type || !result) return true;
 
 	*result = 0;
 
@@ -677,6 +673,15 @@ static bool GetBaseValue(TESForm * type, UInt32 valueType, double * result)
 		}
 
 		case kVal_Damage:
+		{
+			TESAttackDamageForm* damageForm = (TESAttackDamageForm*)Oblivion_DynamicCast(type, 0, RTTI_TESForm, RTTI_TESAttackDamageForm, 0);
+			if (damageForm) {
+				*result = damageForm->damage;
+				return true;
+			}
+			break;
+		}
+
 		case kVal_Reach:
 		case kVal_Speed:
 		case kVal_WeaponType:
@@ -794,7 +799,7 @@ static bool GetBaseValue(TESForm * type, UInt32 valueType, double * result)
 			}
 	}
 
-	return false;
+	return true;
 }
 
 static bool GetObjectValue(COMMAND_ARGS, UInt32 valueType)
@@ -802,7 +807,7 @@ static bool GetObjectValue(COMMAND_ARGS, UInt32 valueType)
 	*result = 0;
 	TESForm* form = 0;
 
-	ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &form);
+	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
 	if (!form) {
 		if (!thisObj) return true;
 		form = thisObj->baseForm;
@@ -847,11 +852,17 @@ static bool Cmd_GetType_Execute(COMMAND_ARGS)
 	*result= 0;
 	TESForm* form = 0;
 
-	ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &form);
+	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
 	if (!form) {
 		if (!thisObj) return true;
 		form = thisObj->baseForm;
 	}
+
+	bool bDump = false;
+	if (bDump) {
+		DumpClass(form);		
+	}
+
 
 	*result = form->typeID;	
 
@@ -1090,9 +1101,9 @@ public:
 						FormHeap_Free(health);
 					}
 					bool bAddedType = baseExtraList->HasType(kExtraData_Health);
-					Console_Print("Health added: %d %08x %f", bAddedType, health, health->health);
+					//Console_Print("Health added: %d %08x %f", bAddedType, health, health->health);
 					ExtraHealth* nuHealth = (ExtraHealth*)Oblivion_DynamicCast(baseExtraList->GetByType(kExtraData_Health), 0, RTTI_BSExtraData, RTTI_ExtraHealth, 0);
-					Console_Print("Health found: %d %08x %f", bAddedType, nuHealth, nuHealth->health);
+					//Console_Print("Health found: %d %08x %f", bAddedType, nuHealth, nuHealth->health);
 				}
 			}
 
@@ -1288,16 +1299,6 @@ bool ChangeWeaponBaseValue(TESForm* form, ChangeValueState& state, double* resul
 
 
 	switch (state.WhichValue()) {
-		case kVal_Damage:
-		{
-			TESAttackDamageForm* damageForm = (TESAttackDamageForm*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESAttackDamageForm, 0);
-			if (damageForm) {
-				damageForm->damage = (bMod) ? SafeModUInt32(damageForm->damage, floatVal) : intVal;
-				return true;
-			}
-			break;
-		}
-
 		case kVal_Reach:
 		{
 			if (weapon) {
@@ -1457,6 +1458,15 @@ bool ChangeObjectBaseValue(TESForm* form, ChangeValueState& state, double* resul
 		}
 
 		case kVal_Damage:
+		{
+			TESAttackDamageForm* damageForm = (TESAttackDamageForm*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESAttackDamageForm, 0);
+			if (damageForm) {
+				damageForm->damage = (bMod) ? SafeModUInt32(damageForm->damage, floatVal) : intVal;
+				return true;
+			}
+			break;
+		}
+
 		case kVal_Reach:
 		case kVal_Speed:
 		case kVal_WeaponType:
@@ -1803,23 +1813,22 @@ static bool Cmd_SetCurrentHealth_Execute(COMMAND_ARGS)
 static bool ChangeObjectValue_Execute(COMMAND_ARGS, ChangeValueState& state)
 {
 	*result = 0;
-
 	TESForm* form = NULL;
 
 	switch(state.UseValueType()) {
 		case ChangeValueState::eFloat:
-			ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, state.FloatPtr(), &form);
+			ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, state.FloatPtr(), &form);
 			break;
 		case ChangeValueState::eInteger:
 		case ChangeValueState::eBool:
-			ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, state.UInt32Ptr(), &form);
+			ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, state.UInt32Ptr(), &form);
 			break;
 
 		case ChangeValueState::eMagicItem:
 			ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, state.MagicItemPtr(), &form);
 			break;
 		case ChangeValueState::eString:
-			ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, state.StringPtr(), &form);
+			ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, state.StringPtr(), &form);
 			break;		
 		default:
 			return true;
@@ -2967,6 +2976,60 @@ static bool Cmd_CloneForm_Execute(COMMAND_ARGS)
 		*refResult = clonedForm->refID;
 	}
 
+	return true;
+}
+
+static bool Cmd_CompareNames_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	TESForm* form = NULL;
+	TESForm* base = NULL;
+	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form, &base);
+	if (!form)
+		return true;
+	if (!base)
+	{
+		if (!thisObj)
+			return true;
+		base = thisObj->baseForm;
+	}
+
+	TESFullName* first = (TESFullName*)Oblivion_DynamicCast(base, 0, RTTI_TESForm, RTTI_TESFullName, 0);
+	TESFullName* second = (TESFullName*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESFullName, 0);
+	if (first && second) 
+		*result = first->name.Compare(second->name); 
+
+	return true;
+}
+
+
+static bool Cmd_GetContainerRespawns_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	TESObjectCONT* container = NULL;
+	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &container);
+	if (!container) {
+		if (!thisObj) return true;
+		container = (TESObjectCONT*)Oblivion_DynamicCast(thisObj->baseForm, 0, RTTI_TESForm, RTTI_TESObjectCONT, 0);
+		if (!container) return true;
+	}
+
+	*result = container->IsRespawning() ? 1 : 0;
+	return true;
+}
+
+static bool Cmd_SetContainerRespawns_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	UInt32 respawns = 0;
+	TESObjectCONT* container = NULL;
+	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &respawns, &container);
+	if (!container) {
+		if (!thisObj) return true;
+		container = (TESObjectCONT*)Oblivion_DynamicCast(thisObj->baseForm, 0, RTTI_TESForm, RTTI_TESObjectCONT, 0);
+		if (!container) return true;
+	}
+	container->SetRespawning(respawns != 0);
 	return true;
 }
 
@@ -5361,6 +5424,68 @@ CommandInfo kCommandInfo_SetScript =
 	2,
 	kParamInfo_SetScript,
 	HANDLER(Cmd_SetScript_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+static ParamInfo kParams_CompareNames[2] =
+{
+	{	"compare to",	kParamType_InventoryObject,	0	},
+	{	"base object",	kParamType_InventoryObject, 1	},
+};
+
+CommandInfo kCommandInfo_CompareNames =
+{
+	"CompareNames",
+	"CompNames",
+	0,
+	"returns -1 if first < second, 1 if first > second, 0 if equal",
+	0,
+	2,
+	kParams_CompareNames,
+	HANDLER(Cmd_CompareNames_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+static ParamInfo kParams_OneOptionalContainer[1] =
+{
+	{	"container",	kParamType_Container, 1	},
+};
+
+CommandInfo kCommandInfo_GetContainerRespawns =
+{
+	"GetContainerRespawns",
+	"IsUnsafeContainer",
+	0,
+	"returns 1 if the container respawns",
+	0,
+	1,
+	kParams_OneOptionalContainer,
+	HANDLER(Cmd_GetContainerRespawns_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+static ParamInfo kParams_SetContainerRespawns[2] =
+{
+	{	"respawns",		kParamType_Integer,		  0 },
+	{	"container",	kParamType_Container, 1	},
+};
+
+CommandInfo kCommandInfo_SetContainerRespawns =
+{
+	"SetContainerRespawns",
+	"SetUnsafeContainer",
+	0,
+	"sets whether the container respawns",
+	0,
+	2,
+	kParams_SetContainerRespawns,
+	HANDLER(Cmd_SetContainerRespawns_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0

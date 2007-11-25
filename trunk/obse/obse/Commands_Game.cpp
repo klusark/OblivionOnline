@@ -219,6 +219,21 @@ static bool Cmd_GetGameLoaded_Execute(COMMAND_ARGS)
 	return true;
 }
 
+static bool Cmd_GetGameRestarted_Execute(COMMAND_ARGS)
+{
+	static std::set<UInt32> regScripts;
+
+	*result = 0;
+
+	if (scriptObj && (regScripts.find(scriptObj->refID) == regScripts.end()))
+	{
+		*result = 1;
+		regScripts.insert(scriptObj->refID);
+	}
+	
+	return true;
+}
+
 struct TimeInfo
 {
 	UInt8	disableCount;	// 00
@@ -308,111 +323,20 @@ static bool Cmd_SetDisableGlobalCollision_Execute(COMMAND_ARGS)
 	return true;
 }
 
-#include "obse/Utilities.h"
-
-static bool Cmd_GetWeatherInfo_Execute(COMMAND_ARGS)
+static bool Cmd_GetDebugSelection_Execute(COMMAND_ARGS)
 {
 	*result = 0;
-	TESWeather* weather = NULL;
-	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &weather))
-		return true;
-	
 
-	TESForm* form = LookupFormByID(0x473f9);
-	TESClimate* climate = (TESClimate*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESClimate, 0);
+	InterfaceManager	* interfaceManager = InterfaceManager::GetSingleton();
+	if(interfaceManager && interfaceManager->debugSelection)
+	{
+		UInt32	* refResult = (UInt32 *)result;
 
-	TESObjectCELL* playerCell = (*g_thePlayer)->parentCell;
-
-	int x = 0;
-
-	return true;
-}
-
-static bool Cmd_GetCurrentWeatherID_Execute(COMMAND_ARGS)
-{
-	UInt32* refResult = (UInt32*)result;
-	*refResult = 0;
-
-	Sky* sky = Sky::GetSingleton();
-	if (!sky) return true;
-
-	TESWeather* weather = sky->currentWeather;
-	if (weather) {
-		*refResult = weather->refID;
+		*refResult = interfaceManager->debugSelection->refID;
 	}
 
 	return true;
 }
-
-static bool Cmd_GetCurrentClimateID_Execute(COMMAND_ARGS)
-{
-	UInt32* refResult = (UInt32*)result;
-	*refResult = 0;
-
-	Sky* sky = Sky::GetSingleton();
-	if (!sky) return true;
-
-	TESClimate* climate = sky->currentClimate;
-	if (climate) {
-		*refResult = climate->refID;
-	}
-
-	return true;
-}
-
-enum {
-	kClimate_SunriseBegin,
-	kClimate_SunriseEnd,
-	kClimate_SunsetBegin,
-	kClimate_SunsetEnd,
-};
-
-static bool GetClimateValue_Execute(COMMAND_ARGS, UInt32 whichVal)
-{
-	*result = 0;
-	TESForm* form = NULL;
-
-	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
-	TESClimate* climate = (TESClimate*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESClimate, 0);
-	if (!climate) return true;
-
-	switch (whichVal) {
-		case kClimate_SunriseBegin:
-			*result = climate->sunriseBegin;
-			break;
-		case kClimate_SunriseEnd:
-			*result = climate->sunriseEnd;
-			break;
-		case kClimate_SunsetBegin:
-			*result = climate->sunsetBegin;
-			break;
-		case kClimate_SunsetEnd:
-			*result = climate->sunsetEnd;
-			break;
-	}
-	return true;
-}
-
-static bool Cmd_GetClimateSunriseBegin_Execute(COMMAND_ARGS)
-{
-	return GetClimateValue_Execute(PASS_COMMAND_ARGS, kClimate_SunriseBegin);
-}
-
-static bool Cmd_GetClimateSunriseEnd_Execute(COMMAND_ARGS)
-{
-	return GetClimateValue_Execute(PASS_COMMAND_ARGS, kClimate_SunriseEnd);
-}
-
-static bool Cmd_GetClimateSunsetBegin_Execute(COMMAND_ARGS)
-{
-	return GetClimateValue_Execute(PASS_COMMAND_ARGS, kClimate_SunsetBegin);
-}
-
-static bool Cmd_GetClimateSunsetEnd_Execute(COMMAND_ARGS)
-{
-	return GetClimateValue_Execute(PASS_COMMAND_ARGS, kClimate_SunsetEnd);
-}
-
 
 #endif
 
@@ -482,6 +406,21 @@ CommandInfo kCommandInfo_GetGameLoaded =
 	0
 };
 
+CommandInfo kCommandInfo_GetGameRestarted =
+{
+	"GetGameRestarted",
+	"OnRestart",
+	0,
+	"returns true once each time game is restarted",
+	0,
+	0,
+	NULL,
+	HANDLER(Cmd_GetGameRestarted_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
 CommandInfo kCommandInfo_GetFPS =
 {
 	"GetFPS",
@@ -496,6 +435,7 @@ CommandInfo kCommandInfo_GetFPS =
 	NULL,
 	0
 };
+
 
 CommandInfo kCommandInfo_IsGlobalCollisionDisabled =
 {
@@ -527,113 +467,19 @@ CommandInfo kCommandInfo_SetDisableGlobalCollision =
 	0
 };
 
-CommandInfo kCommandInfo_GetCurrentWeatherID =
+CommandInfo kCommandInfo_GetDebugSelection =
 {
-	"GetCurrentWeatherID",
+	"GetDebugSelection",
 	"",
 	0,
-	"returns the form ID of the current weather",
+	"returns the current selected object in the console",
 	0,
 	0,
 	NULL,
-	HANDLER(Cmd_GetCurrentWeatherID_Execute),
-	Cmd_Default_Parse,
-	NULL,
-	0
-};
-
-CommandInfo kCommandInfo_GetCurrentClimateID =
-{
-	"GetCurrentClimateID",
-	"",
-	0,
-	"returns the form ID of the current climate",
-	0,
-	0,
-	NULL,
-	HANDLER(Cmd_GetCurrentClimateID_Execute),
+	HANDLER(Cmd_GetDebugSelection_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0
 };
 
 
-static ParamInfo kParams_OneWeatherType[] =
-{
-	{	"weather",	kParamType_WeatherID,	0 },
-};
-
-CommandInfo kCommandInfo_GetWeatherInfo =
-{
-	"GetWeatherInfo",
-	"",
-	0,
-	"returns weather info",
-	0,
-	1,
-	kParams_OneWeatherType,
-	HANDLER(Cmd_GetWeatherInfo_Execute),
-	Cmd_Default_Parse,
-	NULL,
-	0
-};
-
-CommandInfo kCommandInfo_GetClimateSunriseBegin =
-{
-	"GetClimateSunriseBegin",
-	"GetSunriseBegin",
-	0,
-	"returns the sunrise begin time for the specified climate",
-	0,
-	1,
-	kParams_OneWeatherType,
-	HANDLER(Cmd_GetClimateSunriseBegin_Execute),
-	Cmd_Default_Parse,
-	NULL,
-	0
-};
-
-CommandInfo kCommandInfo_GetClimateSunriseEnd =
-{
-	"GetClimateSunriseEnd",
-	"GetSunriseEnd",
-	0,
-	"returns the sunrise end time for the specified climate",
-	0,
-	1,
-	kParams_OneWeatherType,
-	HANDLER(Cmd_GetClimateSunriseEnd_Execute),
-	Cmd_Default_Parse,
-	NULL,
-	0
-};
-
-CommandInfo kCommandInfo_GetClimateSunsetBegin =
-{
-	"GetClimateSunsetBegin",
-	"GetSunsetBegin",
-	0,
-	"returns the sunset begin time for the specified climate",
-	0,
-	1,
-	kParams_OneWeatherType,
-	HANDLER(Cmd_GetClimateSunsetBegin_Execute),
-	Cmd_Default_Parse,
-	NULL,
-	0
-};
-
-CommandInfo kCommandInfo_GetClimateSunsetEnd =
-{
-	"GetClimateSunsetEnd",
-	"GetSunsetEnd",
-	0,
-	"returns the sunset end time for the specified climate",
-	0,
-	1,
-	kParams_OneWeatherType,
-	HANDLER(Cmd_GetClimateSunsetEnd_Execute),
-	Cmd_Default_Parse,
-	NULL,
-	0
-};

@@ -7,12 +7,16 @@
 #include "Commands_Player.h"
 #include "Commands_Game.h"
 #include "Commands_Magic.h"
+#include "Commands_MagicEffect.h"
+#include "Commands_Weather.h"
+#include "Commands_ActiveEffect.h"
 #include "ParamInfos.h"
 #include "PluginManager.h"
 #include "Hooks_Memory.h"
 #include "obse_common/SafeWrite.h"
 #include "obse_common/obse_version.h"
 #include <string>
+#include "Utilities.h"
 
 /*
 
@@ -46,6 +50,8 @@ bool Command_GetPos(unk arg0, unk arg1, unk arg2, unk arg3, unk arg4, unk arg5, 
 #include "GameAPI.h"
 #include "GameObjects.h"
 #include "GameForms.h"
+#include "GameMagicEffects.h"
+#include "GameTiles.h"
 
 #include "common/IFileStream.h"
 
@@ -228,17 +234,10 @@ bool Cmd_Test_Execute(COMMAND_ARGS)
 	_MESSAGE("Cmd_Test_Execute: %08X %08X %08X (%s) %08X %08X (%s) %08X %08X %08X",
 		paramInfo, arg1, thisObj, GetObjectClassName((void *)thisObj), arg3, scriptObj, GetObjectClassName((void *)scriptObj), eventList, result, opcodeOffsetPtr);
 
-	// create a Script object
-	UInt8	scriptObjBuf[sizeof(Script)];
-	Script	* tempScriptObj = (Script *)scriptObjBuf;
+	InterfaceManager	* interfaceManager = InterfaceManager::GetSingleton();
+	Sky					* sky = Sky::GetSingleton();
 
-	void	* scriptState = GetGlobalScriptStateObj();
-
-	tempScriptObj->Constructor();
-	tempScriptObj->MarkAsTemporary();
-	tempScriptObj->SetText("PrintToConsole \"hello world\"");
-	tempScriptObj->CompileAndRun(*((void **)scriptState), 1, NULL);
-	tempScriptObj->StaticDestructor();
+	sky->RefreshClimate(sky->firstClimate, 1);
 
 	return true;
 }
@@ -443,7 +442,7 @@ static CommandInfo kTestCommand =
 	"tcmd",
 	0,
 	"test command for obse",
-	1,		// requires parent obj
+	0,		// doesn't require parent obj
 	0,		// doesn't have params
 	NULL,	// no param table
 
@@ -1154,7 +1153,7 @@ void ImportConsoleCommand(const char * name)
 
 		g_scriptCommands.Add(&infoCopy);
 
-		_MESSAGE("imported console command %s", name);
+//		_MESSAGE("imported console command %s", name);
 	}
 	else
 	{
@@ -1634,8 +1633,128 @@ void CommandTable::Init(void)
 	g_scriptCommands.Add(&kCommandInfo_IsPlayable);
 	g_scriptCommands.Add(&kCommandInfo_SetPlayable);
 
+	// v0013
+	g_scriptCommands.Add(&kCommandInfo_SetPCAMurderer);
+	g_scriptCommands.Add(&kCommandInfo_GetClimateMoonPhaseLength);
+	g_scriptCommands.Add(&kCommandInfo_GetClimateHasMasser);
+	g_scriptCommands.Add(&kCommandInfo_GetClimateHasSecunda);
+	g_scriptCommands.Add(&kCommandInfo_SetClimateSunriseBegin);
+	g_scriptCommands.Add(&kCommandInfo_SetClimateSunriseEnd);
+	g_scriptCommands.Add(&kCommandInfo_SetClimateSunsetBegin);
+	g_scriptCommands.Add(&kCommandInfo_SetClimateSunsetEnd);
+	g_scriptCommands.Add(&kCommandInfo_SetClimateMoonPhaseLength);
+	g_scriptCommands.Add(&kCommandInfo_SetClimateHasMasser);
+	g_scriptCommands.Add(&kCommandInfo_SetClimateHasSecunda);
+	g_scriptCommands.Add(&kCommandInfo_GetClimateVolatility);
+	g_scriptCommands.Add(&kCommandInfo_SetClimateVolatility);
+	g_scriptCommands.Add(&kCommandInfo_IsKeyPressed3);
+	g_scriptCommands.Add(&kCommandInfo_IsControlPressed);
+	g_scriptCommands.Add(&kCommandInfo_DisableControl);
+	g_scriptCommands.Add(&kCommandInfo_EnableControl);
+	g_scriptCommands.Add(&kCommandInfo_OnKeyDown);
+	g_scriptCommands.Add(&kCommandInfo_OnControlDown);
+	g_scriptCommands.Add(&kCommandInfo_GetActiveEffectCount);
+	g_scriptCommands.Add(&kCommandInfo_GetNthActiveEffectCode);
+	g_scriptCommands.Add(&kCommandInfo_GetNthActiveEffectMagnitude);
+	g_scriptCommands.Add(&kCommandInfo_GetNthActiveEffectDuration);
+	g_scriptCommands.Add(&kCommandInfo_GetNthActiveEffectTimeElapsed);
+	g_scriptCommands.Add(&kCommandInfo_GetNthActiveEffectMagicItem);
+	g_scriptCommands.Add(&kCommandInfo_GetNthActiveEffectCaster);
+	g_scriptCommands.Add(&kCommandInfo_GetNthActiveEffectMagicItemIndex);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalActiveEffectMagnitude);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAENonAbilityMagnitude);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAEAbilityMagnitude);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAESpellMagnitude);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAEDiseaseMagnitude);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAELesserPowerMagnitude);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAEPowerMagnitude);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAEAllSpellsMagnitude);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAEEnchantmentMagnitude);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAEAlchemyMagnitude);
+	ImportConsoleCommand("LoadGame");
+	g_scriptCommands.Add(&kCommandInfo_IsPluginInstalled);
+	g_scriptCommands.Add(&kCommandInfo_GetPluginVersion);
+	g_scriptCommands.Add(&kCommandInfo_GetNthActiveEffectData);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalActiveEffectMagnitudeC);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAENonAbilityMagnitudeC);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAEAbilityMagnitudeC);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAESpellMagnitudeC);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAEDiseaseMagnitudeC);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAELesserPowerMagnitudeC);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAEPowerMagnitudeC);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAEAllSpellsMagnitudeC);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAEEnchantmentMagnitudeC);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalAEAlchemyMagnitudeC);
+	g_scriptCommands.Add(&kCommandInfo_ParentCellHasWater);
+	g_scriptCommands.Add(&kCommandInfo_GetParentCellWaterHeight);
+	g_scriptCommands.Add(&kCommandInfo_IsUnderWater);
+	g_scriptCommands.Add(&kCommandInfo_GetDebugSelection);
+	g_scriptCommands.Add(&kCommandInfo_AddToLeveledList);
+	g_scriptCommands.Add(&kCommandInfo_RemoveFromLeveledList);
+	g_scriptCommands.Add(&kCommandInfo_GetTravelHorse);
+	g_scriptCommands.Add(&kCommandInfo_SetTravelHorse);
+	g_scriptCommands.Add(&kCommandInfo_CompareNames);
+	g_scriptCommands.Add(&kCommandInfo_GetGameRestarted);
+	g_scriptCommands.Add(&kCommandInfo_TapControl);
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherWindSpeed);
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherCloudSpeedLower);
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherCloudSpeedUpper);
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherTransDelta);
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherSunGlare);
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherSunDamage);
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherFogDayNear);
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherFogDayFar);
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherFogNightNear);
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherFogNightFar);
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherHDRValue);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherHDRValue);
+	g_scriptCommands.Add(&kPaddingCommand);	// used to be SetCurrentClimate
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherColor);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherColor);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherLightningFrequency);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherWindSpeed);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherCloudSpeedLower);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherCloudSpeedUpper);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherTransDelta);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherSunGlare);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherSunDamage);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherFogDayNear);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherFogDayFar);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherFogNightNear);
+	g_scriptCommands.Add(&kCommandInfo_SetWeatherFogNightFar);
+	g_scriptCommands.Add(&kCommandInfo_RefreshCurrentClimate);
+	g_scriptCommands.Add(&kCommandInfo_CalcLeveledItem);
+	g_scriptCommands.Add(&kCommandInfo_GetOpenKey);
+	g_scriptCommands.Add(&kCommandInfo_SetOpenKey);
+	g_scriptCommands.Add(&kCommandInfo_GetWeatherLightningFrequency);
+	g_scriptCommands.Add(&kCommandInfo_SetNthActiveEffectMagnitude);
+	g_scriptCommands.Add(&kCommandInfo_ModNthActiveEffectMagnitude);
+	g_scriptCommands.Add(&kCommandInfo_GetScriptActiveEffectIndex);
+	g_scriptCommands.Add(&kCommandInfo_GetParentCellOwner);
+	g_scriptCommands.Add(&kCommandInfo_GetOwner);
+	g_scriptCommands.Add(&kCommandInfo_GetOwningFactionRequiredRank);
+	g_scriptCommands.Add(&kCommandInfo_GetParentCellOwningFactionRequiredRank);
+	g_scriptCommands.Add(&kCommandInfo_SetHair);
+	g_scriptCommands.Add(&kCommandInfo_CopyHair);
+	g_scriptCommands.Add(&kCommandInfo_SetEyes);
+	g_scriptCommands.Add(&kCommandInfo_CopyEyes);
+	g_scriptCommands.Add(&kCommandInfo_GetContainerRespawns);
+	g_scriptCommands.Add(&kCommandInfo_SetContainerRespawns);
+	g_scriptCommands.Add(&kCommandInfo_GetCreatureReach);
+	g_scriptCommands.Add(&kCommandInfo_GetCreatureBaseScale);
+	g_scriptCommands.Add(&kCommandInfo_GetCreatureSoulLevel);
+	g_scriptCommands.Add(&kCommandInfo_IsLoadDoor);
+	g_scriptCommands.Add(&kCommandInfo_GetLinkedDoor);
+	g_scriptCommands.Add(&kCommandInfo_GetTeleportCell);
+	g_scriptCommands.Add(&kCommandInfo_GetFirstRef);
+	g_scriptCommands.Add(&kCommandInfo_GetNextRef);
+	g_scriptCommands.Add(&kCommandInfo_GetNumRefs);
+	g_scriptCommands.Add(&kCommandInfo_RefreshControlMap);
 
-	/* to add later pending security review
+	/* to add later if problems can be solved
+	g_scriptCommands.Add(&kCommandInfo_SetCurrentClimate); // too many problems
+	g_scriptCommands.Add(&kCommandInfo_SetWorldspaceClimate);
+	g_scriptCommands.Add(&kCommandInfo_GetParentWorldspace);
 	g_scriptCommands.Add(&kCommandInfo_FloatFromFile);
 	g_scriptCommands.Add(&kCommandInfo_FloatToFile);
 	g_scriptCommands.Add(&kCommandInfo_PrintToFile);

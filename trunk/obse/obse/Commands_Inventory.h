@@ -6,6 +6,8 @@
 extern CommandInfo kCommandInfo_GetNumItems;
 extern CommandInfo kCommandInfo_GetInventoryItemType;
 extern CommandInfo kCommandInfo_GetInventoryObject;
+extern CommandInfo kCommandInfo_GetContainerRespawns;
+extern CommandInfo kCommandInfo_SetContainerRespawns;
 
 // actor equipped inventory functions
 extern CommandInfo kCommandInfo_GetEquipmentSlotType;
@@ -175,3 +177,5 @@ extern CommandInfo kCommandInfo_SetScript;
 
 extern CommandInfo kCommandInfo_IsClonedForm;
 extern CommandInfo kCommandInfo_CloneForm;
+
+extern CommandInfo kCommandInfo_CompareNames;

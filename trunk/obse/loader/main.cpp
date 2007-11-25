@@ -62,6 +62,9 @@ int main(int argc, char ** argv)
 		return -1;
 	}
 
+	if(g_options.m_crcOnly)
+		return 0;
+
 	// build dll path
 	std::string	dllPath;
 	if(dllHasFullPath)
@@ -298,14 +301,34 @@ static bool TestChecksum(const char * procName, std::string * dllSuffix)
 		src.ReadBuf(buf, src.GetLength());
 
 		// clear "2GB+ address-aware" flag
+		// ### this doesn't work correctly for all PE files, but leave it here
+		// ### otherwise the CRCs may change
 		if(src.GetLength() > 0x13E)
 			buf[0x13E] &= ~0x20;
+
+		// *really* clear 2GB+ address-aware flag
+		if(src.GetLength() > 0x40)
+		{
+			UInt32	headerOffset = *((UInt32 *)(buf + 0x3C));
+			UInt32	flagsOffset = headerOffset + 0x16;
+
+			if(src.GetLength() > flagsOffset + 2)
+			{
+				UInt16	* flagsPtr = (UInt16 *)(buf + flagsOffset);
+
+				*flagsPtr &= ~0x0020;
+			}
+		}
 
 		UInt32	crc = Adler32(buf, src.GetLength());
 
 		delete [] buf;
 
-		_MESSAGE("crc = %08X", crc);
+		// make sure the crc shows up in the console when run with -crconly
+		if(g_options.m_crcOnly)
+			_FATALERROR("crc = %08X", crc);
+		else
+			_MESSAGE("crc = %08X", crc);
 
 		if(g_options.m_launchCS)
 		{
@@ -345,6 +368,10 @@ static bool TestChecksum(const char * procName, std::string * dllSuffix)
 				case 0x29F82D28:	// 1.1.0.511 russian unofficial w/ no-CD "<B@ZiK was here!>"
 				case 0x7F601478:	// 1.1.0.511 japanese unofficial v6
 				case 0x5D4D091D:	// 1.1.0.511 japanese unofficial v7c
+				case 0x9F9F923B:	// 1.1.0.511 japanese unofficial v9 (apparently no v8)
+				case 0x292A8DA6:	// 1.1.0.511 japanese unofficial v9a
+				case 0x0ACF90F4:	// 1.1.0.511 japanese unofficial v9b
+				case 0x344D33A1:	// 1.1.0.511 japanese unofficial v10
 					*dllSuffix = "1_1";
 					result = true;
 					break;
@@ -397,6 +424,11 @@ static bool TestChecksum(const char * procName, std::string * dllSuffix)
 				case 0x3D4EC785:	// 1.2.0.416 german unofficial
 				case 0x2B4DD302:	// 1.2.0.416 russian official?
 				case 0xD90B4B42:	// 1.2.0.416 polish
+				case 0x181B8C89:	// 1.2.0.416 japanese unofficial v9 (apparently no v8)
+				case 0xE56C9816:	// 1.2.0.416 japanese unofficial v9a
+				case 0x3E9FC1F7:	// 1.2.0.416 japanese unofficial v9b
+				case 0xC9A9C9AD:	// 1,2.0.416 w/ no-CD patch by unknown
+				case 0x52AE527E:	// 1.2.0.416 japanese unofficial v10
 					*dllSuffix = "1_2_416";
 					result = true;
 					break;

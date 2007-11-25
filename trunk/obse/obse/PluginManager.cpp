@@ -2,8 +2,12 @@
 #include "CommandTable.h"
 #include "common/IDirectoryIterator.h"
 #include "Commands_Console.h"
+#include "ParamInfos.h"
+#include "GameAPI.h"
 
 PluginManager	g_pluginManager;
+
+static PluginInfo		* s_currentLoadingPluginInfo = NULL;
 
 static bool RegisterCommand(CommandInfo * _info)
 {
@@ -35,6 +39,19 @@ static void SetOpcodeBase(UInt32 opcode)
 
 	ASSERT(opcode < 0x8000);	// arbitrary maximum for samity check
 	ASSERT(opcode >= 0x2000);	// beginning of plugin opcode space
+
+	if(opcode == 0x2000)
+	{
+		const char	* pluginName = "<unknown name>";
+
+		if(s_currentLoadingPluginInfo && s_currentLoadingPluginInfo->name)
+			pluginName = s_currentLoadingPluginInfo->name;
+
+		_ERROR("You have a plugin installed that is using the default opcode base. (%s)", pluginName);
+		_ERROR("This is acceptable for temporary development, but not for plugins released to the public.");
+		_ERROR("As multiple plugins using the same opcode base create compatibility issues, plugins triggering this message may not load in future versions of OBSE.");
+		_ERROR("Please contact the authors of the plugin and have them request and begin using an opcode range assigned by the OBSE team.");
+	}
 
 	g_scriptCommands.PadTo(opcode);
 	g_scriptCommands.SetCurID(opcode);
@@ -129,6 +146,19 @@ void PluginManager::DeInit(void)
 	m_plugins.clear();
 }
 
+PluginInfo * PluginManager::GetInfoByName(const char * name)
+{
+	for(LoadedPluginList::iterator iter = m_plugins.begin(); iter != m_plugins.end(); ++iter)
+	{
+		LoadedPlugin	* plugin = &(*iter);
+
+		if(plugin->info.name && !strcmp(name, plugin->info.name))
+			return &plugin->info;
+	}
+
+	return NULL;
+}
+
 bool PluginManager::FindPluginDirectory(void)
 {
 	bool	result = false;
@@ -177,6 +207,8 @@ void PluginManager::InstallPlugins(void)
 
 		LoadedPlugin	plugin;
 		memset(&plugin, 0, sizeof(plugin));
+
+		s_currentLoadingPluginInfo = &plugin.info;
 
 		plugin.handle = (HMODULE)LoadLibrary(pluginPath.c_str());
 		if(plugin.handle)
@@ -229,4 +261,70 @@ void PluginManager::InstallPlugins(void)
 			_ERROR("couldn't load plugin %s", pluginPath.c_str());
 		}
 	}
+
+	s_currentLoadingPluginInfo = NULL;
 }
+
+#ifdef OBLIVION
+
+bool Cmd_IsPluginInstalled_Execute(COMMAND_ARGS)
+{
+	char	pluginName[256];
+
+	*result = 0;
+
+	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &pluginName)) return true;
+
+	*result = (g_pluginManager.GetInfoByName(pluginName) != NULL) ? 1 : 0;
+
+	return true;
+}
+
+bool Cmd_GetPluginVersion_Execute(COMMAND_ARGS)
+{
+	char	pluginName[256];
+
+	*result = 0;
+
+	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &pluginName)) return true;
+
+	PluginInfo	* info = g_pluginManager.GetInfoByName(pluginName);
+	
+	*result = info ? info->version : -1;
+
+	return true;
+}
+
+#endif
+
+CommandInfo kCommandInfo_IsPluginInstalled =
+{
+	"IsPluginInstalled",
+	"",
+	0,
+	"returns 1 if the specified plugin is installed, else 0",
+	0,
+	1,
+	kParams_OneString,
+
+	HANDLER(Cmd_IsPluginInstalled_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	NULL
+};
+
+CommandInfo kCommandInfo_GetPluginVersion =
+{
+	"GetPluginVersion",
+	"",
+	0,
+	"returns the version of the specified plugin, or -1 if the plugin is not installed",
+	0,
+	1,
+	kParams_OneString,
+
+	HANDLER(Cmd_GetPluginVersion_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	NULL
+};

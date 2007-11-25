@@ -18,6 +18,7 @@ bool PlayerCharacter::SetActiveSpell(MagicItem * item)
 }
 
 static const _Sky_GetSingleton	Sky_GetSingleton = (_Sky_GetSingleton)0x00537420;
+static const UInt32				s_Sky_RefreshClimate = 0x00537C00;
 
 #elif OBLIVION_VERSION == OBLIVION_VERSION_1_2
 
@@ -34,6 +35,7 @@ bool PlayerCharacter::SetActiveSpell(MagicItem * item)
 }
 
 static const _Sky_GetSingleton	Sky_GetSingleton = (_Sky_GetSingleton)0x00542F10;
+static const UInt32				s_Sky_RefreshClimate = 0x00543270;
 
 #elif OBLIVION_VERSION == OBLIVION_VERSION_1_2_416
 
@@ -50,6 +52,7 @@ bool PlayerCharacter::SetActiveSpell(MagicItem * item)
 }
 
 static const _Sky_GetSingleton	Sky_GetSingleton = (_Sky_GetSingleton)0x00542EA0;
+static const UInt32				s_Sky_RefreshClimate = 0x00543200;
 
 #else
 
@@ -60,4 +63,9 @@ static const _Sky_GetSingleton	Sky_GetSingleton = (_Sky_GetSingleton)0x00542EA0;
 Sky * Sky::GetSingleton(void)
 {
 	return Sky_GetSingleton();
+}
+
+void Sky::RefreshClimate(TESClimate * climate, UInt32 unk1)
+{
+	ThisStdCall(s_Sky_RefreshClimate, this, climate, unk1);
 }
