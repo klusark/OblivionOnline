@@ -31,6 +31,7 @@ This file is part of OblivionOnline.
 #include "OOStructs.h"
 #include "OOHashTable.h"
 #include "../common/IDebugLog.h"
+#include "IOSystem.h"
 extern "C"
 {
 	#include "lua/lua.h"
@@ -47,6 +48,8 @@ extern "C"
 //The 2 below here are nothing but UI . Not on the netcode
 #define RELEASE_CODENAME "Fix Release" // The Name . Can be empty
 #define RELEASE_COMMENT "" // For betas and special builds only
+
+#define EXPECTED_MOBS
 
 //Defines for remote admin control
 #define CONNECTMSG 0

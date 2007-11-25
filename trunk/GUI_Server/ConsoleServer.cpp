@@ -33,13 +33,14 @@ PlayerStatus PlayersInitial[MAXCLIENTS];
 
 bool Connected[MAXCLIENTS];
 unsigned short serverPort = 0;
+unsigned short adminPort = 0;
 FILE *easylog;
 FILE *serverSettings;
 
 //Serverlist settings variables
-char LISTHOST[32];
-char LISTFILE[16];
-char LISTNAME[32];
+char ListURI[128];
+
+char ServerName[32];
 char ServerPassword[32];
 char AdminPassword[32];
 
@@ -113,10 +114,37 @@ int main(void)
 	lua_pushstring(g_LuaInstance,"Unnamed_Server");
 	lua_setglobal(g_LuaInstance,"OOServerName");
 	luaL_dofile(g_LuaInstance,"ServerLaunch.lua");
+	//get the port
 	lua_getglobal(g_LuaInstance,"OO_Port");
-	//Ok ...
+	serverPort = lua_tointeger(g_LuaInstance,lua_gettop(g_LuaInstance));
+	if(serverPort < 1 || serverPort > 65356)
+	{
+		serverPort = PORT;
+		GenericLog.DoOutput(LOG_WARNING,"Service port out of range, selecting %u\n",serverPort);
+	}
+	//Get the name
+	lua_getglobal(g_LuaInstance,"OO_ServerName");
+	if(lua_isstring(g_LuaInstance,lua_gettop(g_LuaInstance)))
+	{
+		strncpy(ServerName,lua_tostring(g_LuaInstance,lua_gettop(g_LuaInstance)),32);
+	}
+	else
+	{
+		strncpy(ServerName,"Another OblivionOnline Server",32);
+	}
+	GenericLog.DoOutput(LOG_MESSAGE,"Server was called %s \n",ServerName);
 
-
+	lua_getglobal(g_LuaInstance,"OO_ListURI");
+	if(lua_isstring(g_LuaInstance,lua_gettop(g_LuaInstance)))
+	{
+		strncpy(ListURI,lua_tostring(g_LuaInstance,lua_gettop(g_LuaInstance)),256);
+	}
+	else
+	{
+		ListURI[0] = '\0';
+	}
+	GenericLog.DoOutput(LOG_MESSAGE,"Server List was set to : %s \n",ListURI);
+	
 	// start WinSock
 	rc=StartNet();
 	// create Socket
@@ -311,30 +339,21 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 
 void info(void *arg)
 {
-	FILE *settings = fopen("ServerSettings.ini","r");
-	if (settings)
+	if(strlen(ListURI))
 	{
-		while(serverPort==0)
+		char ListHost [256];
+		char ListFile [256];
+		unsigned short ListPort;
+		while(serverPort==0) // We wait for initialisation
 			Sleep(50);
 		WSADATA WSAData;
 		WSAStartup(MAKEWORD(2,0), &WSAData);
 		SOCKET sock;
 		SOCKADDR_IN sin;
-
-		bool listSettingsFound = false;
-		char settingLine[128];
-		while(!listSettingsFound)
-		{
-			fscanf(settings, "%s", settingLine);
-			if (!strcmp(settingLine, "#LISTSETTINGS"))
-				listSettingsFound = true;
-		}
-		fscanf(settings,"%s",LISTHOST);
-		fscanf(settings,"%s",LISTFILE);
-		fscanf(settings,"%s",LISTNAME);
-
+		
+		sscanf(ListURI,"http://%256s:%u/%256s",ListHost,&ListPort,ListFile);
 		struct hostent *he;
-		while((he = gethostbyname(LISTHOST)) == NULL)
+		while((he = gethostbyname(ListHost)) == NULL)
 		{
 			GenericLog.DoOutput(LOG_ERROR,"Error resolving serverlist hostname. Retrying in 60 seconds.\n");
 			Sleep(60000);	//Sleep for 60 seconds and then try again
@@ -342,16 +361,14 @@ void info(void *arg)
 
 		long rcs;
 		bool HasPassword;
-		if(!strcmp(ServerPassword, "nopassword"))
-			HasPassword = false;
-		else
-			HasPassword = true;
+		HasPassword = false;
+		
 
 		while(true){
 
-			// THIS IS SOOOO UGLY !!!! Replace y a proper libcurl implementation
+			// THIS IS SOOOO UGLY !!!! Replace with a proper libcurl implementation
 			char srequest[384];
-			sprintf(srequest, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", LISTFILE, LISTNAME, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION, HasPassword, LISTHOST);
+			sprintf(srequest, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", ListFile, ServerName, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION, HasPassword, ListHost);
 			
 			sock = socket(AF_INET, SOCK_STREAM, 0);
 			memcpy(&sin.sin_addr, he->h_addr_list[0], he->h_length);
@@ -367,14 +384,16 @@ void info(void *arg)
 			rcs=send(sock, srequest, strlen(srequest), 0);
 			if(rcs==SOCKET_ERROR) 
 			{
-				printf("Error: Serverlist send error, code: %i\n",WSAGetLastError());
+				GenericLog.DoOutput(LOG_ERROR,"Error: Serverlist send error, code: %i\n",WSAGetLastError());
 			}
 			closesocket(sock); 
 			Sleep(120000);
 		}
 		WSACleanup();
-	}else{
-		GenericLog.DoOutput(LOG_ERROR,"ServerSettings.ini not found. This server will not be listed online.\n");
+	}
+	else
+	{
+		GenericLog.DoOutput(LOG_ERROR,"No ListURI set. This server will not be listed online.\n");
 	}	
 }
 

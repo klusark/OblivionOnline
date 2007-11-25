@@ -39,19 +39,13 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 				//And if the player is initialised continue
 				if (Players[i].bStatsInitialized)
 				{
-					printf("  Init: Sending player %i info to player %i\n", i, LocalPlayer);
-					if(adminSocket){
-						char message[256];
-						sprintf(message,"  Init: Sending player %i info to player %i\n", i, LocalPlayer);
-						SendAdminMessage(message);
-					}
+					GenericLog.DoOutput(LOG_MESSAGE,"  Init: Sending player %i info to player %i\n", i, LocalPlayer);
 					OOPkgActorUpdate SendPkgBuf;
 					SendPkgBuf.etypeID = OOPActorUpdate;
 					if (Players[i].bIsInInterior)
 						SendPkgBuf.Flags = 1 | 2 | 8;
 					else
 						SendPkgBuf.Flags = 1 | 2 | 4 | 8;
-					SendPkgBuf.fPosX = 
 					SendPkgBuf.refID = Players[i].RefID;
 					SendPkgBuf.CellID = Players[i].CellID;
 					SendPkgBuf.Health = Players[i].Health; // we send the full values now , s that the client can make sense out of the differences
@@ -97,7 +91,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 				// This one will be master client
 				OutPkgBuf.Flags = OutPkgBuf.Flags | 2;
 				MasterClient = LocalPlayer;
-				printf("Client %i was selected as master client", LocalPlayer);
+				GenericLog.DoOutput(LOG_MESSAGE,"Client %i was selected as master client", LocalPlayer);
 			}
 			OutPkgBuf.guidOblivionOnline = gcOOGUID;
 			OutPkgBuf.PlayerID = LocalPlayer;
@@ -106,44 +100,21 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			SendBuf = (char *)malloc(sizeof(OOPkgWelcome));
 			memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgWelcome));
 			send(clients[LocalPlayer],SendBuf,sizeof(OOPkgWelcome),0);
-			printf("Welcoming Player%2d\n",LocalPlayer);
-			if(adminSocket){
-				char message[256];
-				sprintf(message,"Welcoming Player%2d",LocalPlayer);
-				SendAdminMessage(message);
-			}
+			GenericLog.DoOutput(LOG_MESSAGE,"Welcoming Player%2d\n",LocalPlayer);
 			//printf("Player %2i - %s:%u\n",LocalPlayer,inet_ntoa(ConnectionInfo[LocalPlayer].sin_addr),ntohs(ConnectionInfo[LocalPlayer].sin_port));
 			free(SendBuf);
 			Connected[LocalPlayer] = true;
 		}
 		else
 		{
-			time_t TimeStamp;
-			time(&TimeStamp);
-			int Seconds = (int)TimeStamp % 60;
-			int Minutes = (int)(TimeStamp / 60) % 60;
-			int Hours = (int)(TimeStamp / 3600) % 24;
-			char MyTime[10];
-			sprintf(MyTime, "%2i:%2i:%2i", Hours, Minutes, Seconds);
+			
 
 			TotalClients--;
 			int MinorVersion = (InPkgBuf->wVersion & 0xff00) >> 8;
 			int MajorVersion = InPkgBuf->wVersion & 0x00ff;
-			printf("%s - Client tried to authenticate with wrong client version(%i.%i.%i)\n", MyTime, 0, MajorVersion, MinorVersion);
-			if(adminSocket){
-				char message[256];
-				sprintf(message,"%s - Client tried to authenticate with wrong client version(%i.%i.%i)", MyTime, 0, MajorVersion, MinorVersion);
-				SendAdminMessage(message);
-			}
-			printf("%s - Client %d was removed due to version missmatch\n", MyTime, LocalPlayer);
-			if(adminSocket){
-				char message[256];
-				sprintf(message,"%s - Client %d was removed due to version missmatch", MyTime, LocalPlayer);
-				SendAdminMessage(message);
-			}
-			fprintf(easylog,"%s - Client %d closed the Connection\n", MyTime, LocalPlayer);
-			fprintf(easylog,"%s - Client %d had a version mismatch\n", MyTime, LocalPlayer);
-			fprintf(easylog,"%s - We now have %d connections", MyTime, TotalClients);
+			GenericLog.DoOutput(LOG_WARNING,"%s - Client tried to authenticate with wrong client version(%i.%i.%i)\n", 0, MajorVersion, MinorVersion);
+
+			GenericLog.DoOutput(LOG_ERROR,"%s - Client %d was removed due to version missmatch\n", LocalPlayer);
 			closesocket(clients[LocalPlayer]); 
 			clients[LocalPlayer]=INVALID_SOCKET;
 		}
@@ -151,15 +122,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 	else
 	{
 		TotalClients--;
-		printf("Client %d tried to connect with a pre-version 4 OblivionOnline , or another software.\n",LocalPlayer);
-		if(adminSocket){
-			char message[256];
-			sprintf(message,"Client %d tried to connect with a pre-version 4 OblivionOnline , or another software.",LocalPlayer);
-			SendAdminMessage(message);
-		}
-		fprintf(easylog,"Client %d closed the Connection\n",LocalPlayer);
-		fprintf(easylog,"Client %d had a non-compatible client\n",LocalPlayer);
-		fprintf(easylog,"We now have %d connections",TotalClients);
+		GenericLog.DoOutput(LOG_ERROR,"Client %d tried to connect with a pre-version 3 OblivionOnline , or another software.\n",LocalPlayer);
 		closesocket(clients[LocalPlayer]);
 		clients[LocalPlayer]=INVALID_SOCKET;
 	}
@@ -171,12 +134,7 @@ bool OOPDisconnect_Handler(char *Packet,short LocalPlayer)
 	if (Connected[LocalPlayer])
 	{
 		OOPkgDisconnect  * InPkgBuf = (OOPkgDisconnect *) Packet;
-		printf("Received disconnect from %i\n", InPkgBuf->PlayerID);
-		if(adminSocket){
-			char message[256];
-			sprintf(message,"Received disconnect from %i", InPkgBuf->PlayerID);
-			SendAdminMessage(message);
-		}
+		GenericLog.DoOutput(LOG_MESSAGE,"Received disconnect from %i\n", InPkgBuf->PlayerID);
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
 			if (cx != LocalPlayer&&clients[cx])
@@ -210,23 +168,13 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 		UInt32 tempCell = Players[InPkgBuf->refID].CellID;
 		Players[InPkgBuf->refID].CellID = OutPkgBuf.CellID;
 		if (Players[InPkgBuf->refID].CellID != tempCell){
-			printf("  Player %i moved from cell %x to cell %x\n", InPkgBuf->refID, tempCell, Players[InPkgBuf->refID].CellID);
-			if(adminSocket){
-				char message[256];
-				sprintf(message,"  Player %i moved from cell %x to cell %x", InPkgBuf->refID, tempCell, Players[InPkgBuf->refID].CellID);
-				SendAdminMessage(message);
-			}
+			GenericLog.DoOutput(LOG_MESSAGE,"  Player %i moved from cell %x to cell %x\n", InPkgBuf->refID, tempCell, Players[InPkgBuf->refID].CellID);
 		}
 
 		//If the intialize flag is set, set init to true
 		if(!Players[InPkgBuf->refID].bStatsInitialized)
 		{
-			printf("  Initializing player %i basic stats", InPkgBuf->refID);
-			if(adminSocket){
-				char message[256];
-				sprintf(message,"  Initializing player %i basic stats", InPkgBuf->refID);
-				SendAdminMessage(message);
-			}
+			GenericLog.DoOutput(LOG_MESSAGE,"  Initializing player %i basic stats", InPkgBuf->refID);
 			Players[InPkgBuf->refID].bStatsInitialized = true;
 			OutPkgBuf.Flags = OutPkgBuf.Flags | 8;
 		}
@@ -241,7 +189,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 				OutPkgBuf.Health += Players[InPkgBuf->refID].Health;
 				Players[InPkgBuf->refID].Health = 0;
 			}else{
-				printf("  Player %i HP is %i (change of %i)\n", InPkgBuf->refID, Players[InPkgBuf->refID].Health, OutPkgBuf.Health);
+				GenericLog.DoOutput(LOG_MESSAGE,"  Player %i HP is %i (change of %i)\n", InPkgBuf->refID, Players[InPkgBuf->refID].Health, OutPkgBuf.Health);
 				/*if(adminSocket){
 					char message[256];
 					sprintf(message,"  Player %i HP is %i (change of %i)", InPkgBuf->refID, Players[InPkgBuf->refID].Health, OutPkgBuf.Health);
@@ -311,13 +259,13 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 			
 			if(!MobTable.Insert((void *)ptr))
 			{
-				printf("Could not store actor %u in Database ... hash not unique \n",ptr->ID);
+				GenericLog.DoOutput(LOG_ERROR,"Could not store actor %u in Database ... hash not unique \n",ptr->ID);
 				// This message would mean your CPU has too much alcohol ... if there was a non unique hash we would have found it
 			}
 			else
 			{
 				//We give a message
-				printf("Actor %u spawned with %i Health in cell %u  \n",ptr->ID,ptr->Status.Health,ptr->Status.CellID);
+				GenericLog.DoOutput(LOG_MESSAGE,"Actor %u spawned with %i Health in cell %u  \n",ptr->ID,ptr->Status.Health,ptr->Status.CellID);
 			}
 		}
 		// Health Magicka and Fatigue -....
@@ -328,7 +276,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 				// Handle dying here ... we should remove all mobs dying from the DB
 				if(ptr->Status.Health < 0)
 				{
-					printf("Actor %u died in cell %u \n",ptr->ID,ptr->Status.CellID);
+					GenericLog.DoOutput(LOG_MESSAGE,"Actor %u died in cell %u \n",ptr->ID,ptr->Status.CellID);
 					// Handle despawning here
 				}
 		}
@@ -380,12 +328,7 @@ bool OOPChat_Handler(char *Packet,short LocalPlayer)
 		{
 			MessageDest[i] = Packet[i+sizeof(OOPkgChat)];
 		}
-		printf("Player %i: %s\n", LocalPlayer, MessageDest);
-		if(adminSocket){
-			char message[256];
-			sprintf(message,"Player %i: %s", LocalPlayer, MessageDest);
-			SendAdminMessage(message);
-		}
+		GenericLog.DoOutput(LOG_MESSAGE,"Player %i: %s\n", LocalPlayer, MessageDest);
 	}
 	return true;
 }
@@ -424,19 +367,14 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 			PlayersInitial[InPkgBuf->refID].Health = InPkgBuf->Health;
 			PlayersInitial[InPkgBuf->refID].Magika = InPkgBuf->Magika;
 			PlayersInitial[InPkgBuf->refID].Fatigue = InPkgBuf->Fatigue;
-			printf("Client %i full stats initialized\n", InPkgBuf->refID);
-			if(adminSocket){
-				char message[256];
-				sprintf(message,"Client %i full stats initialized", InPkgBuf->refID);
-				SendAdminMessage(message);
-			}
-			printf(" HP: %i\n", Players[InPkgBuf->refID].Health);
+			GenericLog.DoOutput(LOG_MESSAGE,"Client %i full stats initialized\n", InPkgBuf->refID);
+			GenericLog.DoOutput(LOG_MESSAGE," HP: %i\n", Players[InPkgBuf->refID].Health);
 			if(adminSocket){
 				char message[256];
 				sprintf(message," HP: %i", Players[InPkgBuf->refID].Health);
 				SendAdminMessage(message);
 			}
-			printf(" MP: %i\n", Players[InPkgBuf->refID].Magika);
+			GenericLog.DoOutput(LOG_MESSAGE," MP: %i\n", Players[InPkgBuf->refID].Magika);
 			if(adminSocket){
 				char message[256];
 				sprintf(message," MP: %i", Players[InPkgBuf->refID].Magika);
@@ -451,12 +389,7 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 			Players[InPkgBuf->refID].Magika += OutPkgBuf.Magika;
 			Players[InPkgBuf->refID].Fatigue += OutPkgBuf.Fatigue;
 			if (OutPkgBuf.Health != 0)
-				printf("  Player %i HP is %i (change of %i)(FSU)\n", LocalPlayer, InPkgBuf->refID, Players[InPkgBuf->refID].Health, OutPkgBuf.Health);
-				if(adminSocket){
-					char message[256];
-					sprintf(message,"  Player %i HP is %i (change of %i)(FSU)", LocalPlayer, InPkgBuf->refID, Players[InPkgBuf->refID].Health, OutPkgBuf.Health);
-					SendAdminMessage(message);
-				}
+				GenericLog.DoOutput(LOG_MESSAGE,"  Player %i HP is %i (change of %i)\n", LocalPlayer, InPkgBuf->refID, Players[InPkgBuf->refID].Health, OutPkgBuf.Health);
 		}
 		for(int cx=0;cx<MAXCLIENTS;cx++)
 		{
@@ -507,10 +440,10 @@ bool AdminMsg_Handler(char *Data, short Length)
 bool AdminAuth_Handler(char *Data, short Length)
 {
 	if(!strcmp(Data, AdminPassword))
-		printf("Admin authentication good.\n");
+		GenericLog.DoOutput(LOG_MESSAGE,"Admin authentication good.\n");
 	else{
-		printf("Admin authentication bad: %s.\n", Data);
-		printf("Closing connection.\n");
+		GenericLog.DoOutput(LOG_MESSAGE,"Admin authentication bad: %s.\n", Data);
+		GenericLog.DoOutput(LOG_MESSAGE,"Closing connection.\n");
 		closesocket(adminSocket);
 	}
 	return true;
