@@ -56,7 +56,7 @@ int GetPlayerNumberFromRefID(UInt32 refID) // retrieves a player number from a r
 {
 
 	// Compare reference ID's and determine which actor we have selected in-game
-
+	
 	bool foundID = false;
 	if (refID == (*g_thePlayer)->refID)
 	{

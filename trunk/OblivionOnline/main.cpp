@@ -1240,7 +1240,7 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 {
 	_MESSAGE("Loading OO Commands");
 
-	obse->SetOpcodeBase(0x2000);
+	obse->SetOpcodeBase(0x22D0); // Our codebase
 
 	//Connection commands
 	obse->RegisterCommand(&kMPConnectCommand);

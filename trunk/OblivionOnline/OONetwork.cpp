@@ -63,6 +63,13 @@ bool NetWelcome(char *Password)
 	pkgBuf.guidOblivionOnline = gcOOGUID;
 	//strcpy(pkgBuf.Password, Password);
 	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgWelcome),0);
+
+	// Now we send out our name and gender
+	OOPkgName namepkg;
+	namepkg.etypeID = OOPName;
+	namepkg.Flags = 1 ;
+	strncpy(namepkg.Name,(*g_thePlayer)->GetName(),32); 
+	send(ServerSocket,(char *)&namepkg,sizeof(OOPkgName),0);
 	return true;
 }
 
@@ -231,7 +238,6 @@ bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool Is
 	}
 	return true;
 }
-
 
 //---------------------------
 //--End Outgoing Handlers----
@@ -444,6 +450,22 @@ bool OOPActorUpdate_Handler(char *Packet)
 					(*g_thePlayer)->ModActorBaseValue(10, InPkgBuf->Fatigue, 0);
 				else
 					Players[InPkgBuf->refID].Fatigue = 0;
+
+				if(InPkgBuf->Flags & 16) // We have to overwrite the local player - aka we are being moved
+				{
+					// We change the cell
+					(*g_thePlayer)->ChangeCell((TESObjectCELL *)LookupFormByID(InPkgBuf->refID));
+					char Script [32];
+					//optimise this !!!
+					sprintf(Script,"player.setpos x , %7.6f",InPkgBuf->fPosX);
+					RunScriptLine(Script,true);
+					sprintf(Script,"player.setpos y , %7.6f",InPkgBuf->fPosY);
+					RunScriptLine(Script,true);
+					sprintf(Script,"player.setpos z , %7.6f",InPkgBuf->fPosZ);
+					RunScriptLine(Script,true);
+					sprintf(Script,"player.setrot z , %7.6f",InPkgBuf->fRotZ);
+					RunScriptLine(Script,true);
+				}					
 			}else{
 				if (PlayerActorList[InPkgBuf->refID])
 				{
@@ -469,6 +491,8 @@ bool OOPActorUpdate_Handler(char *Packet)
 		}else{
 			Players[InPkgBuf->refID].bIsInInterior = true;
 		}
+
+		
 	}
 	}
 	else //Mob
@@ -606,5 +630,30 @@ bool OOPTimeUpdate_Handler(char *Packet)
 {
 	OOPkgTimeUpdate * InPkgBuf = (OOPkgTimeUpdate *)Packet;
 	Players[LocalPlayer].Time = InPkgBuf->Hours + (float)InPkgBuf->Minutes / 60.0 + (float)InPkgBuf->Seconds / 3600.0;
+	return true;
+}
+bool OOPName_Handler(char *Packet)
+{
+	OOPkgName * InPkgBuf = (OOPkgName *)Packet;
+	if(InPkgBuf->refID == LocalPlayer)
+	{
+		(*g_thePlayer)->SetName(InPkgBuf->Name);
+	}
+	else if(InPkgBuf->Flags & 1)
+	{
+		//retrieve the spawn ID
+		UINT32 ActorID = SpawnID[GetSpawnIDFromPlayerID(InPkgBuf->refID)];
+		{
+			TESForm *actor = LookupFormByID(ActorID);
+			if(actor)
+				actor->SetName(InPkgBuf->Name);
+		}
+	}
+	else
+	{
+		TESForm *actor = LookupFormByID(InPkgBuf->refID);
+		if(actor)
+			actor->SetName(InPkgBuf->Name);
+	}
 	return true;
 }

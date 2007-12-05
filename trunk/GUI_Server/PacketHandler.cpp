@@ -76,11 +76,6 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 				OutPkgBuf.Flags = 1;
 			}else{
 				printf("Player%2d tried to use wrong password: %s\n", LocalPlayer, InPkgBuf->Password);
-				if(adminSocket){
-					char message[256];
-					sprintf(message,"Player%2d tried to use wrong password: %s", LocalPlayer, InPkgBuf->Password);
-					SendAdminMessage(message);
-				}
 				return false;
 			}
 			*/
@@ -190,12 +185,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 				Players[InPkgBuf->refID].Health = 0;
 			}else{
 				GenericLog.DoOutput(LOG_MESSAGE,"  Player %i HP is %i (change of %i)\n", InPkgBuf->refID, Players[InPkgBuf->refID].Health, OutPkgBuf.Health);
-				/*if(adminSocket){
-					char message[256];
-					sprintf(message,"  Player %i HP is %i (change of %i)", InPkgBuf->refID, Players[InPkgBuf->refID].Health, OutPkgBuf.Health);
-					SendAdminMessage(message);
-				}*/
-			}
+				}
 		}else
 			OutPkgBuf.Health = 0;
 		if(Players[InPkgBuf->refID].Magika != InPkgBuf->Magika)
@@ -369,17 +359,7 @@ bool OOPFullStatUpdate_Handler(char *Packet,short LocalPlayer)
 			PlayersInitial[InPkgBuf->refID].Fatigue = InPkgBuf->Fatigue;
 			GenericLog.DoOutput(LOG_MESSAGE,"Client %i full stats initialized\n", InPkgBuf->refID);
 			GenericLog.DoOutput(LOG_MESSAGE," HP: %i\n", Players[InPkgBuf->refID].Health);
-			if(adminSocket){
-				char message[256];
-				sprintf(message," HP: %i", Players[InPkgBuf->refID].Health);
-				SendAdminMessage(message);
-			}
 			GenericLog.DoOutput(LOG_MESSAGE," MP: %i\n", Players[InPkgBuf->refID].Magika);
-			if(adminSocket){
-				char message[256];
-				sprintf(message," MP: %i", Players[InPkgBuf->refID].Magika);
-				SendAdminMessage(message);
-			}
 		}else{
 			OutPkgBuf.Health = InPkgBuf->Health - Players[InPkgBuf->refID].Health;
 			OutPkgBuf.Magika = InPkgBuf->Magika - Players[InPkgBuf->refID].Magika;
@@ -429,67 +409,15 @@ bool OOPEquipped_Handler(char *Packet,short LocalPlayer)
 	}
 	return true;
 }
-
-
-
-bool AdminMsg_Handler(char *Data, short Length)
+bool OOPName_Handler(char *Packet,short LocalPlayer)
 {
-	return true;
-}
-
-bool AdminAuth_Handler(char *Data, short Length)
-{
-	if(!strcmp(Data, AdminPassword))
-		GenericLog.DoOutput(LOG_MESSAGE,"Admin authentication good.\n");
-	else{
-		GenericLog.DoOutput(LOG_MESSAGE,"Admin authentication bad: %s.\n", Data);
-		GenericLog.DoOutput(LOG_MESSAGE,"Closing connection.\n");
-		closesocket(adminSocket);
-	}
-	return true;
-}
-
-bool AdminChat_Handler(char *Data, short Length)
-{
-	UInt8 PlayerNum = Data[0];
-	char tempData[512];
-	memcpy(tempData, &Data[1], Length - 1);
-	if (PlayerNum != 255)
-		BroadcastMessage(tempData, PlayerNum);
-	else
-		BroadcastMessage(tempData, -1);
-	return true;
-}
-
-bool AdminKick_Handler(char *Data, short Length)
-{
-	UInt8 PlayerNum = Data[0];
-	Kick(PlayerNum);
-	return true;
-}
-
-bool OOPAdminInfo_Handler(char *Packet, short Length)
-{
-	OOPkgAdminInfo * InPkgBuf = (OOPkgAdminInfo *)Packet;
-	char MessageDest[512];
-	memcpy(&MessageDest, Packet + sizeof(OOPkgAdminInfo), Length - sizeof(OOPkgAdminInfo));
-	MessageDest[Length - sizeof(OOPkgAdminInfo)] = '\0';
-	switch(InPkgBuf->ControlCommand)
+	OOPkgName *InPkgBuf = (OOPkgName *) Packet;
+	for(int cx=0;cx<MAXCLIENTS;cx++)
 	{
-	case MSGCONTROL:
-		AdminMsg_Handler(MessageDest, Length);
-		break;
-	case AUTHCONTROL:
-		AdminAuth_Handler(MessageDest, Length);
-		break;
-	case CHATCONTROL:
-		AdminChat_Handler(MessageDest, Length);
-		break;
-	case KICKCONTROL:
-		AdminKick_Handler(MessageDest, Length);
-		break;
-	default:
-		break;
-	};
+		if (cx != LocalPlayer&&clients[cx])
+			send(clients[cx],(char *)InPkgBuf,sizeof(OOPkgName),0);
+	}
+	GenericLog.DoOutput(LOG_MESSAGE,"Player %i changed name to %s",LocalPlayer,InPkgBuf->Name);
 	return true;
 }
+

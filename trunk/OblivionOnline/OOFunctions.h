@@ -44,11 +44,13 @@ extern int GetPlayerNumberFromRefID(UInt32 refID);
 extern float GetStat(Actor *ActorBuf, int statNum);
 extern int LocalPlayer;
 
-inline int GetPlayerNumberFromSpawnNumber(short SpawnNumber) // gets player number i  from spawn[i]
+inline int GetPlayerNumberFromSpawnNumber(USHORT SpawnNumber) 
 {
-	if(SpawnNumber < LocalPlayer) // they are the same
-		return SpawnNumber;
-	else 
-		return (SpawnNumber +1 );// Localplayer has a lower number
+	return ((SpawnNumber < LocalPlayer) ? SpawnNumber : (SpawnNumber +1 ));
+};
+
+inline USHORT GetSpawnIDFromPlayerID(USHORT  PlayerID) // retrieves a player number from a refID in spawn
+{
+	return ((LocalPlayer >= PlayerID) ? PlayerID : (PlayerID -1));
 };
 #endif

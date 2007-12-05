@@ -78,7 +78,7 @@ extern int StartNet(void);
 extern int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead);
 extern bool BroadcastMessage(char *Message, int Player);
 extern bool Kick(int Player);
-extern int SendAdminMessage(char message[256]);
+
 extern class OOHashTable MobTable;
 extern class IOSystem GenericLog;
 

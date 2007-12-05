@@ -330,9 +330,9 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 	case OOPEquipped:
 		OOPEquipped_Handler(acReadBuffer,LocalPlayer);
 		break;
-	default: 
-		OOPTimeUpdate_Handler(acReadBuffer,LocalPlayer);
-		break;
+	case OOPName:
+		OOPName_Handler(acReadBuffer,LocalPlayer);
+		break;	
 	}
 	return true;
 }
@@ -355,7 +355,7 @@ void info(void *arg)
 		struct hostent *he;
 		while((he = gethostbyname(ListHost)) == NULL)
 		{
-			GenericLog.DoOutput(LOG_ERROR,"Error resolving serverlist hostname. Retrying in 60 seconds.\n");
+			GenericLog.DoOutput(LOG_WARNING,"Error resolving serverlist hostname. Retrying in 60 seconds.\n");
 			Sleep(60000);	//Sleep for 60 seconds and then try again
 		}
 
@@ -507,19 +507,4 @@ bool Kick(int Player)
 		}
 	}
 	return true;
-}
-
-int SendAdminMessage(char message[256])
-{
-	OOPkgAdminMessage AdminMessage;
-	AdminMessage.etypeID=OOPAdminMessage;
-	strcpy(AdminMessage.message,message);
-	long rc;
-	rc=send(adminSocket,(char *)&AdminMessage,sizeof(AdminMessage),0);
-		if (rc == SOCKET_ERROR)
-	{
-		GenericLog.DoOutput(LOG_ERROR,"Error on send for remote admin.\n");
-		return 0;
-	}
-	return 1;
 }

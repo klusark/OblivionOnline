@@ -61,8 +61,9 @@ enum OOPacketType
 	OOPTimeUpdate,		//Send the time to all clients
 	OOPDisconnect,		//Tells other clients that the player is disconnecting
 	OOPEquipped,		//Tells the clients what the actor is wearing
+	OOPName,
 	OOPAdminInfo,		//Contains admin control data and console messages
-	OOPAccseptMessage,
+	OOPAcceptMessage,
 	OOPACModVerify = 65555,
 	OOPACVerify = 65556 // ATTENTION  PACKETS 65555 and 65556 are reserver for AuthMod and Auth
 };
@@ -108,7 +109,7 @@ struct OOPkgEventRegister // This package is for Plugin Events
 struct OOPkgActorUpdate
 {
 	OOPacketType etypeID;
-	short Flags;	//1 - player 2 - actor 4 - Exterior
+	short Flags;	//1 - player 2 - actor 4 - Exterior ,8 absolute values , 16 - Update Local Actor ( central storage mode ) 
 	float fPosX,fPosY,fPosZ;
 	float fRotX,fRotY,fRotZ;
 	int Health, Magika, Fatigue;
@@ -162,7 +163,13 @@ struct OOPkgEquipped
 	UInt32 amulet,shield,tail,weapon,ammo; 
 	UInt32 robes;
 };
-
+struct OOPkgName //Also does handle Gender
+{
+	OOPacketType etypeID;
+	short Flags; //1 - Player 
+	UINT32 refID; // Ignored when the client sends it ....
+	char Name[32];
+};
 struct OOPkgAdminInfo
 {
 	OOPacketType etypeID;
@@ -190,6 +197,6 @@ inline OOPacketType SelectType(char *Packet)
 
 
 //Total packet types
-#define PACKET_COUNT 13
+#define PACKET_COUNT 14
 
 #endif

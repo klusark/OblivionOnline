@@ -21,12 +21,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0F86737DBF1B4D729AA05D735B967478"
-        "OwnerKey" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_509FF410D6144F69925C519D4BD064FD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -39,14 +33,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8451C4E61E9D4AA982D4BAA103E0B9DC"
-        "OwnerKey" = "8:_0F86737DBF1B4D729AA05D735B967478"
+        "MsmKey" = "8:_669644F9ED2949608A425A5CB6654C9D"
+        "OwnerKey" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_84AAAED062CB4A27A295A06D9E4E08E7"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_83AEEF56A0AD4184BD4E8360973B8554"
+        "OwnerKey" = "8:_669644F9ED2949608A425A5CB6654C9D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1154,7 +1148,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_0F86737DBF1B4D729AA05D735B967478"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_669644F9ED2949608A425A5CB6654C9D"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1168,7 +1162,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_8451C4E61E9D4AA982D4BAA103E0B9DC"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_83AEEF56A0AD4184BD4E8360973B8554"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1264,62 +1258,6 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:SourceFiles"
             "OutputProjectGuid" = "8:{20C6411C-596F-4B85-BE4E-8BC91F59D8A6}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_84AAAED062CB4A27A295A06D9E4E08E7"
-            {
-            "SourcePath" = "8:..\\OblivionOnline\\Release\\ServerAdminGUI.exe"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_5A569FCD77C3415B9F04CEC96BF19BDE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{F59F6EAF-DC42-4D0A-AE74-28F7C21BD136}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_994E065249784C92A9F6FCDFB49D22C5"
-            {
-            "SourcePath" = "8:"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_DBFBEA4A494E45549B662EFDB2DFC3DA"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:Release|Win32"
-            "OutputGroupCanonicalName" = "8:SourceFiles"
-            "OutputProjectGuid" = "8:{F59F6EAF-DC42-4D0A-AE74-28F7C21BD136}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

@@ -1,6 +1,6 @@
 /*
 
-Copyright 2007    Julian Bangert  Bangertaka masterfreek64, Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
+Copyright 2007   Julian Bangert aka masterfreek64, Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
 
 This file is part of OblivionOnline.
 
@@ -61,8 +61,9 @@ enum OOPacketType
 	OOPTimeUpdate,		//Send the time to all clients
 	OOPDisconnect,		//Tells other clients that the player is disconnecting
 	OOPEquipped,		//Tells the clients what the actor is wearing
+	OOPName,
 	OOPAdminInfo,		//Contains admin control data and console messages
-	OOPAdminMessage,
+	OOPAcceptMessage,
 	OOPACModVerify = 65555,
 	OOPACVerify = 65556 // ATTENTION  PACKETS 65555 and 65556 are reserver for AuthMod and Auth
 };
@@ -73,7 +74,7 @@ struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE
 {
 	//4 bytes(most common enum) is a lot .... but better than a short and a hell of problems later
 	OOPacketType etypeID;  // has to be OOPWelcome
-	short Flags; //4 means master client , 2 means Ignore everything but Flags ( new MC)
+	short Flags; // 1 - master Client
 	short PlayerID; // 0 for client
 	WORD wVersion; // LowerByte contains subversion ( or bugfix ) Higher Byte contains major release
 	GUID guidOblivionOnline; // contains OblivionOnline GUID , this is once defined by me and never to be changed.
@@ -81,7 +82,7 @@ struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE
 	char Password[32]; // will be encrypted later
 };
 
-struct OOPError		//This package is for managine data errors
+struct OOPError		//This package is for managing data errors
 {
 	OOPacketType etypeID;
 	short Flags;	//Contains the flags of the bad packet
@@ -108,7 +109,7 @@ struct OOPkgEventRegister // This package is for Plugin Events
 struct OOPkgActorUpdate
 {
 	OOPacketType etypeID;
-	short Flags;	//1 - player 2 - actor 4 - Exterior
+	short Flags;	//1 - player 2 - actor 4 - Exterior ,8 absolute values , 16 - Update Local Actor ( central storage mode ) 
 	float fPosX,fPosY,fPosZ;
 	float fRotX,fRotY,fRotZ;
 	int Health, Magika, Fatigue;
@@ -116,6 +117,7 @@ struct OOPkgActorUpdate
 	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
 	bool InCombat;
 };
+
 struct OOPkgChat //THIS PACKAGE IS NOT DIRECTLY MAPPED , but has to be converted
 {
 	OOPacketType etypeID;
@@ -161,6 +163,13 @@ struct OOPkgEquipped
 	UInt32 amulet,shield,tail,weapon,ammo; 
 	UInt32 robes;
 };
+struct OOPkgName //Also does handle Gender
+{
+	OOPacketType etypeID;
+	short Flags; //1 - Player 
+	UINT32 refID; // Ignored when the client sends it ....
+	char Name[32];
+};
 struct OOPkgAdminInfo
 {
 	OOPacketType etypeID;
@@ -173,12 +182,6 @@ struct OOPkgAdminInfo
 
 //Gui admin packets
 //Put non gui packets befor this
-struct OOPkgAdminMessage 
-{
-	OOPacketType etypeID;
-	char message[256];
-};
-
 
 
 #pragma pack(pop)
@@ -191,7 +194,9 @@ inline OOPacketType SelectType(char *Packet)
 
 
 
+
+
 //Total packet types
-#define PACKET_COUNT 13
+#define PACKET_COUNT 14
 
 #endif
