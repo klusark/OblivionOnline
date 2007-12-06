@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="shift_jis"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="loader"
 	ProjectGUID="{5B080AB3-FC8A-43BB-99DA-9022F34FD9A5}"
-	SccProjectName="Perforce Project"
-	SccLocalPath="..\.."
-	SccProvider="MSSCCI:Perforce SCM"
+	RootNamespace="loader"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
