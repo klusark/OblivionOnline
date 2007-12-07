@@ -73,10 +73,10 @@ int GetPlayerNumberFromRefID(UInt32 refID) // retrieves a player number from a r
 		
 		//If not the player, check the SpawnID list
 		//currentspawn += ((i == LocalPlayer)?0:1)
-		//A really complex but fast statement , selectíng the proper player id\
-		translates into \
-		if(i == LocalPlayer) \
-			LocalPlayer ++\
+		//A really complex but fast statement , selectíng the proper player id
+		//translates into 
+		//if(i == LocalPlayer) 
+		//	LocalPlayer ++
 		// more safe than any evaluation of the type currentspawn += (LocalPlayer == i) , this is not dependent on bool int conversion
 		//,currentplayer += ((i == LocalPlayer)?0:1)
 		int currentplayer = ((0 == LocalPlayer) ? 1 : 0);

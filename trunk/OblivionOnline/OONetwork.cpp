@@ -329,7 +329,7 @@ bool OOPWelcome_Handler(char *Packet)
 // Flag 4 - Master Client ...
 	if(InPkgBuf->Flags & 4) // Master Client
 	{
-		MCBuildCache();
+		MCMakeMC();
 	}
 	else
 	{

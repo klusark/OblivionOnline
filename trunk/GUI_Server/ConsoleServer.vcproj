@@ -189,6 +189,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Lua_Binding.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\OOHashTable.cpp"
 				>
 			</File>
@@ -216,6 +220,10 @@
 			</File>
 			<File
 				RelativePath=".\IOSystem.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Lua_Binding.h"
 				>
 			</File>
 			<File

@@ -22,6 +22,7 @@ This file is part of OblivionOnline.
 #include "OOPackets.h"
 #include "PacketHandler.h"
 #include "IOSystem.h"
+#include "Lua_Binding.h"
 // Global Server Variables
 bool bServerAlive = true;
 int TotalClients = 0;
@@ -32,8 +33,8 @@ PlayerStatus Players[MAXCLIENTS];
 PlayerStatus PlayersInitial[MAXCLIENTS];
 
 bool Connected[MAXCLIENTS];
-unsigned short serverPort = 0;
-unsigned short adminPort = 0;
+int serverPort = 0;
+int adminPort = 0;
 FILE *easylog;
 FILE *serverSettings;
 
@@ -60,16 +61,14 @@ IOSystem GenericLog("Server.log",LOG_WARNING,LOG_WARNING);
 int StartNet(void);
 int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead);
 void info(void *);
-void adminthread(void *);
+
 typedef std::pair< std::string, std::string > UserPasswordPair;
 
 
 //Main entry procedure
 int main(void)
 {
-	_beginthread(info,0,NULL);
-	_beginthread(adminthread,0,NULL);
-	
+	_beginthread(info,0,NULL);	
 	// Setup our local variables
 	short LocalPlayer;
 	long rc;
@@ -90,12 +89,11 @@ int main(void)
 		Players[i].Fatigue = 0;
 		Connected[i] = false;
 	}
-
-	Sleep(100);
+	GenericLog.DoOutput(LOG_MESSAGE,"######################################################################################################\n");
 	GenericLog.DoOutput(LOG_MESSAGE,"OblivionOnline Basic Server, v.%i.%i.%i\"%s \" %s \n \n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION,RELEASE_CODENAME,RELEASE_COMMENT);
 	GenericLog.DoOutput(LOG_MESSAGE,"Main Developers : Written by masterfreek64 aka  Julian Bangert Bangert , bobjr 777 aka Joel Teichroeb \n\n");
 	GenericLog.DoOutput(LOG_MESSAGE,"Former Developers : Chessmaster42 aka Joseph Pearson \n");
-	GenericLog.DoOutput(LOG_MESSAGE,"--------------------------\n");
+	GenericLog.DoOutput(LOG_MESSAGE,"######################################################################################################\n");
 
 	SOCKET acceptSocket;
 	SOCKADDR_IN addr;
@@ -105,25 +103,26 @@ int main(void)
 	easylog = fopen("Log.txt","w");
 	fclose(easylog);
 	g_LuaInstance = lua_open();
-	// UGGGHHH - moving to LUA
 	// first we sett default values:
 	lua_pushnumber(g_LuaInstance,PORT);
-	lua_setglobal(g_LuaInstance,"OO_Port");
+	LuaRegisterBinding(g_LuaInstance);
+	lua_setglobal(g_LuaInstance,"ServicePort");
 	lua_pushstring(g_LuaInstance,"NONE");
-	lua_setglobal(g_LuaInstance,"OOServerListURI");
-	lua_pushstring(g_LuaInstance,"Unnamed_Server");
-	lua_setglobal(g_LuaInstance,"OOServerName");
+	lua_setglobal(g_LuaInstance,"ServerListURI");
+	lua_pushstring(g_LuaInstance,"Another OblivionOnline Server");
+	lua_setglobal(g_LuaInstance,"ServerName");
 	luaL_dofile(g_LuaInstance,"ServerLaunch.lua");
 	//get the port
-	lua_getglobal(g_LuaInstance,"OO_Port");
+	lua_getglobal(g_LuaInstance,"ServicePort");
 	serverPort = lua_tointeger(g_LuaInstance,lua_gettop(g_LuaInstance));
-	if(serverPort < 1 || serverPort > 65356)
+	if((serverPort < 1) || (serverPort > 65356))
 	{
+		
+		GenericLog.DoOutput(LOG_WARNING,"Service port %u out of range, selecting %i\n",serverPort,PORT);
 		serverPort = PORT;
-		GenericLog.DoOutput(LOG_WARNING,"Service port out of range, selecting %u\n",serverPort);
 	}
 	//Get the name
-	lua_getglobal(g_LuaInstance,"OO_ServerName");
+	lua_getglobal(g_LuaInstance,"ServerName");
 	if(lua_isstring(g_LuaInstance,lua_gettop(g_LuaInstance)))
 	{
 		strncpy(ServerName,lua_tostring(g_LuaInstance,lua_gettop(g_LuaInstance)),32);
@@ -134,7 +133,7 @@ int main(void)
 	}
 	GenericLog.DoOutput(LOG_MESSAGE,"Server was called %s \n",ServerName);
 
-	lua_getglobal(g_LuaInstance,"OO_ListURI");
+	lua_getglobal(g_LuaInstance,"ListURI");
 	if(lua_isstring(g_LuaInstance,lua_gettop(g_LuaInstance)))
 	{
 		strncpy(ListURI,lua_tostring(g_LuaInstance,lua_gettop(g_LuaInstance)),256);
@@ -155,11 +154,6 @@ int main(void)
 		GenericLog.DoOutput(LOG_ERROR,"The AcceptSocket couldn't be created: %d\n",WSAGetLastError());
 		return 1;
 	}
-	else
-	{
-		GenericLog.DoOutput(LOG_MESSAGE,"Created Socket-\n");
-	}
-
 	memset(&addr,0,sizeof(SOCKADDR_IN));
 	addr.sin_family=AF_INET;
 	addr.sin_port=htons(serverPort);
@@ -172,7 +166,7 @@ int main(void)
 	}
 	else
 	{
-		GenericLog.DoOutput(LOG_MESSAGE,"Socket bound-\n");
+		GenericLog.DoOutput(LOG_MESSAGE,"Opened server on port %u \n",serverPort);
 	}
 
 	// Start listener
@@ -351,7 +345,7 @@ void info(void *arg)
 		SOCKET sock;
 		SOCKADDR_IN sin;
 		
-		sscanf(ListURI,"http://%256s:%u/%256s",ListHost,&ListPort,ListFile);
+		
 		struct hostent *he;
 		while((he = gethostbyname(ListHost)) == NULL)
 		{
@@ -365,7 +359,7 @@ void info(void *arg)
 		
 
 		while(true){
-
+			sscanf(ListURI,"http://%256s:%u/%256s",ListHost,&ListPort,ListFile);
 			// THIS IS SOOOO UGLY !!!! Replace with a proper libcurl implementation
 			char srequest[384];
 			sprintf(srequest, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", ListFile, ServerName, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION, HasPassword, ListHost);
@@ -374,8 +368,7 @@ void info(void *arg)
 			memcpy(&sin.sin_addr, he->h_addr_list[0], he->h_length);
 			//sin.sin_addr.s_addr = inet_addr(IP);
 			sin.sin_family = AF_INET;
-			sin.sin_port = htons(80);
-
+			sin.sin_port = htons(ListPort);
 			rcs=connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
 			if(rcs==SOCKET_ERROR) 
 			{
@@ -395,68 +388,6 @@ void info(void *arg)
 	{
 		GenericLog.DoOutput(LOG_ERROR,"No ListURI set. This server will not be listed online.\n");
 	}	
-}
-
-void adminthread(void *arg)
-{
-	//Wait until we have a valid server port
-	while(serverPort == 0)
-		Sleep(50);
-
-	//Initialize winsock
-	WSADATA WSAData;
-	WSAStartup(MAKEWORD(2,0), &WSAData);
-
-	//Setup socket
-	SOCKET acceptSocket;
-	SOCKADDR_IN sinLocal;
-	acceptSocket=socket(AF_INET,SOCK_STREAM,0);
-
-	//Setup bind and listen on socket
-	memset(&sinLocal,0,sizeof(SOCKADDR_IN));
-	sinLocal.sin_family=AF_INET;
-	sinLocal.sin_port=htons(serverPort-1);//This should be fixed and customised. On most NATs this port won' be routed. Instead we should remove all Winsock Code, add the packages to the main packet stream , and route them through a std::queue with Mutex
-	sinLocal.sin_addr.s_addr=INADDR_ANY;
-	int rc = bind(acceptSocket,(SOCKADDR*)&sinLocal,sizeof(SOCKADDR_IN));
-	if (rc == SOCKET_ERROR)
-	{
-		GenericLog.DoOutput(LOG_ERROR,"Error on bind socket for remote admin.\n");
-		return;
-	}
-	rc = listen(acceptSocket,10);
-	if (rc == SOCKET_ERROR)
-	{
-		GenericLog.DoOutput(LOG_ERROR,"Error on listen socket for remote admin.\n");
-		return;
-	}
-
-	while(true)
-	{
-		//Wait for remote connection
-		SOCKADDR_IN sinRemote;
-		int nAddrSize = sizeof(SOCKADDR_IN);
-		adminSocket = accept(acceptSocket, (sockaddr*)&sinRemote, &nAddrSize);
-
-		
-		GenericLog.DoOutput(LOG_MESSAGE,"%s - Admin connected from %s:%i\n",inet_ntoa(sinRemote.sin_addr), ntohs(sinRemote.sin_port));
-		//Enter the send / receive loop
-		char acReadBuffer[512];
-		int nReadBytes;
-		do {
-			//Read in data from client
-			nReadBytes = recv(adminSocket, acReadBuffer, 512, 0);
-			if (nReadBytes > 0)
-			{
-				ScanBuffer(acReadBuffer, -1, nReadBytes);
-			}else
-				break;
-		} while (nReadBytes != 0);
-		GenericLog.DoOutput(LOG_MESSAGE,"%s - Admin disconnected from %s:%i\n",inet_ntoa(sinRemote.sin_addr), ntohs(sinRemote.sin_port));
-	}
-
-	//Clean up
-	closesocket(adminSocket);
-	WSACleanup();
 }
 
 

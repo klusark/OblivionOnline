@@ -40,16 +40,17 @@ This file is part of OblivionOnline.
 #define MOBSYNCH
 #ifdef MOBSYNCH
 #include "MobSynch.h"
-
+using namespace std; // hash_map "interoperability"
+using namespace stdext;
 extern void RunScriptLine(const char *buf, bool IsTemp);
 
-
+bool MCStackMode = false;
 bool MCbWritten;
-std::list<MCActorBuf> MCCache;
+
+static std::stack <MCObjectStatus> MobStack;
+hash_map<UINT32,MCObjectStatus> MobList;
 DWORD MobResynchTimer ; // seperate , because no seperate packet
 bool bIsMasterClient = false;
-bool bCacheBuilt = false;
-bool ActorSynchCalled = false;
 // Here we send an NPC over the net
 // The bug persists ....
 bool NetSynchNPC(Actor *Actor)
@@ -89,117 +90,45 @@ bool NetSynchNPC(Actor *Actor)
 		return false;
 	}
 }
-// We load an .ooc file
-bool MCAddClientCache(char *FileName) // add this file
-{
-	_MESSAGE("Starting to build Cache");
-	FILE *CacheFile;
-	FILE *LogFile;
-	MCActorBuf tempBuf;
-	char RefName[256];
-	UINT32 RefID;
-	CacheFile = fopen(FileName,"r");
-	LogFile = fopen("Cache.log","w");
-
-	while(!feof(CacheFile))
-	{
-		fscanf(CacheFile,"%s", RefName);
-		fscanf(CacheFile,"%u",&RefID);
-		tempBuf.RefID = RefID;
-		MCCache.push_back(tempBuf); //ok we pushed him in
-		fprintf(LogFile,"%s %u was injected\n",RefName,RefID);		
-	}
-	Console_Print("Cache build completed, %i References found",MCCache.size());
-	_MESSAGE("Cache Built");
-	bCacheBuilt = true;
-	fclose(LogFile);
-	return true;
-}
-// We load all OOCs. And make us a Master Client
-bool MCBuildCache()
-{
-	Console_Print("Building Master Client Cache");
-	if(!bCacheBuilt)
-	{
-		MCAddClientCache("OblivionOnline/Oblivion.ooc");
-	}
-	bIsMasterClient = true;
-	return true;
-}
 // We set us to passive. We still keep the cache if present
 bool MCMakePassive()		//changes client mode to passive
 {
 	bIsMasterClient = false;
 	return true;
 }
-
+bool MCMakeMC()
+{
+	bIsMasterClient = true;
+	return true;
+}
 // This is used in a command to go thorugh the cache and look for mobs that changed position
  bool MCbSynchActors() //called nearly every frame , so extremely important
 {
-
-	#if 1 
-	
-	try
+	//rewritten
+	//Just check up on the cells all other players are in
+	std::stack<TESObjectCELL *> CellStack;
+	CellStack.push((*g_thePlayer)->parentCell);
+	for(int i = 0 ; i < MAXCLIENTS;i++)
 	{
-	if(!ActorSynchCalled)
-	{
-		Console_Print("Actor Synchronisation working");
-		_MESSAGE("WORKING MCBActorSynch");
-		ActorSynchCalled = true;
-	}
-	DWORD tickBuf;
-	tickBuf=GetTickCount();
-	if((tickBuf - MobResynchTimer) > MC_MOBRESYNCH) //just synch every 50 ms 
-	{
-	
-	std::list<MCActorBuf>::iterator ActorIterator;
-	std::list<MCActorBuf>::iterator EndIterator = MCCache.end();
-	for(ActorIterator = MCCache.begin();ActorIterator!= EndIterator;ActorIterator++)
-	{
-		// This is more secure than SVN 354. If there are performance problems with that solution , try to revert to SVN 354
-		Actor * TempActor = reinterpret_cast<Actor *> (LookupFormByID(ActorIterator->RefID));
-		if(TempActor)
+		TESForm *form = LookupFormByID(SpawnID[i]);
+		if(form)
 		{
-			if((TempActor->posX != ActorIterator->LastStatus.PosX)
-					|| (TempActor->posY != ActorIterator->LastStatus.PosY)
-					|| (TempActor->posZ != ActorIterator->LastStatus.PosZ))
-				{
-					//Update this Actor on the net 
-					NetSynchNPC(TempActor);
-					//Update LastPos
-					ActorIterator->LastStatus.PosX = TempActor->posX;
-					ActorIterator->LastStatus.PosY = TempActor->posY;
-					ActorIterator->LastStatus.PosZ = TempActor->posZ;
-				}
+			CellStack.push(((TESObjectREFR *)form)->parentCell);
 		}
+	}
+	//now we process each cell...
+	while(!CellStack.empty())
+	{
+		TESObjectCELL * Cell = CellStack.top();
+		TESObjectCELL::ObjectListEntry * ListIterator = &Cell->objectList;		
+		std::pair<UINT32,MCObjectStatus> CurrentPair;
 		
-		else
+		while(ListIterator->next) // Iterate the loop
 		{
-			Console_Print("Found a Mob not present . Removing it");
-				MCCache.erase(ActorIterator);
+			ListIterator = ListIterator->next;
 		}
-
 	}
-	MobResynchTimer = tickBuf;
-		return true;
-	}
-	}
-	catch (...)
-	{
-		_MESSAGE("Failed to Synchronise Actors");
-		return false;
-	}
-	return false;
-	#endif
-	//brand new testing stuff, DO NOT USE. Always comment this before building
-#if 0
-	char OutputString[1200];
-	sprintf(OutputString,"Data :%512s %512s",
-	(*g_thePlayer)->parentCell->objectList->unk0.data, //some pointer. Probably an Actor Pointer- will dump data and see,
-	(*g_thePlayer)->parentCell->objectList->unk0.next);
-	Console_Print(OutputString);
-	return true;
-#endif	
+	return false;	
 }
  // This just calls MCbSynchActors
 bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
@@ -207,19 +136,33 @@ bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 
 	if(bIsMasterClient && bIsConnected)
 	{
-	if(bCacheBuilt)
 		MCbSynchActors();
-	}
-	
-	return true;
-}
-//Used manually to build the cache .... SHOULD NOT BE USED atm.... we use the welcome code for that
-bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
-{
+		
+	}	
+	//generate the stack
 	if(bIsConnected)
-		MCBuildCache();
+		MCStackMode = true;
 	return true;
 }
+bool Cmd_MPAdvanceStack_Execute (COMMAND_ARGS)
+{
+	if(MCStackMode)
+	{
+			
+	}
+	return true;
+}
+bool Cmd_MPStopStack_Execute (COMMAND_ARGS)
+{
+	if(MCStackMode)
+	{
+		MCStackMode = false;
+	}
+	return true;
+}
+
+//Used manually to build the cache .... SHOULD NOT BE USED atm.... we use the welcome code for that
+
 
 
 
@@ -228,22 +171,33 @@ bool Cmd_MPBuildCache_Execute(COMMAND_ARGS)
 	"MPSynchActors",
 	"MPSA",
 	0,
-	"Synchs Objects",
-	0,		 // well it NEEDS one...
+	"Synchs Objects and resets +enables the stack",
+	0,		 
 	0,		
-	NULL,	// one string
+	NULL,	
 	Cmd_MPSynchActors_Execute
 };
- CommandInfo kMPBuildCacheCommand =
+  CommandInfo kMPStopStackCommand =
 {
-	"MPBuildCache",
-	"MPBC",
+	"MPStopStack",
+	"MPSTS",
 	0,
-	"Adds an Object to the OO master cache . Not to be used manually",
+	"Exits stack processing mode",
+	0,		 
+	0,		
+	NULL,	
+	Cmd_MPStopStack_Execute
+};
+ CommandInfo kMPAdvanceStackCommand =
+{
+	"MPAdvanceStack",
+	"MPAS",
+	0,
+	"Advances the Stack by 1 ",
 	0,		 // well it NEEDS one...
 	0,		
 	NULL,	// one string
-	Cmd_MPBuildCache_Execute
+	Cmd_MPAdvanceStack_Execute
 };
 
 
@@ -255,6 +209,7 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 	{
 		Actor * Object;
 		Object = (Actor *)LookupFormByID(pkgBuf.refID);
+		
 		if(Object)
 		{
 		ScriptString = Object->GetEditorName();

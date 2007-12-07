@@ -170,13 +170,12 @@ struct OOPkgName //Also does handle Gender
 	UINT32 refID; // Ignored when the client sends it ....
 	char Name[32];
 };
-struct OOPkgAdminInfo
+struct OOPkgRace
 {
 	OOPacketType etypeID;
-	short Flags;
-	UInt8 MessageType;
-	UInt8 ControlCommand;
-	//Actual data is attached to the end of the packet like a chat msg
+	short Flags; // 1 - Player 2-Female
+	UINT32 refID;// Player number ONLY as of now
+	//Add stuff for FACE , RACE and EYES
 };
 
 

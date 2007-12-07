@@ -49,7 +49,8 @@ struct ObjectStatus
 	float RotX,RotY,RotZ;
 	UInt32 RefID;
 	UInt32 CellID;
-};struct ActorStatus : ObjectStatus
+};
+struct ActorStatus : ObjectStatus
 {
 	int Health, Magika, Fatigue;
 	bool bIsInInterior;
