@@ -107,7 +107,8 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC, bool Initial)
 			pkgBuf.Health = Player->Health;
 			pkgBuf.Magika = Player->Magika;
 			pkgBuf.Fatigue = Player->Fatigue;
-			pkgBuf.InCombat = Player->InCombat;
+			if(Player->InCombat)
+				pkgBuf.Flags ^= 32;
 			send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgActorUpdate),0);
 			PacketTime[OOPActorUpdate] = tickBuf;
 		}
@@ -407,7 +408,7 @@ bool OOPActorUpdate_Handler(char *Packet)
 			Console_Print("Player %i connected", InPkgBuf->refID);
 			NetEquipped(&Players[LocalPlayer],LocalPlayer,true); // we send our equipment
 		}
-		Players[InPkgBuf->refID].InCombat = InPkgBuf->InCombat; 
+		Players[InPkgBuf->refID].InCombat = InPkgBuf->Flags & 32; 
 		Players[InPkgBuf->refID].PosX = InPkgBuf->fPosX;
 		Players[InPkgBuf->refID].PosY = InPkgBuf->fPosY;
 		Players[InPkgBuf->refID].PosZ = InPkgBuf->fPosZ;

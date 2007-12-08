@@ -109,13 +109,12 @@ struct OOPkgEventRegister // This package is for Plugin Events
 struct OOPkgActorUpdate
 {
 	OOPacketType etypeID;
-	short Flags;	//1 - player 2 - actor 4 - Exterior ,8 absolute values , 16 - Update Local Actor ( central storage mode ) 
+	short Flags;	//1 - player 2 - actor 4 - Exterior ,8 absolute values , 16 - Update Local Actor ( central storage mode ) , 32- in combat
 	float fPosX,fPosY,fPosZ;
 	float fRotX,fRotY,fRotZ;
-	int Health, Magika, Fatigue;
+	short Health, Magika, Fatigue;
 	UInt32 CellID;	// It is the reference ID of the current location
 	UInt32 refID;	// It is the reference ID if it is a NPC or object , player number when a player
-	bool InCombat;
 };
 
 struct OOPkgChat //THIS PACKAGE IS NOT DIRECTLY MAPPED , but has to be converted

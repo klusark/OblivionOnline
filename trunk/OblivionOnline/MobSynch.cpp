@@ -1,7 +1,6 @@
 /*
 
-Copyright 2007   Julian Bangert aka masterfreek64, Joseph Pearson aka chessmaster42 and Joel Teichroeb aka bobjr777
-
+Copyright 2007   Julian Bangert aka masterfreek64
 This file is part of OblivionOnline.
 
     OblivionOnline is free software; you can redistribute it and/or modify
@@ -47,39 +46,44 @@ extern void RunScriptLine(const char *buf, bool IsTemp);
 bool MCStackMode = false;
 bool MCbWritten;
 
-static std::stack <MCObjectStatus> MobStack;
-hash_map<UINT32,MCObjectStatus> MobList;
+static std::stack <ActorStatus> MobStack;
+hash_map<UINT32,ActorStatus> MobList;
+typedef std::pair<UINT32,ActorStatus> MobPair; 
 DWORD MobResynchTimer ; // seperate , because no seperate packet
 bool bIsMasterClient = false;
 // Here we send an NPC over the net
 // The bug persists ....
-bool NetSynchNPC(Actor *Actor)
+bool NetSynchObject(TESObjectREFR *Refr)
 {
 	try
 	{
 	OOPkgActorUpdate pkgBuf;
 	pkgBuf.etypeID = OOPActorUpdate;
-	pkgBuf.fPosX = Actor->posX ; //Actor
-	pkgBuf.fPosY = Actor->posY;
-	pkgBuf.fPosZ = Actor->posZ;
-	pkgBuf.fRotX = Actor->rotX;
-	pkgBuf.fRotY = Actor->rotY;
-	pkgBuf.fRotZ = Actor->rotZ;
-	pkgBuf.Health = Actor->GetActorValue(8);
-	pkgBuf.Magika = Actor->GetActorValue(9);
-	pkgBuf.Fatigue = Actor->GetActorValue(10);
-	_MESSAGE("Synchronising : %u %s",Actor->refID,Actor->GetEditorName());
-	if(Actor->parentCell->worldSpace)
+	pkgBuf.fPosX = Refr->posX ; //Actor
+	pkgBuf.fPosY = Refr->posY;
+	pkgBuf.fPosZ = Refr->posZ;
+	pkgBuf.fRotX = Refr->rotX;
+	pkgBuf.fRotY = Refr->rotY;
+	pkgBuf.fRotZ = Refr->rotZ;
+	pkgBuf.Health = (Refr->IsActor() ? ((Actor *)Refr)->GetActorValue(8) : -1);
+	pkgBuf.Magika = (Refr->IsActor() ? ((Actor *)Refr)->GetActorValue(9) : -1);
+	pkgBuf.Fatigue =(Refr->IsActor() ? ((Actor *)Refr)->GetActorValue(10) : -1);
+	_MESSAGE("Synchronising : %u %s",Refr->refID,Refr->GetEditorName());
+	if(Refr->parentCell->worldSpace)
 	{
-				pkgBuf.Flags = 2|4; //Exterior
-				pkgBuf.CellID = Actor->parentCell->worldSpace->refID;
+				pkgBuf.Flags = 4; //Exterior
+				pkgBuf.CellID = Refr->parentCell->worldSpace->refID;
 	}
 	else
 	{
-				pkgBuf.Flags = 2; //Interior
-				pkgBuf.CellID = Actor->parentCell->refID;
+				pkgBuf.Flags = 0; //Interior
+				pkgBuf.CellID = Refr->parentCell->refID;
 	}
-	pkgBuf.refID = Actor->refID;
+	if(Refr->IsActor())
+	{
+		pkgBuf.Flags |= 2; //Actor
+	}
+	pkgBuf.refID = Refr->refID;
 	send(ServerSocket,(char *)&pkgBuf,sizeof(OOPkgActorUpdate),0);
 	return true;
 	}
@@ -120,12 +124,34 @@ bool MCMakeMC()
 	while(!CellStack.empty())
 	{
 		TESObjectCELL * Cell = CellStack.top();
+		CellStack.pop();
 		TESObjectCELL::ObjectListEntry * ListIterator = &Cell->objectList;		
-		std::pair<UINT32,MCObjectStatus> CurrentPair;
-		
+				
 		while(ListIterator->next) // Iterate the loop
 		{
 			ListIterator = ListIterator->next;
+			//Lookup in hash_map
+			hash_map<UINT32,ActorStatus>::iterator iter =  MobList.find(ListIterator->refr->refID);
+			if(iter == MobList.end())
+			{
+				ActorStatus temp;
+				MobList.insert(MobPair(ListIterator->refr->refID,temp));
+				//optimisation here?
+				iter =  MobList.find(ListIterator->refr->refID);
+			}
+			if((iter->second.PosX != ListIterator->refr->posX ||		//position was changed
+				iter->second.PosY != ListIterator->refr->posY ||
+				iter->second.PosZ != ListIterator->refr->posZ ||
+				iter->second.RotZ != ListIterator->refr->rotZ )||
+				iter->second.Health != (ListIterator->refr->IsActor() ? ((Actor *)ListIterator->refr)->GetActorValue(8) : -1)) // Health
+			{
+				iter->second.PosX = ListIterator->refr->posX;
+				iter->second.PosY = ListIterator->refr->posY;
+				iter->second.PosZ = ListIterator->refr->posZ;
+				iter->second.RotZ = ListIterator->refr->rotZ;				
+				iter->second.Health = (ListIterator->refr->IsActor() ? ((Actor *)ListIterator->refr)->GetActorValue(8) : -1);
+				NetSynchObject(ListIterator->refr);
+			}
 		}
 	}
 	return false;	
@@ -136,8 +162,7 @@ bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 
 	if(bIsMasterClient && bIsConnected)
 	{
-		MCbSynchActors();
-		
+		MCbSynchActors();		
 	}	
 	//generate the stack
 	if(bIsConnected)

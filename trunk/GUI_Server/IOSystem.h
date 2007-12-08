@@ -27,15 +27,24 @@ This file is part of OblivionOnline.
 #define LOG_ERROR 3
 #define LOG_MESSAGE 4
 #define LOG_FATALERROR 5
+class IOSystem;
+struct RMAThreadParameters
+{
+	IOSystem * IOSys;
+	std::string QueryLog;
+	unsigned short Port;
+};
 class IOSystem
 {
 	bool mbFile;
 	unsigned int mFileLogLevel, mConsoleLogLevel;
 	std::string mFileName;
+	static void RMAThread(void *Parameters);
 public:
 	IOSystem(std::string FileName,unsigned int FileLogLevel,unsigned int ConsoleLogLevel);
 	~IOSystem(void);
 	bool DoOutput(unsigned int LogLevel,char *Message,... );
+	int RCONPort; 
 };
 
 #endif

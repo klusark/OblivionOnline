@@ -24,6 +24,7 @@ This file is part of OblivionOnline.
 #include <cstdio>
 #include <cstdarg>
 #include <ctime>
+#include "Windows.h"
 //defines input , output and logging methods .
 using namespace std;
 
@@ -108,3 +109,11 @@ bool IOSystem::DebugWarning(std::string text)
 {
 	return DoOutput(text,LOG_DEBUGWARNING);
 }*/
+void IOSystem::RMAThread(void *Parameter)
+{
+	RMAThreadParameters *params = (RMAThreadParameters *)Parameter;
+	IOSystem *IOSys = params->IOSys;
+	IOSys->DoOutput(LOG_MESSAGE,"Remote Administrator started");
+	//TODO: Finish Implementatio
+	return;
+}
