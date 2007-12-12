@@ -24,7 +24,18 @@ This file is part of OblivionOnline.
 #define UInt32 unsigned long
 #define UInt8 unsigned char
 
+#ifdef WINDOWS
+#include "Windows.h"
+
 #include <winsock.h>
+#else
+//Berkeley Sockets
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#define SOCKET int32_t
+#define INVALID_SOCKET -1
+#endif
 #include <iostream>
 #include <time.h>
 #include <process.h>

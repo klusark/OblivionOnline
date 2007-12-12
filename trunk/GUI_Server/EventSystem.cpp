@@ -18,6 +18,7 @@ This file is part of OblivionOnline.
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "ConsoleServer.h"
 #include "EventSystem.h"
 #include <sstream>
 
@@ -25,7 +26,7 @@ EventSystem::EventSystem(void)
 {
 	//initialise all EventIDs ... 
 	// nothing more to do here
-	for(int i = 0;i<(int)eEvent::eMaxEvents;i++)
+	for(int i = 0;i<(int)eMaxEvents;i++)
 	{
 		EventList[i].EventId = (eEvent) i;
 	}
@@ -50,7 +51,9 @@ bool EventSystem::LoadPlugins()
 			{
 				TempPlugin = new Plugin(); // c++ initialises all subconstructors this way
 				TempPlugin->PluginID = CurrentPluginID++; // afterwards we increase it by 1
+#ifdef WINDOWS
 				TempPlugin->hDLL = LoadLibraryA(DllName.c_str());
+#endif
 				if(!TempPlugin->hDLL)
 				{
 					delete TempPlugin;
@@ -65,7 +68,7 @@ bool EventSystem::LoadPlugins()
 	return false;
 
 }
-bool EventSystem::TriggerEvent(eEvent evt, DWORD Param1, DWORD Param2)
+bool EventSystem::TriggerEvent(eEvent evt, unsigned long Param1, unsigned long Param2)
 {
 	std::list<EventHook *>::iterator Iter , End;
 	Iter = EventList[evt].Hooks.begin();
@@ -76,7 +79,7 @@ bool EventSystem::TriggerEvent(eEvent evt, DWORD Param1, DWORD Param2)
 	}
 	return false;
 }
-bool EventSystem::HookEvent(eEvent evt, unsigned int PluginID, bool (*bHandlerCallback)(eEvent, DWORD, DWORD))
+bool EventSystem::HookEvent(eEvent evt, unsigned int PluginID, bool (*bHandlerCallback)(eEvent, unsigned long, unsigned long))
 {
 	std::list<Plugin *>::iterator Iter , End;
 	Iter = PluginList.begin();

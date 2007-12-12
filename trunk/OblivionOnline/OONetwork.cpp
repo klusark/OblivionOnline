@@ -320,11 +320,6 @@ bool OOPWelcome_Handler(char *Packet)
 	pkgBuf.Flags = 1;
 	send(ServerSocket, (char *)&pkgBuf, sizeof(OOPkgWelcome), 0);
 	}
-	if(InPkgBuf->Flags & 4) // Master Client
-	{
-		
-	}
-
 // Here we hande the so -called "Mode Flags " from 4 (MC ) upwards.
 
 // Flag 4 - Master Client ...

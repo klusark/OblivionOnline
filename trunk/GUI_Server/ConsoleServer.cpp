@@ -68,7 +68,7 @@ typedef std::pair< std::string, std::string > UserPasswordPair;
 //Main entry procedure
 int main(void)
 {
-	_beginthread(info,0,NULL);	
+	
 	// Setup our local variables
 	short LocalPlayer;
 	long rc;
@@ -107,7 +107,7 @@ int main(void)
 	lua_pushnumber(g_LuaInstance,PORT);
 	LuaRegisterBinding(g_LuaInstance);
 	lua_setglobal(g_LuaInstance,"ServicePort");
-	lua_pushstring(g_LuaInstance,"NONE");
+	lua_pushstring(g_LuaInstance,"");
 	lua_setglobal(g_LuaInstance,"ServerListURI");
 	lua_pushstring(g_LuaInstance,"Another OblivionOnline Server");
 	lua_setglobal(g_LuaInstance,"ServerName");
@@ -133,7 +133,7 @@ int main(void)
 	}
 	GenericLog.DoOutput(LOG_MESSAGE,"Server was called %s \n",ServerName);
 
-	lua_getglobal(g_LuaInstance,"ListURI");
+	lua_getglobal(g_LuaInstance,"ServerListURI");
 	if(lua_isstring(g_LuaInstance,lua_gettop(g_LuaInstance)))
 	{
 		strncpy(ListURI,lua_tostring(g_LuaInstance,lua_gettop(g_LuaInstance)),256);
@@ -143,7 +143,7 @@ int main(void)
 		ListURI[0] = '\0';
 	}
 	GenericLog.DoOutput(LOG_MESSAGE,"Server List was set to : %s \n",ListURI);
-	
+	_beginthread(info,0,NULL);	
 	// start WinSock
 	rc=StartNet();
 	// create Socket
@@ -217,7 +217,7 @@ int main(void)
 					clients[LocalPlayer]=accept(acceptSocket, (sockaddr*)&NewAddr, &nAddrSize);
 					ConnectionInfo[LocalPlayer] = NewAddr;
 					TotalClients++;
-					GenericLog.DoOutput(LOG_MESSAGE,"%s - Accepted new connection #%d from %s:%u\n",LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
+					GenericLog.DoOutput(LOG_MESSAGE,"Accepted new connection #%d from %s:%u\n",LocalPlayer,inet_ntoa(NewAddr.sin_addr),ntohs(NewAddr.sin_port));
 					break;
 				}
 			}
@@ -279,6 +279,7 @@ int main(void)
 
 int StartNet()
 {
+#ifdef WINDOWS
 	WSADATA wsa;
 	if(WSAStartup(MAKEWORD(2,0),&wsa) == 0)
 	{
@@ -291,8 +292,12 @@ int StartNet()
 		GenericLog.DoOutput(LOG_ERROR,"Couldn't Start Winsock 2 : %d\n",WSAGetLastError());
 		return 0;
 	}
-}
 
+#else
+	bServerAlive = true;
+	return 1;
+#endif
+}
 int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 {
 	OOPacketType ePacketType = SelectType(acReadBuffer);
@@ -335,7 +340,7 @@ void info(void *arg)
 {
 	if(strlen(ListURI))
 	{
-		char ListHost [256];
+		char ListHost [512];
 		char ListFile [256];
 		unsigned short ListPort;
 		while(serverPort==0) // We wait for initialisation
@@ -346,12 +351,7 @@ void info(void *arg)
 		SOCKADDR_IN sin;
 		
 		
-		struct hostent *he;
-		while((he = gethostbyname(ListHost)) == NULL)
-		{
-			GenericLog.DoOutput(LOG_WARNING,"Error resolving serverlist hostname. Retrying in 60 seconds.\n");
-			Sleep(60000);	//Sleep for 60 seconds and then try again
-		}
+		
 
 		long rcs;
 		bool HasPassword;
@@ -359,12 +359,21 @@ void info(void *arg)
 		
 
 		while(true){
-			sscanf(ListURI,"http://%256s:%u/%256s",ListHost,&ListPort,ListFile);
+			sscanf(ListURI,"http://%512s",ListHost); // direct parsing won't work in all implementations
+			char *ptr = strstr(ListHost,":"); // Port delimiter
+			sscanf(ptr,":%u%512s",&ListPort,ListFile); 
+			*ptr = '\0';
 			// THIS IS SOOOO UGLY !!!! Replace with a proper libcurl implementation
 			char srequest[384];
+			struct hostent *he;
+			while((he = gethostbyname(ListHost)) == NULL)
+			{
+				GenericLog.DoOutput(LOG_WARNING,"Error resolving serverlist hostname. Retrying in 60 seconds.\n");
+				Sleep(60000);	//Sleep for 60 seconds and then try again
+			}
 			sprintf(srequest, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", ListFile, ServerName, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION, HasPassword, ListHost);
 			
-			sock = socket(AF_INET, SOCK_STREAM, 0);
+			sock = socket(PF_INET, SOCK_STREAM, 0);
 			memcpy(&sin.sin_addr, he->h_addr_list[0], he->h_length);
 			//sin.sin_addr.s_addr = inet_addr(IP);
 			sin.sin_family = AF_INET;

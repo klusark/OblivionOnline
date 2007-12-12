@@ -43,11 +43,10 @@ using namespace std; // hash_map "interoperability"
 using namespace stdext;
 extern void RunScriptLine(const char *buf, bool IsTemp);
 
-bool MCStackMode = false;
-bool MCbWritten;
-
-static std::stack <ActorStatus> MobStack;
-hash_map<UINT32,ActorStatus> MobList;
+bool QueueMode = false;
+std::queue <std::pair<TESObjectREFR *,ActorStatus>> MobQueue;
+typedef std::pair<TESObjectREFR *,ActorStatus> RefrStatusPair;
+hash_map<UINT32,ActorStatus> MCMobList;
 typedef std::pair<UINT32,ActorStatus> MobPair; 
 DWORD MobResynchTimer ; // seperate , because no seperate packet
 bool bIsMasterClient = false;
@@ -131,13 +130,13 @@ bool MCMakeMC()
 		{
 			ListIterator = ListIterator->next;
 			//Lookup in hash_map
-			hash_map<UINT32,ActorStatus>::iterator iter =  MobList.find(ListIterator->refr->refID);
-			if(iter == MobList.end())
+			hash_map<UINT32,ActorStatus>::iterator iter =  MCMobList.find(ListIterator->refr->refID);
+			if(iter == MCMobList.end())
 			{
 				ActorStatus temp;
-				MobList.insert(MobPair(ListIterator->refr->refID,temp));
+				MCMobList.insert(MobPair(ListIterator->refr->refID,temp));
 				//optimisation here?
-				iter =  MobList.find(ListIterator->refr->refID);
+				iter =  MCMobList.find(ListIterator->refr->refID);
 			}
 			if((iter->second.PosX != ListIterator->refr->posX ||		//position was changed
 				iter->second.PosY != ListIterator->refr->posY ||
@@ -164,29 +163,33 @@ bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 	{
 		MCbSynchActors();		
 	}	
-	//generate the stack
-	if(bIsConnected)
-		MCStackMode = true;
+	if(bIsConnected && !bIsMasterClient)
+	{
+		QueueMode = true;
+	}
 	return true;
 }
 bool Cmd_MPAdvanceStack_Execute (COMMAND_ARGS)
-{
-	if(MCStackMode)
+{	
+	if(QueueMode&&MobQueue.size())
 	{
-			
+		MobQueue.pop();
+		*result = MobQueue.front().first->refID;
+	}
+	else
+	{
+		*result = 0;
 	}
 	return true;
 }
 bool Cmd_MPStopStack_Execute (COMMAND_ARGS)
 {
-	if(MCStackMode)
+	if(QueueMode)
 	{
-		MCStackMode = false;
+		QueueMode = false;
 	}
 	return true;
 }
-
-//Used manually to build the cache .... SHOULD NOT BE USED atm.... we use the welcome code for that
 
 
 
@@ -228,44 +231,51 @@ bool Cmd_MPStopStack_Execute (COMMAND_ARGS)
 
 bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handler
 {
-	_MESSAGE("Received Mob Update"); 
-	std::string ScriptString;
+	Console_Print("Received Mob Update"); 
+	_MESSAGE("Received Mob Update");
 	if(!bIsMasterClient)
 	{
-		Actor * Object;
-		Object = (Actor *)LookupFormByID(pkgBuf.refID);
-		
-		if(Object)
+	TESObjectREFR * Object;
+	Object = (TESObjectREFR *)LookupFormByID(pkgBuf.refID);
+	if(Object)
+	{
+		Actor *act = (Actor *)act;
+		if(pkgBuf.Flags & 2)
 		{
-		ScriptString = Object->GetEditorName();
-		ScriptString += ".MoveTo" ;
-		ScriptString += pkgBuf.fPosX;
-		ScriptString += ",";
-		ScriptString += pkgBuf.fPosY;
-		ScriptString += ",";
-		ScriptString += pkgBuf.fPosZ;
-		ScriptString += ",";
-		ScriptString += pkgBuf.fRotZ;
-		ScriptString += ",";
-		ScriptString += pkgBuf.CellID;
-		RunScriptLine(ScriptString.c_str(),true);
-		_MESSAGE("Injected script: \" %s! \"",ScriptString.c_str());
-		if(pkgBuf.Flags & 8)
-		{
-			Object->ModActorBaseValue(8,(pkgBuf.Health -Object->GetActorValue(8)),0);
-			Object->ModActorBaseValue(9,(pkgBuf.Magika -Object->GetActorValue(9)),0);
-			Object->ModActorBaseValue(10,(pkgBuf.Fatigue -Object->GetActorValue(10)),0);
+			if(pkgBuf.Flags & 8)
+			{
+				act->ModActorBaseValue(8,(pkgBuf.Health -act->GetActorValue(8)),0);
+				act->ModActorBaseValue(9,(pkgBuf.Magika -act->GetActorValue(9)),0);
+				act->ModActorBaseValue(10,(pkgBuf.Fatigue -act->GetActorValue(10)),0);
+			}
+			else
+			{
+			if(pkgBuf.Health)
+				act->ModActorBaseValue(8,pkgBuf.Health,0);
+			if(pkgBuf.Magika)
+				act->ModActorBaseValue(9,pkgBuf.Magika,0);
+			if(pkgBuf.Fatigue)
+				act->ModActorBaseValue(10,pkgBuf.Fatigue,0);
+			}
 		}
-		else
+		if((*g_thePlayer)->parentCell->refID == pkgBuf.CellID)
 		{
-		if(pkgBuf.Health)
-			Object->ModActorBaseValue(8,pkgBuf.Health,0);
-		if(pkgBuf.Magika)
-			Object->ModActorBaseValue(9,pkgBuf.Magika,0);
-		if(pkgBuf.Fatigue)
-			Object->ModActorBaseValue(10,pkgBuf.Fatigue,0);
-		}
-
+			RefrStatusPair temp;
+			temp.first = Object;
+			if (pkgBuf.Flags & 4) //Is in an exterior?
+			{
+				temp.second.bIsInInterior = false;
+			}else{
+				temp.second.bIsInInterior = true;
+			}
+			temp.second.InCombat = pkgBuf.Flags & 32; 
+			temp.second.PosX = pkgBuf.fPosX;
+			temp.second.PosY = pkgBuf.fPosY;
+			temp.second.PosZ = pkgBuf.fPosZ;
+			temp.second.RotX = pkgBuf.fRotX;
+			temp.second.RotY = pkgBuf.fRotY;
+			temp.second.RotZ = pkgBuf.fRotZ;
+			}
 	}
 	}
 	// Do Health here....

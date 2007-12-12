@@ -369,6 +369,8 @@ bool Cmd_MPSyncTime_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 {
+	if(!QueueMode)
+	{
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetPosX");
@@ -387,11 +389,25 @@ bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 			*result = 0;
 		}
 	}
+	}
+	else
+	{
+		if(MobQueue.size()) 
+		{
+			*result = MobQueue.front().second.PosX;
+		}
+		else 
+		{
+			*result = 0;
+		}
+	}
 	return true;
 }
 
 bool Cmd_MPGetPosY_Execute (COMMAND_ARGS)
 {
+	if(!QueueMode)
+	{
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetPosY");
@@ -410,11 +426,25 @@ bool Cmd_MPGetPosY_Execute (COMMAND_ARGS)
 			*result = 0;
 		}
 	}
+	}
+	else
+	{
+		if(MobQueue.size()) 
+		{
+			*result = MobQueue.front().second.PosY;
+		}
+		else 
+		{
+			*result = 0;
+		}
+	}
 	return true;
 }
 
 bool Cmd_MPGetPosZ_Execute (COMMAND_ARGS)
 {
+	if(!QueueMode)
+	{
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetPosZ");
@@ -433,11 +463,25 @@ bool Cmd_MPGetPosZ_Execute (COMMAND_ARGS)
 			*result = -196;
 		}
 	}
+	}
+	else
+	{
+		if(MobQueue.size()) 
+		{
+			*result = MobQueue.front().second.PosZ;
+		}
+		else 
+		{
+			*result = 0;
+		}
+	}
 	return true;
 }
 
 bool Cmd_MPGetRotZ_Execute (COMMAND_ARGS)
 {
+	if(!QueueMode)
+	{
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetRotZ");
@@ -458,11 +502,25 @@ bool Cmd_MPGetRotZ_Execute (COMMAND_ARGS)
 			*result = 0;
 		}
 	}
+	}
+	else
+	{
+		if(MobQueue.size()) 
+		{
+			*result = MobQueue.front().second.RotZ;
+		}
+		else 
+		{
+			*result = 0;
+		}
+	}
 	return true;
 }
 
 bool Cmd_MPGetCell_Execute (COMMAND_ARGS)
 {
+	if(!QueueMode)
+	{
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetCell");
@@ -481,6 +539,10 @@ bool Cmd_MPGetCell_Execute (COMMAND_ARGS)
 		}else{
 			//Console_Print("Error: Couldn't find actor for MPGetCell");
 		}
+	}
+	}
+	else
+	{
 	}
 	return true;
 }
@@ -511,6 +573,8 @@ bool Cmd_MPGetYear_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 {
+	if(!QueueMode)
+	{
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetIsInInterior");
@@ -527,6 +591,11 @@ bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 		}else{
 			//Console_Print("Error: Couldn't find actor for MPGetIsInInterior");
 		}
+	}
+	}
+	else
+	{
+		*result = (int)MobQueue.front().second.bIsInInterior;
 	}
 	return true;
 }
@@ -1288,12 +1357,12 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	//Animation
 	obse->RegisterCommand(&kMPSetInCombatCommand);
 	obse->RegisterCommand(&kMPGetIsInCombatCommand);
-
-	obse->RegisterCommand(&kMPLoginCommand);
 	
 	// Mod Synch
 	obse->RegisterCommand(&kMPSynchActorsCommand);
-    
+	obse->RegisterCommand(&kMPAdvanceStackCommand);
+	obse->RegisterCommand(&kMPStopStackCommand);
+
 	_MESSAGE("Done loading OO Commands");
 	return true;
 }

@@ -93,8 +93,8 @@ struct OOPkgEvent // This package is for Plugin Events
 {
 	OOPacketType etypeID;
 	short Flags;	// none yet
-	DWORD Param1;
-	DWORD Param2;
+	unsigned long Param1;
+	unsigned long Param2;
 	int EventID;
 };
 
