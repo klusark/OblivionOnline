@@ -1,4 +1,4 @@
-#include "Lua_binding.h"
+#include "Lua_Binding.h"
 int ServerMessage(lua_State *L)
 {
 	   int ArgumentCount = lua_gettop(L);    /* number of arguments */

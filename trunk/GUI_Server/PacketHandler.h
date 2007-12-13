@@ -36,3 +36,4 @@ extern bool OOPEquipped_Handler(char *Packet,short LocalPlayer);
 extern bool OOPAdminInfo_Handler(char *Packet,short Length);
 extern bool OOPName_Handler(char *Packet,short Length);
 #endif
+

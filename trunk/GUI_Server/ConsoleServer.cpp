@@ -50,17 +50,22 @@ lua_State* g_LuaInstance = NULL;
 //Mob Synch Variables
 int MasterClient = -1;
 //Initially we are just storing 2 pointers , so this can be 24kb.... it autosizes quite well
-OOHashTable MobTable(3000);  // This value generates a good spread, especially with 16 potences ... also we should about double the number of values necessary to avoid collisions. 
+OOHashTable MobTable(EXPECTED_MOBS);  // This value generates a good spread, especially with 16 potences ... also we should about double the number of values necessary to avoid collisions. 
 //The hashing algorithm here relies on the fact that we do a) not have a string hash , but a good modulo hash
 // Therefore we need sequential FormIDs to create a good spread
 // b) lots and lots of memory- time tradeoffs
 
 IOSystem GenericLog("Server.log",LOG_WARNING,LOG_WARNING);
 
+
 // Prototypes
 int StartNet(void);
 int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead);
+#ifdef WINDOWS
 void info(void *);
+#else
+void *info(void *);
+#endif
 
 typedef std::pair< std::string, std::string > UserPasswordPair;
 
@@ -89,6 +94,10 @@ int main(void)
 		Players[i].Fatigue = 0;
 		Connected[i] = false;
 	}
+#ifndef WINDOWS
+//POSIX 
+pthread_t threads;
+#endif
 	GenericLog.DoOutput(LOG_MESSAGE,"######################################################################################################\n");
 	GenericLog.DoOutput(LOG_MESSAGE,"OblivionOnline Basic Server, v.%i.%i.%i\"%s \" %s \n \n",SUPER_VERSION,MAIN_VERSION,SUB_VERSION,RELEASE_CODENAME,RELEASE_COMMENT);
 	GenericLog.DoOutput(LOG_MESSAGE,"Main Developers : Written by masterfreek64 aka  Julian Bangert Bangert , bobjr 777 aka Joel Teichroeb \n\n");
@@ -143,7 +152,15 @@ int main(void)
 		ListURI[0] = '\0';
 	}
 	GenericLog.DoOutput(LOG_MESSAGE,"Server List was set to : %s \n",ListURI);
-	_beginthread(info,0,NULL);	
+	
+#ifndef WINDOWS
+	//POSIX 
+	pthread_t thread;
+	pthread_create(&thread,NULL,&info,NULL);
+#else
+
+	_beginthread(info,0,NULL);
+#endif	
 	// start WinSock
 	rc=StartNet();
 	// create Socket
@@ -213,7 +230,7 @@ int main(void)
 				if(clients[LocalPlayer]==INVALID_SOCKET) 
 				{
 					sockaddr_in NewAddr;
-					int nAddrSize = sizeof(NewAddr);
+					socklen_t nAddrSize = sizeof(NewAddr);
 					clients[LocalPlayer]=accept(acceptSocket, (sockaddr*)&NewAddr, &nAddrSize);
 					ConnectionInfo[LocalPlayer] = NewAddr;
 					TotalClients++;
@@ -335,8 +352,12 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 	}
 	return true;
 }
-
+//Thread 
+#ifdef WINDOWS
 void info(void *arg)
+#else
+void *info(void *arg)
+#endif
 {
 	if(strlen(ListURI))
 	{
@@ -345,8 +366,10 @@ void info(void *arg)
 		unsigned short ListPort;
 		while(serverPort==0) // We wait for initialisation
 			Sleep(50);
+#ifdef WINDOWS
 		WSADATA WSAData;
 		WSAStartup(MAKEWORD(2,0), &WSAData);
+#endif
 		SOCKET sock;
 		SOCKADDR_IN sin;
 		
@@ -391,7 +414,9 @@ void info(void *arg)
 			closesocket(sock); 
 			Sleep(120000);
 		}
+#ifdef WINDOWS
 		WSACleanup();
+#endif
 	}
 	else
 	{

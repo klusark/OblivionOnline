@@ -39,8 +39,8 @@ This file is part of OblivionOnline.
 #ifndef OOPackets_h
 #define OOPackets_h
 
-const GUID gcOOGUID = 
-{ 0x2b09e144, 0x4976, 0x44f6, { 0xaa, 0x8f, 0xb6, 0x27, 0x99, 0x24, 0x32, 0xaf } }; // so we can copy it over later
+const GUID gcOOGUID = { 0x2b09e144, 0x4976, 0x44f6, { 0xaa, 0x8f, 0xb6, 0x27, 0x99, 0x24, 0x32, 0xaf } }; // so we can copy it over later
+
 /*
 OblivionOnline GUID 
 // {2B09E144-4976-44f6-AA8F-B627992432AF}
@@ -199,3 +199,4 @@ inline OOPacketType SelectType(char *Packet)
 #define PACKET_COUNT 14
 
 #endif
+
