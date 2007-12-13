@@ -71,7 +71,7 @@ typedef std::pair< std::string, std::string > UserPasswordPair;
 
 
 //Main entry procedure
-int main(void)
+int  main(void)
 {
 	
 	// Setup our local variables
