@@ -247,223 +247,223 @@
 			Name="LUA"
 			>
 			<File
-				RelativePath=".\lua\lapi.c"
+				RelativePath=".\lapi.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lapi.h"
+				RelativePath=".\lapi.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lauxlib.c"
+				RelativePath=".\lauxlib.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lauxlib.h"
+				RelativePath=".\lauxlib.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lbaselib.c"
+				RelativePath=".\lbaselib.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lcode.c"
+				RelativePath=".\lcode.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lcode.h"
+				RelativePath=".\lcode.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\ldblib.c"
+				RelativePath=".\ldblib.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\ldebug.c"
+				RelativePath=".\ldebug.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\ldebug.h"
+				RelativePath=".\ldebug.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\ldo.c"
+				RelativePath=".\ldo.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\ldo.h"
+				RelativePath=".\ldo.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\ldump.c"
+				RelativePath=".\ldump.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lfunc.c"
+				RelativePath=".\lfunc.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lfunc.h"
+				RelativePath=".\lfunc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lgc.c"
+				RelativePath=".\lgc.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lgc.h"
+				RelativePath=".\lgc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\linit.c"
+				RelativePath=".\linit.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\liolib.c"
+				RelativePath=".\liolib.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\llex.c"
+				RelativePath=".\llex.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\llex.h"
+				RelativePath=".\llex.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\llimits.h"
+				RelativePath=".\llimits.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lmathlib.c"
+				RelativePath=".\lmathlib.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lmem.c"
+				RelativePath=".\lmem.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lmem.h"
+				RelativePath=".\lmem.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\loadlib.c"
+				RelativePath=".\loadlib.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lobject.c"
+				RelativePath=".\lobject.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lobject.h"
+				RelativePath=".\lobject.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lopcodes.c"
+				RelativePath=".\lopcodes.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lopcodes.h"
+				RelativePath=".\lopcodes.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\loslib.c"
+				RelativePath=".\loslib.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lparser.c"
+				RelativePath=".\lparser.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lparser.h"
+				RelativePath=".\lparser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lstate.c"
+				RelativePath=".\lstate.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lstate.h"
+				RelativePath=".\lstate.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lstring.c"
+				RelativePath=".\lstring.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lstring.h"
+				RelativePath=".\lstring.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lstrlib.c"
+				RelativePath=".\lstrlib.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\ltable.c"
+				RelativePath=".\ltable.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\ltable.h"
+				RelativePath=".\ltable.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\ltablib.c"
+				RelativePath=".\ltablib.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\ltm.c"
+				RelativePath=".\ltm.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\ltm.h"
+				RelativePath=".\ltm.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lua.c"
+				RelativePath=".\lua.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lua.h"
+				RelativePath=".\lua.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\luac.c"
+				RelativePath=".\luac.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\luaconf.h"
+				RelativePath=".\luaconf.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lualib.h"
+				RelativePath=".\lualib.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lundump.c"
+				RelativePath=".\lundump.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lundump.h"
+				RelativePath=".\lundump.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lvm.c"
+				RelativePath=".\lvm.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lvm.h"
+				RelativePath=".\lvm.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lzio.c"
+				RelativePath=".\lzio.c"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\lzio.h"
+				RelativePath=".\lzio.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lua\print.c"
+				RelativePath=".\print.c"
 				>
 			</File>
 		</Filter>
