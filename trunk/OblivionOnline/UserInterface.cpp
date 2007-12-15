@@ -1,3 +1,4 @@
+#if 0
 #include "UserInterface.h"
 #include <cstdio>
 #include "main.h"
@@ -366,3 +367,4 @@ bool UserInterface::Update() // This can indeed waste CPU time ... I will have t
 	return true;
 }
 // our Hook Procedure
+#endif
