@@ -700,6 +700,19 @@ public:
 		kFlag_IsEssential = 0x00000002
 	};
 
+	struct FactionListData
+	{
+		TESFaction	* faction;
+		UInt8		rank;
+		UInt8		pad[3];
+	};
+
+	struct FactionListEntry
+	{
+		FactionListData		* data;
+		FactionListEntry	* next;
+	};
+
 	UInt32	flags;	// 004 - has flags
 						// 00000002 - is essential
 	UInt16	unk1;	// 008
@@ -709,8 +722,7 @@ public:
 	UInt16	unk5;	// 010
 	UInt16	unk6;	// 012
 	UInt32	unk7;	// 014
-	UInt32	unk8;	// 018
-	UInt32	unk9;	// 01C
+	FactionListEntry	factionList;	//018
 
 	bool IsEssential() {
 		return (flags & kFlag_IsEssential) != 0;
@@ -726,6 +738,9 @@ public:
 	bool IsFemale() {
 		return (flags & kFlag_IsFemale) != 0;
 	}
+
+	SInt8 GetFactionRank(TESFaction* faction);
+
 };
 
 // 018
@@ -2905,7 +2920,7 @@ public:
 	UInt32	unk2;		// 048
 	UInt32	unk3;		// 04C
 	Unk50	unk4;		// 050
-	UInt32	unk5;		// 058
+	ScriptEventList	* scriptEventList;	// 058
 	UInt8	unk6;		// 05C
 	UInt8	pad1[3];	// 05D
 	UInt32	unk7;		// 060

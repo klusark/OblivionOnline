@@ -1800,3 +1800,15 @@ TESWeather::RGBA& TESWeather::GetColor(UInt32 whichColor, UInt8 time)
 		return colors[whichColor].colors[time];
 	}
 }
+
+SInt8 TESActorBaseData::GetFactionRank(TESFaction* faction)
+{
+	FactionListEntry* entry = &factionList;
+	while (entry && entry->data)
+	{
+		if (entry->data->faction == faction)
+			return entry->data->rank;
+		entry = entry->next;
+	}
+	return -1;
+}

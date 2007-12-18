@@ -64,6 +64,8 @@ const _FormHeap_Free FormHeap_Free = (_FormHeap_Free)0x00401FC0;
 const _GetGlobalScriptStateObj GetGlobalScriptStateObj = (_GetGlobalScriptStateObj)0x005790C0;
 const _GetSingleton InterfaceManager_GetSingleton = (_GetSingleton)0x00575230;
 const _ShowMessageBox ShowMessageBox = (_ShowMessageBox)0x0056CE20;
+const _ShowMessageBox_Callback ShowMessageBox_Callback = (_ShowMessageBox_Callback)0x004F6520;
+const _ShowMessageBox_pScriptRefID ShowMessageBox_pScriptRefID = (_ShowMessageBox_pScriptRefID)0x00AF3F40;
 const _QueueUIMessage QueueUIMessage = (_QueueUIMessage)0x0056DF90;
 MemoryHeap * g_formHeap = (MemoryHeap *)0x00AC3EC0;
 
@@ -78,6 +80,8 @@ const _FormHeap_Free FormHeap_Free = (_FormHeap_Free)0x00401F30;
 const _GetGlobalScriptStateObj GetGlobalScriptStateObj = (_GetGlobalScriptStateObj)0x00585BE0;
 const _GetSingleton InterfaceManager_GetSingleton = (_GetSingleton)0x005820B0;
 const _ShowMessageBox ShowMessageBox = (_ShowMessageBox)0x00579B10;
+const _ShowMessageBox_Callback ShowMessageBox_Callback = (_ShowMessageBox_Callback)0x00500530;
+const _ShowMessageBox_pScriptRefID ShowMessageBox_pScriptRefID = (_ShowMessageBox_pScriptRefID)0x00B361C8;
 const _QueueUIMessage QueueUIMessage = (_QueueUIMessage)0x0057ABC0;
 MemoryHeap * g_formHeap = (MemoryHeap *)0x00000000;	// ### TODO
 
@@ -92,6 +96,8 @@ const _FormHeap_Free FormHeap_Free = (_FormHeap_Free)0x00401F20;
 const _GetGlobalScriptStateObj GetGlobalScriptStateObj = (_GetGlobalScriptStateObj)0x00585C10;
 const _GetSingleton InterfaceManager_GetSingleton = (_GetSingleton)0x00582160;
 const _ShowMessageBox ShowMessageBox = (_ShowMessageBox)0x00579C10;
+const _ShowMessageBox_Callback ShowMessageBox_Callback = (_ShowMessageBox_Callback)0x005003E0;
+const _ShowMessageBox_pScriptRefID ShowMessageBox_pScriptRefID = (_ShowMessageBox_pScriptRefID)0x00B361C8;
 const _QueueUIMessage QueueUIMessage = (_QueueUIMessage)0x0057ACC0;
 MemoryHeap * g_formHeap = (MemoryHeap *)0x00B02020;
 
@@ -384,12 +390,13 @@ bool ExtractArgsEx(ParamInfo * paramInfo, void * scriptDataIn, UInt32 * scriptDa
 				UInt8	type = *scriptData++;
 				switch(type)
 				{
-					case 0x6E:
+					case 0x6E: // "n"
 						*out = *((UInt32 *)scriptData);
 						scriptData += sizeof(UInt32);
 						break;
-
-					case 0x73:
+					
+					case 0x66: // "f"
+					case 0x73: // "s"
 					{
 						UInt16	varIdx = *((UInt16 *)scriptData);
 						scriptData += 2;
@@ -431,7 +438,7 @@ bool ExtractArgsEx(ParamInfo * paramInfo, void * scriptDataIn, UInt32 * scriptDa
 						scriptData += sizeof(double);
 						break;
 
-					case 0x66:
+					case 0x66: // "f"
 					case 0x73: // "s"
 					{
 						UInt16	varIdx = *((UInt16 *)scriptData);

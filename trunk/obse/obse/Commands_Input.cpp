@@ -463,6 +463,10 @@ static bool Cmd_DisableControl_Execute(COMMAND_ARGS)
 
 	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &ctrl)) return true;
 
+	
+	if (!InputControls)
+		GetControlMap();
+
 	if (IsKeycodeValid(InputControls[ctrl]))	DI_data.DisallowStates[InputControls[ctrl]] = 0x00;
 	ctrl = AltInputControls[ctrl];
 	if (ctrl%256==255 && ctrl < 2048)	ctrl = 255 + (ctrl + 1) / 256;
@@ -477,6 +481,9 @@ static bool Cmd_EnableControl_Execute(COMMAND_ARGS)
 	UInt32	ctrl = 0;
 
 	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &ctrl)) return true;
+
+	if (!InputControls)
+		GetControlMap();
 
 	if (IsKeycodeValid(InputControls[ctrl]))	DI_data.DisallowStates[InputControls[ctrl]] = 0x80;
 	ctrl = AltInputControls[ctrl];

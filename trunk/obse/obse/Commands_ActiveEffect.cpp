@@ -118,7 +118,7 @@ static bool GetNthActiveEffectInfo_Execute(COMMAND_ARGS, UInt32 whichVal)
 {
 	*result = 0;
 	if (!thisObj) return true;
-	MagicTarget * magicTarget = (MagicTarget *) Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MagicTarget, 0);
+	MagicTarget * magicTarget = thisObj->GetMagicTarget();
 	if (!magicTarget) return true;
 
 	UInt32 whichEffect = 0;
@@ -135,7 +135,7 @@ static bool Cmd_GetActiveEffectCount_Execute(COMMAND_ARGS)
 {
 	*result = 0;
 	if (!thisObj) return true;
-	MagicTarget * magicTarget = (MagicTarget *) Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MagicTarget, 0);
+	MagicTarget * magicTarget = thisObj->GetMagicTarget();
 	if (!magicTarget) return true;
 
 	ActiveEffectVisitor visitor(magicTarget->GetEffectList());
@@ -190,7 +190,7 @@ static bool ChangeNthActiveEffectValue_Execute(COMMAND_ARGS, UInt32 whichVal, bo
 {
 	*result = 0;
 	if (!thisObj) return true;
-	MagicTarget * magicTarget = (MagicTarget *) Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MagicTarget, 0);
+	MagicTarget * magicTarget = thisObj->GetMagicTarget();
 	if (!magicTarget) return true;
 
 	float floatVal = 0.0;
@@ -202,6 +202,19 @@ static bool ChangeNthActiveEffectValue_Execute(COMMAND_ARGS, UInt32 whichVal, bo
 	if (!ae) return true;
 
 	if (whichVal == kAE_Magnitude) {
+#if 0
+		float oldValue = ae->magnitude;
+		float nuValue = (bForMod) ? oldValue += floatVal : floatVal;
+		float change = (nuValue - oldValue);
+		ae->magnitude = nuValue;
+		if (thisObj->IsActor() && ae->effectItem) {
+			UInt32 av = ae->effectItem->GetActorValue();
+			if (av != 256) {
+				Actor* actor = (Actor *)thisObj;
+				actor->ModActorValue(av, change, 0);
+			}
+		}
+#endif
 		if (bForMod) ae->magnitude+= floatVal;
 		else ae->magnitude = floatVal;
 	}

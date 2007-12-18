@@ -430,6 +430,11 @@ public:
 			// no data
 	};
 
+	enum
+	{
+		kFlags_Persistent = 0x400,		//shared bit with kFormFlags_QuestItem
+	};
+
 	TESObjectREFR();
 	~TESObjectREFR();
 

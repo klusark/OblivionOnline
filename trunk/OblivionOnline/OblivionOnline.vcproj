@@ -20,7 +20,8 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			CharacterSet="1"
+			UseOfATL="1"
+			CharacterSet="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -41,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(DXSDK_DIR)\Include\&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(SolutionDir)\..\obse\obse&quot;;&quot;$(SolutionDir)\..\obse\&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OBLIVION_VERSION=0x010201A0"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;DIRECT3DHOOK_EXPORTS;OBLIVION_VERSION=0x010201A0"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -62,9 +63,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib ddraw.lib dxguid.lib"
+				AdditionalDependencies="ws2_32.lib ddraw.lib dxguid.lib shlwapi.lib CEGUIBase_d.lib DirectX9GUIRenderer_d.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;"
+				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;ceguibin"
 				ModuleDefinitionFile="exports.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -102,7 +103,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -122,8 +123,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="3"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="&quot;$(DXSDK_DIR)\Include\&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(SolutionDir)\..\obse\obse&quot;;&quot;$(SolutionDir)\..\obse\&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBLIVION_VERSION=0x010201A0;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;DIRECT3DHOOK_EXPORTS;OBLIVION_VERSION=0x010201A0;CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="0"
 				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
@@ -143,9 +146,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib ddraw.lib dxguid.lib"
+				AdditionalOptions="/SECTION:.HookSection,S"
+				AdditionalDependencies="ws2_32.lib ddraw.lib dxguid.lib shlwapi.lib CEGUIBase.lib DirectX9GUIRenderer.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;"
+				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;ceguibin"
 				ModuleDefinitionFile="exports.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -366,48 +370,368 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="External Dependencies"
+			Name="Direct3dHooks"
 			>
-			<Filter
-				Name="OverLayLib"
+			<File
+				RelativePath=".\BugslayerUtil.h"
 				>
-				<File
-					RelativePath=".\Overlay\Exception.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Overlay\OverlayDraw.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Overlay\OverlayDraw.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Overlay\OverlayManager.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Overlay\OverlayManager.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Overlay\OverlayRectangle.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Overlay\OverlayRectangle.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Overlay\stdafx.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Overlay\stdafx.h"
-					>
-				</File>
-			</Filter>
+			</File>
+			<File
+				RelativePath=".\D3DHook.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\D3DHook.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FakeD3D.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GetLoadedModules.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HookImportedFunctionByName.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MemDumperValidator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MemDumperValidator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MSJDBG.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NT4ProcessInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TLHELPProcessInfo.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Cegui"
+			>
+			<File
+				RelativePath=".\cegui\CEGUI.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIBoundSlot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIcolour.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIColourRect.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIConfig.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIConfig_xmlHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUICoordConverter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIDataContainer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIDefaultLogger.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIDefaultResourceProvider.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIDynamicModule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIEvent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIEventArgs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIEventSet.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIExceptions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIFactoryModule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIFont.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIFont_xmlHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIFontManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIForwardRefs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIFreeFunctionSlot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIFreeTypeFont.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIFunctorCopySlot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIFunctorPointerSlot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIFunctorReferenceBinder.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIFunctorReferenceSlot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIGlobalEventSet.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIGUILayout_xmlHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIImage.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIImageCodec.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIImageset.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIImageset_xmlHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIImagesetManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIInputEvent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIIteratorBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUILogger.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUILua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIMemberFunctionSlot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIMouseCursor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIPixmapFont.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIProperty.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIPropertyHelper.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIPropertySet.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIRect.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIRefCounted.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIRenderCache.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIRenderer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIResourceProvider.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIScheme.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIScheme_xmlHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUISchemeManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIScriptModule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUISingleton.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUISize.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUISlotFunctorBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIString.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUISubscriberSlot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUISystem.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUITexture.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUITextUtils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIUDim.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIVector.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIVersion.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIWidgetModule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIWindow.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIWindowFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIWindowFactoryManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIWindowManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIWindowProperties.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIWindowRenderer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIWindowRendererManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIWindowRendererModule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIXMLAttributes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIXMLHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIXMLParser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\CEGUIXMLSerializer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cegui\config.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

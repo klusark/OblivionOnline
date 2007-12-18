@@ -258,7 +258,7 @@ void PluginManager::InstallPlugins(void)
 		}
 		else
 		{
-			_ERROR("couldn't load plugin %s", pluginPath.c_str());
+			_ERROR("couldn't load plugin %s %u", pluginPath.c_str(),GetLastError());
 		}
 	}
 

@@ -418,6 +418,8 @@
  *	
  ****/
 
+class NiAVObject;
+
 // 8
 struct NiRTTI
 {
@@ -514,16 +516,18 @@ public:
 	NiObjectNET();
 	~NiObjectNET();
 
-	const char			* m_pcName;		// 008
-	UInt32				unk00C;			// 00C
-	UInt32				unk010;			// 010
-	UInt16				unk014;			// 014
-	UInt16				unk016;			// 016
-	UInt8				unk018[0x68];	// 018
-	CRITICAL_SECTION	critSection;	// 080
-	UInt8				unk098[0x60];	// 098
-	UInt32				unk0F8;			// 0F8
-	UInt32				unk0FC;			// 0FC
+	const char			* m_pcName;						// 008
+	UInt32				unk00C;							// 00C
+	UInt32				unk010;							// 010
+	UInt16				unk014;							// 014
+	UInt16				unk016;							// 016
+	UInt32				unk018[(0x080 - 0x018) >> 2];	// 018
+	CRITICAL_SECTION	critSection;					// 080
+	UInt32				unk098[(0x0AC - 0x098) >> 2];	// 098
+	NiTArray <NiAVObject>	unk0AC;						// 0AC
+	UInt32				unk0BC[(0x0F8 - 0x0BC) >> 2];	// 0BC
+	UInt32				unk0F8;							// 0F8
+	UInt32				unk0FC;							// 0FC
 };
 
 // 194+

@@ -315,13 +315,34 @@ class EffectCodeFinder
 {
 	UInt32 m_effectCode;
 	UInt32 m_count;
+	UInt32 m_avOrRefID;
+
+	enum {
+		eCodeOnly = 0,
+		eCodeAndAV,
+		eCodeAndScript,
+	};
+
+	UInt8 m_mode;
 public:
-	EffectCodeFinder(UInt32 effectCode) : m_effectCode(effectCode), m_count(0) {}
+	EffectCodeFinder(UInt32 effectCode) : m_effectCode(effectCode), m_count(0), m_avOrRefID(0), m_mode(eCodeOnly) {}
+	EffectCodeFinder(UInt32 effectCode, UInt32 av) : m_effectCode(effectCode), m_avOrRefID(av), m_mode(eCodeAndAV) {}
+	EffectCodeFinder(UInt32 effectCode, Script* script) : m_effectCode(effectCode), m_avOrRefID(script->refID), m_mode(eCodeAndScript) {}
 	~EffectCodeFinder() {}
+
+	inline bool MatchesAV(EffectItem* effectItem) {
+		return m_mode == eCodeAndAV && effectItem->HasActorValue() && effectItem->GetActorValue() == m_avOrRefID;
+	}
+
+	inline bool MatchesScript(EffectItem* effectItem) {
+		return m_mode == eCodeAndScript && effectItem->IsScriptedEffect() && effectItem->scriptEffectInfo && effectItem->scriptEffectInfo->scriptRefID == m_avOrRefID;
+	}
 
 	bool Accept(EffectItem* effectItem) {
 		if (effectItem && effectItem->effectCode == m_effectCode) {
-			m_count++;
+			if  (m_mode == eCodeOnly || MatchesAV(effectItem) || MatchesScript(effectItem)) {
+				m_count++;
+			}
 		}
 		return true;
 	}
@@ -329,14 +350,16 @@ public:
 	UInt32 Found() { return m_count; }
 };
 
-static bool MagicItemHasEffectCode(EffectItemList::Entry* entry, UInt32 effectCode, bool bReturnCount, double* result)
+
+
+
+static bool MagicItemHasEffectCode(EffectItemList::Entry* entry, EffectCodeFinder& finder, bool bReturnCount, double* result)
 {
 	if (!entry || ! result) return true;
 
 	EffectItemVisitor visitor(entry);
-	EffectCodeFinder codeFinder(effectCode);
-	visitor.Visit(codeFinder);
-	UInt32 count = codeFinder.Found();
+	visitor.Visit(finder);
+	UInt32 count = finder.Found();
 	if (bReturnCount) {
 		*result = count;
 	} else {
@@ -344,6 +367,7 @@ static bool MagicItemHasEffectCode(EffectItemList::Entry* entry, UInt32 effectCo
 	}
 	return true;
 }
+
 
 const bool bReturnCountT = true;
 const bool bReturnCountF = false;
@@ -381,7 +405,8 @@ static bool MagicItemHasEffect_Execute(COMMAND_ARGS, bool bReturnCount, bool bUs
 	if (!form || effectCode == 0) return true;
 	EffectItemList* list = GetEffectList(form);
 	if (!list) return true;
-	return MagicItemHasEffectCode(&list->effectList, effectCode, bReturnCount, result);
+	EffectCodeFinder finder(effectCode);
+	return MagicItemHasEffectCode(&list->effectList, finder, bReturnCount, result);
 }
 
 static bool Cmd_MagicItemHasEffect_Execute(COMMAND_ARGS)

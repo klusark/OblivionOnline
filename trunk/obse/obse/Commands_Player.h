@@ -53,25 +53,9 @@ extern CommandInfo kCommandInfo_AddToLeveledList;
 extern CommandInfo kCommandInfo_RemoveFromLeveledList;
 extern CommandInfo kCommandInfo_CalcLeveledItem;
 
-extern CommandInfo kCommandInfo_GetTravelHorse;
-extern CommandInfo kCommandInfo_SetTravelHorse;
-extern CommandInfo kCommandInfo_GetOpenKey;
-extern CommandInfo kCommandInfo_SetOpenKey;
-
-extern CommandInfo kCommandInfo_GetParentCellOwner;
-extern CommandInfo kCommandInfo_GetOwner;
-extern CommandInfo kCommandInfo_GetOwningFactionRequiredRank;
-extern CommandInfo kCommandInfo_GetParentCellOwningFactionRequiredRank;
-
 extern CommandInfo kCommandInfo_SetHair;
 extern CommandInfo kCommandInfo_CopyHair;
 extern CommandInfo kCommandInfo_SetEyes;
 extern CommandInfo kCommandInfo_CopyEyes;
 
-extern CommandInfo kCommandInfo_IsLoadDoor;
-extern CommandInfo kCommandInfo_GetLinkedDoor;
-extern CommandInfo kCommandInfo_GetTeleportCell;
 
-extern CommandInfo kCommandInfo_GetFirstRef;
-extern CommandInfo kCommandInfo_GetNextRef;
-extern CommandInfo kCommandInfo_GetNumRefs;

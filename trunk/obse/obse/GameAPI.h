@@ -69,10 +69,18 @@ extern const _FormHeap_Free FormHeap_Free;
 typedef void * (* _GetGlobalScriptStateObj)(void);
 extern const _GetGlobalScriptStateObj GetGlobalScriptStateObj;
 
-// callback, unk2 and unk4 can be 0, unk3 can be an empty string
 typedef void (* _ShowMessageBox_Callback)(void);
-typedef bool (* _ShowMessageBox)(const char * str, _ShowMessageBox_Callback callback, UInt32 unk2, const char * unk3, UInt32 unk4);
+extern const _ShowMessageBox_Callback ShowMessageBox_Callback;
+
+// message is messageBox string, unk2 is 0, var args are char* for buttons
+// pass at least one button string or the messagebox can't be closed
+typedef bool (* _ShowMessageBox)(const char * message, _ShowMessageBox_Callback callback, UInt32 unk2, ...);
 extern const _ShowMessageBox ShowMessageBox;
+
+// set to scriptObj->refID after calling ShowMessageBox()
+// GetButtonPressed checks this before returning a value, if it doesn't match it returns -1
+typedef UInt32* _ShowMessageBox_pScriptRefID;
+extern const _ShowMessageBox_pScriptRefID ShowMessageBox_pScriptRefID;
 
 // unk1 = 0, unk2 = 1
 typedef bool (* _QueueUIMessage)(const char * string, UInt32 unk1, UInt32 unk2, float duration);

@@ -11,11 +11,20 @@
 // clear new allocs to CDCDCDCD and freed buffers to DEDEDEDE
 #define CLEAR_MEMORY 1
 
-// write allocations and deallcations to a log file
-#define LOG_MEMORY 1
+// write heap allocations and deallcations to a log file
+#define LOG_MEMORY 0
 
 // keep track of allocations, checking for double-frees or assignment to the same address twice
-#define TRACK_ALLOCATIONS 1
+#define TRACK_ALLOCATIONS 0
+
+// use custom heap implemetation allocating a guard page at the end of each selected memory block
+#define HEAP_USE_GUARDPAGE 1
+
+// slightly overallocate allocs to add a check value at the start and end
+#define BASIC_CHECK_OVERFLOWS 0
+
+static const UInt32 kMemOverflowMarkerStart = 0xDEADBEEF;
+static const UInt32 kMemOverflowMarkerEnd = 0xEAC15A55;
 
 class MemoryHeap
 {
@@ -93,10 +102,24 @@ public:
 	~MemoryPool();
 	
 	void *	Allocate(void);
+	bool	IsMember(void * buf)
+	{
+		if(!field_040) return false;
+		if(buf < field_040) return false;
+		if(buf >= ((UInt8 *)field_040) + field_110) return false;
+
+		return true;
+	}
+
+	struct FreeEntry
+	{
+		FreeEntry	* prev;
+		FreeEntry	* next;
+	};
 	
 	char	m_name[0x40];	// 000
 	void	* field_040;	// 040 - base buffer
-	UInt32	field_044;	// 044
+	FreeEntry	* freeList;	// 044
 
 	UInt32	unk_048[(0x080 - 0x048) >> 2];	// 048
 
@@ -122,14 +145,53 @@ MemoryPool **	g_memoryHeap_poolsByAddress = (MemoryPool **)0x00B32C80;	// size =
 static const UInt32 kMemoryHeap_Allocate_Addr = 0x00401AA7;
 static const UInt32 kMemoryHeap_Free_Addr = 0x00401D46;
 
-static UInt32 g_heapAllocTotal = 0;		// total number of heap allocations
+// note: this function needs to be very selective as it makes each allocation at least 8K
+static bool ShouldUseGuardpage(UInt32 size)
+{
+	if(size == 0x44) return true;
+
+	return false;
+}
+
+static MemoryPool * GetAllocationPool(void * buf)
+{
+	UInt32	buf32 = (UInt32)buf;
+
+	MemoryPool	* pool = g_memoryHeap_poolsByAddress[buf32 >> 24];
+	
+	if(!pool || !pool->IsMember(buf)) return NULL;
+	
+	return pool;
+}
+
 static UInt32 g_heapAllocCurrent = 0;	// number of non-freed heap allocations
 
-#if TRACK_ALLOCATIONS
 typedef std::map <void *, UInt32>	AllocationInfoMap;
 
 static AllocationInfoMap	g_allocationInfoMap;
 static ICriticalSection		g_allocationInfoMapLock;
+
+void Hook_Memory_CheckAllocs(void)
+{
+	g_allocationInfoMapLock.Enter();
+
+	for(AllocationInfoMap::iterator iter = g_allocationInfoMap.begin(); iter != g_allocationInfoMap.end(); ++iter)
+	{
+		UInt8	* buf8 = (UInt8 *)iter->first;
+		UInt32	size = iter->second;
+
+		ASSERT(*((UInt32 *)buf8) == kMemOverflowMarkerStart);
+		ASSERT(*((UInt32 *)(buf8 + 4 + size)) == kMemOverflowMarkerEnd);
+	}
+
+	g_allocationInfoMapLock.Leave();
+}
+
+#if HEAP_USE_GUARDPAGE
+typedef std::set <void *>	GuardpageAllocList;
+
+static GuardpageAllocList	g_guardpageAllocList;
+static ICriticalSection		g_guardpageAllocListLock;
 #endif
 
 #pragma optimize("", off)
@@ -160,25 +222,70 @@ FILE	* memLog = NULL;
 
 #pragma warning (disable : 4313)
 
+static const UInt32 kPageSize = 4096;
+static const UInt32 kPageSizeMask = kPageSize - 1;
+
 static void * __stdcall MemoryHeap_Allocate_Hook(UInt32 size, UInt32 unk)
 {
 	void	* result;
 	
+#if HEAP_USE_GUARDPAGE
+
+	size = (size + 3) & ~3;
+
+	if(ShouldUseGuardpage(size))
+	{
+		UInt32	sizeInPages = (size + kPageSizeMask) & ~kPageSizeMask;
+		UInt32	alignSize = sizeInPages - size;
+
+		UInt8	* base = (UInt8 *)VirtualAlloc(NULL, sizeInPages + kPageSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		ASSERT(base);
+
+		VirtualProtect(base + sizeInPages, kPageSize, PAGE_NOACCESS, NULL);
+
+		result = base + alignSize;
+
+		g_guardpageAllocListLock.Enter();
+		g_guardpageAllocList.insert(result);
+		g_guardpageAllocListLock.Leave();
+	}
+	else
+	{
+		result = g_formHeap->Allocate(size, unk);
+	}
+#else
+
+#if BASIC_CHECK_OVERFLOWS
+
+	{
+		result = g_formHeap->Allocate(size + 8, unk);
+
+		g_allocationInfoMapLock.Enter();
+		g_allocationInfoMap[result] = size;
+		g_allocationInfoMapLock.Leave();
+
+		UInt8	* buf8 = (UInt8 *)result;
+
+		*((UInt32 *)buf8) = kMemOverflowMarkerStart;
+		result = buf8 + 4;
+		*((UInt32 *)(buf8 + 4 + size)) = kMemOverflowMarkerEnd;
+	}
+
+#else
 	result = g_formHeap->Allocate(size, unk);
+#endif
+
+#endif
 
 	if(g_formHeap->IsMainHeapAllocation(result))
 	{
-		g_heapAllocTotal++;
 		g_heapAllocCurrent++;
 
 #if LOG_MEMORY
-		fprintf(memLog, "a %08X %08X %08X\n", result, size, unk);
-
-		if((g_heapAllocTotal % 10000) == 0)
-		{
-			fprintf(memLog, "alloc count = %d\n", g_heapAllocTotal);
-			fflush(memLog);
-		}
+		if(unk != 1)
+			fprintf(memLog, "a %08X %08X %08X\n", result, size, unk);
+		else
+			fprintf(memLog, "a %08X %08X\n", result, size);
 #endif
 
 #if TRACK_ALLOCATIONS
@@ -214,6 +321,23 @@ static void * __stdcall MemoryHeap_Allocate_Hook(UInt32 size, UInt32 unk)
 
 static void __stdcall MemoryHeap_Free_Hook(void * ptr)
 {
+#if BASIC_CHECK_OVERFLOWS
+	{
+		ptr = ((UInt8 *)ptr) - 4;
+		ASSERT(*((UInt32 *)ptr) == kMemOverflowMarkerStart);
+
+		g_allocationInfoMapLock.Enter();
+		AllocationInfoMap::iterator	iter = g_allocationInfoMap.find(ptr);
+		ASSERT(iter != g_allocationInfoMap.end());
+
+		UInt32	size = iter->second;
+		g_allocationInfoMap.erase(iter);
+		g_allocationInfoMapLock.Leave();
+
+		ASSERT(*((UInt32 *)(((UInt8 *)ptr) + 4 + size)) == kMemOverflowMarkerEnd);
+	}
+#endif
+
 	if(g_formHeap->IsMainHeapAllocation(ptr))
 	{
 #if LOG_MEMORY
@@ -252,16 +376,38 @@ static void __stdcall MemoryHeap_Free_Hook(void * ptr)
 	if(ptr)
 	{
 #if CLEAR_MEMORY
-		UInt32		ptr32 = (UInt32)ptr;
-		MemoryPool	* pool = g_memoryHeap_poolsByAddress[ptr32 >> 24];
-
-		if(pool)
 		{
-			memset(ptr, 0xDEDEDEDE, pool->field_100);
+			MemoryPool	* pool = GetAllocationPool(ptr);
+			if(pool)
+				memset(ptr, 0xDEDEDEDE, pool->field_100);
 		}
 #endif
 
+#if HEAP_USE_GUARDPAGE
+		bool	isGuardpageAlloc = false;
+
+		g_guardpageAllocListLock.Enter();
+		GuardpageAllocList::iterator	iter = g_guardpageAllocList.find(ptr);
+		if(iter != g_guardpageAllocList.end())
+		{
+			isGuardpageAlloc = true;
+			g_guardpageAllocList.erase(iter);
+		}
+		g_guardpageAllocListLock.Leave();
+
+		if(isGuardpageAlloc)
+		{
+			ptr = (void *)(((UInt32)ptr) & ~kPageSizeMask);
+
+			VirtualFree(ptr, 0, MEM_RELEASE);
+		}
+		else
+		{
+			g_formHeap->Free(ptr);
+		}
+#else
 		g_formHeap->Free(ptr);
+#endif
 	}
 }
 
@@ -296,8 +442,6 @@ void Hook_Memory_DeInit()
 		}
 	}
 #endif
-
-	fprintf(memLog, "alloc count = %d\n", g_heapAllocTotal);
 
 	fclose(memLog);
 	memLog = NULL;

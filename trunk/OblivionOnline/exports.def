@@ -2,3 +2,7 @@ LIBRARY	"OblivionOnline"
 EXPORTS
 OBSEPlugin_Query
 OBSEPlugin_Load
+D3DInstallHook
+D3DUnHook
+SECTIONS
+.HookSection SHARED

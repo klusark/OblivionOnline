@@ -39,12 +39,12 @@ This file is part of OblivionOnline.
 #include "main.h"
 #include "UserInterface.h"
 #include "OONetwork.h"
-
+#include "D3Dhook.h"
 // Global variables
-IDebugLog gLog("OblivionOnline.log");
 
 bool bIsConnected = false;
 
+IDebugLog gLog;
 bool PlayerConnected[MAXCLIENTS];
 int LocalPlayer;
 int TotalPlayers;
@@ -69,6 +69,13 @@ DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.'
 
 extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEquippedFunctor, double* result);
 
+extern  "C" void OpenLog(int bOblivion)
+{
+	if(bOblivion)
+		gLog.Open("OblivionOnline.log");
+	else
+		gLog.Open("OblivionOnline_Hook.log");
+}
 int OO_Initialize()
 {
 	long rc;
@@ -109,6 +116,8 @@ int OO_Initialize()
 
 		SpawnID[i] = 0;
 	}
+	//_MESSAGE("Initializing GUI");
+	//InitialiseUI();
 	return rc;
 }
 

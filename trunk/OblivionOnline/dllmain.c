@@ -36,6 +36,10 @@ This file is part of OblivionOnline.
 	forward this exception.
 */
 #include <Windows.h>
+#include <shlwapi.h>
+#include "D3DHook.h"
+
+extern void  OpenLog(int);
 HINSTANCE hDll; // we need this for hooking the keyborad
 BOOL WINAPI DllMain(
         HINSTANCE  hDllHandle,
@@ -43,6 +47,22 @@ BOOL WINAPI DllMain(
         LPVOID  lpreserved
         )
 {
-	hDll = hDllHandle;
+	if(dwReason == DLL_PROCESS_ATTACH)  // When initializing....
+	{
+		//hDll = hDllHandle;
+		char proc[512];
+		GetModuleFileNameA(GetModuleHandle(0), proc, sizeof(proc));
+		PathStripPath(proc);	
+		if(_strnicmp("Oblivion.exe", proc, 512) == 0)
+		{
+			OpenLog(1);
+			D3DHookInit();
+		}
+		else
+		{
+			OpenLog(0);
+		}
+		return TRUE;
+	}
 	return TRUE;
 }

@@ -7,6 +7,7 @@
 
 #include "GameAPI.h"
 #include "GameForms.h"
+#include "GameObjects.h"
 
 /* Print formatted string to Oblivion console
  * syntax: PrintToConsole fmtstring num1 num2 ...
@@ -109,6 +110,20 @@ bool Cmd_RunBatchScript_Execute(COMMAND_ARGS)
 	return true;
 }
 
+static bool Cmd_GetFormID_Execute(COMMAND_ARGS)
+{
+	TESForm* form = NULL;
+	*result = 0;
+
+	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
+	if (form)
+		*result = form->refID;
+	else if (thisObj)
+		*result = thisObj->refID;
+
+	return true;
+}
+
 #endif
 
 ParamInfo kParams_StringFormat[10] =
@@ -180,6 +195,20 @@ CommandInfo kCommandInfo_RunBatchScript =
 	1,
 	kParams_OneString,
 	HANDLER(Cmd_RunBatchScript_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetFormID =
+{
+	"GetFormID", "GetRefID",
+	0,
+	"returns the formID of an object or reference",
+	0,
+	1,
+	kParams_OneOptionalInventoryObject,
+	HANDLER(Cmd_GetFormID_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0

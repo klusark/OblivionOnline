@@ -431,6 +431,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\obse\Commands_MiscReference.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_MiscReference.h"
+				>
+			</File>
+			<File
 				RelativePath="..\obse\Commands_Player.cpp"
 				>
 			</File>

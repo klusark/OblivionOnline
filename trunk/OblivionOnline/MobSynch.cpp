@@ -239,7 +239,7 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 	Object = (TESObjectREFR *)LookupFormByID(pkgBuf.refID);
 	if(Object)
 	{
-		Actor *act = (Actor *)act;
+		Actor *act = (Actor *)Object;
 		if(pkgBuf.Flags & 2)
 		{
 			if(pkgBuf.Flags & 8)

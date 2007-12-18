@@ -1,5 +1,8 @@
 #include "Hooks_Gameplay.h"
 #include "obse_common/SafeWrite.h"
+#include "Hooks_Memory.h"
+
+static void HandleMainLoopHook(void);
 
 #if OBLIVION_VERSION == OBLIVION_VERSION_1_1
 
@@ -28,6 +31,18 @@ static void InstallRefIDBugfix(void)
 	WriteRelJump(0x00443E66, (UInt32)&RefIDBugfix);
 }
 
+static __declspec(naked) void MainLoopHook(void)
+{
+	__asm
+	{
+		pushad
+		call	HandleMainLoopHook
+		popad
+		mov		ecx, [edx + 0x280]
+		jmp		[kMainLoopHookRetnAddr]
+	}
+}
+
 #elif OBLIVION_VERSION == OBLIVION_VERSION_1_2
 
 static const UInt32 kLoadGameHookPatchAddr = 0x00465762;
@@ -54,6 +69,18 @@ static void InstallRefIDBugfix(void)
 	WriteRelJump(0x00448F70, (UInt32)&RefIDBugfix);
 }
 
+static __declspec(naked) void MainLoopHook(void)
+{
+	__asm
+	{
+		pushad
+		call	HandleMainLoopHook
+		popad
+		mov		eax, [edx + 0x280]			// ### check this
+		jmp		[kMainLoopHookRetnAddr]
+	}
+}
+
 #elif OBLIVION_VERSION == OBLIVION_VERSION_1_2_416
 
 static const UInt32 kLoadGameHookPatchAddr = 0x00465862;
@@ -62,6 +89,18 @@ static const UInt32	kLoadGameHookPushValue = 0x009AE797;
 
 static const UInt32 kMainLoopHookPatchAddr = 0x0040F19D;
 static const UInt32 kMainLoopHookRetnAddr = 0x0040F1A3;
+
+static __declspec(naked) void MainLoopHook(void)
+{
+	__asm
+	{
+		pushad
+		call	HandleMainLoopHook
+		popad
+		mov		eax, [edx + 0x280]
+		jmp		[kMainLoopHookRetnAddr]
+	}
+}
 
 #else
 #error unsupported oblivion version
@@ -82,18 +121,8 @@ static __declspec(naked) void LoadGameHook(void)
 static void HandleMainLoopHook(void)
 {
 	// nothing yet
-}
 
-static __declspec(naked) void MainLoopHook(void)
-{
-	__asm
-	{
-		pushad
-		call	HandleMainLoopHook
-		popad
-		mov		ecx, [edx + 0x280]
-		jmp		[kMainLoopHookRetnAddr]
-	}
+	Hook_Memory_CheckAllocs();
 }
 
 void Hook_Gameplay_Init(void)

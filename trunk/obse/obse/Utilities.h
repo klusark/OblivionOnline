@@ -75,7 +75,7 @@ public:
 		const Node* pCur = m_pHead;
 		while (pCur)
 		{
-			if (op.Accept(pCur->Info()))
+			if (pCur->Info() && op.Accept(pCur->Info()))
 				count++;
 			pCur = pCur->Next();
 		}

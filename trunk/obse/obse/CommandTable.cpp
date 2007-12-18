@@ -10,6 +10,7 @@
 #include "Commands_MagicEffect.h"
 #include "Commands_Weather.h"
 #include "Commands_ActiveEffect.h"
+#include "Commands_MiscReference.h"
 #include "ParamInfos.h"
 #include "PluginManager.h"
 #include "Hooks_Memory.h"
@@ -1750,6 +1751,15 @@ void CommandTable::Init(void)
 	g_scriptCommands.Add(&kCommandInfo_GetNextRef);
 	g_scriptCommands.Add(&kCommandInfo_GetNumRefs);
 	g_scriptCommands.Add(&kCommandInfo_RefreshControlMap);
+
+	// v0014
+/*
+	g_scriptCommands.Add(&kCommandInfo_IsPersistent);
+	g_scriptCommands.Add(&kCommandInfo_GetFormID);
+	g_scriptCommands.Add(&kCommandInfo_IsOffLimits);
+	ImportConsoleCommand("PlayerSpellBook");
+	ImportConsoleCommand("ToggleMapMarkers");
+*/
 
 	/* to add later if problems can be solved
 	g_scriptCommands.Add(&kCommandInfo_SetCurrentClimate); // too many problems
