@@ -14,6 +14,7 @@ package.files =
 	matchfiles(pkgdir.."src/*.cpp"),
 	matchfiles(pkgdir.."include/*.h"),
 }
+
 package.excludes =
 {
     pkgdir.."include/MacCEGuiRendererSelector.h",

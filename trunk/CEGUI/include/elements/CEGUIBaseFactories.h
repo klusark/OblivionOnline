@@ -62,6 +62,8 @@
 #include "elements/CEGUITitlebar.h"
 #include "elements/CEGUITooltip.h"
 #include "elements/CEGUIItemListbox.h"
+#include "elements/CEGUIGroupBox.h"
+#include "elements/CEGUITree.h"
 
 // Start of CEGUI namespace section
 namespace CEGUI
@@ -97,6 +99,8 @@ namespace CEGUI
     CEGUI_DECLARE_WINDOW_FACTORY(Titlebar);
     CEGUI_DECLARE_WINDOW_FACTORY(Tooltip);
     CEGUI_DECLARE_WINDOW_FACTORY(ItemListbox);
+	CEGUI_DECLARE_WINDOW_FACTORY(GroupBox);
+	CEGUI_DECLARE_WINDOW_FACTORY(Tree)
 
 } // End of  CEGUI namespace section
 

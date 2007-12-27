@@ -57,9 +57,17 @@
 
 #ifdef _MSC_VER
 # if defined(DEBUG) || defined (_DEBUG)
-#   pragma comment (lib, "OpenGLGUIRenderer_d.lib")
+#	if defined(CEGUI_STATIC)
+#		pragma comment (lib, "OpenGLGUIRenderer_Static_d.lib")
+#	else
+#		pragma comment (lib, "OpenGLGUIRenderer_d.lib")
+#	endif
 # else
-#   pragma comment (lib, "OpenGLGUIRenderer.lib")
+#	if defined(CEGUI_STATIC)
+#		pragma comment (lib, "OpenGLGUIRenderer_Static.lib")
+#	else
+#		pragma comment (lib, "OpenGLGUIRenderer.lib")
+#	endif
 # endif
 #endif
 
@@ -150,6 +158,7 @@ CEGuiOpenGLBaseApplication::CEGuiOpenGLBaseApplication()
     CEGUI::DefaultResourceProvider* rp = static_cast<CEGUI::DefaultResourceProvider*>
         (CEGUI::System::getSingleton().getResourceProvider());
 
+#ifndef __APPLE__
     rp->setResourceGroupDirectory("schemes", "../datafiles/schemes/");
     rp->setResourceGroupDirectory("imagesets", "../datafiles/imagesets/");
     rp->setResourceGroupDirectory("fonts", "../datafiles/fonts/");
@@ -158,6 +167,17 @@ CEGuiOpenGLBaseApplication::CEGuiOpenGLBaseApplication()
     rp->setResourceGroupDirectory("lua_scripts", "../datafiles/lua_scripts/");
 #if defined(CEGUI_WITH_XERCES) && (CEGUI_DEFAULT_XMLPARSER == XercesParser)
     rp->setResourceGroupDirectory("schemas", "../../XMLRefSchema/");
+#endif
+#else
+    rp->setResourceGroupDirectory("schemes", "datafiles/schemes/");
+    rp->setResourceGroupDirectory("imagesets", "datafiles/imagesets/");
+    rp->setResourceGroupDirectory("fonts", "datafiles/fonts/");
+    rp->setResourceGroupDirectory("layouts", "datafiles/layouts/");
+    rp->setResourceGroupDirectory("looknfeels", "datafiles/looknfeel/");
+    rp->setResourceGroupDirectory("lua_scripts", "datafiles/lua_scripts/");
+#if defined(CEGUI_WITH_XERCES) && (CEGUI_DEFAULT_XMLPARSER == XercesParser)
+    rp->setResourceGroupDirectory("schemas", "XMLRefSchema/");
+#endif
 #endif
 }
 

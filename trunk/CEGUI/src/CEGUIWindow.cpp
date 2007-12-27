@@ -89,6 +89,7 @@ WindowProperties::UnifiedMaxSize	Window::d_unifiedMaxSizeProperty;
 WindowProperties::MousePassThroughEnabled   Window::d_mousePassThroughEnabledProperty;
 WindowProperties::WindowRenderer    Window::d_windowRendererProperty;
 WindowProperties::LookNFeel         Window::d_lookNFeelProperty;
+WindowProperties::DragDropTarget    Window::d_dragDropTargetProperty;
 
 /*************************************************************************
 	static data definitions
@@ -99,6 +100,7 @@ Window*	Window::d_captureWindow		= 0;
 /*************************************************************************
 	Event name constants
 *************************************************************************/
+const String Window::EventWindowUpdated ( "WindowUpdate" );
 const String Window::EventParentSized( "ParentSized" );
 const String Window::EventSized( "Sized" );
 const String Window::EventMoved( "Moved" );
@@ -180,6 +182,7 @@ Window::Window(const String& type, const String& name) :
     d_wantsMultiClicks  = true;
     d_distCapturedInputs = false;
     d_riseOnClick       = true;
+    d_dragDropTarget    = true;
 
     // initialise mouse button auto-repeat state
     d_repeatButton = NoButton;
@@ -378,14 +381,54 @@ Window* Window::getChild(const String& name) const
 
 	for (size_t i = 0; i < child_count; ++i)
 	{
-		if (d_children[i]->getName() == name)
+		String childName = d_children[i]->getName();
+		//We need to check if the current name is available or if the name + prefix is available.. Hopefully not both
+		if(childName == name || childName == m_windowPrefix + name)
 		{
 			return d_children[i];
 		}
 
-	}
+	} // for (size_t i = 0; i < child_count; ++i)
+
+	for(size_t i=0;i<child_count;i++)
+	{
+		Window* temp = d_children[i]->recursiveChildSearch(name);
+		if(temp)
+			return temp;
+	} // for(size_t i=0;i<child_count;i++)
 
 	throw UnknownObjectException("Window::getChild - The Window object named '" + name +"' is not attached to Window '" + d_name + "'.");
+}
+
+/***********************************************************************
+	returns a pointer to a child window... searches recursively for it
+	Use getChild() only. This function should only be used by getChild
+	to find any child windows within it. This function does not throw any
+	exceptions it will return NULL if nothing is found **WARNING**
+************************************************************************/
+Window* Window::recursiveChildSearch( const String& name ) const
+{
+	size_t child_count = getChildCount();
+
+	for (size_t i = 0; i < child_count; ++i)
+	{
+		String childName = d_children[i]->getName();
+		//We need to check if the current name is available or if the name + prefix is available.. Hopefully not both
+		if(childName == name || childName == m_windowPrefix + name)
+		{
+			return d_children[i];
+		}
+
+	} // for (size_t i = 0; i < child_count; ++i)
+
+	for(size_t i=0;i<child_count;i++)
+	{
+		Window* temp = d_children[i]->recursiveChildSearch(name);
+		if(temp)
+			return temp;
+	} // for(size_t i=0;i<child_count;i++)
+
+	return NULL;
 }
 
 
@@ -1575,6 +1618,7 @@ void Window::addStandardProperties(void)
     addProperty(&d_mousePassThroughEnabledProperty);
     addProperty(&d_windowRendererProperty);
     addProperty(&d_lookNFeelProperty);
+    addProperty(&d_dragDropTargetProperty);
 
     // we ban some of these properties from xml for auto windows by default
     if (isAutoWindow())
@@ -1740,6 +1784,9 @@ void Window::update(float elapsed)
 
 	// update child windows
 	size_t child_count = getChildCount();
+
+	UpdateEventArgs e(this,elapsed);
+	fireEvent(EventWindowUpdated,e,EventNamespace);
 
 	for (size_t i = 0; i < child_count; ++i)
 	{
@@ -2183,12 +2230,12 @@ void Window::setLookNFeel(const String& look)
     WidgetLookManager& wlMgr = WidgetLookManager::getSingleton();
     if (!d_lookName.empty())
     {
-        /*
+        // Allow reset of look and feel
+        // NOTE: If you want to prevent this, replace the following lines with the commented exception one
         d_windowRenderer->onLookNFeelUnassigned();
         const WidgetLookFeel& wlf = wlMgr.getWidgetLook(d_lookName);
         wlf.cleanUpWidget(*this);
-        */
-        throw AlreadyExistsException("Window::setLookNFeel - There is already a look'n'feel assigned to the window '"+d_name+"'");
+        //throw AlreadyExistsException("Window::setLookNFeel - There is already a look'n'feel assigned to the window '"+d_name+"'");	
     }
     d_lookName = look;
     Logger::getSingleton().logEvent("Assigning LookNFeel '" + look +"' to window '" + d_name + "'.", Informative);
@@ -2990,7 +3037,8 @@ void Window::setWindowRenderer(const String& name)
     WindowRendererManager& wrm = WindowRendererManager::getSingleton();
     if (d_windowRenderer != 0)
     {
-        /*
+        // Allow reset of renderer
+        // NOTE: If you want to prevent it, replace the following lines with the commented exception one
         if (d_windowRenderer->getName() == name)
         {
             return;
@@ -2998,8 +3046,7 @@ void Window::setWindowRenderer(const String& name)
         WindowEventArgs e(this);
         onWindowRendererDetached(e);
         wrm.destroyWindowRenderer(d_windowRenderer);
-        */
-        throw AlreadyExistsException("Window::setWindowRenderer - There is already a window renderer assigned to the window '"+d_name+"'");
+        //throw AlreadyExistsException("Window::setWindowRenderer - There is already a window renderer assigned to the window '"+d_name+"'");
     }
 
     if (!name.empty())
@@ -3152,6 +3199,45 @@ EventSet::Iterator Window::getEventIterator() const
 PropertySet::Iterator Window::getPropertyIterator() const
 {
     return PropertySet::getIterator();
+}
+
+bool Window::isDragDropTarget() const
+{
+    return d_dragDropTarget;
+}
+
+void Window::setDragDropTarget(bool setting)
+{
+    d_dragDropTarget = setting;
+}
+
+//-----------------------------------------------------------------------
+void Window::setFalagardType(const String& type, const String& rendererType)
+{
+    // Retrieve the new widget look
+    const String separator("/");
+    String::size_type pos = type.find(separator);
+    String newLook(type, 0, pos);
+
+    // Check if old one is the same. If so, ignore since we don't need to do anything (type 
+    // is already assigned)
+    pos = d_falagardType.find(separator);
+    String oldLook(d_falagardType, 0, pos);
+    if(oldLook == newLook)
+        return;
+
+    // Obtain widget kind
+    String widget(d_falagardType, pos + 1);
+
+    // Build new type (look/widget)
+    d_falagardType = newLook + separator + widget;
+
+    // Set new renderer
+    if(rendererType.length() > 0)
+        setWindowRenderer(rendererType);
+
+    // Apply the new look to the widget
+    setLookNFeel(type);
 }
 
 } // End of  CEGUI namespace section

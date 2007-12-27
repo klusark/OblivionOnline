@@ -7,4 +7,5 @@ package.files =
     matchfiles(pkgdir.."src/*.cpp"),
     matchfiles(pkgdir.."include/*.h"),
 }
+
 include(pkgdir.."include")

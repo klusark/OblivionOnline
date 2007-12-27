@@ -56,6 +56,18 @@
 #include <ctime>
 #include <clocale>
 
+//This block includes the proper headers when static linking
+#if defined(CEGUI_STATIC)
+	#ifdef CEGUI_WITH_EXPAT
+		#include "../XMLParserModules/expatParser/CEGUIExpatParserModule.h"
+	#elif CEGUI_WITH_TINYXML
+		#include "../XMLParserModules/TinyXMLParser/CEGUITinyXMLParserModule.h"
+	#elif CEGUI_WITH_XERCES
+		#include "../XMLParserModules/XercesParser/CEGUIXercesParserModule.h"
+	#endif
+#endif
+
+
 #define S_(X) #X
 #define STRINGIZE(X) S_(X)
 
@@ -167,13 +179,21 @@ System::System(Renderer* renderer,
   d_defaultTooltip(0),
   d_weOwnTooltip(false)
 {
-    // start out by fixing the numeric locale to C (we depend on this behaviour)
+    bool userCreatedLogger = true;
+
+    // Start out by fixing the numeric locale to C (we depend on this behaviour)
     // consider a UVector2 as a property {{0.5,0},{0.5,0}} could become {{0,5,0},{0,5,0}}
     setlocale(LC_NUMERIC, "C");
 
     // Instantiate logger first (we have no file at this point, but entries will be cached until we do)
-    if (!Logger::getSingletonPtr ())
+    // NOTE: If the user already created a logger prior to calling this constructor,
+    // we mark it as so and leave the logger untouched. This allows the user to fully customize
+    // the logger as he sees fit without fear of seeing its configuration overwritten by this.
+    if (!Logger::getSingletonPtr())
+    {
         new DefaultLogger();
+        userCreatedLogger = false;
+    }
 
     // Set CEGUI version
     d_strVersion = PropertyHelper::uintToString(CEGUI_VERSION_MAJOR) + "." +
@@ -206,8 +226,9 @@ System::System(Renderer* renderer,
             throw;
         }
 
-        // set the logging level
-        Logger::getSingleton().setLoggingLevel(handler.getLoggingLevel());
+        // Set the logging level if the user didn't create a logger beforehand
+        if(!userCreatedLogger)
+            Logger::getSingleton().setLoggingLevel(handler.getLoggingLevel());
 
         // get the strings read
         configLogname       = handler.getLogFilename();
@@ -224,16 +245,19 @@ System::System(Renderer* renderer,
         }
     }
 
-    // Start up the logger:
-    // prefer log filename from config file
-    if (!configLogname.empty())
+    // Start up the logger if the user didn't create a logger beforehand
+    if(!userCreatedLogger)
     {
-        Logger::getSingleton().setLogFilename(configLogname, false);
-    }
-    // no log specified in configuration, use default / hard-coded option
-    else
-    {
-        Logger::getSingleton().setLogFilename(logFile, false);
+        // Prefer log filename from config file
+        if (!configLogname.empty())
+        {
+            Logger::getSingleton().setLogFilename(configLogname, false);
+        }
+        // No log specified in configuration, use default / hard-coded option
+        else
+        {
+            Logger::getSingleton().setLogFilename(logFile, false);
+        }
     }
 
     // beginning main init
@@ -1466,6 +1490,8 @@ void System::addStandardWindowFactories()
     wfMgr.addFactory(&CEGUI_WINDOW_FACTORY(Titlebar));
     wfMgr.addFactory(&CEGUI_WINDOW_FACTORY(Tooltip));
     wfMgr.addFactory(&CEGUI_WINDOW_FACTORY(ItemListbox));
+    wfMgr.addFactory(&CEGUI_WINDOW_FACTORY(GroupBox));
+	wfMgr.addFactory(&CEGUI_WINDOW_FACTORY(Tree));
 }
 
 void System::createSingletons()
@@ -1500,6 +1526,8 @@ void System::setupXMLParser()
     // handle creation / initialisation of XMLParser
     if (!d_xmlParser)
     {
+
+#if !defined(CEGUI_STATIC)
         // load the dynamic module
         d_parserModule = new DynamicModule(String("CEGUI") + d_defaultXMLParserName);
         // get pointer to parser creation function
@@ -1507,6 +1535,10 @@ void System::setupXMLParser()
             (XMLParser* (*)(void))d_parserModule->getSymbolAddress("createParser");
         // create the parser object
         d_xmlParser = createFunc();
+#else
+		//Static Linking Call
+		d_xmlParser = createParser();
+#endif
         // make sure we know to cleanup afterwards.
         d_ourXmlParser = true;
     }
@@ -1523,11 +1555,16 @@ void System::cleanupXMLParser()
 
         if (d_ourXmlParser && d_parserModule)
         {
+#if !defined(CEGUI_STATIC)
             // get pointer to parser deletion function
             void(*deleteFunc)(XMLParser*) =
                 (void(*)(XMLParser*))d_parserModule->getSymbolAddress("destroyParser");
             // cleanup the xml parser object
             deleteFunc(d_xmlParser);
+#else
+			//Static Linking Call
+			destroyParser(d_xmlParser);
+#endif
             d_xmlParser = 0;
             // delete the dynamic module for the xml parser
             delete d_parserModule;
@@ -1538,7 +1575,19 @@ void System::cleanupXMLParser()
 
 void System::setDefaultXMLParserName(const String& parserName)
 {
-    d_defaultXMLParserName = parserName;
+#if !defined(CEGUI_STATIC)
+	if(d_defaultXMLParserName == parserName)
+		return;
+
+	//We do this becuase cleanup and setup aren't static functions
+	if(getSingletonPtr())
+	{
+		System* sys = getSingletonPtr();
+		sys->cleanupXMLParser();
+		d_defaultXMLParserName = parserName;
+		sys->setupXMLParser();
+	} // if(getSingletonPtr())
+#endif
 }
 
 const String System::getDefaultXMLParserName()

@@ -2,7 +2,7 @@
 -- Written by Waldemar Celes
 -- TeCGraf/PUC-Rio
 -- Jul 1998
--- $Id: function.lua 997 2006-02-23 19:12:50Z lindquist $
+-- $Id: function.lua 1469 2007-05-16 17:13:10Z kokoro-sama $
 
 -- This code is free software; you can redistribute it and/or modify it.
 -- The software provided hereunder is on an "as is" basis, and
@@ -49,7 +49,11 @@ function outputExceptionError(f,e,errBuf)
     if nameToEcho == "any" then
         nameToEcho = "..."
     end
-    output("catch(",nameToEcho,exceptionDefs[e.name].var,")\n{\n")
+    if e.ret == "nil" then
+        output("catch(",nameToEcho," CEGUIDeadException(",exceptionDefs[e.name].var,"))\n{\n")
+	else
+    	output("catch(",nameToEcho,exceptionDefs[e.name].var,")\n{\n")
+	end
     
     -- if just a nil
     if e.ret == "nil" then
