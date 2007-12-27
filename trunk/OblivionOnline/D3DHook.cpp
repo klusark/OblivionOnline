@@ -14,8 +14,6 @@ void * OldDirect3DCreate9 = NULL;
 #pragma data_seg (".HookSection")		// This segment is shared by all instances of this .DLL
 // Shared instance for all processes.
 HHOOK hHook = NULL;	
-
-
 #pragma data_seg ()
 IDirect3D9 *OblivionDirect3D9 = NULL;
 IDirect3DDevice9 *OblivionDirect3D9Device = NULL;
@@ -31,24 +29,27 @@ HOOKFUNCDESC GetProcAddressHook[2] =
 {
 	"GetProcAddress",
 	(PROC)MyGetProcAddress,
-},
+}
+
+};
+
+HOOKFUNCDESC RestoreHook[2] = 
 {
-	"Direct3DCreate9",
-	(PROC)MyDirect3DCreate9
+{
+	"GetProcAddress",
+	(PROC)RealGetProcAddress,
 }
 };
 
 IDirect3D9* WINAPI MyDirect3DCreate9(UINT sdk_version)
 {
 	_MESSAGE("Direct3D interface was created via the hook");
+	MyDirect3D9 *nd3d;
 	Direct3DCreate9_t old_func = (Direct3DCreate9_t) OldDirect3DCreate9;
 	IDirect3D9* d3d = old_func(sdk_version);
-	if(d3d)
-	{
-		OblivionDirect3D9 = d3d;
-	}
-	return d3d? new MyDirect3D9(d3d) : 0;
-	
+	nd3d =  d3d? new MyDirect3D9(d3d) : 0;
+	OblivionDirect3D9 = nd3d;
+	return nd3d;	
 }
 FARPROC WINAPI MyGetProcAddress( HMODULE hModule,LPCSTR lpProcName)
 {
@@ -77,9 +78,6 @@ LRESULT CALLBACK HookProc(int nCode, WPARAM wParam, LPARAM lParam)
     return CallNextHookEx( hHook, nCode, wParam, lParam); 
 }
 
-extern "C"
-{
-	
 void D3DInstallHook()
 {
 	printf("Hooking");
@@ -92,13 +90,17 @@ void D3DInstallHook()
     UnhookWindowsHookEx( hHook );
 }
  
-void D3DHookInit()
+extern "C" void D3DHookInit()
 {
 	 _MESSAGE("Initializing Direct3D hook");
-	 //HookAPICalls(&D3DHook);
-	 //instead , use the BugSlayer hook
 	HookImportedFunctionsByName(GetModuleHandle(0),"KERNEL32.DLL",1,GetProcAddressHook,(PROC *)&RealGetProcAddress,&HookedFunctions);
 
 }
-}
 
+
+void D3DHookDeInit()
+{
+	 _MESSAGE("Deinitializing Direct3D hook");
+	HookImportedFunctionsByName(GetModuleHandle(0),"KERNEL32.DLL",1,RestoreHook,(PROC *)&RealGetProcAddress,&HookedFunctions);
+
+}

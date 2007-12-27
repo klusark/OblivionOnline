@@ -58,10 +58,6 @@ BOOL WINAPI DllMain(
 			OpenLog(1);
 			D3DHookInit();
 		}
-		else
-		{
-			OpenLog(0);
-		}
 		return TRUE;
 	}
 	return TRUE;

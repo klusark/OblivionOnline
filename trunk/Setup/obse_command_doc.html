@@ -57,7 +57,7 @@ marked with an asterix (*)<br><a href="http://cs.elderscrolls.com/constwiki/inde
 <a href="#IsControlPressed">IsControlPressed<sup>13</sup></a><br>
 <a href="#IsKeyPressed3">IsKeyPressed3<sup>13</sup></a><br><a href="#IsLoadDoor%5C">IsLoadDoor<sup>13</sup></a><br>
 <a href="#IsPluginInstalled">IsPluginInstalled<sup>13</sup></a><br>
-<a href="#IsUnderWater">IsUnderWater<sup>13</sup></a><br>
+<a href="#IsUnderWater">IsUnderWater<sup>13</sup></a><a href="#ModNthActiveEffectMagnitude"><br>ModNthActiveEffectMagnitude<sup>13</sup></a><br>
 <a href="#OnControlDown">OnControlDown<sup>13</sup></a><a href="#GetActiveEffectCount"><br>
 </a><a href="#OnKeyDown">OnKeyDown<sup>13</sup></a><a href="#OnControlDown"><br>
 </a><a href="#ParentCellHasWater">ParentCellHasWater<sup>13</sup></a><br><a href="#RefreshControlMap">RefreshControlMap<sup>13</sup></a><br><a href="#GetParentCellWaterHeight">
@@ -69,7 +69,7 @@ marked with an asterix (*)<br><a href="http://cs.elderscrolls.com/constwiki/inde
 <a href="#SetClimateSunsetBegin">SetClimateSunsetBegin<sup><sub>13</sub></sup></a><br>
 <a href="#SetClimateSunsetEnd">SetClimateSunsetEnd<sup>13</sup></a><br>
 <a href="#SetClimateVolatility">SetClimateVolatility<sup>13</sup></a><br><a href="#SetContainerRespawns">SetContainerRespawns<sup>13</sup></a><br>
-<a href="#SetEyes">SetEyes<sup>13</sup></a><a href="#SetHair"><br>SetHair<sup>13</sup></a><br><a href="#SetOpenKey">SetOpenKey<sup>13</sup></a><br>
+<a href="#SetEyes">SetEyes<sup>13</sup></a><a href="#SetHair"><br>SetHair<sup>13</sup></a><br><a href="#SetNthActiveEffectMagnitude">SetNthActiveEffectMagnitude<sup>13</sup></a><br><a href="#SetOpenKey">SetOpenKey<sup>13</sup></a><br>
 <a href="#SetPCAMurderer">SetPCAMurderer<sup>13</sup></a><br>
 <a href="#SetTravelHorse">SetTravelHorse<sup>13</sup></a><br>
 <a href="#SetWeatherCloudSpeedLower">SetWeatherCloudSpeedLower<sup>13</sup></a><br>
@@ -1096,7 +1096,7 @@ target<br>
 reference.GetNthActiveEffectMagicItemIndex whichEffect:long</span><br style="font-family: monospace;">
 <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; (index:long)
-reference.GetNthActiveEffectMagicItemIndex whichEffect:long</span><br style="font-family: monospace;">
+reference.GetNthActiveEffectMagicItemIndex whichEffect:long</span><br>&nbsp;&nbsp;&nbsp; <a name="SetNthActiveEffectMagnitude"></a>SetNthActiveEffectMagnitude - sets the magnitude of the corresponding ActiveEffect<br><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; (nothing) SetNthActiveEffectMagnitude magnitude:float whichEffect:long<br></span><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; (nothing) SetNthAEMagnitude magnitude:float whichEffect:long</span><span style="font-weight: bold;"></span><br>&nbsp;&nbsp;&nbsp; <a name="SetNthActiveEffectMagnitude"></a>ModNthActiveEffectMagnitude - modifies the magnitude of the corresponding ActiveEffect<br><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; (nothing) ModNthActiveEffectMagnitude magnitude:float whichEffect:long<br></span><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; (nothing) ModNthAEMagnitude magnitude:float whichEffect:long</span><span style="font-weight: bold;"></span><br style="font-family: monospace;">
 &nbsp;&nbsp;&nbsp; <a name="GetTotalActiveEffectMagnitude"></a>GetTotalActiveEffectMagnitude
 - returns the total
 magnitude of all ActiveEffects with a given code on the target<br>
@@ -1204,11 +1204,9 @@ reference.GetTotalAEAlchemyMagnitudeC effectCode:long</span><br style="font-fami
 <span style="font-family: monospace;"></span>&nbsp;&nbsp;
 <a name="GetScriptActiveEffectIndex"></a>&nbsp;GetScriptActiveEffectIndex
 - returns the index of the corresponding ActiveEffect for the running
-script effect<br>
+script effect. &nbsp;Note this cannot detect the difference between two active effects running with the same script.<br>
 <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp; &nbsp;(index:long) GetScriptActiveEffectIndex
-&nbsp;&nbsp; </span><br style="font-family: monospace;">
-<span style="font-weight: bold;"><a name="Named"></a>Named</span><br>
+&nbsp;&nbsp; &nbsp;(index:long) GetScriptActiveEffectIndex<br><br></span><span style="font-weight: bold;"><a name="Named"></a>Named</span><br>
 Types with this quality have a setable name<br>
 Values:<br>
 &nbsp;&nbsp;&nbsp; Name - <span style="font-style: italic;">string</span> the display
@@ -2659,19 +2657,19 @@ followed by <span style="font-style: italic;">enable</span>
 a frame later will force the NPC to reload, updating the hair. Changes
 do appear to be saved for the player, but may not be visible until the
 game is reloaded.<br><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-(nothing) reference.CopyHair copyFrom:ref copyTo:ref&nbsp;</span><br style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+(nothing) <span style="font-style: italic;">reference</span>.CopyHair copyFrom:ref <span style="font-style: italic;">copyTo:ref</span>&nbsp;</span><br style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
 <a name="CopyEyes"></a>CopyEyes* - Copies the eyes
 used by one npc onto another, with the same caveats as CopyHair.<br><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; (nothing) reference.CopyEyes
-copyFrom:ref copyTo:ref</span><br>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; (nothing) <span style="font-style: italic;">reference</span>.CopyEyes
+copyFrom:ref <span style="font-style: italic;">copyTo:ref</span></span><br>&nbsp;&nbsp;&nbsp;
 <a name="SetHair"></a>SetHair* - Sets the hair on
 the NPC to a hairstyle predefined in the CS, with the same caveats as
 CopyHair.<br><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-(nothing) reference.SetHair hairStyle:ref npc:ref</span><br>&nbsp;&nbsp;&nbsp;
+(nothing) <span style="font-style: italic;">reference</span>.SetHair hairStyle:ref <span style="font-style: italic;">npc:ref</span></span><br>&nbsp;&nbsp;&nbsp;
 <a name="SetEyes"></a>SetEyes* - Sets the eyes on
 the NPC to a set of eyes predefined in the CS, with the same caveats as
 CopyHair.<br><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-(nothing) reference.SetEyes eyes:ref npc:ref</span><br style="font-family: monospace;"><br><span style="font-weight: bold;"><a name="Skill"></a>Skill</span><br>
+(nothing) <span style="font-style: italic;">reference</span>.SetEyes eyes:ref <span style="font-style: italic;">npc:ref</span></span><br style="font-family: monospace;"><br><span style="font-weight: bold;"><a name="Skill"></a>Skill</span><br>
 Qualities:<br>
 Values:<br>
 &nbsp;&nbsp;&nbsp; Attribute - <span style="font-style: italic;">short</span> the
@@ -4841,7 +4839,7 @@ MagicEffectUsesWeaponC<sup>10</sup></a><a href="#IsMagicEffectHostile"><br>
 </a><a href="#Wearable">ModMaleGroundPath<sup>10</sup></a><a href="#Wearable"><br>
 </a><a href="#Wearable">ModMaleIconPath<sup>10</sup></a><a href="#Wearable"><br>
 </a><a href="#Simple">ModModelPath<sup>10</sup></a><a href="#Simple"><br>
-</a><a href="#ModName">ModName<sup>11</sup></a><br>
+</a><a href="#ModName">ModName<sup>11</sup></a><br><a href="#ModNthActiveEffectMagnitude">ModNthActiveEffectMagnitude<sup>13</sup></a><br>
 <a href="#ModNthEffectItemArea">ModNthEffectItemArea</a><br>
 <a href="#ModNthEffectItemDuration">ModNthEffectItemDuration</a><br>
 <a href="#ModNthEffectItemMagnitude">ModNthEffectItemMagnitude</a><br>
@@ -4910,7 +4908,7 @@ MagicEffectUsesWeaponC<sup>10</sup></a><a href="#IsMagicEffectHostile"><br>
 <a href="#SetModelPath">SetModelPath</a><br>
 <a href="#SetMouseSpeedX">SetMouseSpeedX</a><br>
 <a href="#SetMouseSpeedY">SetMouseSpeedY</a><br>
-<a href="#SetName">SetName</a><br>
+<a href="#SetName">SetName</a><br><a href="#SetNthActiveEffectMagnitude">SetNthActiveEffectMagnitude<sup>13</sup></a><br>
 <a href="#SetNthEffectItemActorValue">SetNthEffectItemActorValue</a><br>
 <a href="#SetNthEffectItemArea">SetNthEffectItemArea</a><br>
 <a href="#ModNthEffectItemDuration">SetNthEffectItemDuration</a><br>

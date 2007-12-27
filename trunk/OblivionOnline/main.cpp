@@ -116,8 +116,7 @@ int OO_Initialize()
 
 		SpawnID[i] = 0;
 	}
-	//_MESSAGE("Initializing GUI");
-	//InitialiseUI();
+	_MESSAGE("Initializing GUI");
 	return rc;
 }
 
@@ -160,6 +159,8 @@ int OO_Deinitialize ()
 	closesocket(ServerSocket);
 	ServerSocket = INVALID_SOCKET;
 	WSACleanup();
+	DeinitialiseUI();
+	D3DHookDeInit();
 	return 1;
 }
 
@@ -928,6 +929,12 @@ bool Cmd_MPLogin_Execute (COMMAND_ARGS)
 	TotalPlayers = 1;
 	return true;
 }
+bool Cmd_MPShowGUI_Execute(COMMAND_ARGS)
+{
+	if(!bUIInitialized)
+		InitialiseUI();
+	return true;
+}
 
 //---------------------------
 //---End Command Functions---
@@ -1274,6 +1281,18 @@ static CommandInfo kMPLoginCommand =
 	Cmd_MPLogin_Execute
 };
 
+static CommandInfo kMPShowGUICommand =
+{
+	"MPShowGUI",
+	"MPGUI",
+	0,
+	"shows the GUI",
+	0,		// requires parent obj
+	0,		// 1 param
+	0,	// one string
+	Cmd_MPShowGUI_Execute
+};
+
 //---------------------------------
 //---End CommandInfo Enumeration---
 //---------------------------------
@@ -1367,11 +1386,12 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPSetInCombatCommand);
 	obse->RegisterCommand(&kMPGetIsInCombatCommand);
 	
-	// Mod Synch
+	// Mob Synch
 	obse->RegisterCommand(&kMPSynchActorsCommand);
 	obse->RegisterCommand(&kMPAdvanceStackCommand);
 	obse->RegisterCommand(&kMPStopStackCommand);
-
+	
+	obse->RegisterCommand(&kMPShowGUICommand);
 	_MESSAGE("Done loading OO Commands");
 	return true;
 }

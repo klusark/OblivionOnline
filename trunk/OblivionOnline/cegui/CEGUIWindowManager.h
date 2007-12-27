@@ -133,7 +133,7 @@ public:
 	\exception	UnknownObjectException		No WindowFactory is registered for \a type Window objects.
 	\exception	GenericException			Some other error occurred (Exception message has details).
 	*/
-	Window*	createWindow(const String& type, const String& name = "");
+	Window* createWindow(const String& type, const String& name = "", const String& prefix = "");
 
 
 	/*!
@@ -237,6 +237,8 @@ public:
 	\exception InvalidRequestException	thrown if \a filename appears to be invalid.
 	*/
 	Window*	loadWindowLayout(const String& filename, const String& name_prefix = "", const String& resourceGroup = "", PropertyCallback* callback = 0, void* userdata = 0);
+	
+	Window*	loadWindowLayout(const String& filename, bool generateRandomPrefix);
 
     /*!
     \brief
@@ -366,6 +368,8 @@ private:
     */
     String generateUniqueWindowName();
 
+	String generateUniqueWindowPrefix();
+
 	/*************************************************************************
 		Implementation Constants
 	*************************************************************************/
@@ -395,6 +399,18 @@ public:
 		Return a WindowManager::WindowIterator object to iterate over the currently defined Windows.
 	*/
 	WindowIterator	getIterator(void) const;
+
+    /*!
+    \brief
+    Outputs the names of ALL existing windows to log (DEBUG function).
+
+    \param zone
+    Helper string that can specify where the name dump was made (e.g. "BEFORE FRAME DELETION").
+
+    \return
+    Nothing.
+    */
+    void DEBUG_dumpWindowNames(String zone);    
 };
 
 } // End of  CEGUI namespace section

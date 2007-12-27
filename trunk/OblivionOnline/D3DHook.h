@@ -8,8 +8,14 @@ extern IDirect3DDevice9 *OblivionDirect3D9Device;
 #else
 	#define D3DHOOK_API __declspec(dllimport)
 #endif
-D3DHOOK_API void D3DInstallHook();
-D3DHOOK_API void D3DUnHook();
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 void D3DHookInit();
+#ifdef __cplusplus
+}
+#endif
+extern void D3DHookDeInit();
 
 extern HHOOK hHook;	

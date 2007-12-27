@@ -179,7 +179,7 @@ BOOL BUGSUTIL_DLLINTERFACE
 
                 VERIFY ( VirtualProtect ( mbi_thunk.BaseAddress ,
                                           mbi_thunk.RegionSize  ,
-                                          PAGE_READWRITE        ,
+                                          PAGE_EXECUTE_READWRITE        ,
                                           &mbi_thunk.Protect     ) ) ;
 
                 // Do the actual hook saving the original address to

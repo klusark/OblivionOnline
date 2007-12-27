@@ -42,10 +42,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(DXSDK_DIR)\Include\&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(SolutionDir)\..\obse\obse&quot;;&quot;$(SolutionDir)\..\obse\&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;DIRECT3DHOOK_EXPORTS;OBLIVION_VERSION=0x010201A0"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;DIRECT3DHOOK_EXPORTS;CEGUI_STATIC;OBLIVION_VERSION=0x010201A0"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib ddraw.lib dxguid.lib shlwapi.lib CEGUIBase_d.lib DirectX9GUIRenderer_d.lib"
+				AdditionalDependencies="ws2_32.lib ddraw.lib dxguid.lib shlwapi.lib CEGUIBase_static.lib CEGUIFalagardWRBase_Static.lib DirectX9GUIRenderer_static.lib d3dx9.lib dxerr9.lib CEGUITinyXMLParser_Static.lib freetype235.lib zlib.lib libpcre.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;ceguibin"
 				ModuleDefinitionFile="exports.def"
@@ -126,8 +126,8 @@
 				Optimization="3"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="&quot;$(DXSDK_DIR)\Include\&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(SolutionDir)\..\obse\obse&quot;;&quot;$(SolutionDir)\..\obse\&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;DIRECT3DHOOK_EXPORTS;OBLIVION_VERSION=0x010201A0;CRT_SECURE_NO_WARNINGS"
-				RuntimeLibrary="0"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;DIRECT3DHOOK_EXPORTS;OBLIVION_VERSION=0x010201A0;CRT_SECURE_NO_WARNINGS;CEGUI_STATIC;$(NOINHERIT)"
+				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -146,12 +146,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				UseLibraryDependencyInputs="false"
 				AdditionalOptions="/SECTION:.HookSection,S"
-				AdditionalDependencies="ws2_32.lib ddraw.lib dxguid.lib shlwapi.lib CEGUIBase.lib DirectX9GUIRenderer.lib"
+				AdditionalDependencies="ws2_32.lib ddraw.lib dxguid.lib shlwapi.lib CEGUIBase_static.lib CEGUIFalagardWRBase_Static.lib DirectX9GUIRenderer_static.lib d3dx9.lib dxerr9.lib CEGUITinyXMLParser_Static.lib freetype235.lib zlib.lib libpcre.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;ceguibin"
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames="LIBCMT"
 				ModuleDefinitionFile="exports.def"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -193,94 +196,6 @@
 		/>
 	</References>
 	<Files>
-		<Filter
-			Name="obse"
-			>
-			<File
-				RelativePath="..\obse\obse\GameAPI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameAPI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameData.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameData.h"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameExtraData.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameExtraData.h"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameForms.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameForms.h"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameObjects.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameObjects.h"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameRTTI_1_1.inl"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameRTTI_1_2.inl"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameRTTI_1_2_416.inl"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameTypes.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\GameTypes.h"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\NiAPI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\NiAPI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\NiNodes.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\NiNodes.h"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\NiRTTI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\obse\obse\NiRTTI.h"
-				>
-			</File>
-		</Filter>
 		<Filter
 			Name="Source"
 			>
@@ -730,6 +645,94 @@
 			</File>
 			<File
 				RelativePath=".\cegui\config.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="obse"
+			>
+			<File
+				RelativePath="..\obse\obse\GameAPI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameAPI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameData.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameData.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameExtraData.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameExtraData.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameForms.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameForms.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameObjects.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameObjects.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameRTTI_1_1.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameRTTI_1_2.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameRTTI_1_2_416.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameTypes.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\GameTypes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\NiAPI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\NiAPI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\NiNodes.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\NiNodes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\NiRTTI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\NiRTTI.h"
 				>
 			</File>
 		</Filter>
