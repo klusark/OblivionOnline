@@ -1,50 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <GUILayout >
-    <Window Type="DefaultWindow" Name="OOGUI" >
+    <Window Type="DefaultWindow" Name="OOChat" >
         <Property Name="InheritsAlpha" Value="False" />
         <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{0.309374,0},{0.254883,0}}" />
-        <Window Type="TaharezLook/MultiLineEditbox" Name="ChatHistory" >
-            <Property Name="Font" Value="fkp-16" />
-            <Property Name="Text" >OblivionOnline Release V
-2007 by Julian Bangert.
-See readme for further credits.
-===============================================
-Visit obliviononline.org or ooservers.gotdns.com for further information!
-
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{0,400},{0,280}}" />
+        <Window Type="TaharezLook/MultiLineEditbox" Name="ChatText" >
+            <Property Name="Font" Value="DejaVuSans-10" />
+            <Property Name="Text" >OblivionOnline Version 5.0
+Made 2007 by Julian Bangert and others
+Default Skin 5.0
+Visit obliviononline.org or stormnet.gotdns.com and read the readme  for further information!
+Have fun !!!!!
 </Property>
-            <Property Name="Alpha" Value="0.8" />
             <Property Name="ReadOnly" Value="True" />
             <Property Name="MaxTextLength" Value="1073741823" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-            <Property Name="UnifiedAreaRect" Value="{{0,0},{-0.00766283,0},{1.00546,0},{0.792337,0}}" />
-        </Window>
-        <Window Type="TaharezLook/Editbox" Name="ChatInput" >
-            <Property Name="Font" Value="fkp-16" />
-            <Property Name="Text" Value="Type your Chat Message here" />
-            <Property Name="MaxTextLength" Value="1073741823" />
-            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-            <Property Name="UnifiedAreaRect" Value="{{0.00697048,0},{0.786973,0},{0.863529,0},{0.899042,0}}" />
-        </Window>
-        <Window Type="TaharezLook/Button" Name="SendButton" >
-            <Property Name="Font" Value="fkp-16" />
-            <Property Name="Text" Value="Send" />
-            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-            <Property Name="UnifiedAreaRect" Value="{{0.871584,0},{0.806513,0},{1.0041,0},{0.907088,0}}" />
-        </Window>
-        <Window Type="TaharezLook/Editbox" Name="ConnectionLabel" >
-            <Property Name="Font" Value="fkp-16" />
-            <Property Name="Text" Value="OblivionOnline not connected " />
-            <Property Name="MaxTextLength" Value="1073741823" />
-            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-            <Property Name="UnifiedAreaRect" Value="{{0.00808071,0},{0.897317,0},{0.765661,0},{1.00555,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{-0.0015625,0},{-0.00208333,0},{0.998438,0},{0.797917,0}}" />
         </Window>
         <Window Type="TaharezLook/Button" Name="ConnectButton" >
-            <Property Name="Font" Value="fkp-16" />
+            <Property Name="Font" Value="DejaVuSans-10" />
             <Property Name="Text" Value="Connect" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-            <Property Name="UnifiedAreaRect" Value="{{0.787375,0},{0.913026,0},{0.984345,0},{1.00211,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.8,0},{0.8,0},{1,0},{0.9,0}}" />
+        </Window>
+        <Window Type="TaharezLook/Editbox" Name="StatusLabel" >
+            <Property Name="Font" Value="DejaVuSans-10" />
+            <Property Name="Text" Value="OblivionOnline not connected" />
+            <Property Name="ReadOnly" Value="True" />
+            <Property Name="MaxTextLength" Value="1073741823" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0,0},{0.8,0},{0.8,0},{0.9,0}}" />
+        </Window>
+        <Window Type="TaharezLook/Editbox" Name="ChatMessage" >
+            <Property Name="Font" Value="DejaVuSans-10" />
+            <Property Name="MaxTextLength" Value="1073741823" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0,0},{0.9,0},{0.85,0},{1,0}}" />
+        </Window>
+        <Window Type="TaharezLook/Button" Name="SendButton" >
+            <Property Name="Font" Value="DejaVuSans-10" />
+            <Property Name="Text" Value="Send" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.85,0},{0.9,0},{1,0},{1,0}}" />
         </Window>
     </Window>
 </GUILayout>

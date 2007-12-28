@@ -23,7 +23,8 @@ This file is part of OblivionOnline.
 #include <iostream>
 #include <cstdio>
 #include <cstdarg>
-#include <ctime>//defines input , output and logging methods .
+#include <ctime>
+//defines input , output and logging methods .
 using namespace std;
 
 IOSystem::IOSystem(std::string FileName,unsigned int FileLogLevel,unsigned int ConsoleLogLevel)
