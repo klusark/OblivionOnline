@@ -65,6 +65,8 @@ int BadPackets[PACKET_COUNT];	//Keeps track of # of bad packets of each type
 
 DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.'
 
+
+bool bFrameRendered = false; 
 // Prototypes
 
 extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEquippedFunctor, double* result);
