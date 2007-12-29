@@ -54,7 +54,7 @@ DEFAULT_WINDOW_RENDERER = "falagard"
 ---------------
 -- XML parsers
 -- this controls which xml parser modules are built
-EXPAT_PARSER = false
+EXPAT_PARSER = true
 XERCES_PARSER = false
 TINYXML_PARSER = true
 LIBXML_PARSER = false
