@@ -1,4 +1,3 @@
-#pragma once
 /*
 
 Copyright 2007   Julian Bangert aka masterfreek64
@@ -36,14 +35,54 @@ This file is part of OblivionOnline.
 	exception; this exception also makes it possible to release a modified version which carries 
 	forward this exception.
 */
-#ifndef _USERINTERFACE_H
-#define _USERINTERFACE_H
-#include "cegui/RendererModules/directx9GUIRenderer/d3d9renderer.h"
-#include "cegui/CEGUI.h"
-//extern CEGUI::DirectX9Renderer * myRenderer;
-DWORD WINAPI InitialiseUI();
-extern void DeinitialiseUI();
-extern void RegisterChatMessage(char *message); 
-extern void SetConnectionMessage(char *message);
-extern bool bUIInitialized;
-#endif
+//these do not work .... probably ... we need to thunk DI8
+#include <windows.h>
+#include "UserInterface.h"
+#include "BugSlayerUtil.h"
+#include "main.h"
+#include "inputhook.h"
+#include "FakeDI8.h"
+typedef HRESULT (WINAPI *DirectInput8Create_t)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf,
+										LPVOID * ppvOut, LPUNKNOWN punkOuter);
+HRESULT WINAPI MyDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut,
+									LPUNKNOWN punkOuter);
+DirectInput8Create_t old_DirectInput8Create;
+
+HOOKFUNCDESC DirectInput8CreateHook[2] = 
+{
+{
+	"DirectInput8Create",
+	(PROC)MyDirectInput8Create,
+}
+
+};
+
+HOOKFUNCDESC RestoreHook2[2] = 
+{
+{
+	"DirectInput8Create",
+	(PROC)old_DirectInput8Create,
+}
+};
+
+HRESULT WINAPI MyDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut,
+									LPUNKNOWN punkOuter)
+{
+	_MESSAGE( "DirectInput-Hook: MyDirectInput8Create called.\n" );
+	HRESULT hr =old_DirectInput8Create(hinst, dwVersion, riidltf, ppvOut, punkOuter);
+	if(SUCCEEDED(hr))
+		*ppvOut = new MyDirectInput8(reinterpret_cast<IDirectInput8*>(*ppvOut));
+	return hr;
+}
+bool SetInputHooks()
+{
+	UINT HookedFunctions;
+	 HookImportedFunctionsByNameA(GetModuleHandle(0),"DINPUT8.DLL",1,DirectInput8CreateHook,(PROC *)old_DirectInput8Create,&HookedFunctions);
+	return false;
+}
+bool UnSetInputHooks()
+{
+	UINT HookedFunctions;
+	 HookImportedFunctionsByNameA(GetModuleHandle(0),"DINPUT8.DLL",1,RestoreHook2,(PROC *)old_DirectInput8Create,&HookedFunctions);
+	return false;
+}

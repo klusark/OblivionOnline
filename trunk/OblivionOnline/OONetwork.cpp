@@ -513,7 +513,7 @@ bool OOPChat_Handler(char *Packet)
 	Console_Print("Player %i: %s", InPkgBuf->refID, MessageDest);
 	RunScriptLine(chatScript, true);
 	std::string Sender = "Player "+InPkgBuf->refID;
-	//usrInterface.RegisterChatMessage(Sender,MessageDest);
+	RegisterChatMessage(MessageDest);
 	return true;
 }
 

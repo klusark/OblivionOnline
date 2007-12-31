@@ -225,6 +225,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 
 	else// It is an NPC
 	{
+		GenericLog.DoOutput(LOG_MESSAGE,"Received a mob update");
 		OOMobHashTableEntry *ptr;
 		ptr = (OOMobHashTableEntry *)MobTable.Find(InPkgBuf->refID);
 		if(!ptr) // We got to insert it

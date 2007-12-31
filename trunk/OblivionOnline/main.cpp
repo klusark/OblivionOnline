@@ -41,7 +41,7 @@ This file is part of OblivionOnline.
 #include "OONetwork.h"
 #include "D3Dhook.h"
 // Global variables
-
+extern "C" HINSTANCE OODll;
 bool bIsConnected = false;
 
 IDebugLog gLog;
@@ -64,7 +64,7 @@ TESObjectREFR* PlayerActorList[MAXCLIENTS];
 int BadPackets[PACKET_COUNT];	//Keeps track of # of bad packets of each type
 
 DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.'
-
+char ServerIP[15];
 
 bool bFrameRendered = false; 
 // Prototypes
@@ -228,6 +228,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 				//Now try to connect with default password
 				NetWelcome("nopassword");
 				Console_Print("Oblivion connected to %s",IP[i]);
+				sprintf(ServerIP,"%s",IP[i]);
 				//usrInterface.SetGlobalState(true); // we start it ...
 				break;
 			}
@@ -934,7 +935,10 @@ bool Cmd_MPLogin_Execute (COMMAND_ARGS)
 bool Cmd_MPShowGUI_Execute(COMMAND_ARGS)
 {
 	if(!bUIInitialized)
+	{
 		InitialiseUI();
+		SetConnectionMessage(ServerIP);
+	}
 	return true;
 }
 

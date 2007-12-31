@@ -1,4 +1,3 @@
-#pragma once
 /*
 
 Copyright 2007   Julian Bangert aka masterfreek64
@@ -36,14 +35,9 @@ This file is part of OblivionOnline.
 	exception; this exception also makes it possible to release a modified version which carries 
 	forward this exception.
 */
-#ifndef _USERINTERFACE_H
-#define _USERINTERFACE_H
-#include "cegui/RendererModules/directx9GUIRenderer/d3d9renderer.h"
-#include "cegui/CEGUI.h"
-//extern CEGUI::DirectX9Renderer * myRenderer;
-DWORD WINAPI InitialiseUI();
-extern void DeinitialiseUI();
-extern void RegisterChatMessage(char *message); 
-extern void SetConnectionMessage(char *message);
-extern bool bUIInitialized;
+#pragma once
+#ifndef _INPUTHOOK_H
+#define _INPUTHOOK_H
+
+
 #endif

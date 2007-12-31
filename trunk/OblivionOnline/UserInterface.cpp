@@ -35,6 +35,7 @@ This file is part of OblivionOnline.
 	exception; this exception also makes it possible to release a modified version which carries 
 	forward this exception.
 */
+#include "main.h"
 #include "D3DHook.h"
 #include "UserInterface.h"
 #include "cegui/CEGUIDefaultResourceProvider.h"
@@ -82,4 +83,19 @@ void DeinitialiseUI()
 {
 	bUIInitialized = false;
 }
-
+void RegisterChatMessage(char *message)
+{
+	CEGUI::Window *chatwin = CEGUI::WindowManager::getSingleton().getWindow("ChatMessage");
+	if(chatwin)
+		chatwin->setText(chatwin->getText() +"\n"+message);
+	else
+	{
+		Console_Print("Could not find CEGUI Window ChatMessage");
+		_ERROR("Could not find ChatMessage");
+	}
+}
+void SetConnectionMessage(char *message)
+{
+	CEGUI::Window *chatwin = CEGUI::WindowManager::getSingleton().getWindow("StatusLabel");
+	chatwin->setText(message);
+}

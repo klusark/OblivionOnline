@@ -285,52 +285,76 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Direct3dHooks"
+			Name="Hooks"
 			>
-			<File
-				RelativePath=".\BugslayerUtil.h"
+			<Filter
+				Name="Direct3D"
 				>
-			</File>
-			<File
-				RelativePath=".\D3DHook.cpp"
+				<File
+					RelativePath=".\D3DHook.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\D3DHook.h"
+					>
+				</File>
+				<File
+					RelativePath=".\FakeD3D.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Code"
 				>
-			</File>
-			<File
-				RelativePath=".\D3DHook.h"
+				<File
+					RelativePath=".\BugslayerUtil.h"
+					>
+				</File>
+				<File
+					RelativePath=".\GetLoadedModules.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\HookImportedFunctionByName.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MemDumperValidator.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MemDumperValidator.h"
+					>
+				</File>
+				<File
+					RelativePath=".\MSJDBG.h"
+					>
+				</File>
+				<File
+					RelativePath=".\NT4ProcessInfo.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\TLHELPProcessInfo.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Input"
 				>
-			</File>
-			<File
-				RelativePath=".\FakeD3D.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GetLoadedModules.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\HookImportedFunctionByName.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MemDumperValidator.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MemDumperValidator.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MSJDBG.h"
-				>
-			</File>
-			<File
-				RelativePath=".\NT4ProcessInfo.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TLHELPProcessInfo.cpp"
-				>
-			</File>
+				<File
+					RelativePath=".\FakeDI8.h"
+					>
+				</File>
+				<File
+					RelativePath=".\InputHook.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\InputHook.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Cegui"
@@ -709,6 +733,10 @@
 			</File>
 			<File
 				RelativePath="..\obse\obse\GameTypes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\obse\Hooks_DirectInput8Create.h"
 				>
 			</File>
 			<File

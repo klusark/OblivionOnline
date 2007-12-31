@@ -40,17 +40,18 @@ This file is part of OblivionOnline.
 #include "D3DHook.h"
 
 extern void  OpenLog(int);
-HINSTANCE hDll; // we need this for hooking the keyborad
+HINSTANCE hDll; /* we need this for hooking the keyboard */
 BOOL WINAPI DllMain(
         HINSTANCE  hDllHandle,
         DWORD   dwReason,
         LPVOID  lpreserved
         )
 {
-	if(dwReason == DLL_PROCESS_ATTACH)  // When initializing....
+	hDll = hDllHandle;
+	if(dwReason == DLL_PROCESS_ATTACH)  /* When initializing.... */
 	{
-		//hDll = hDllHandle;
-		char proc[512];
+		
+		char proc [512];
 		GetModuleFileNameA(GetModuleHandle(0), proc, sizeof(proc));
 		PathStripPath(proc);	
 		if(_strnicmp("Oblivion.exe", proc, 512) == 0)
