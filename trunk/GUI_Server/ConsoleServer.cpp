@@ -156,12 +156,14 @@ pthread_t threads;
 #ifndef WINDOWS
 	//POSIX 
 	pthread_t thread;
-	pthread_create(&thread,NULL,&info,NULL);
+	int errorcode = pthread_create(&thread,NULL,info,NULL);
+	if(!errorcode)
+		GenericLog.DoOutput(LOG_ERROR,"Could not create update thread %i\n",errorcode);
 #else
 
 	_beginthread(info,0,NULL);
 #endif	
-	// start WinSock
+	// start WinSockpublist.php
 	rc=StartNet();
 	// create Socket
 	acceptSocket=socket(AF_INET,SOCK_STREAM,0);
@@ -185,12 +187,11 @@ pthread_t threads;
 	{
 		GenericLog.DoOutput(LOG_MESSAGE,"Opened server on port %u \n",serverPort);
 	}
-
 	// Start listener
 	rc=listen(acceptSocket,10);
 	if(rc==SOCKET_ERROR)
 	{
-		GenericLog.DoOutput(LOG_ERROR,"Error calling listen: %d\n",WSAGetLastError());
+		GenericLog.DoOutput(LOG_ERROR,"Error callingpublist.php listen: %d\n",WSAGetLastError());
 		return 1;
 	}
 	else
@@ -359,6 +360,7 @@ void info(void *arg)
 void *info(void *arg)
 #endif
 {
+	GenericLog.DoOutput(LOG_MESSAGE,"Master list thread started!  - ");
 	if(strlen(ListURI))
 	{
 		char ListHost [512];
@@ -370,7 +372,7 @@ void *info(void *arg)
 		WSADATA WSAData;
 		WSAStartup(MAKEWORD(2,0), &WSAData);
 #endif
-		SOCKET sock;
+		
 		SOCKADDR_IN sin;
 		
 		
@@ -380,7 +382,7 @@ void *info(void *arg)
 		bool HasPassword;
 		HasPassword = false;
 		
-
+		SOCKET sock;GenericLog.DoOutput(LOG_MESSAGE,"Beginning to list server\n");
 		while(true){
 			sscanf(ListURI,"http://%512s",ListHost); // direct parsing won't work in all implementations
 			char *ptr = strstr(ListHost,":"); // Port delimiter
@@ -411,6 +413,7 @@ void *info(void *arg)
 			{
 				GenericLog.DoOutput(LOG_ERROR,"Error: Serverlist send error, code: %i\n",WSAGetLastError());
 			}
+			GenericLog.DoOutput(LOG_MESSAGE,"Updated server on master list\n");
 			closesocket(sock); 
 			Sleep(120000);
 		}
