@@ -108,11 +108,13 @@ public:
 		HRESULT hr = m_device->GetDeviceState(size, data);
 		if(SUCCEEDED(hr))
 		{
-			if(bIsKeyboard && size >= sizeof(BYTE) *256)
+			if(bIsKeyboard)
 			{
+				/*
 				BYTE* keys = static_cast<BYTE*>(data);
 				if(memcmp(LastKeyState,data,256))
 				{
+				
 					std::queue<char> ChangedKeys;
 					for(int i = 0;i < 256;i++)
 					{
@@ -137,18 +139,20 @@ public:
 					CEGUI::System::getSingleton().injectChar(Character);
 		
 				}
+				*/
 			}
 			else
 			{
 				DIMOUSESTATE2 * mousedata = (LPDIMOUSESTATE2)data;
 				DIPROPDWORD AxisMode;
-				int mousewheel;
+				int mousewheel = 0;
 				this->GetProperty(DIPROP_AXISMODE,&AxisMode.diph);
 				
 				if(AxisMode.dwData == DIPROPAXISMODE_ABS)
 				{
 					CEGUI::System::getSingleton().injectMousePosition(mousedata->lX,mousedata->lY);
 					CEGUI::System::getSingleton().injectMouseWheelChange(mousewheel - mousedata->lZ);
+					mousewheel = mousedata->lZ;
 				}
 				else if(AxisMode.dwData == DIPROPAXISMODE_REL)
 				{

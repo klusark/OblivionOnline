@@ -38,7 +38,7 @@ This file is part of OblivionOnline.
 #include <Windows.h>
 #include <shlwapi.h>
 #include "D3DHook.h"
-
+#include "InputHook.h"
 extern void  OpenLog(int);
 HINSTANCE hDll; /* we need this for hooking the keyboard */
 BOOL WINAPI DllMain(
@@ -58,6 +58,7 @@ BOOL WINAPI DllMain(
 		{
 			OpenLog(1);
 			D3DHookInit();
+			SetInputHooks();
 		}
 		return TRUE;
 	}

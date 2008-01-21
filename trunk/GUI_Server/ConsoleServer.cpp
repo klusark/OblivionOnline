@@ -265,7 +265,7 @@ pthread_t threads;
 							send(clients[cx],(char *)&OutPkgBuf,sizeof(OOPkgDisconnect),0);
 					}
 					TotalClients--;
-					GenericLog.DoOutput(LOG_MESSAGE,"%s - Client %d closed the Connection\n",LocalPlayer);
+					GenericLog.DoOutput(LOG_MESSAGE,"Client %d closed the Connection\n",LocalPlayer);
 					if(LocalPlayer == MasterClient)
 					{
 						// Remove him and select a new master client
@@ -273,11 +273,11 @@ pthread_t threads;
 						{
 							if(Connected[i])
 							{
-								MasterClient = i; // update that on the net
+								MasterClient = i; 
 								OOPkgWelcome OutPkgBuf;
 								OutPkgBuf.etypeID = OOPWelcome;
 								OutPkgBuf.Flags = 2 | 4;
-								send(clients[LocalPlayer],(char *)&OutPkgBuf,sizeof(OOPkgWelcome),0);
+								send(clients[i],(char *)&OutPkgBuf,sizeof(OOPkgWelcome),0);
 							}
 						}
 					}

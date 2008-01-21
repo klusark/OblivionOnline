@@ -42,6 +42,8 @@ This file is part of OblivionOnline.
 #include "main.h"
 #include "inputhook.h"
 #include "FakeDI8.h"
+extern "C" HINSTANCE hDll; /* we need this for hooking the keyboard */
+HHOOK hook;
 typedef HRESULT (WINAPI *DirectInput8Create_t)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf,
 										LPVOID * ppvOut, LPUNKNOWN punkOuter);
 HRESULT WINAPI MyDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut,
@@ -65,6 +67,21 @@ HOOKFUNCDESC RestoreHook2[2] =
 }
 };
 
+LRESULT CALLBACK kbdhook( int ncode,WPARAM wparam,LPARAM lparam)
+{
+  if(ncode>=0)
+  {
+		BYTE KeyState[256];
+		GetKeyboardState(KeyState);
+		wchar_t Keys[20];
+		for(int i=0;i<ToUnicode(wparam,(WORD)(lparam >> 16),KeyState,Keys,20,0);i++)
+		{
+			CEGUI::System::getSingleton().injectChar(Keys[i]);
+		}
+  }
+  //pass control to next hook.
+  return ( CallNextHookEx(hook,ncode,wparam,lparam) );
+}
 HRESULT WINAPI MyDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut,
 									LPUNKNOWN punkOuter)
 {
@@ -74,15 +91,17 @@ HRESULT WINAPI MyDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID rii
 		*ppvOut = new MyDirectInput8(reinterpret_cast<IDirectInput8*>(*ppvOut));
 	return hr;
 }
-bool SetInputHooks()
+extern "C" int SetInputHooks()
 {
 	UINT HookedFunctions;
 	 HookImportedFunctionsByNameA(GetModuleHandle(0),"DINPUT8.DLL",1,DirectInput8CreateHook,(PROC *)old_DirectInput8Create,&HookedFunctions);
+	 hook = SetWindowsHookEx(WH_KEYBOARD,kbdhook,hDll,0);
 	return false;
 }
-bool UnSetInputHooks()
+int UnSetInputHooks()
 {
 	UINT HookedFunctions;
 	 HookImportedFunctionsByNameA(GetModuleHandle(0),"DINPUT8.DLL",1,RestoreHook2,(PROC *)old_DirectInput8Create,&HookedFunctions);
+	 UnhookWindowsHookEx(hook);
 	return false;
 }

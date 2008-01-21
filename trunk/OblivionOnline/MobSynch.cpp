@@ -107,23 +107,39 @@ bool MCMakeMC()
 // This is used in a command to go thorugh the cache and look for mobs that changed position
  bool MCbSynchActors() //called nearly every frame , so extremely important
 {
+	_MESSAGE("MCbSynchActors called");
 	//rewritten
 	//Just check up on the cells all other players are in
-	std::stack<TESObjectCELL *> CellStack;
-	CellStack.push((*g_thePlayer)->parentCell);
+	std::list <TESObjectCELL *> CellStack;
+	CellStack.push_back((*g_thePlayer)->parentCell);
+	_MESSAGE("Looking up Cells");
 	for(int i = 0 ; i < MAXCLIENTS;i++)
 	{
-		TESForm *form = LookupFormByID(SpawnID[i]);
-		if(form)
+		bool bInsert = true;
+		if(SpawnID[i])
 		{
-			CellStack.push(((TESObjectREFR *)form)->parentCell);
+			TESObjectREFR *form = (TESObjectREFR *)LookupFormByID(SpawnID[i]);
+			// Look through the list
+			std::list <TESObjectCELL *>::iterator it = CellStack.begin();
+			std::list <TESObjectCELL *>::iterator end = CellStack.end();
+			for(;it != end; ++it)
+			{
+				if( (*it)->Compare(form->parentCell) )
+				{
+					bInsert = false;
+					break;
+				}
+			}
+			if(bInsert)
+				CellStack.push_back(form->parentCell);
 		}
 	}
+	_MESSAGE("%d Cells for mob synch",CellStack.size());
 	//now we process each cell...
-	while(!CellStack.empty())
+	for(std::list <TESObjectCELL *>::iterator i = CellStack.begin();i != CellStack.end(); i++)
 	{
-		TESObjectCELL * Cell = CellStack.top();
-		CellStack.pop();
+		TESObjectCELL * Cell = *i;
+		_MESSAGE("Processing cell %u",Cell->refID);
 		TESObjectCELL::ObjectListEntry * ListIterator = &Cell->objectList;		
 				
 		while(ListIterator->next) // Iterate the loop
@@ -133,6 +149,7 @@ bool MCMakeMC()
 			hash_map<UINT32,ActorStatus>::iterator iter =  MCMobList.find(ListIterator->refr->refID);
 			if(iter == MCMobList.end())
 			{
+				_MESSAGE("Inserting new object");
 				ActorStatus temp;
 				MCMobList.insert(MobPair(ListIterator->refr->refID,temp));
 				//optimisation here?
@@ -144,6 +161,7 @@ bool MCMakeMC()
 				iter->second.RotZ != ListIterator->refr->rotZ )||
 				iter->second.Health != (ListIterator->refr->IsActor() ? ((Actor *)ListIterator->refr)->GetActorValue(8) : -1)) // Health
 			{
+				_MESSAGE("Net Synching object");
 				iter->second.PosX = ListIterator->refr->posX;
 				iter->second.PosY = ListIterator->refr->posY;
 				iter->second.PosZ = ListIterator->refr->posZ;
@@ -158,13 +176,15 @@ bool MCMakeMC()
  // This just calls MCbSynchActors
 bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 {
-
+	_MESSAGE("MPSynchActors called");
 	if(bIsMasterClient && bIsConnected)
 	{
+		_MESSAGE("Synching Actors");
 		MCbSynchActors();		
 	}	
 	if(bIsConnected && !bIsMasterClient)
 	{
+		_MESSAGE("Starting queue");
 		QueueMode = true;
 	}
 	return true;
@@ -175,9 +195,11 @@ bool Cmd_MPAdvanceStack_Execute (COMMAND_ARGS)
 	{
 		MobQueue.pop();
 		*result = MobQueue.front().first->refID;
+		_MESSAGE("Monster %u",MobQueue.front().first->refID);
 	}
 	else
 	{
+
 		*result = 0;
 	}
 	return true;
@@ -186,6 +208,7 @@ bool Cmd_MPStopStack_Execute (COMMAND_ARGS)
 {
 	if(QueueMode)
 	{
+		_MESSAGE("Stopping Queue");
 		QueueMode = false;
 	}
 	return true;
@@ -239,9 +262,11 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 	Object = (TESObjectREFR *)LookupFormByID(pkgBuf.refID);
 	if(Object)
 	{
+		
 		Actor *act = (Actor *)Object;
-		if(pkgBuf.Flags & 2)
+		if((pkgBuf.Flags & 2) && act->IsActor())
 		{
+			_MESSAGE("Trying to set health");
 			if(pkgBuf.Flags & 8)
 			{
 				act->ModActorBaseValue(8,(pkgBuf.Health -act->GetActorValue(8)),0);
@@ -257,8 +282,9 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 			if(pkgBuf.Fatigue)
 				act->ModActorBaseValue(10,pkgBuf.Fatigue,0);
 			}
+			_MESSAGE("Set health");
 		}
-		if((*g_thePlayer)->parentCell->refID == pkgBuf.CellID)
+		//if((*g_thePlayer)->parentCell->refID == pkgBuf.CellID) // remove that , and see if the performance allows it
 		{
 			RefrStatusPair temp;
 			temp.first = Object;
@@ -275,7 +301,8 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 			temp.second.RotX = pkgBuf.fRotX;
 			temp.second.RotY = pkgBuf.fRotY;
 			temp.second.RotZ = pkgBuf.fRotZ;
-			}
+			MobQueue.push(temp);
+		}
 	}
 	}
 	// Do Health here....

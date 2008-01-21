@@ -84,7 +84,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			if(MasterClient == -1)
 			{
 				// This one will be master client
-				OutPkgBuf.Flags = OutPkgBuf.Flags | 2;
+				OutPkgBuf.Flags = OutPkgBuf.Flags | 4;
 				MasterClient = LocalPlayer;
 				GenericLog.DoOutput(LOG_MESSAGE,"Client %i was selected as master client", LocalPlayer);
 			}
@@ -144,7 +144,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 
 	OOPkgActorUpdate * InPkgBuf = (OOPkgActorUpdate *) Packet;
 	OOPkgActorUpdate OutPkgBuf;
-	if(InPkgBuf->Flags | 1)
+	if(InPkgBuf->Flags & 1)
 	{
 	if (InPkgBuf->refID < MAXCLIENTS)
 	{
@@ -225,7 +225,6 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 
 	else// It is an NPC
 	{
-		GenericLog.DoOutput(LOG_MESSAGE,"Received a mob update");
 		OOMobHashTableEntry *ptr;
 		ptr = (OOMobHashTableEntry *)MobTable.Find(InPkgBuf->refID);
 		if(!ptr) // We got to insert it
@@ -241,6 +240,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 			ptr->Status.RotX = InPkgBuf->fRotX;
 			ptr->Status.RotY = InPkgBuf->fRotY;
 			ptr->Status.RotZ = InPkgBuf->fRotZ;
+			ptr->Status.Health = InPkgBuf->Health;
 			ptr->Status.Fatigue = InPkgBuf->Fatigue;
 			ptr->Status.Magika = InPkgBuf->Magika;
 			

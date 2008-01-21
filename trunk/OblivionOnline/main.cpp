@@ -405,6 +405,7 @@ bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 	}
 	else
 	{
+		_MESSAGE("MPGetPosY for mob called");
 		if(MobQueue.size()) 
 		{
 			*result = MobQueue.front().second.PosX;
@@ -442,6 +443,7 @@ bool Cmd_MPGetPosY_Execute (COMMAND_ARGS)
 	}
 	else
 	{
+		_MESSAGE("MPGetPosY for mob called");
 		if(MobQueue.size()) 
 		{
 			*result = MobQueue.front().second.PosY;
@@ -479,6 +481,7 @@ bool Cmd_MPGetPosZ_Execute (COMMAND_ARGS)
 	}
 	else
 	{
+		_MESSAGE("MPGetPosZ for mob called");
 		if(MobQueue.size()) 
 		{
 			*result = MobQueue.front().second.PosZ;

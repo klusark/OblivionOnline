@@ -73,8 +73,10 @@ DWORD WINAPI InitialiseUI()
 	CEGUI::SchemeManager::getSingleton().loadScheme("TaharezLook.scheme");
 	// load in a font.  The first font loaded automatically becomes the default font.
 	CEGUI::FontManager::getSingleton().createFont("fkp-16.font");
+	CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
 	myRoot = CEGUI::WindowManager::getSingleton().loadWindowLayout("OOChat.layout");
 	CEGUI::System::getSingleton().setGUISheet(myRoot);
+	
 	bUIInitialized = true;
 	_MESSAGE("Successfully loaded GUI");
 	return 1;

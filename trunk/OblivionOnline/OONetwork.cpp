@@ -325,10 +325,12 @@ bool OOPWelcome_Handler(char *Packet)
 // Flag 4 - Master Client ...
 	if(InPkgBuf->Flags & 4) // Master Client
 	{
+		_MESSAGE("Received master client");
 		MCMakeMC();
 	}
 	else
 	{
+		_MESSAGE("Received passive client");
 		MCMakePassive();
 	}
 // other flags below here 

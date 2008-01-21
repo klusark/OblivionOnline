@@ -38,6 +38,11 @@ This file is part of OblivionOnline.
 #pragma once
 #ifndef _INPUTHOOK_H
 #define _INPUTHOOK_H
-
+#ifdef __cplusplus
+extern "C" int SetInputHooks();
+#else
+extern int SetInputHooks();
+#endif
+extern int UnsetInputHooks();
 
 #endif
