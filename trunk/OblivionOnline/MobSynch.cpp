@@ -44,7 +44,7 @@ using namespace stdext;
 extern void RunScriptLine(const char *buf, bool IsTemp);
 
 bool QueueMode = false;
-std::queue <std::pair<TESObjectREFR *,ActorStatus>> MobQueue;
+std::deque <MobStatus> MobQueue;
 typedef std::pair<TESObjectREFR *,ActorStatus> RefrStatusPair;
 hash_map<UINT32,ActorStatus> MCMobList;
 typedef std::pair<UINT32,ActorStatus> MobPair; 
@@ -191,15 +191,20 @@ bool Cmd_MPSynchActors_Execute (COMMAND_ARGS)
 }
 bool Cmd_MPAdvanceStack_Execute (COMMAND_ARGS)
 {	
-	if(QueueMode&&MobQueue.size())
+	if(bIsMasterClient)
 	{
-		MobQueue.pop();
-		*result = MobQueue.front().first->refID;
-		_MESSAGE("Monster %u",MobQueue.front().first->refID);
+		*result = 0;
+		return true;
+	}
+	if(QueueMode&&  MobQueue.size())
+	{
+		*result = MobQueue.begin()->RefID;
+		_MESSAGE("Monster %u",MobQueue.begin()->RefID);
+		MobQueue.pop_front();
 	}
 	else
 	{
-
+		_MESSAGE("Stack End");
 		*result = 0;
 	}
 	return true;
@@ -254,8 +259,6 @@ bool Cmd_MPStopStack_Execute (COMMAND_ARGS)
 
 bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handler
 {
-	Console_Print("Received Mob Update"); 
-	_MESSAGE("Received Mob Update");
 	if(!bIsMasterClient)
 	{
 	TESObjectREFR * Object;
@@ -286,22 +289,22 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 		}
 		//if((*g_thePlayer)->parentCell->refID == pkgBuf.CellID) // remove that , and see if the performance allows it
 		{
-			RefrStatusPair temp;
-			temp.first = Object;
+			MobStatus temp;
+			temp.Refr = Object;
 			if (pkgBuf.Flags & 4) //Is in an exterior?
 			{
-				temp.second.bIsInInterior = false;
+				temp.bIsInInterior = false;
 			}else{
-				temp.second.bIsInInterior = true;
+				temp.bIsInInterior = true;
 			}
-			temp.second.InCombat = pkgBuf.Flags & 32; 
-			temp.second.PosX = pkgBuf.fPosX;
-			temp.second.PosY = pkgBuf.fPosY;
-			temp.second.PosZ = pkgBuf.fPosZ;
-			temp.second.RotX = pkgBuf.fRotX;
-			temp.second.RotY = pkgBuf.fRotY;
-			temp.second.RotZ = pkgBuf.fRotZ;
-			MobQueue.push(temp);
+			temp.InCombat = pkgBuf.Flags & 32; 
+			temp.PosX = pkgBuf.fPosX;
+			temp.PosY = pkgBuf.fPosY;
+			temp.PosZ = pkgBuf.fPosZ;
+			temp.RotX = pkgBuf.fRotX;
+			temp.RotY = pkgBuf.fRotY;
+			temp.RotZ = pkgBuf.fRotZ;
+			MobQueue.push_back(temp);
 		}
 	}
 	}

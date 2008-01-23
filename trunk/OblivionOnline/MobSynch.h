@@ -55,4 +55,9 @@ extern  CommandInfo kMPStopStackCommand;
 extern  CommandInfo kMPAdvanceStackCommand;
 
 extern bool QueueMode;
-extern std::queue <std::pair<TESObjectREFR *,ActorStatus>> MobQueue;
+struct MobStatus : ActorStatus
+{
+	TESObjectREFR* Refr;
+};
+
+extern std::deque <MobStatus> MobQueue;

@@ -269,6 +269,10 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		DummyStatus.Magika = ActorBuf->GetActorValue(9);
 		DummyStatus.Fatigue = ActorBuf->GetActorValue(10);
 		DummyStatus.InCombat = Players[LocalPlayer].InCombat;
+		if(!ActorBuf->parentCell)
+		{
+			_ERROR("Could not find Actor parent Cell");
+		}
 		if(ActorBuf->parentCell->worldSpace)
 		{
 			DummyStatus.bIsInInterior = false;
@@ -408,7 +412,7 @@ bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 		_MESSAGE("MPGetPosY for mob called");
 		if(MobQueue.size()) 
 		{
-			*result = MobQueue.front().second.PosX;
+			*result = MobQueue.begin()->PosX;
 		}
 		else 
 		{
@@ -446,7 +450,7 @@ bool Cmd_MPGetPosY_Execute (COMMAND_ARGS)
 		_MESSAGE("MPGetPosY for mob called");
 		if(MobQueue.size()) 
 		{
-			*result = MobQueue.front().second.PosY;
+			*result = MobQueue.begin()->PosY;
 		}
 		else 
 		{
@@ -484,7 +488,7 @@ bool Cmd_MPGetPosZ_Execute (COMMAND_ARGS)
 		_MESSAGE("MPGetPosZ for mob called");
 		if(MobQueue.size()) 
 		{
-			*result = MobQueue.front().second.PosZ;
+			*result = MobQueue.begin()->PosZ;
 		}
 		else 
 		{
@@ -523,7 +527,7 @@ bool Cmd_MPGetRotZ_Execute (COMMAND_ARGS)
 	{
 		if(MobQueue.size()) 
 		{
-			*result = MobQueue.front().second.RotZ;
+			*result = MobQueue.begin()->RotZ;
 		}
 		else 
 		{
@@ -559,6 +563,14 @@ bool Cmd_MPGetCell_Execute (COMMAND_ARGS)
 	}
 	else
 	{
+		if(MobQueue.size()) 
+		{
+			*result = MobQueue.begin()->CellID;
+		}
+		else 
+		{
+			*result = 0;
+		}
 	}
 	return true;
 }
@@ -611,7 +623,14 @@ bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 	}
 	else
 	{
-		*result = (int)MobQueue.front().second.bIsInInterior;
+		if(MobQueue.size()) 
+		{
+			*result = MobQueue.begin()->bIsInInterior;
+		}
+		else 
+		{
+			*result = 0;
+		}
 	}
 	return true;
 }
