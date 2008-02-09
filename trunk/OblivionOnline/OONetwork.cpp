@@ -38,6 +38,7 @@ This file is part of OblivionOnline.
 #include "MobSynch.h"
 #include "OONetwork.h"
 #include "UserInterface.h"
+#include "ChatTalker.h"
 //Prototypes
 extern void RunScriptLine(const char *buf, bool IsTemp);
 bool OOPWelcome_Handler(char *Packet);
@@ -302,23 +303,30 @@ bool OOPWelcome_Handler(char *Packet)
 {
 	OOPkgWelcome * InPkgBuf = (OOPkgWelcome *)Packet;
 	if(!(InPkgBuf->Flags & 2)) // Ignore Data Flag is not set
-	{	
-	
-	sscanf(InPkgBuf->NickName, "Player%2d", &LocalPlayer);
-	_MESSAGE("Received Player ID %u",LocalPlayer);
-	Console_Print(InPkgBuf->NickName);
-	PlayerConnected[LocalPlayer] = true;
-	PlayersInitial[LocalPlayer].Health = (*g_thePlayer)->GetActorValue(8);
-	PlayersInitial[LocalPlayer].Magika = (*g_thePlayer)->GetActorValue(9);
-	PlayersInitial[LocalPlayer].Fatigue = (*g_thePlayer)->GetActorValue(10);
-	Players[LocalPlayer].Health = (*g_thePlayer)->GetActorValue(8);
-	Players[LocalPlayer].Magika = (*g_thePlayer)->GetActorValue(9);
-	Players[LocalPlayer].Fatigue = (*g_thePlayer)->GetActorValue(10);
-		//Tell server that we're ready to get init data from other clients
-	OOPkgWelcome pkgBuf;
-	pkgBuf.etypeID = OOPWelcome;
-	pkgBuf.Flags = 1;
-	send(ServerSocket, (char *)&pkgBuf, sizeof(OOPkgWelcome), 0);
+		{		
+		sscanf(InPkgBuf->NickName, "Player%2d", &LocalPlayer);
+		_MESSAGE("Received Player ID %u",LocalPlayer);
+		Console_Print(InPkgBuf->NickName);
+
+		char chatScript[1024];
+		sprintf(chatScript, "MESSAGE \"Welcome on %s\"", InPkgBuf->ServerName);
+		Console_Print("Server: %s running OblivionOnline %u.%u", InPkgBuf->ServerName,HIBYTE(InPkgBuf->wVersion),LOBYTE(InPkgBuf->wVersion));
+		RunScriptLine(chatScript, true);
+
+		PlayerConnected[LocalPlayer] = true;
+		PlayersInitial[LocalPlayer].Health = (*g_thePlayer)->GetActorValue(8);
+		PlayersInitial[LocalPlayer].Magika = (*g_thePlayer)->GetActorValue(9);
+		PlayersInitial[LocalPlayer].Fatigue = (*g_thePlayer)->GetActorValue(10);
+		Players[LocalPlayer].Health = (*g_thePlayer)->GetActorValue(8);
+		Players[LocalPlayer].Magika = (*g_thePlayer)->GetActorValue(9);
+		Players[LocalPlayer].Fatigue = (*g_thePlayer)->GetActorValue(10);
+			//Tell server that we're ready to get init data from other clients
+		OOPkgWelcome pkgBuf;
+		pkgBuf.etypeID = OOPWelcome;
+		pkgBuf.Flags = 1;
+	//TODO : TUNE THAT HERE !!!!
+		UpdateExternalInfo((*g_thePlayer)->GetName(),0,"Unknown",(*g_thePlayer)->classForm->GetName(),(*g_thePlayer)->parentCell->GetName(),InPkgBuf->ServerName,ServerIP,0);
+		send(ServerSocket, (char *)&pkgBuf, sizeof(OOPkgWelcome), 0);
 	}
 // Here we hande the so -called "Mode Flags " from 4 (MC ) upwards.
 
@@ -343,6 +351,8 @@ bool OOPDisconnect_Handler(char *Packet)
 	OOPkgDisconnect * InPkgBuf = (OOPkgDisconnect *)Packet;
 	if (InPkgBuf->PlayerID == LocalPlayer && InPkgBuf->Flags == 1)
 	{
+		TESFullName* first = (TESFullName*)Oblivion_DynamicCast(*g_thePlayer, 0, RTTI_TESForm, RTTI_TESFullName, 0);
+		UpdateXFireInfo(first->name.m_data,0,"Unknown",(*g_thePlayer)->classForm->GetName(),(*g_thePlayer)->parentCell->GetName(),"Offline","",0);
 		bIsConnected = false;
 		Console_Print("You have been disconnected");
 		for(int i=0; i<MAXCLIENTS; i++)
@@ -589,18 +599,18 @@ bool OOPFullStatUpdate_Handler(char *Packet)
 			// If we know the mem location of the NPC, mod the stats
 			if (InPkgBuf->refID == LocalPlayer)
 			{
-				//(*g_thePlayer)->ModActorBaseValue(0, InPkgBuf->Strength, 0);
-				//(*g_thePlayer)->ModActorBaseValue(1, InPkgBuf->Intelligence, 0);
-				//(*g_thePlayer)->ModActorBaseValue(2, InPkgBuf->Willpower, 0);
-				//(*g_thePlayer)->ModActorBaseValue(3, InPkgBuf->Agility, 0);
-				//(*g_thePlayer)->ModActorBaseValue(4, InPkgBuf->Speed, 0);
-				//(*g_thePlayer)->ModActorBaseValue(5, InPkgBuf->Endurance, 0);
-				//(*g_thePlayer)->ModActorBaseValue(6, InPkgBuf->Personality, 0);
-				//(*g_thePlayer)->ModActorBaseValue(7, InPkgBuf->Luck, 0);
+				(*g_thePlayer)->ModActorBaseValue(0, InPkgBuf->Strength, 0);
+				(*g_thePlayer)->ModActorBaseValue(1, InPkgBuf->Intelligence, 0);
+				(*g_thePlayer)->ModActorBaseValue(2, InPkgBuf->Willpower, 0);
+				(*g_thePlayer)->ModActorBaseValue(3, InPkgBuf->Agility, 0);
+				(*g_thePlayer)->ModActorBaseValue(4, InPkgBuf->Speed, 0);
+				(*g_thePlayer)->ModActorBaseValue(5, InPkgBuf->Endurance, 0);
+				(*g_thePlayer)->ModActorBaseValue(6, InPkgBuf->Personality, 0);
+				(*g_thePlayer)->ModActorBaseValue(7, InPkgBuf->Luck, 0);
 				(*g_thePlayer)->ModActorBaseValue(8, InPkgBuf->Health, 0);
 				(*g_thePlayer)->ModActorBaseValue(9, InPkgBuf->Magika, 0);
 				(*g_thePlayer)->ModActorBaseValue(10, InPkgBuf->Fatigue, 0);
-				//(*g_thePlayer)->ModActorBaseValue(11, InPkgBuf->Encumbrance, 0);
+				(*g_thePlayer)->ModActorBaseValue(11, InPkgBuf->Encumbrance, 0);
 			}else{
 				if (PlayerActorList[InPkgBuf->refID])
 				{

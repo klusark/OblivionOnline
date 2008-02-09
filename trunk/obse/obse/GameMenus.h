@@ -1,5 +1,7 @@
 #pragma once
 
+class TESObjectREFR;
+
 // 028
 class Menu
 {
@@ -58,5 +60,20 @@ public:
 	// 3C
 	// ...
 };
+
+// 5C
+class HUDInfoMenu : public Menu
+{
+public:
+	HUDInfoMenu();
+	~HUDInfoMenu();
+
+	UInt32			unk028[10];			// 028 .. 04C	- TileText
+	UInt32			unk050;				// 050			- TileImage
+	TESObjectREFR	* crosshairRef;		// 054
+	UInt32			unk058;				//058
+};
+
+extern HUDInfoMenu**	g_HUDInfoMenu;
 
 // ... lots more

@@ -30,6 +30,7 @@ extern CommandInfo kCommandInfo_MagicItemHasEffect;
 extern CommandInfo kCommandInfo_MagicItemHasEffectCode;
 extern CommandInfo kCommandInfo_MagicItemHasEffectCount;
 extern CommandInfo kCommandInfo_MagicItemHasEffectCountCode;
+extern CommandInfo kCommandInfo_MagicItemHasEffectItemScript;
 extern CommandInfo kCommandInfo_GetMagicItemEffectCount;
 extern CommandInfo kCommandInfo_GetNthEffectItemCode;
 extern CommandInfo kCommandInfo_GetNthEffectItemMagnitude;
@@ -66,4 +67,4 @@ extern CommandInfo kCommandInfo_SetNthEffectItemScriptSchool;
 extern CommandInfo kCommandInfo_IsNthEffectItemScriptHostile;
 extern CommandInfo kCommandInfo_SetNthEffectItemScriptHostile;
 extern CommandInfo kCommandInfo_SetNthEffectItemScriptName;
-
+extern CommandInfo kCommandInfo_ModNthEffectItemScriptName;

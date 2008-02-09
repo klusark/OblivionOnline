@@ -326,8 +326,14 @@ class EffectCodeFinder
 	UInt8 m_mode;
 public:
 	EffectCodeFinder(UInt32 effectCode) : m_effectCode(effectCode), m_count(0), m_avOrRefID(0), m_mode(eCodeOnly) {}
-	EffectCodeFinder(UInt32 effectCode, UInt32 av) : m_effectCode(effectCode), m_avOrRefID(av), m_mode(eCodeAndAV) {}
-	EffectCodeFinder(UInt32 effectCode, Script* script) : m_effectCode(effectCode), m_avOrRefID(script->refID), m_mode(eCodeAndScript) {}
+	EffectCodeFinder(UInt32 effectCode, UInt32 av) : m_effectCode(effectCode), m_count(0), m_avOrRefID(0), m_mode(eCodeOnly) {
+		if (av != kActorVal_OblivionMax) {
+			m_avOrRefID = av;
+			m_mode = eCodeAndAV;
+		}
+	}
+
+	EffectCodeFinder(UInt32 effectCode, Script* script) : m_effectCode(effectCode), m_count(0), m_avOrRefID(script->refID), m_mode(eCodeAndScript) {}
 	~EffectCodeFinder() {}
 
 	inline bool MatchesAV(EffectItem* effectItem) {
@@ -395,17 +401,18 @@ static bool MagicItemHasEffect_Execute(COMMAND_ARGS, bool bReturnCount, bool bUs
 	UInt32 effectCode = 0;
 	EffectSetting* magic = NULL;
 	TESForm* form = NULL;
+	UInt32 actorVal = kActorVal_OblivionMax;
 
 	if (bUsingCode) {
-		ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &effectCode, &form);
+		ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &effectCode, &form, &actorVal);
 	} else {
-		ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &magic, &form);
+		ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &magic, &form, &actorVal);
 		if (magic) effectCode = magic->effectCode;
 	}
 	if (!form || effectCode == 0) return true;
 	EffectItemList* list = GetEffectList(form);
 	if (!list) return true;
-	EffectCodeFinder finder(effectCode);
+	EffectCodeFinder finder(effectCode, actorVal);
 	return MagicItemHasEffectCode(&list->effectList, finder, bReturnCount, result);
 }
 
@@ -428,6 +435,35 @@ static bool Cmd_MagicItemHasEffectCode_Execute(COMMAND_ARGS)
 static bool Cmd_MagicItemHasEffectCountCode_Execute(COMMAND_ARGS)
 {
 	return MagicItemHasEffect_Execute(PASS_COMMAND_ARGS, bReturnCountT, bUsingCodeT);
+}
+
+class ScriptFinder
+{
+	UInt32 m_refID;
+public:
+	ScriptFinder(UInt32 refID) : m_refID(refID) {}
+	bool Accept(EffectItem* effectItem) {
+		return (effectItem->ScriptEffectRefId() == m_refID);
+	}
+};
+
+static bool Cmd_MagicItemHasEffectItemScript_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	TESForm* scriptItemVar = NULL;
+	TESForm* form = NULL;
+	bool bArgsExtracted = ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &scriptItemVar, &form);
+	if (!bArgsExtracted || !scriptItemVar || !form) return true;
+	
+	EffectItemList* list = GetEffectList(form);
+	if (!list) return true;
+
+	EffectItemVisitor visitor(&list->effectList);
+	ScriptFinder finder(scriptItemVar->refID);
+	if (visitor.Find(finder) != NULL) {
+		*result = 1;
+	}
+	return true;
 }
 
 
@@ -650,7 +686,20 @@ static bool ChangeEffectItemValue(EffectItem* effect, ChangeMagicValue& cmv, dou
 		case kMagic_EffectScriptName:
 			{
 				if (effect->IsScriptedEffect() && effect->scriptEffectInfo) {
-					effect->scriptEffectInfo->SetName(cmv.StringVal());
+					String& effectName = effect->scriptEffectInfo->effectName;
+					if (cmv.ForMod()) {
+						std::string strTextArg(cmv.StringVal());
+						// look and see if the input has the pipe character
+						std::string::size_type pipePos = strTextArg.find('|');
+						if (pipePos != std::string::npos) {
+							// we found the pipe
+							// now look for the replacement string
+							std::string toReplace(strTextArg.substr(0, pipePos));
+							effectName.Replace(toReplace.c_str(), &strTextArg[pipePos+1]);
+						}
+					} else {
+						effectName.Set(cmv.StringVal());
+					}
 				}
 			}
 
@@ -763,6 +812,11 @@ static bool Cmd_SetNthEffectItemScript_Execute(COMMAND_ARGS)
 static bool Cmd_SetNthEffectItemScriptName_Execute(COMMAND_ARGS)
 {
 	return ChangeNthEffectItem_Execute(PASS_COMMAND_ARGS, kMagic_EffectScriptName, bForModF);
+}
+
+static bool Cmd_ModNthEffectItemScriptName_Execute(COMMAND_ARGS)
+{
+	return ChangeNthEffectItem_Execute(PASS_COMMAND_ARGS, kMagic_EffectScriptName, bForModT);
 }
 
 
@@ -1313,73 +1367,60 @@ static ParamInfo kParams_GetMagicItemValue[3] =
 
 CommandInfo kCommandInfo_GetMagicItemValue =
 {
-	"GetMagicItemValue",
-	"GetMIV",
+	"GetMagicItemValue", "GetMIV",
 	0,
 	"gets the specified value from the given magic item",
-	0,
-	3,
-	kParams_GetMagicItemValue,
+	0, 3, kParams_GetMagicItemValue,
 	HANDLER(Cmd_GetMagicItemValue_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0
 };
 
-
-static ParamInfo kParams_MagicItemHasEffect[2] = 
+static ParamInfo kParams_MagicItemHasEffect[3] = 
 {
 	{	"effect code", kParamType_MagicEffect, 0 },
 	{	"magic item", kParamType_MagicItem, 0 },
+	{	"actor value", kParamType_ActorValue, 1},
 };
 
 CommandInfo kCommandInfo_MagicItemHasEffect =
 {
-	"MagicItemHasEffect",
-	"MagicHasEffect",
+	"MagicItemHasEffect", "MagicHasEffect",
 	0,
 	"returns true if the magic item has the specified effect",
-	0,
-	2,
-	kParams_MagicItemHasEffect,
+	0, 3, kParams_MagicItemHasEffect,
 	HANDLER(Cmd_MagicItemHasEffect_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0
 };
 
-
 CommandInfo kCommandInfo_MagicItemHasEffectCount =
 {
-	"MagicItemHasEffectCount",
-	"MagicHasEffectCount",
+	"MagicItemHasEffectCount", "MagicHasEffectCount",
 	0,
 	"returns the number of effect items of the magic item with the specified effect",
-	0,
-	2,
-	kParams_MagicItemHasEffect,
+	0, 3, kParams_MagicItemHasEffect,
 	HANDLER(Cmd_MagicItemHasEffectCount_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0
 };
 
-
-static ParamInfo kParams_MagicItemHasEffectCode[2] = 
+static ParamInfo kParams_MagicItemHasEffectCode[3] = 
 {
 	{	"effect code", kParamType_Integer, 0 },
 	{	"magic item", kParamType_MagicItem, 0 },
+	{	"actor value", kParamType_Integer, 1},
 };
 
 CommandInfo kCommandInfo_MagicItemHasEffectCode =
 {
-	"MagicItemHasEffectCode",
-	"MagicHasEffectC",
+	"MagicItemHasEffectCode","MagicHasEffectC",
 	0,
 	"returns true if the magic item has the specified effect code",
-	0,
-	2,
-	kParams_MagicItemHasEffectCode,
+	0, 3, kParams_MagicItemHasEffectCode,
 	HANDLER(Cmd_MagicItemHasEffectCode_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -1388,18 +1429,34 @@ CommandInfo kCommandInfo_MagicItemHasEffectCode =
 
 CommandInfo kCommandInfo_MagicItemHasEffectCountCode =
 {
-	"MagicItemHasEffectCountCode",
-	"MagicHasEffectCountC",
+	"MagicItemHasEffectCountCode", "MagicHasEffectCountC",
 	0,
 	"returns the number of effect items of the magic item with the specified effect code",
-	0,
-	2,
-	kParams_MagicItemHasEffectCode,
+	0, 3, kParams_MagicItemHasEffectCode,
 	HANDLER(Cmd_MagicItemHasEffectCountCode_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0
 };
+
+static ParamInfo kParams_MagicItemHasEffectItemScript[2] = 
+{
+	{	"script", kParamType_MagicItem, 0 },
+	{	"magic item", kParamType_MagicItem, 0 },
+};
+
+CommandInfo kCommandInfo_MagicItemHasEffectItemScript =
+{
+	"MagicItemHasEffectItemScript", "MagicHasEffectItemScript",
+	0,
+	"returns 1 id the magic effect has a scripted item with the given script",
+	0, 2, kParams_MagicItemHasEffectItemScript,
+	HANDLER(Cmd_MagicItemHasEffectItemScript_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
 
 CommandInfo kCommandInfo_GetMagicItemType =
 {
@@ -2056,14 +2113,23 @@ static ParamInfo kParams_SetNthEffectItemScriptName[3] =
 
 CommandInfo kCommandInfo_SetNthEffectItemScriptName =
 {
-	"SetNthEffectItemScriptName",
-	"SetNthEISName",
+	"SetNthEffectItemScriptName", "SetNthEISName",
 	0,
 	"sets the name of the scripted effect item",
-	0,
-	3,
-	kParams_SetNthEffectItemScriptName,
+	0, 3, kParams_SetNthEffectItemScriptName,
 	HANDLER(Cmd_SetNthEffectItemScriptName_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_ModNthEffectItemScriptName =
+{
+	"ModNthEffectItemScriptName", "ModNthEISName",
+	0,
+	"modifies the name of the scripted effect item",
+	0, 3, kParams_SetNthEffectItemScriptName,
+	HANDLER(Cmd_ModNthEffectItemScriptName_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0

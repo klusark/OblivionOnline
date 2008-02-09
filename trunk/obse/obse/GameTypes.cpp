@@ -30,6 +30,7 @@ bool String::Set(const char * src)
 		FormHeap_Free(m_data);
 		m_data = 0;
 		m_bufLen = 0;
+		m_dataLen = 0;
 		return true;
 	}
 	

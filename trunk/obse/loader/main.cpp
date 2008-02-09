@@ -401,6 +401,7 @@ static bool TestChecksum(const char * procName, std::string * dllSuffix)
 				case 0xE116E23D:	// 1.2.0.214 japanese unofficial v7c
 				case 0x78AEE28E:	// 1.2.0.214 japanese unofficial v7d (hello 2ch)
 				case 0x960EE2AE:	// 1.2.0.214 japanese unofficial v7e
+				case 0x7B5ED597:	// 1.2.0.214 polish unofficial
 					*dllSuffix = "1_2";
 					result = true;
 					break;
@@ -429,6 +430,9 @@ static bool TestChecksum(const char * procName, std::string * dllSuffix)
 				case 0x3E9FC1F7:	// 1.2.0.416 japanese unofficial v9b
 				case 0xC9A9C9AD:	// 1,2.0.416 w/ no-CD patch by unknown
 				case 0x52AE527E:	// 1.2.0.416 japanese unofficial v10
+				case 0xABD5C927:	// 1.2.0.416 german unofficial
+				case 0x97D6D510:	// 1.2.0.416 russian official? http://games.1c.ru/oblivion_gold/
+				case 0xAD9CD911:	// 1.2.0.416 russian official + no-CD
 					*dllSuffix = "1_2_416";
 					result = true;
 					break;

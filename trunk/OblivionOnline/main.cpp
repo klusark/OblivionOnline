@@ -247,59 +247,64 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 	}
 	if(thisObj->IsActor())
 	{
-		Actor *ActorBuf = (Actor *)thisObj;
-		int actorNumber = GetPlayerNumberFromRefID(ActorBuf->refID);
-	
-		if (actorNumber == -1)
-			return true;
-		if (actorNumber == -2)
-			actorNumber = LocalPlayer;
-		if (!PlayerConnected[actorNumber])
-			return true; 
+		if(thisObj->refID == (*g_thePlayer)->refID)
+		{
+			Actor *ActorBuf = (Actor *)thisObj;
+			int actorNumber = GetPlayerNumberFromRefID(ActorBuf->refID);
+		
+			if (actorNumber == -1)
+				return true;
+			if (!PlayerConnected[actorNumber])
+				return true; 
 
-		PlayerStatus DummyStatus;
-		DummyStatus.RefID = ActorBuf->refID;
-		DummyStatus.PosX = ActorBuf->posX;
-		DummyStatus.PosY = ActorBuf->posY;
-		DummyStatus.PosZ = ActorBuf->posZ;
-		DummyStatus.RotX = ActorBuf->rotX;
-		DummyStatus.RotY = ActorBuf->rotY;
-		DummyStatus.RotZ = ActorBuf->rotZ;
-		DummyStatus.Health = ActorBuf->GetActorValue(8);
-		DummyStatus.Magika = ActorBuf->GetActorValue(9);
-		DummyStatus.Fatigue = ActorBuf->GetActorValue(10);
-		DummyStatus.InCombat = Players[LocalPlayer].InCombat;
-		if(!ActorBuf->parentCell)
-		{
-			_ERROR("Could not find Actor parent Cell");
-		}
-		if(ActorBuf->parentCell->worldSpace)
-		{
-			DummyStatus.bIsInInterior = false;
-			DummyStatus.CellID = ActorBuf->parentCell->worldSpace->refID;
+			PlayerStatus DummyStatus;
+			DummyStatus.RefID = ActorBuf->refID;
+			DummyStatus.PosX = ActorBuf->posX;
+			DummyStatus.PosY = ActorBuf->posY;
+			DummyStatus.PosZ = ActorBuf->posZ;
+			DummyStatus.RotX = ActorBuf->rotX;
+			DummyStatus.RotY = ActorBuf->rotY;
+			DummyStatus.RotZ = ActorBuf->rotZ;
+			DummyStatus.Health = ActorBuf->GetActorValue(8);
+			DummyStatus.Magika = ActorBuf->GetActorValue(9);
+			DummyStatus.Fatigue = ActorBuf->GetActorValue(10);
+			DummyStatus.InCombat = Players[LocalPlayer].InCombat;
+			if(!ActorBuf->parentCell)
+			{
+				_ERROR("Could not find Actor parent Cell");
+			}
+			if(ActorBuf->parentCell->worldSpace)
+			{
+				DummyStatus.bIsInInterior = false;
+				DummyStatus.CellID = ActorBuf->parentCell->worldSpace->refID;
+			}
+			else
+			{
+				DummyStatus.bIsInInterior = true;
+				DummyStatus.CellID = ActorBuf->parentCell->refID;
+			}
+			
+			if (actorNumber != LocalPlayer)
+			{
+				NetActorUpdate(&DummyStatus, actorNumber, true, false);
+			}
+			else{
+				if (Players[LocalPlayer].bStatsInitialized)
+				{
+					NetActorUpdate(&DummyStatus, LocalPlayer, true, false);
+				}
+				else{
+					Console_Print("Initializing player %i basic stats ...", LocalPlayer);
+					NetActorUpdate(&DummyStatus, LocalPlayer, true, true);
+					Players[LocalPlayer].bStatsInitialized = true;
+				}
+			}
 		}
 		else
 		{
-			DummyStatus.bIsInInterior = true;
-			DummyStatus.CellID = ActorBuf->parentCell->refID;
+			_ERROR("Calling MPSendActor on non-PC");
 		}
-		
-		if (actorNumber != LocalPlayer)
-		{
-			NetActorUpdate(&DummyStatus, actorNumber, true, false);
-		}
-		else{
-			if (Players[LocalPlayer].bStatsInitialized)
-			{
-				NetActorUpdate(&DummyStatus, LocalPlayer, true, false);
-			}
-			else{
-				Console_Print("Initializing player %i basic stats ...", LocalPlayer);
-				NetActorUpdate(&DummyStatus, LocalPlayer, true, true);
-				Players[LocalPlayer].bStatsInitialized = true;
-			}
-		}
-		}
+	}
 	return true;
 }
 
@@ -412,7 +417,7 @@ bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 		_MESSAGE("MPGetPosY for mob called");
 		if(MobQueue.size()) 
 		{
-			*result = MobQueue.begin()->PosX;
+			*result = MobQueue.front().PosX;
 		}
 		else 
 		{
@@ -450,7 +455,7 @@ bool Cmd_MPGetPosY_Execute (COMMAND_ARGS)
 		_MESSAGE("MPGetPosY for mob called");
 		if(MobQueue.size()) 
 		{
-			*result = MobQueue.begin()->PosY;
+			*result = MobQueue.front().PosY;
 		}
 		else 
 		{
@@ -488,7 +493,7 @@ bool Cmd_MPGetPosZ_Execute (COMMAND_ARGS)
 		_MESSAGE("MPGetPosZ for mob called");
 		if(MobQueue.size()) 
 		{
-			*result = MobQueue.begin()->PosZ;
+			*result = MobQueue.front().PosZ;
 		}
 		else 
 		{
@@ -527,7 +532,7 @@ bool Cmd_MPGetRotZ_Execute (COMMAND_ARGS)
 	{
 		if(MobQueue.size()) 
 		{
-			*result = MobQueue.begin()->RotZ;
+			*result = MobQueue.front().RotZ;
 		}
 		else 
 		{
@@ -565,7 +570,7 @@ bool Cmd_MPGetCell_Execute (COMMAND_ARGS)
 	{
 		if(MobQueue.size()) 
 		{
-			*result = MobQueue.begin()->CellID;
+			*result = MobQueue.front().CellID;
 		}
 		else 
 		{
@@ -625,7 +630,7 @@ bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 	{
 		if(MobQueue.size()) 
 		{
-			*result = MobQueue.begin()->bIsInInterior;
+			*result = MobQueue.front().bIsInInterior;
 		}
 		else 
 		{
@@ -1423,5 +1428,5 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	_MESSAGE("Done loading OO Commands");
 	return true;
 }
-
+84.161.10.213
 };

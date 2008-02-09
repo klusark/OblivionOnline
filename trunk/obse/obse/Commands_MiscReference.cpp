@@ -329,11 +329,13 @@ struct CellScanInfo
 	SInt8	curY;
 	UInt8	formType;									//form type to scan for
 	UInt8	cellDepth;									//depth of adjacent cells to scan
+	bool	includeTakenRefs;
 
 	CellScanInfo()
 	{	}
 
-	CellScanInfo(UInt8 _cellDepth, UInt8 _formType) : cellDepth(_cellDepth), formType(_formType), prev(NULL)
+	CellScanInfo(UInt8 _cellDepth, UInt8 _formType, bool _includeTaken) 
+					:	cellDepth(_cellDepth), formType(_formType), includeTakenRefs(_includeTaken), prev(NULL)
 	{
 		pcCell = (*g_thePlayer)->parentCell;
 		world = pcCell->worldSpace;
@@ -399,24 +401,33 @@ struct CellScanInfo
 
 class RefMatcherAnyForm
 {
+	bool m_includeTaken;
 public:
-	RefMatcherAnyForm() { }
+	RefMatcherAnyForm(bool includeTaken) : m_includeTaken(includeTaken)
+		{ }
 
 	bool Accept(const TESObjectREFR* refr)
 	{
-		return true;
+		if (m_includeTaken || !(refr->IsTaken()))
+			return true;
+		else
+			return false;
 	}
 };
 
 class RefMatcherFormType
 {
 	UInt32 m_formType;
+	bool m_includeTaken;
 public:
-	RefMatcherFormType(UInt32 formType) : m_formType(formType) { }
+	RefMatcherFormType(UInt32 formType, bool includeTaken) : m_formType(formType), m_includeTaken(includeTaken)
+		{ }
 
 	bool Accept(const TESObjectREFR* refr)
 	{
-		if (refr->baseForm->typeID == m_formType && refr->baseForm->refID != 7)	//exclude player for kFormType_NPC
+		if (!m_includeTaken && refr->IsTaken())
+			return false;
+		else if (refr->baseForm->typeID == m_formType && refr->baseForm->refID != 7)	//exclude player for kFormType_NPC
 			return true;
 		else
 			return false;
@@ -426,7 +437,8 @@ public:
 class RefMatcherActor
 {
 public:
-	RefMatcherActor() { }
+	RefMatcherActor()
+		{ }
 
 	bool Accept(const TESObjectREFR* refr)
 	{
@@ -441,11 +453,16 @@ public:
 
 class RefMatcherItem
 {
+	bool m_includeTaken;
 public:
-	RefMatcherItem() { }
+	RefMatcherItem(bool includeTaken) : m_includeTaken(includeTaken)
+		{ }
 
 	bool Accept(const TESObjectREFR* refr)
 	{
+		if (!m_includeTaken && refr->IsTaken())
+			return false;
+
 		switch (refr->baseForm->typeID)
 		{
 			case kFormType_Apparatus:
@@ -472,28 +489,28 @@ public:
 	}
 };
 
-static const TESObjectCELL::ObjectListEntry* GetCellRefEntry(CellListVisitor visitor, UInt32 formType, const TESObjectCELL::ObjectListEntry* prev)
+static const TESObjectCELL::ObjectListEntry* GetCellRefEntry(CellListVisitor visitor, UInt32 formType, const TESObjectCELL::ObjectListEntry* prev, bool includeTaken)
 {
 	const TESObjectCELL::ObjectListEntry* entry = NULL;
 	switch(formType)
 	{
 	case 0:		//Any type
-		entry = visitor.Find(RefMatcherAnyForm(), prev);
+		entry = visitor.Find(RefMatcherAnyForm(includeTaken), prev);
 		break;
 	case 69:	//Actor
 		entry = visitor.Find(RefMatcherActor(), prev);
 		break;
 	case 70:	//Inventory Item
-		entry = visitor.Find(RefMatcherItem(), prev);
+		entry = visitor.Find(RefMatcherItem(includeTaken), prev);
 		break;
 	default:
-		entry = visitor.Find(RefMatcherFormType(formType), prev);
+		entry = visitor.Find(RefMatcherFormType(formType, includeTaken), prev);
 	}
 
 	return entry;
 }
 
-static TESObjectREFR* CellScan(Script* scriptObj, UInt32 formType = 0, UInt32 cellDepth = 0, bool getFirst = false)
+static TESObjectREFR* CellScan(Script* scriptObj, UInt32 formType = 0, UInt32 cellDepth = 0, bool getFirst = false, bool includeTaken = false)
 {
 	static std::map<UInt32, CellScanInfo> scanScripts;
 	UInt32 idx = scriptObj->refID;
@@ -503,7 +520,7 @@ static TESObjectREFR* CellScan(Script* scriptObj, UInt32 formType = 0, UInt32 ce
 
 	if (scanScripts.find(idx) == scanScripts.end())
 	{
-		scanScripts[idx] = CellScanInfo(cellDepth, formType);
+		scanScripts[idx] = CellScanInfo(cellDepth, formType, includeTaken);
 		scanScripts[idx].FirstCell();
 	}
 
@@ -512,7 +529,7 @@ static TESObjectREFR* CellScan(Script* scriptObj, UInt32 formType = 0, UInt32 ce
 	bool bContinue = true;
 	while (bContinue)
 	{
-		info->prev = GetCellRefEntry(CellListVisitor(&info->curCell->objectList), info->formType, info->prev);
+		info->prev = GetCellRefEntry(CellListVisitor(&info->curCell->objectList), info->formType, info->prev, info->includeTakenRefs);
 		if (!info->prev || !info->prev->refr)				//no ref found
 		{
 			if (!info->NextCell())			//check next cell if possible
@@ -536,15 +553,20 @@ static bool Cmd_GetFirstRef_Execute(COMMAND_ARGS)
 {
 	UInt32 formType = 0;
 	UInt32 cellDepth = -1;
+	UInt32 bIncludeTakenRefs = 0;
 	UInt32* refResult = (UInt32*)result;
 	*refResult = 0;
+	
+	PlayerCharacter* pc = *g_thePlayer;
+	if (!pc || !(pc->parentCell))
+		return true;						//avoid crash when these functions called in main menu before parentCell instantiated
 
-	ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &formType, &cellDepth);
+	ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &formType, &cellDepth, &bIncludeTakenRefs);
 
 	if (cellDepth == -1)
 		cellDepth = 0;
 
-	TESObjectREFR* refr = CellScan(scriptObj, formType, cellDepth, true);
+	TESObjectREFR* refr = CellScan(scriptObj, formType, cellDepth, true, bIncludeTakenRefs ? true : false);
 	if (refr)
 		*refResult = refr->refID;
 
@@ -553,6 +575,11 @@ static bool Cmd_GetFirstRef_Execute(COMMAND_ARGS)
 
 static bool Cmd_GetNextRef_Execute(COMMAND_ARGS)
 {
+	
+	PlayerCharacter* pc = *g_thePlayer;
+	if (!pc || !(pc->parentCell))
+		return true;						//avoid crash when these functions called in main menu before parentCell instantiated
+
 	UInt32* refResult = (UInt32*)result;
 	*refResult = 0;
 
@@ -568,13 +595,19 @@ static bool Cmd_GetNumRefs_Execute(COMMAND_ARGS)
 	*result = 0;
 	UInt32 formType = 0;
 	UInt32 cellDepth = -1;
+	UInt32 includeTakenRefs = 0;
 
-	ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &formType, &cellDepth);
+	PlayerCharacter* pc = *g_thePlayer;
+	if (!pc || !(pc->parentCell))
+		return true;						//avoid crash when these functions called in main menu before parentCell instantiated
 
+	ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &formType, &cellDepth, &includeTakenRefs);
+
+	bool bIncludeTakenRefs = includeTakenRefs ? true : false;
 	if (cellDepth == -1)
 		cellDepth = 0;
 
-	CellScanInfo info(cellDepth, formType);
+	CellScanInfo info(cellDepth, formType, bIncludeTakenRefs);
 	info.FirstCell();
 
 	while (info.curCell)
@@ -583,16 +616,16 @@ static bool Cmd_GetNumRefs_Execute(COMMAND_ARGS)
 		switch (formType)
 		{
 		case 0:
-			*result += visitor.CountIf(RefMatcherAnyForm());
+			*result += visitor.CountIf(RefMatcherAnyForm(bIncludeTakenRefs));
 			break;
 		case 69:
 			*result += visitor.CountIf(RefMatcherActor());
 			break;
 		case 70:
-			*result += visitor.CountIf(RefMatcherItem());
+			*result += visitor.CountIf(RefMatcherItem(bIncludeTakenRefs));
 			break;
 		default:
-			*result += visitor.CountIf(RefMatcherFormType(formType));
+			*result += visitor.CountIf(RefMatcherFormType(formType, bIncludeTakenRefs));
 		}
 		info.NextCell();
 	}
@@ -628,6 +661,384 @@ static bool Cmd_SetPersistent_Execute(COMMAND_ARGS)
 	return true;
 }
 
+static bool Cmd_GetNumChildRefs_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	if (!thisObj)
+		return true;
+
+	BSExtraData* xData = thisObj->baseExtraList.GetByType(kExtraData_EnableStateChildren);
+	if (!xData)
+		return true;
+	
+	ExtraEnableStateChildren* xKids = (ExtraEnableStateChildren*)Oblivion_DynamicCast(xData, 0, RTTI_BSExtraData, RTTI_ExtraEnableStateChildren, 0);
+	if (xKids)
+		*result = EnableStateChildrenVisitor(&xKids->childList).Count();
+
+	return true;
+}
+
+static bool Cmd_GetNthChildRef_Execute(COMMAND_ARGS)
+{
+	UInt32 idx = 0;
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &idx))
+		return true;
+
+	else if (!thisObj)
+		return true;
+
+	BSExtraData* xData = thisObj->baseExtraList.GetByType(kExtraData_EnableStateChildren);
+	if (!xData)
+		return true;
+	
+	ExtraEnableStateChildren* xKids = (ExtraEnableStateChildren*)Oblivion_DynamicCast(xData, 0, RTTI_BSExtraData, RTTI_ExtraEnableStateChildren, 0);
+	if (xKids)
+	{
+		TESObjectREFR* kid = EnableStateChildrenVisitor(&xKids->childList).GetNthInfo(idx);
+		if (kid)
+			*refResult = kid->refID;
+	}
+
+	return true;
+}
+
+static bool Cmd_SetScaleEX_Execute(COMMAND_ARGS)
+{
+	float newScale = 0;
+	*result = 0;
+
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &newScale))
+		return true;
+	else if (!thisObj)
+		return true;
+
+	thisObj->scale = newScale;
+	thisObj->MarkAsModified(thisObj->kChanged_Scale);
+	*result = 1;
+
+	return true;
+}
+
+static bool Cmd_IsActivatable_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	if (!thisObj)
+		return true;
+	
+	UInt32 type = thisObj->baseForm->typeID;
+	if (type >= kFormType_Activator && type <= kFormType_Ingredient)
+		*result = 1;
+	else if (type == kFormType_Light)
+		*result = 1;
+	else if (type == kFormType_Misc)
+		*result = 1;
+	else if (type >= kFormType_Flora && type <= kFormType_Creature)
+		*result = 1;
+	else if (type >= kFormType_SoulGem && type <= kFormType_AlchemyItem)
+		*result = 1;
+	else if (type == kFormType_SigilStone)
+		*result = 1;
+
+	return true;
+}
+
+static bool Cmd_IsHarvested_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	if (!thisObj)
+		return true;
+	else if (thisObj->baseForm->typeID != kFormType_Flora)
+		return true;
+
+	if (thisObj->flags & TESFlora::kFloraFlags_Harvested)
+		*result = 1;
+
+	return true;
+}
+
+static bool Cmd_SetHarvested_Execute(COMMAND_ARGS)
+{
+	UInt32 bHarvested = 0;
+	if (!thisObj || thisObj->baseForm->typeID != kFormType_Flora)
+		return true;
+	else if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &bHarvested))
+		return true;
+
+	if (bHarvested)
+	{
+		thisObj->flags |= TESFlora::kFloraFlags_Harvested;
+		thisObj->MarkAsModified(TESFlora::kModified_Empty);
+	}
+	else
+		thisObj->flags &= ~TESFlora::kFloraFlags_Harvested;
+
+	return true;
+}
+
+static bool Cmd_HasBeenPickedUp_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	if (thisObj && thisObj->IsTaken())
+		*result = 1;
+
+	return true;
+}
+
+UInt32 GetProjectileData(MobileObject* mob, bool getMagicData = false, MagicProjectileData** dataOut = NULL)
+{
+	//is there a better way to do this?
+	UInt32 type = -1;
+	MagicProjectileData* data;
+
+	if (mob->baseForm->typeID != kFormType_Ammo)
+	{
+		data = NULL;
+		return -1;
+	}
+
+	MagicBallProjectile* ball = (MagicBallProjectile*)Oblivion_DynamicCast(mob, 0, RTTI_MobileObject, RTTI_MagicBallProjectile, 0);
+	if (ball)
+	{
+		data = &ball->data;
+		type = kProjectileType_Ball;
+	}
+	else
+	{
+		MagicBoltProjectile* bolt = (MagicBoltProjectile*)Oblivion_DynamicCast(mob, 0, RTTI_MobileObject, RTTI_MagicBoltProjectile, 0);
+		if (bolt)
+		{
+			data = &bolt->data;
+			type = kProjectileType_Bolt;
+		}
+		else
+		{
+			MagicFogProjectile* fog = (MagicFogProjectile*)Oblivion_DynamicCast(mob, 0, RTTI_MobileObject, RTTI_MagicFogProjectile, 0);
+			if (fog)
+			{
+				data = &fog->data;
+				type = kProjectileType_Fog;
+			}
+			else
+			{
+				type = kProjectileType_Arrow;
+				data = NULL;
+			}
+		}
+	}
+
+	if (getMagicData)
+		*dataOut = data;
+
+	return type;
+}
+
+static bool Cmd_GetProjectileType_Execute(COMMAND_ARGS)
+{
+	*result = -1;
+
+	if (thisObj)
+	{
+		MobileObject* mob = (MobileObject*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MobileObject, 0);
+		if (mob)
+			*result = GetProjectileData(mob);
+	}
+
+	return true;
+}
+
+static bool Cmd_GetMagicProjectileSpell_Execute(COMMAND_ARGS)
+{
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (thisObj)
+	{
+		MobileObject* mob = (MobileObject*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MobileObject, 0);
+		if (mob)
+		{
+			MagicProjectileData* data = NULL;
+			GetProjectileData(mob, true, &data);
+			if (data && data->magicItem)
+			{
+				SpellItem* spell = (SpellItem*)Oblivion_DynamicCast(data->magicItem, 0, RTTI_MagicItem, RTTI_SpellItem, 0);
+				if (spell)
+					*refResult = spell->refID;
+			}
+		}
+	}
+
+	return true;
+}
+
+static bool Cmd_GetArrowProjectileEnchantment_Execute(COMMAND_ARGS)
+{
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (thisObj)
+	{
+		ArrowProjectile* arrow = (ArrowProjectile*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_ArrowProjectile, 0);
+		if (arrow && arrow->arrowEnch)
+			*refResult = arrow->arrowEnch->refID;
+	}
+
+	return true;
+}
+
+static bool Cmd_GetArrowProjectileBowEnchantment_Execute(COMMAND_ARGS)
+{
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (thisObj)
+	{
+		ArrowProjectile* arrow = (ArrowProjectile*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_ArrowProjectile, 0);
+		if (arrow && arrow->bowEnch)
+			*refResult = arrow->bowEnch->refID;
+	}
+
+	return true;
+}
+
+static bool Cmd_GetArrowProjectilePoison_Execute(COMMAND_ARGS)
+{
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (thisObj)
+	{
+		ArrowProjectile* arrow = (ArrowProjectile*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_ArrowProjectile, 0);
+		if (arrow && arrow->poison)
+			*refResult = arrow->poison->refID;
+	}
+
+	return true;
+}
+
+//Need to handle NonActorMagicCaster
+static bool Cmd_GetProjectileSource_Execute(COMMAND_ARGS)
+{
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (thisObj)
+	{
+		MobileObject* mob = (MobileObject*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MobileObject, 0);
+		if (mob)
+		{
+			MagicProjectileData* data = NULL;
+			UInt32 type = GetProjectileData(mob, true, &data);
+			if (type == kProjectileType_Arrow)
+			{
+				ArrowProjectile* arrow = (ArrowProjectile*)Oblivion_DynamicCast(mob, 0, RTTI_MobileObject, RTTI_ArrowProjectile, 0);
+				if (arrow && arrow->shooter)
+					*refResult = arrow->shooter->refID;
+			}
+			else if (type != -1)
+				if (data && data->caster)
+				{
+					Actor* caster = (Actor*)Oblivion_DynamicCast(data->caster, 0, RTTI_MagicCaster, RTTI_Actor, 0);
+					if (caster)
+						*refResult = caster->refID;
+					//else handle NonActorMagicCaster
+				}
+		}
+	}
+
+	return true;
+}
+
+//Works.
+static bool Cmd_SetMagicProjectileSpell_Execute(COMMAND_ARGS)
+{
+	if (!thisObj)
+		return true;
+
+	SpellItem* spell = NULL;
+
+	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &spell))
+		return true;
+	
+	MobileObject* mob = (MobileObject*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MobileObject, 0);
+	if (mob)
+	{
+		MagicProjectileData* data = NULL;
+		GetProjectileData(mob, true, &data);
+		if (data && spell)
+			data->magicItem = &(spell->magicItem);
+	}
+
+	return true;
+}
+
+//Sets correctly but target doesn't react.
+static bool Cmd_SetProjectileSource_Execute(COMMAND_ARGS)
+{
+	if (!thisObj)
+		return true;
+
+	Actor* actor = NULL;
+
+	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &actor))
+		return true;
+
+	MobileObject* mob = (MobileObject*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MobileObject, 0);
+	if (mob)
+	{
+		MagicProjectileData* data = NULL;
+		UInt32 projType = GetProjectileData(mob, true, &data);
+		if (projType == kProjectileType_Arrow)
+		{
+			ArrowProjectile* arrow = (ArrowProjectile*)Oblivion_DynamicCast(mob, 0, RTTI_MobileObject, RTTI_ArrowProjectile, 0);
+			if (arrow)
+				arrow->shooter = actor;
+		}
+		else if (projType != -1)
+		{
+			if (data)
+			{
+				MagicCaster* caster = (MagicCaster*)Oblivion_DynamicCast(actor, 0, RTTI_Actor, RTTI_MagicCaster, 0);
+				if (caster)
+					data->caster = caster;
+			}
+		}
+	}
+
+	return true;
+}
+
+//NULL for projectile source = BAD.
+static bool Cmd_ClearProjectileSource_Execute(COMMAND_ARGS)
+{
+	if (thisObj)
+	{
+		MobileObject* mob = (MobileObject*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MobileObject, 0);
+		if (mob)
+		{
+			MagicProjectileData* data = NULL;
+			UInt32 projType = GetProjectileData(mob, true, &data);
+			if (projType == kProjectileType_Arrow)
+			{
+				ArrowProjectile* arrow = (ArrowProjectile*)Oblivion_DynamicCast(mob, 0, RTTI_MobileObject, RTTI_ArrowProjectile, 0);
+				if (arrow)
+					arrow->shooter = NULL;
+			}
+			else if (projType != -1)
+			{
+				if (data)
+					data->caster = NULL;
+			}
+		}
+	}
+
+	return true;
+}
+			
 #endif
 
 CommandInfo kCommandInfo_GetTravelHorse =
@@ -821,10 +1232,11 @@ CommandInfo kCommandInfo_GetTeleportCell =
 	0
 };
 
-static ParamInfo kParams_GetFirstRef[2] =
+static ParamInfo kParams_GetFirstRef[3] =
 {
-	{	"form type",	kParamType_Integer,	1	},
-	{	"cell depth",	kParamType_Integer,	1	},
+	{	"form type",			kParamType_Integer,	1	},
+	{	"cell depth",			kParamType_Integer,	1	},
+	{	"include taken refs",	kParamType_Integer,	1	},
 };
 
 CommandInfo kCommandInfo_GetFirstRef =
@@ -833,7 +1245,7 @@ CommandInfo kCommandInfo_GetFirstRef =
 	0,
 	"returns the first reference of the specified type in the current cell",
 	0,
-	2,
+	3,
 	kParams_GetFirstRef,
 	HANDLER(Cmd_GetFirstRef_Execute),
 	Cmd_Default_Parse,
@@ -861,7 +1273,7 @@ CommandInfo kCommandInfo_GetNumRefs =
 	0,
 	"returns the number of references of a given type in the current cell",
 	0,
-	2,
+	3,
 	kParams_GetFirstRef,
 	HANDLER(Cmd_GetNumRefs_Execute),
 	Cmd_Default_Parse,
@@ -874,7 +1286,7 @@ CommandInfo kCommandInfo_IsPersistent =
 	"IsPersistent", "",
 	0,
 	"returns true if the reference is persistent",
-	0,
+	1,
 	0,
 	NULL,
 	HANDLER(Cmd_IsPersistent_Execute),
@@ -888,10 +1300,236 @@ CommandInfo kCommandInfo_SetPersistent =
 	"SetPersistent", "",
 	0,
 	"sets the persistence of the calling reference",
-	0,
+	1,
 	1,
 	kParams_OneInt,
 	HANDLER(Cmd_SetPersistent_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetNumChildRefs =
+{
+	"GetNumChildRefs", "", 0,
+	"returns the number of enable state children for the calling reference",
+	1, 0, NULL,
+	HANDLER(Cmd_GetNumChildRefs_Execute),
+	Cmd_Default_Parse,
+	NULL, 0
+};
+
+CommandInfo kCommandInfo_GetNthChildRef =
+{
+	"GetNthChildRef", "", 0,
+	"returns the nth enable state child for the calling reference",
+	1,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_GetNthChildRef_Execute),
+	Cmd_Default_Parse,
+	NULL, 0
+};
+
+CommandInfo kCommandInfo_SetScaleEX =
+{
+	"SetScaleEX", "", 0,
+	"sets scale of the calling reference above or below limits of setScale",
+	1,
+	1,
+	kParams_OneFloat,
+	HANDLER(Cmd_SetScaleEX_Execute),
+	Cmd_Default_Parse,
+	NULL, 0
+};
+
+CommandInfo kCommandInfo_IsActivatable =
+{
+	"IsActivatable", "",
+	0,
+	"returns 1 if the calling reference can be activated",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_IsActivatable_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_IsHarvested =
+{
+	"IsHarvested", "",
+	0,
+	"returns 1 if the calling flora reference has been harvested",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_IsHarvested_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetHarvested =
+{
+	"SetHarvested", "",
+	0,
+	"sets the harvested flag on the calling flora reference",
+	1,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_SetHarvested_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_HasBeenPickedUp =
+{
+	"HasBeenPickedUp",
+	"IsTaken",
+	0,
+	"returns 1 if the calling reference has been placed in an inventory",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_HasBeenPickedUp_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetProjectileType =
+{
+	"GetProjectileType",
+	"",
+	0,
+	"returns the type of the calling projectile",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_GetProjectileType_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetMagicProjectileSpell =
+{
+	"GetMagicProjectileSpell",
+	"GetMPSpell",
+	0,
+	"returns the spell associated with the projectile",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_GetMagicProjectileSpell_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetArrowProjectileEnchantment =
+{
+	"GetArrowProjectileEnchantment",
+	"GetAPEnch",
+	0,
+	"returns the enchantment on the calling arrow projectile",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_GetArrowProjectileEnchantment_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetArrowProjectileBowEnchantment =
+{
+	"GetArrowProjectileBowEnchantment",
+	"GetAPBowEnch",
+	0,
+	"returns the bow enchantment on the calling arrow projectile",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_GetArrowProjectileBowEnchantment_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetArrowProjectilePoison =
+{
+	"GetArrowProjectilePoison",
+	"GetAPPoison",
+	0,
+	"returns the poison on the calling arrow projectile",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_GetArrowProjectilePoison_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetProjectileSource =
+{
+	"GetProjectileSource",
+	"",
+	0,
+	"returns the source of the calling projectile",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_GetProjectileSource_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetMagicProjectileSpell =
+{
+	"SetMagicProjectileSpell",
+	"SetMPSpell",
+	0,
+	"sets the spell associated with the calling magic projectile",
+	1,
+	1,
+	kParams_OneSpellItem,
+	HANDLER(Cmd_SetMagicProjectileSpell_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetProjectileSource =
+{
+	"SetProjectileSource",
+	"",
+	0,
+	"sets the source of the calling projectile to the specified actor",
+	1,
+	1,
+	kParams_OneActor,
+	HANDLER(Cmd_SetProjectileSource_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_ClearProjectileSource =
+{
+	"ClearProjectileSource",
+	"",
+	0,
+	"removes information about the source of the calling projectile",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_ClearProjectileSource_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0

@@ -220,29 +220,37 @@ void PluginManager::InstallPlugins(void)
 
 			if(plugin.query && plugin.load)
 			{
+				const char	* loadStatus = NULL;
+
 				if(plugin.query(&g_OBSEInterface, &plugin.info))
 				{
 					if(plugin.load(&g_OBSEInterface))
 					{
+						loadStatus = "loaded correctly";
 						success = true;
 					}
 					else
 					{
-						_MESSAGE("plugin %s (%08X %s %08X) reported as incompatible during load",
-							pluginPath.c_str(),
-							plugin.info.infoVersion,
-							plugin.info.name ? plugin.info.name : "<NULL>",
-							plugin.info.version);
+						loadStatus = "reported as incompatible during load";
 					}
 				}
 				else
 				{
-					_MESSAGE("plugin %s (%08X %s %08X) reported as incompatible during query",
+					loadStatus = "reported as incompatible during query";
+				}
+
+				ASSERT(loadStatus);
+
+				_MESSAGE("plugin %s (%08X %s %08X) %s",
 						pluginPath.c_str(),
 						plugin.info.infoVersion,
 						plugin.info.name ? plugin.info.name : "<NULL>",
-						plugin.info.version);
-				}
+						plugin.info.version,
+						loadStatus);
+			}
+			else
+			{
+				_MESSAGE("plugin %s does not appear to be an OBSE plugin", pluginPath.c_str());
 			}
 			
 			if(success)
@@ -258,7 +266,7 @@ void PluginManager::InstallPlugins(void)
 		}
 		else
 		{
-			_ERROR("couldn't load plugin %s %u", pluginPath.c_str(),GetLastError());
+			_ERROR("couldn't load plugin %s", pluginPath.c_str());
 		}
 	}
 

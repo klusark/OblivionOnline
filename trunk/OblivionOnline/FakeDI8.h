@@ -37,6 +37,7 @@ This file is part of OblivionOnline.
 	forward this exception.
 */
 #include <dinput.h>
+#include "InputHook.h"
 //based on a tutorial by Muhammad Hajag , his fingers are in pain for writing all the methods - thank you ;)
 #define min(a,b)            (((a) < (b)) ? (a) : (b))
 static const GUID GUID_SysMouse    = { 0x6F1D2B60, 0xD5A0, 0x11CF, { 0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00} };
@@ -110,12 +111,9 @@ public:
 		{
 			if(bIsKeyboard)
 			{
-				/*
 				BYTE* keys = static_cast<BYTE*>(data);
 				if(memcmp(LastKeyState,data,256))
-				{
-				
-					std::queue<char> ChangedKeys;
+				{				
 					for(int i = 0;i < 256;i++)
 					{
 						//iterate all keys
@@ -132,22 +130,14 @@ public:
 							CEGUI::System::getSingleton().injectKeyUp(i);
 						}
 					}
-					//get actual Characters .... we need to use the WIN32 API
-					WCHAR Character;
-					GetKeyboardState(KeyState);
-					ToUnicode(0,0,KeyState,&Character,1,0);
-					CEGUI::System::getSingleton().injectChar(Character);
-		
 				}
-				*/
 			}
 			else
 			{
 				DIMOUSESTATE2 * mousedata = (LPDIMOUSESTATE2)data;
 				DIPROPDWORD AxisMode;
 				int mousewheel = 0;
-				this->GetProperty(DIPROP_AXISMODE,&AxisMode.diph);
-				
+				this->GetProperty(DIPROP_AXISMODE,&AxisMode.diph);				
 				if(AxisMode.dwData == DIPROPAXISMODE_ABS)
 				{
 					CEGUI::System::getSingleton().injectMousePosition(mousedata->lX,mousedata->lY);

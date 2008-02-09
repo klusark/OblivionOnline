@@ -337,8 +337,10 @@ public:
 	virtual const char *	GetEditorName(void);
 	virtual void	SetName(const char * name);
 
-	enum {
-		kFormFlags_QuestItem = 0x400,
+	enum
+	{
+		kFormFlags_QuestItem =				0x00000400,
+		kFormFlags_IgnoresFriendlyHits =	0x00100000
 	};
 
 	struct TESFormList
@@ -667,6 +669,8 @@ public:
 	UInt8	type;					// 004
 	UInt8	typePad[3];				// 005
 	Entry	list;					// 008
+
+	Data* DataByType(TESForm* type) const;
 };
 
 typedef Visitor<TESContainer::Entry, TESContainer::Data> ContainerVisitor;
@@ -696,8 +700,24 @@ public:
 
 	enum
 	{
-		kFlag_IsFemale =	0x00000001,
-		kFlag_IsEssential = 0x00000002
+		kFlag_IsFemale =				0x00000001,	// For NPCs and Characters
+		kFlag_IsCreatureBiped =			0x00000001, // For creatures
+		kFlag_IsEssential =				0x00000002,
+		kFlag_CreatureWeaponAndShield =	0x00000004,	// for creatures
+		kFlag_Respawn =					0x00000008,
+		kFlag_CreatureWalks =			0x00000010,	// for creatures
+		kFlag_CreatureFlies =			0x00000020, // for creatures
+		kFlag_CreatureSwims =			0x00000040, // for creatues
+		kFlag_PCLevelOffset =			0x00000090,	//2 bits...
+		kFlag_NoLowProc =				0x00000200,
+		kFlag_NoRumors =				0x00002000,
+		kFlag_Summonable =				0x00004000,
+		kFlag_NoPersuasion =			0x00008000,
+		kFlag_CreatureNoHead =			0x00008000,	// for creatures
+		kFlag_CreatureNoRightArm =		0x00010000, // for creatures
+		kFlag_CreatureNoLeftArm =		0x00020000, // for creatures
+		kFlag_CreatureNoCombatInWater =	0x00040000, // for creatures
+		kFlag_CanCorpseCheck =			0x00100000
 	};
 
 	struct FactionListData
@@ -711,6 +731,9 @@ public:
 	{
 		FactionListData		* data;
 		FactionListEntry	* next;
+
+		FactionListData* Info() const { return data; }
+		FactionListEntry* Next() const { return next; }
 	};
 
 	UInt32	flags;	// 004 - has flags
@@ -719,29 +742,102 @@ public:
 	UInt16	fatigue;	// 00A
 	UInt16	unk3;	// 00C
 	UInt16	level;	// 00E
-	UInt16	unk5;	// 010
-	UInt16	unk6;	// 012
+	UInt16	minLevel;	// 010	if PCLevelOffset
+	UInt16	maxLevel;	// 012
 	UInt32	unk7;	// 014
 	FactionListEntry	factionList;	//018
 
-	bool IsEssential() {
-		return (flags & kFlag_IsEssential) != 0;
+	bool IsFlagSet(UInt32 flag) const {
+		return (flags & flag) != 0;
 	}
 
-	void SetEssential(bool bEssential) {
-		if (bEssential) {
-			flags |= kFlag_IsEssential;
-		} else {
-			flags &= ~kFlag_IsEssential;
+	void SetFlag(UInt32 flag, bool bMod) {
+		flags = bMod ? (flags | flag) : (flags & ~flag);
+	}
+
+	bool IsEssential() const
+		{	return IsFlagSet(kFlag_IsEssential);	}
+	void SetEssential(bool bEssential)
+		{	SetFlag(kFlag_IsEssential, bEssential);	}
+	bool IsFemale() const
+		{	return IsFlagSet(kFlag_IsFemale);	}
+	void SetFemale(bool bFemale)
+		{	SetFlag(kFlag_IsFemale, bFemale);	}
+	bool IsRespawning() const
+		{	return IsFlagSet(kFlag_Respawn);	}
+	void SetRespawning(bool bRespawn)
+		{	SetFlag(kFlag_Respawn, bRespawn);	}
+	bool IsPCLevelOffset() const
+		{	return IsFlagSet(kFlag_PCLevelOffset);	}
+	void SetPCLevelOffset(bool bPCLevelOffset, UInt32 min = -1, UInt32 max = -1)
+	{	
+		SetFlag(kFlag_PCLevelOffset, bPCLevelOffset);
+		if (bPCLevelOffset)
+		{
+			minLevel = (min != -1) ? min : minLevel;
+			maxLevel = (max != -1) ? max : maxLevel;
 		}
 	}
-	bool IsFemale() {
-		return (flags & kFlag_IsFemale) != 0;
-	}
+	bool HasLowLevelProcessing() const
+		{	return !(IsFlagSet(kFlag_NoLowProc));	}
+	void SetLowLevelProcessing(bool bLowProc)
+		{	SetFlag(kFlag_NoLowProc, !bLowProc);	}
+	bool HasNoRumors() const
+		{	return IsFlagSet(kFlag_NoRumors);	}
+	void SetNoRumors(bool bNoRumors)
+		{	SetFlag(kFlag_NoRumors, bNoRumors);	}
+	bool IsSummonable() const
+		{	return IsFlagSet(kFlag_Summonable);	}
+	void SetSummonable(bool bSumm)
+		{	SetFlag(kFlag_Summonable, bSumm);	}
+	bool HasNoPersuasion() const
+		{	return IsFlagSet(kFlag_NoPersuasion);	}
+	void SetNoPersuasion(bool bNoPers)
+		{	SetFlag(kFlag_NoPersuasion, bNoPers);	}
+	bool CanCorpseCheck() const
+		{	return IsFlagSet(kFlag_CanCorpseCheck);	}
+	void SetCanCorpseCheck(bool bCan)
+		{	SetFlag(kFlag_CanCorpseCheck, bCan);	}
 
 	SInt8 GetFactionRank(TESFaction* faction);
 
+	bool CreatureWalks() const 
+		{	return IsFlagSet(kFlag_CreatureWalks);	}
+	void SetCreatureWalks(bool bWalks)
+		{ SetFlag(kFlag_CreatureWalks, bWalks); }
+	bool CreatureFlies() const
+		{ return IsFlagSet(kFlag_CreatureFlies); }
+	void SetCreatureFlies(bool bFlies)
+		{ SetFlag(kFlag_CreatureFlies, bFlies); }
+	bool CreatureSwims() const
+		{ return IsFlagSet(kFlag_CreatureSwims); }
+	bool IsCreatureBiped() const
+		{ return IsFlagSet(kFlag_IsCreatureBiped); }
+	bool CreatureHasNoMovement() const 
+		{ return IsCreatureBiped() && !CreatureWalks() && !CreatureFlies() && !CreatureSwims(); }
+	bool CreatureHasWeaponAndShield() const
+		{ return IsFlagSet(kFlag_CreatureWeaponAndShield); }
+	void SetCreatureHasWeaponAndShield(bool bUseWeapon)
+		{ SetFlag(kFlag_CreatureWeaponAndShield, bUseWeapon); }
+	bool CreatureHasNoHead() const
+		{ return IsFlagSet(kFlag_CreatureNoHead); }
+	void SetCreatureHasNoHead(bool bNoHead)
+		{ return SetFlag(kFlag_CreatureNoHead, bNoHead); }
+	bool CreatureHasNoLeftArm() const
+		{ return IsFlagSet(kFlag_CreatureNoLeftArm); }
+	void SetCreatureHasNoLeftArm(bool bNoLeftArm)
+		{ SetFlag(kFlag_CreatureNoLeftArm, bNoLeftArm); }
+	bool CreatureHasNoRightArm() const
+		{ return IsFlagSet(kFlag_CreatureNoRightArm); }
+	void SetCreatureHasNoRightArm(bool bNoRightArm)
+		{ SetFlag(kFlag_CreatureNoRightArm, bNoRightArm); }
+	bool CreatureNoCombatInWater() const
+		{ return IsFlagSet(kFlag_CreatureNoCombatInWater); }
+	void SetCreatureNoCombatInWater(bool bNoCombatInWater)
+		{ SetFlag(kFlag_CreatureNoCombatInWater, bNoCombatInWater); }
 };
+
+typedef Visitor<TESActorBaseData::FactionListEntry, TESActorBaseData::FactionListData> FactionListVisitor;
 
 // 018
 class TESAIForm : public BaseFormComponent
@@ -784,9 +880,18 @@ public:
 	TESAnimation();
 	~TESAnimation();
 
-	UInt32	unk0;	// 04
-	UInt32	unk1;	// 08
+	struct AnimationNode {
+		char* animationName;	// 04
+		AnimationNode* next;	// 08
+		
+		char* Info() const { return animationName; }
+		AnimationNode* Next() const { return next; }
+	};
+
+	AnimationNode data;
 };
+
+typedef Visitor<TESAnimation::AnimationNode, char*> AnimationVisitor;
 
 // 00C (1.1)
 // 014 (1.2)
@@ -796,14 +901,26 @@ public:
 	TESModelList();
 	~TESModelList();
 
-	UInt32	unk04;	// 004
-	UInt32	unk08;	// 008
+	struct Entry
+	{
+		char	* nifPath;
+		Entry	* next;
+		
+		char  * Info() const	{	return nifPath;	}
+		Entry * Next() const	{	return next;	}
+	};
+
+	Entry	modelList;	// 004
 
 #if OBLIVION_VERSION >= OBLIVION_VERSION_1_2
 	UInt32	unk0C;	// 00C
 	UInt32	unk10;	// 010
 #endif
+
+	const Entry* FindNifPath(char* path);
 };
+
+typedef Visitor<TESModelList::Entry, char*> ModelListVisitor;
 
 // 8
 class TESRaceForm : public BaseFormComponent
@@ -1238,6 +1355,7 @@ public:
 	UInt32 CountHostileItems() const;
 	EffectItem* ItemWithHighestMagickaCost() const;
 	UInt32 GetMagickaCost(TESForm* form = NULL) const;
+	const char* GetNthEIName(UInt32 whichEffect) const;
 };
 
 typedef Visitor<EffectItemList::Entry, EffectItem> EffectItemVisitor;
@@ -1378,6 +1496,13 @@ public:
 			// UInt8	flags;
 	};
 
+	enum
+	{
+		kFactionFlags_HiddenFromPC =	0x00000001,
+		kFactionFlags_Evil =			0x00000002,
+		kFactionFlags_SpecialCombat =	0x00000004
+	};
+
 	struct RankData
 	{
 		String		maleRank;
@@ -1389,6 +1514,9 @@ public:
 	{
 		RankData	* data;
 		RankEntry	* next;
+
+		RankData  * Info() const	{ return data; }
+		RankEntry * Next() const	{ return next; }
 	};
 
 	TESFaction();
@@ -1403,7 +1531,30 @@ public:
 	UInt8		pad35[3];			// 035
 	float		crimeGoldMultiplier;// 038
 	RankEntry	ranks;				// 03C
+
+	bool IsFlagSet(UInt32 flag) {
+		return (factionFlags & flag) != 0;
+	}
+	void SetFlag(UInt32 flag, bool bMod) {
+		factionFlags = bMod ? (factionFlags | flag) : (factionFlags & ~flag);
+		MarkAsModified(kModified_FactionFlags);
+	}
+	bool IsHidden()
+		{	return IsFlagSet(kFactionFlags_HiddenFromPC);	}
+	bool IsEvil()
+		{	return IsFlagSet(kFactionFlags_Evil);	}
+	bool HasSpecialCombat()
+		{	return IsFlagSet(kFactionFlags_SpecialCombat);	}
+	void SetHidden(bool bHidden)
+		{	SetFlag(kFactionFlags_HiddenFromPC, bHidden);	}
+	void SetEvil(bool bEvil)
+		{	SetFlag(kFactionFlags_Evil, bEvil);	}
+	void SetSpecialCombat(bool bSpec)
+		{	SetFlag(kFactionFlags_SpecialCombat, bSpec);	}
+	const char* GetNthRankMaleName(UInt32 whichRank);
 };
+
+typedef Visitor<TESFaction::RankEntry, TESFaction::RankData> FactionRankVisitor;
 
 // 04C
 class TESHair : public TESForm
@@ -2059,6 +2210,20 @@ public:
 	// TESForm flags
 	// TESValueForm flags
 
+	enum
+	{
+		kLightFlags_Dynamic =		0x001,
+		kLightFlags_CanCarry =		0x002,
+		kLightFlags_Negative =		0x004,
+		kLightFlags_Flicker =		0x008,
+		kLightFlags_OffByDefault =	0x020,
+		kLightFlags_FlickerSlow =	0x040,
+		kLightFlags_Pulse =			0x080,
+		kLightFlags_PulseSlow =		0x100,
+		kLightFlags_SpotLight =		0x200,
+		kLightFlags_SpotShadow =	0x400
+	};
+
 	TESObjectLIGH();
 	~TESObjectLIGH();
 
@@ -2073,14 +2238,22 @@ public:
 	// members
 
 	// 018
-	UInt32	unk0;	// 070
-	UInt32	unk1;	// 074
-	UInt32	unk2;	// 078
-	UInt32	unk3;	// 07C
-	UInt32	unk4;	// 080
-	float	unk5;	// 084
-	float	unk6;	// 088
-	UInt32	unk7;	// 08C
+	UInt32	time;		// 070
+	UInt32	radius;		// 074
+	UInt32	colorRGB;	// 078
+	UInt32	lightFlags;	// 07C
+	float	fallOff;	// 080
+	float	FOV;		// 084
+	float	fade;		// 088
+	UInt32	unk7;		// 08C
+
+	UInt32 GetRadius()
+		{	return radius;	}
+	void SetRadius(UInt32 newRadius)
+		{	radius = newRadius;	}
+	bool IsCarriable()
+		{	return (lightFlags & kLightFlags_CanCarry) ? true : false;	}
+
 };
 
 // 70
@@ -2180,6 +2353,12 @@ class TESFlora : public TESProduceForm
 {
 public:
 	// no changed flags (no TESForm)
+
+	enum
+	{
+		kFloraFlags_Harvested = 0x2000,		//On reference, not base
+		kModified_Empty =		0x10000		//Ditto
+	};
 
 	TESFlora();
 	~TESFlora();
@@ -2356,7 +2535,7 @@ public:
 	TESModelList		modelList;		// 0EC - changed size in 1.2
 
 	// members
-	void*		sometimesACreature;		// 0F8 / 100
+	TESCreature * soundBase;			// 0F8 / 100
 	UInt8		type;					// 0FC / 104
 	UInt8		combatSkill;			// 0FD / 105
 	UInt8		magicSkill;				// 0FE / 106
@@ -2370,8 +2549,8 @@ public:
 	float		baseScale;				// 10C / 114
 	TESCombatStyle*	combatStyle;		// 110 / 118
 
-	TESModel	unk1;					// 114 / 11C
-	TESTexture	unk2;					// 12C / 134
+	TESModel	bloodSpray;				// 114 / 11C
+	TESTexture	bloodDecal;				// 12C / 134
 };
 
 // 44
@@ -2450,7 +2629,7 @@ public:
 	TESIcon				icon;		
 	TESScriptableForm	scriptable;	
 	TESWeightForm		weight;
-	UInt32				unk0;
+	UInt32				goldValue;
 
 	UInt32				moreFlags;
 
@@ -2905,6 +3084,17 @@ public:
 	TESIcon				icon;		// 024
 	TESFullName			fullName;	// 030
 
+	struct Unk40	// something with quest stages
+	{
+		struct Data
+		{
+			UInt8	stage;
+		};
+
+		Data	* data;
+		Unk40	* next;
+	};
+
 	struct Unk50
 	{
 		UInt32	unk0;	// 000
@@ -2915,8 +3105,7 @@ public:
 	UInt8	running;	// 03C
 	UInt8	priority;	// 03D
 	UInt8	pad0[2];	// 03E
-	UInt32	unk0;		// 040
-	UInt32	unk1;		// 044
+	Unk40	unk0;		// 040 - something with quest stages
 	UInt32	unk2;		// 048
 	UInt32	unk3;		// 04C
 	Unk50	unk4;		// 050

@@ -129,7 +129,7 @@ void Hook_Gameplay_Init(void)
 {
 	// entry to "LoadGame" function
 	WriteRelJump(kLoadGameHookPatchAddr, (UInt32)&LoadGameHook);
-	
+
 	// game main loop
 	// this address was chosen because it is only run when oblivion is in the foreground
 	// ### we don't need this yet, disable to remove a potential bug source

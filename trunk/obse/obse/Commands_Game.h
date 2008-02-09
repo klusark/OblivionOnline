@@ -14,3 +14,8 @@ extern CommandInfo kCommandInfo_IsGlobalCollisionDisabled;
 extern CommandInfo kCommandInfo_SetDisableGlobalCollision;
 extern CommandInfo kCommandInfo_GetDebugSelection;
 
+extern CommandInfo kCommandInfo_MessageEX;
+extern CommandInfo kCommandInfo_MessageBoxEX;
+
+extern CommandInfo kCommandInfo_GetCrosshairRef;
+extern CommandInfo kCommandInfo_IsModLoaded;

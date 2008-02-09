@@ -11,6 +11,7 @@
 #include "Commands_Weather.h"
 #include "Commands_ActiveEffect.h"
 #include "Commands_MiscReference.h"
+#include "Commands_Faction.h"
 #include "ParamInfos.h"
 #include "PluginManager.h"
 #include "Hooks_Memory.h"
@@ -53,6 +54,7 @@ bool Command_GetPos(unk arg0, unk arg1, unk arg2, unk arg3, unk arg4, unk arg5, 
 #include "GameForms.h"
 #include "GameMagicEffects.h"
 #include "GameTiles.h"
+#include "GameData.h"
 
 #include "common/IFileStream.h"
 
@@ -235,10 +237,31 @@ bool Cmd_Test_Execute(COMMAND_ARGS)
 	_MESSAGE("Cmd_Test_Execute: %08X %08X %08X (%s) %08X %08X (%s) %08X %08X %08X",
 		paramInfo, arg1, thisObj, GetObjectClassName((void *)thisObj), arg3, scriptObj, GetObjectClassName((void *)scriptObj), eventList, result, opcodeOffsetPtr);
 
+#if 1
 	InterfaceManager	* interfaceManager = InterfaceManager::GetSingleton();
-	Sky					* sky = Sky::GetSingleton();
+	if(interfaceManager && interfaceManager->menuRoot)
+	{
+		interfaceManager->menuRoot->DebugDump();
+	}
+#endif
 
-	sky->RefreshClimate(sky->firstClimate, 1);
+#if 0
+	for(DataHandler::ModEntry * traverse = &(*g_dataHandler)->modList; traverse; traverse = traverse->next)
+	{
+		if(traverse->data)
+		{
+			_MESSAGE("%08X %s", traverse->data->flags, traverse->data->name);
+			if(traverse->data->flags & DataHandler::ModEntry::Data::kFlag_Loaded)
+			{
+				gLog.Indent();
+
+				DumpClass(traverse->data, 0x600 >> 2);
+
+				gLog.Outdent();
+			}
+		}
+	}
+#endif
 
 	return true;
 }
@@ -1753,12 +1776,103 @@ void CommandTable::Init(void)
 	g_scriptCommands.Add(&kCommandInfo_RefreshControlMap);
 
 	// v0014
-/*
+
 	g_scriptCommands.Add(&kCommandInfo_IsPersistent);
-	g_scriptCommands.Add(&kCommandInfo_GetFormID);
 	g_scriptCommands.Add(&kCommandInfo_IsOffLimits);
+	g_scriptCommands.Add(&kCommandInfo_MessageEX);
+	g_scriptCommands.Add(&kCommandInfo_MessageBoxEX);
 	ImportConsoleCommand("PlayerSpellBook");
 	ImportConsoleCommand("ToggleMapMarkers");
+
+	g_scriptCommands.Add(&kCommandInfo_GetNumChildRefs);
+	g_scriptCommands.Add(&kCommandInfo_GetNthChildRef);
+	g_scriptCommands.Add(&kCommandInfo_SetScaleEX);
+	g_scriptCommands.Add(&kCommandInfo_GetNumFollowers);
+	g_scriptCommands.Add(&kCommandInfo_GetNthFollower);
+	g_scriptCommands.Add(&kCommandInfo_GetCellMusicType);
+
+	g_scriptCommands.Add(&kCommandInfo_IsActorRespawning);
+	g_scriptCommands.Add(&kCommandInfo_IsPCLevelOffset);
+	g_scriptCommands.Add(&kCommandInfo_HasLowLevelProcessing);
+	g_scriptCommands.Add(&kCommandInfo_IsSummonable);
+	g_scriptCommands.Add(&kCommandInfo_HasNoPersuasion);
+	g_scriptCommands.Add(&kCommandInfo_CanCorpseCheck);
+	g_scriptCommands.Add(&kCommandInfo_GetActorMinLevel);
+	g_scriptCommands.Add(&kCommandInfo_GetActorMaxLevel);
+	g_scriptCommands.Add(&kCommandInfo_SetFemale);
+	g_scriptCommands.Add(&kCommandInfo_SetActorRespawns);
+	g_scriptCommands.Add(&kCommandInfo_SetPCLevelOffset);
+	g_scriptCommands.Add(&kCommandInfo_SetLowLevelProcessing);
+	g_scriptCommands.Add(&kCommandInfo_SetSummonable);
+	g_scriptCommands.Add(&kCommandInfo_SetNoPersuasion);
+	g_scriptCommands.Add(&kCommandInfo_SetCanCorpseCheck);
+
+	g_scriptCommands.Add(&kCommandInfo_GetCrosshairRef);
+	g_scriptCommands.Add(&kCommandInfo_GetNumFactions);
+	g_scriptCommands.Add(&kCommandInfo_GetNthFaction);
+
+	g_scriptCommands.Add(&kCommandInfo_IsFactionEvil);
+	g_scriptCommands.Add(&kCommandInfo_IsFactionHidden);
+	g_scriptCommands.Add(&kCommandInfo_FactionHasSpecialCombat);
+	g_scriptCommands.Add(&kCommandInfo_SetFactionEvil);
+	g_scriptCommands.Add(&kCommandInfo_SetFactionHidden);
+	g_scriptCommands.Add(&kCommandInfo_SetFactionSpecialCombat);
+
+	g_scriptCommands.Add(&kCommandInfo_IsLightCarriable);
+	g_scriptCommands.Add(&kCommandInfo_GetLightRadius);
+	g_scriptCommands.Add(&kCommandInfo_SetLightRadius);
+
+	g_scriptCommands.Add(&kCommandInfo_GetRaceSpellCount);
+	g_scriptCommands.Add(&kCommandInfo_GetNthRaceSpell);
+	g_scriptCommands.Add(&kCommandInfo_MagicItemHasEffectItemScript);
+	g_scriptCommands.Add(&kCommandInfo_SetCurrentSoulLevel);
+	g_scriptCommands.Add(&kCommandInfo_GetCreatureWalks);
+	g_scriptCommands.Add(&kCommandInfo_GetCreatureSwims);
+	g_scriptCommands.Add(&kCommandInfo_GetCreatureFlies);
+	g_scriptCommands.Add(&kCommandInfo_IsCreatureBiped);
+	g_scriptCommands.Add(&kCommandInfo_CreatureHasNoMovement);
+	g_scriptCommands.Add(&kCommandInfo_CreatureHasNoHead);
+	g_scriptCommands.Add(&kCommandInfo_CreatureHasNoLeftArm);
+	g_scriptCommands.Add(&kCommandInfo_CreatureHasNoRightArm);
+	g_scriptCommands.Add(&kCommandInfo_CreatureNoCombatInWater);
+	g_scriptCommands.Add(&kCommandInfo_CreatureUsesWeaponAndShield);
+
+	g_scriptCommands.Add(&kCommandInfo_GetPlayersLastRiddenHorse);
+	g_scriptCommands.Add(&kCommandInfo_GetPlayersLastActivatedLoadDoor);
+	g_scriptCommands.Add(&kCommandInfo_GetHorse);
+	g_scriptCommands.Add(&kCommandInfo_GetRider);
+	g_scriptCommands.Add(&kCommandInfo_IsFemale);
+	g_scriptCommands.Add(&kCommandInfo_IsActivatable);
+	g_scriptCommands.Add(&kCommandInfo_IsHarvested);
+	g_scriptCommands.Add(&kCommandInfo_SetHarvested);
+	g_scriptCommands.Add(&kCommandInfo_GetActorValueC);
+	g_scriptCommands.Add(&kCommandInfo_SetActorValueC);
+	g_scriptCommands.Add(&kCommandInfo_ModActorValueC);
+	g_scriptCommands.Add(&kCommandInfo_ModNthEffectItemScriptName);
+
+	g_scriptCommands.Add(&kCommandInfo_GetBaseActorValueC);
+
+	g_scriptCommands.Add(&kCommandInfo_GetCreatureSoundBase);
+	g_scriptCommands.Add(&kCommandInfo_GetNumRanks);
+	g_scriptCommands.Add(&kCommandInfo_HasModel);
+	g_scriptCommands.Add(&kCommandInfo_IsModLoaded);
+
+	g_scriptCommands.Add(&kCommandInfo_GetRace);
+	g_scriptCommands.Add(&kCommandInfo_HasName);
+	g_scriptCommands.Add(&kCommandInfo_HasBeenPickedUp);
+
+	// v0015
+
+/*
+	g_scriptCommands.Add(&kCommandInfo_GetProjectileType);
+	g_scriptCommands.Add(&kCommandInfo_GetMagicProjectileSpell);
+	g_scriptCommands.Add(&kCommandInfo_GetArrowProjectileEnchantment);
+	g_scriptCommands.Add(&kCommandInfo_GetArrowProjectileBowEnchantment);
+	g_scriptCommands.Add(&kCommandInfo_GetArrowProjectilePoison);
+	g_scriptCommands.Add(&kCommandInfo_GetProjectileSource);
+	g_scriptCommands.Add(&kCommandInfo_SetMagicProjectileSpell);
+	g_scriptCommands.Add(&kCommandInfo_SetProjectileSource);
+	g_scriptCommands.Add(&kCommandInfo_ClearProjectileSource);
 */
 
 	/* to add later if problems can be solved

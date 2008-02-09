@@ -35,3 +35,5 @@ extern CommandInfo kCommandInfo_OnKeyDown;
 extern CommandInfo kCommandInfo_OnControlDown;
 extern CommandInfo kCommandInfo_TapControl;
 extern CommandInfo kCommandInfo_RefreshControlMap;
+
+const char* GetDXDescription(UInt32 keycode);

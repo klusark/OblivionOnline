@@ -2,7 +2,6 @@
 #include "obse/ParamInfos.h"
 #include "obse/GameObjects.h"
 
-
 #ifdef OBLIVION
 
 #include "GameAPI.h"
@@ -10,6 +9,10 @@
 #include "Hooks_DirectInput8Create.h"
 #include "GameForms.h"
 #include <set>
+#include <string>
+#include "obse/Commands_Input.h"
+#include "obse/GameMenus.h"
+#include "GameData.h"
 
 // first character in name mapped to type ID
 //	b	0
@@ -338,6 +341,109 @@ static bool Cmd_GetDebugSelection_Execute(COMMAND_ARGS)
 	return true;
 }
 
+static bool Cmd_MessageEX_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	char buffer[512];
+
+	if (ExtractFormattedString(buffer, arg1, scriptObj, eventList, opcodeOffsetPtr))
+	{
+		*result = 1;
+		QueueUIMessage(buffer, 0, 1, 1);
+	}
+
+	return true;
+}
+
+static bool Cmd_MessageBoxEX_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	char buffer[512];
+
+	if (!ExtractFormattedString(buffer, arg1, scriptObj, eventList, opcodeOffsetPtr))
+		return true;
+
+	//extract the buttons
+	char* b[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	UInt32 btnIdx = 0;
+	
+	for (char* ch = buffer; *ch && btnIdx < 10; ch++)
+	{
+		if (*ch == '|')
+		{
+			*ch = '\0';
+			b[btnIdx++] = ch + 1;
+		}
+	}
+
+	if (!btnIdx)				//supply default OK button
+		b[0] = "Ok";
+
+	ShowMessageBox(buffer, ShowMessageBox_Callback, 0, b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9], 0);
+
+	if (thisObj && !(thisObj->flags & 0x00004000))
+		*ShowMessageBox_pScriptRefID = thisObj->refID;
+	else
+		*ShowMessageBox_pScriptRefID = scriptObj->refID;
+
+
+	return true;
+}
+
+static bool Cmd_GetCrosshairRef_Execute(COMMAND_ARGS)
+{
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	TESObjectREFR* xRef = ((*g_HUDInfoMenu)->crosshairRef);
+	if (xRef)
+		if (Oblivion_DynamicCast(xRef, 0, RTTI_TESObjectREFR, RTTI_TESObjectREFR, 0))
+			*refResult = xRef->refID;
+
+	return true;
+}
+
+static bool Cmd_IsModLoaded_Execute(COMMAND_ARGS)
+{
+	char modName[512];
+	*result = 0;
+
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &modName))
+		return true;
+
+	const DataHandler::ModEntry* modEntry = (*g_dataHandler)->LookupModByName(modName);
+	if (modEntry)
+		if (modEntry->IsLoaded())
+			*result = 1;
+
+	return true;
+}
+
+// ModEntry::Data.idx doesn't appear to be mod index. Doesn't appear to be turning up elsewhere, either.
+
+/*
+static bool Cmd_GetModIndex_Execute(COMMAND_ARGS)
+{
+	char modName[512];
+	*result = -1;
+
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &modName))
+		return true;
+	for (DataHandler::ModEntry* mmm = &((*g_dataHandler)->modList); mmm; mmm = mmm->next)
+	{
+		Console_Print("%d %s", mmm->data->idx, mmm->data->name);
+		_MESSAGE("%s", mmm->data->name);
+		DumpClass(mmm->data, sizeof (DataHandler::ModEntry::Data)/4);
+	}
+
+	const DataHandler::ModEntry* modEntry = (*g_dataHandler)->LookupModByName(modName);
+	if (modEntry && modEntry->data)
+		*result = modEntry->data->idx;
+
+	return true;
+}
+*/
+
 #endif
 
 static ParamInfo kParams_SetNumericGameSetting[] =
@@ -482,4 +588,93 @@ CommandInfo kCommandInfo_GetDebugSelection =
 	0
 };
 
+static ParamInfo kParams_Message[21] =
+{
+	{"format string",	kParamType_String, 0},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+};
 
+CommandInfo kCommandInfo_MessageEX =
+{
+	"MessageEX", "MsgEX",
+	0,
+	"Prints a formatted message",
+	0, 21, kParams_Message,
+	HANDLER(Cmd_MessageEX_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_MessageBoxEX =
+{
+	"MessageBoxEX", "MBoxEX",
+	0,
+	"Displays a formatted messagebox",
+	0, 21, kParams_Message,
+	HANDLER(Cmd_MessageBoxEX_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetCrosshairRef =
+{
+	"GetCrosshairRef", "GetXRef",
+	0,
+	"returns the reference currently under the crosshair",
+	0, 0, NULL,
+	HANDLER(Cmd_GetCrosshairRef_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_IsModLoaded =
+{
+	"IsModLoaded", "",
+	0,
+	"returns 1 if the specified mod is currently loaded",
+	0,
+	1,
+	kParams_OneString,
+	HANDLER(Cmd_IsModLoaded_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+/*
+CommandInfo kCommandInfo_GetModIndex =
+{
+	"GetModIndex", "",
+	0,
+	"returns the index of the specified mod",
+	0,
+	1,
+	kParams_OneString,
+	HANDLER(Cmd_GetModIndex_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+*/

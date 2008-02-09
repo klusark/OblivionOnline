@@ -3,6 +3,7 @@
 #include <map>
 #include <functional>
 #include <ctime>			//for time()
+
 #include <cstdlib>			//for rand(), srand()
 
 static const UInt32 kSEFF = Swap32('SEFF');
@@ -300,7 +301,6 @@ UInt32 SpellItem::GetMagickaCost(TESForm *form) const
 	UInt32 spellCost = 0;
 	if (IsAutoCalc()) {
 		spellCost = magicItem.list.GetMagickaCost(bIsSpellType ? form : NULL);
-		if (bIsSpellType && spellCost == 0) spellCost = 1;
 	} else {
 		float skillFactor = 1.0;
 		if (form && bIsSpellType) {
@@ -741,6 +741,7 @@ EffectItem::ScriptEffectInfo* EffectItem::ScriptEffectInfo::Create()
 	memset(memory, 0, size);
 	// assume no vtable
 	ScriptEffectInfo* scriptEffectInfo = (ScriptEffectInfo*)memory;
+	scriptEffectInfo->SetName("Unknown");
 	return scriptEffectInfo;
 }
 
@@ -816,6 +817,10 @@ void InitProxy(UInt32 effectCode, UInt32 magnitude, UInt32 area, UInt32 duration
 		effectItem.scriptEffectInfo = NULL;
 		effectItem.setting = magicEffect;
 		effectItem.cost = cost;
+
+		if (effectCode == Swap32('SEFF')) {
+			effectItem.scriptEffectInfo = EffectItem::ScriptEffectInfo::Create();
+		}
 		gProxyMap.insert(EffectProxyPair(effectCode, effectItem));
 	}
 }
@@ -1106,6 +1111,7 @@ static float SkillFactor(TESForm* actorCasting, UInt32 school)
 	
 	float skillFactor = 1.0;
 	UInt8 skillLevel = 0;
+	UInt8 luck = 0;
 
 	switch(actorCasting->typeID) {
 		case kFormType_Creature:
@@ -1113,6 +1119,7 @@ static float SkillFactor(TESForm* actorCasting, UInt32 school)
 				TESCreature* creature = (TESCreature*)(EffectSetting*)Oblivion_DynamicCast(actorCasting, 0, RTTI_TESForm, RTTI_TESCreature, 0);
 				if (creature) {
 					skillLevel = creature->magicSkill;
+					luck = creature->attributes.attr[kActorVal_Luck];
 				}
 				break;
 			}
@@ -1122,6 +1129,7 @@ static float SkillFactor(TESForm* actorCasting, UInt32 school)
 				if (npc) {
 					static UInt8 offset = kActorVal_Alteration - kActorVal_Armorer;
 					skillLevel = npc->skillLevels[school + offset];
+					luck = npc->attributes.attr[kActorVal_Luck];
 				}
 				break;
 			}
@@ -1131,6 +1139,7 @@ static float SkillFactor(TESForm* actorCasting, UInt32 school)
 
 	float fMagicCasterSkillCostBase = 1.0;
 	float fMagicCasterSkillCostMult = 1.0;
+	float fActorLuckSkillMult = .4;	// default value in the CS
 
 	SettingInfo* setting = NULL;
 	if (GetGameSetting("fMagicCasterSkillCostBase", &setting)) {
@@ -1140,6 +1149,15 @@ static float SkillFactor(TESForm* actorCasting, UInt32 school)
 	if (GetGameSetting("fMagicCasterSkillCostMult", &setting)) {
 		fMagicCasterSkillCostMult = setting->f;
 	}
+	
+	if (GetGameSetting("fActorLuckSkillMult", &setting)) {
+		fActorLuckSkillMult = setting->f;
+	}
+
+	// adjust skill level for luck, but cap at 100
+	skillLevel += (SInt8)((luck - 50) * fActorLuckSkillMult);
+	if (skillLevel > 100) skillLevel = 100;
+
 	skillFactor = fMagicCasterSkillCostBase + ((1.0 - skillLevel*.01) * fMagicCasterSkillCostMult);
 	return skillFactor;
 }
@@ -1151,6 +1169,7 @@ float EffectItem::MagickaCost(TESForm *actorCasting) const
 	float rangeFactor = RangeFactor(range);
 	float skillFactor = SkillFactor(actorCasting, setting->school);
 	float magickaCost = areaFactor * durationFactor * rangeFactor * skillFactor;
+	if (actorCasting && magickaCost < 1) magickaCost = 1;
 	return magickaCost;
 }
 
@@ -1381,6 +1400,18 @@ UInt32 EffectItemList::CopyItemFrom(EffectItemList& fromList, UInt32 whichEffect
 		nuIndex = AddItemCopy(effectItem);		
 	}
 	return nuIndex;
+}
+
+const char* EffectItemList::GetNthEIName(UInt32 whichEffect) const
+{
+	EffectItemVisitor visitor(&effectList);
+	EffectItem* effItem = visitor.GetNthInfo(whichEffect);
+	if (effItem->scriptEffectInfo)
+		return effItem->scriptEffectInfo->effectName.m_data;
+	else if (effItem->setting)
+		return GetFullName(effItem->setting);
+	else
+		return "<no name>";
 }
 
 bool AlchemyItem::IsPoison() const
@@ -1811,4 +1842,37 @@ SInt8 TESActorBaseData::GetFactionRank(TESFaction* faction)
 		entry = entry->next;
 	}
 	return -1;
+}
+
+class ContainerFormFinder
+{
+	TESForm* m_formToFind;
+public:
+	ContainerFormFinder(TESForm* form) : m_formToFind(form) {}
+
+	bool Accept(TESContainer::Data* pData) const
+	{
+		return (pData && pData->type == m_formToFind);
+	}
+};
+
+TESContainer::Data* TESContainer::DataByType(TESForm *type) const
+{
+	ContainerVisitor visitor(&list);
+	const Entry* entry = visitor.Find(ContainerFormFinder(type));
+	return (entry) ? entry->data : NULL;
+}
+
+const char* TESFaction::GetNthRankMaleName(UInt32 whichRank)
+{
+	TESFaction::RankData* rankData = FactionRankVisitor(&ranks).GetNthInfo(whichRank);
+	if (!rankData)
+		return NULL;
+	else
+		return rankData->maleRank.m_data;
+}
+
+const TESModelList::Entry* TESModelList::FindNifPath(char* path)
+{
+	return ModelListVisitor(&modelList).FindString(path);
 }

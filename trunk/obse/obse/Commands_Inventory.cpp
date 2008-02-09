@@ -42,12 +42,55 @@ public:
 		return true;
 	}
 
+	bool IsValidContainerData(TESContainer::Data* containerData, SInt32& numObjects)
+	{
+		if (containerData) {
+			numObjects = containerData->count;
+
+			// make sure it isn't a leveled object
+			if(Oblivion_DynamicCast(containerData->type, 0, RTTI_TESForm, RTTI_TESLevItem, 0))
+				return false;
+
+			ExtraContainerMap::iterator it = m_map.find(containerData->type);
+			ExtraContainerMap::iterator itEnd = m_map.end();
+			if (it != itEnd) {
+				UInt32 index = (*it).second;
+				ExtraContainerChanges::EntryData* extraData = m_vec[index];
+				if(extraData)
+				{
+					numObjects += extraData->countDelta;
+				}
+				// let's clear this item from the vector
+				// this way we don't bother to look for it in the second step
+				m_vec[index] = NULL;
+			}
+
+			// is at least one still here?
+			if(numObjects > 0)
+			{
+				//PrintItemType(containerData->type);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	ExtraDataVec	m_vec;
 	ExtraContainerMap m_map;
 };
 
-
-typedef std::set<TESForm*> FormSet;
+class ContainerCountIf
+{
+	ExtraContainerInfo& m_info;
+public:
+	ContainerCountIf(ExtraContainerInfo& info) : m_info(info) {}
+	
+	bool Accept(TESContainer::Data* containerData) const
+	{
+		SInt32 numObjects = 0; // not needed in this count
+		return m_info.IsValidContainerData(containerData, numObjects);
+	}
+};
 
 static bool Cmd_GetNumItems_Execute(COMMAND_ARGS)
 {
@@ -77,40 +120,9 @@ static bool Cmd_GetNumItems_Execute(COMMAND_ARGS)
 	// first walk the base container
 	if(container)
 	{
-		for(TESContainer::Entry	* containerEntry = &container->list; containerEntry; containerEntry = containerEntry->next)
-		{
-			TESContainer::Data	* containerData = containerEntry->data;
-			if(containerData)
-			{
-				SInt32	numObjects = containerData->count;
-
-				// make sure it isn't a leveled object
-				if(Oblivion_DynamicCast(containerData->type, 0, RTTI_TESForm, RTTI_TESLevItem, 0))
-					continue;
-
-				ExtraContainerMap::iterator it = info.m_map.find(containerData->type);
-				ExtraContainerMap::iterator itEnd = info.m_map.end();
-				if (it != itEnd) {
-					UInt32 index = (*it).second;
-					ExtraContainerChanges::EntryData* extraData = info.m_vec[index];
-					if(extraData)
-					{
-						numObjects += extraData->countDelta;
-					}
-					// let's clear this item from the vector
-					// this way we don't bother to look for it in the second step
-					info.m_vec[index] = NULL;
-				}
-
-				// is at least one still here?
-				if(numObjects > 0)
-				{
-					//PrintItemType(containerData->type);
-					count++;
-				}
-
-			}
-		}
+		ContainerVisitor visitContainer(&container->list);
+		ContainerCountIf counter(info);
+		count = visitContainer.CountIf(counter);
 	}
 
 	// now walk the remaining items 
@@ -132,8 +144,6 @@ static bool Cmd_GetNumItems_Execute(COMMAND_ARGS)
 	return true;
 }
 
-// this is somewhat slow, O(N*M)ish
-// but I don't think there's a faster way to do it without modifying how items are stored (ha)
 static TESForm * GetItemByIdx(TESObjectREFR * thisObj, UInt32 objIdx, SInt32 * outNumItems)
 {
 	if(!thisObj) return NULL;
@@ -154,45 +164,20 @@ static TESForm * GetItemByIdx(TESObjectREFR * thisObj, UInt32 objIdx, SInt32 * o
 		container = (TESContainer *)Oblivion_DynamicCast(baseForm, 0, RTTI_TESForm, RTTI_TESContainer, 0);
 	}
 
-
 	// first walk the base container
 	if(container)
 	{
 		for(TESContainer::Entry	* containerEntry = &container->list; containerEntry; containerEntry = containerEntry->next)
 		{
 			TESContainer::Data	* containerData = containerEntry->data;
-			if(containerData)
-			{
-				SInt32	numObjects = containerData->count;
-
-				// make sure it isn't a leveled object
-				if(Oblivion_DynamicCast(containerData->type, 0, RTTI_TESForm, RTTI_TESLevItem, 0))
-					continue;
-
-				ExtraContainerMap::iterator it = info.m_map.find(containerData->type);
-				ExtraContainerMap::iterator itEnd = info.m_map.end();
-				if (it != itEnd) {
-					UInt32 index = (*it).second;
-					ExtraContainerChanges::EntryData* extraData = info.m_vec[index];
-					if(extraData)
-					{
-						numObjects += extraData->countDelta;
-					}
-					// lets clear the EntryData from the vector
-					// this way we don't bother to look for it in the second step
-					info.m_vec[index] = NULL;
-				}
-
-				// is at least one still here?
-				if(numObjects > 0)
+			SInt32 numObjects = 0;
+			if (info.IsValidContainerData(containerData, numObjects)) {
+				if(count == objIdx)
 				{
-					if(count == objIdx)
-					{
-						if(outNumItems) *outNumItems = numObjects;
-						return containerData->type;
-					}
-					count++;
+					if(outNumItems) *outNumItems = numObjects;
+					return containerData->type;
 				}
+				count++;
 			}
 		}
 	}
@@ -215,6 +200,61 @@ static TESForm * GetItemByIdx(TESObjectREFR * thisObj, UInt32 objIdx, SInt32 * o
 	}
 	if(outNumItems) *outNumItems = 0;
 
+	return NULL;
+}
+
+struct ContainerFormInfo
+{
+	ContainerFormInfo() : m_baseCount(0), m_entryData(NULL) {}
+	ExtraContainerChanges::EntryData* m_entryData;
+	SInt32	m_baseCount;
+};
+
+void GetContainerFormInfo(TESObjectREFR* thisObj, TESForm* formToFind, ContainerFormInfo& formInfo)
+{
+	if (!thisObj || !formToFind) return;	
+	TESContainer* container = (TESContainer *)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_TESContainer, 0);
+	if (container) {
+		TESContainer::Data* data = container->DataByType(formToFind);
+		if (data) {
+			formInfo.m_baseCount = data->count;
+		}
+	}
+
+	ExtraContainerChanges	* containerChanges = static_cast <ExtraContainerChanges *>(thisObj->baseExtraList.GetByType(kExtraData_ContainerChanges));
+	if (containerChanges) {
+		formInfo.m_entryData = containerChanges->GetByType(formToFind);
+	}
+}
+
+UInt32 GetContainerFormConfigCount(TESObjectREFR* thisObj, TESForm* formToFind) 
+{
+	UInt32 nConfigs = 0;
+	ContainerFormInfo formInfo;
+	GetContainerFormInfo(thisObj, formToFind, formInfo);
+	if (formInfo.m_baseCount > 0) nConfigs++;
+
+	if (formInfo.m_entryData) {
+		ExtendDataVisitor visitExtended(formInfo.m_entryData->extendData);
+		nConfigs += visitExtended.Count();
+	}
+
+	return nConfigs;
+}
+
+ExtraDataList* GetNthContainerFormConfig(TESObjectREFR* thisObj, TESForm* formToFind, UInt32 index)
+{
+	// the 0 slot is always for the base configuration and is expected to have no overrides
+	if (index == 0) return NULL;
+	
+	ContainerFormInfo formInfo;
+	GetContainerFormInfo(thisObj, formToFind, formInfo);
+	if (formInfo.m_entryData) {
+		ExtendDataVisitor visitExtended(formInfo.m_entryData->extendData);
+		// adjust the index down by one as the base object has no overrides
+		// and all of the others are assumed to be after it
+		return visitExtended.GetNthInfo(index-1);
+	}
 	return NULL;
 }
 
@@ -611,16 +651,32 @@ static bool GetBaseValue(TESForm * type, UInt32 valueType, double * result)
 		}
 		case kVal_GoldValue:
 		{
-			TESValueForm* valueForm = (TESValueForm*)Oblivion_DynamicCast(type, 0, RTTI_TESForm, RTTI_TESValueForm, 0);
-			if (valueForm) {
-				*result = valueForm->value;
-				return true;
-			} else {
-				IngredientItem* ingredient = (IngredientItem*)Oblivion_DynamicCast(type, 0, RTTI_TESForm, RTTI_IngredientItem, 0);
-				if (ingredient) {
-					*result = ingredient->value;
-					return true;
+			switch (type->typeID)
+			{
+			case kFormType_Ingredient:
+				{
+					IngredientItem* ingredient = (IngredientItem*)Oblivion_DynamicCast(type, 0, RTTI_TESForm, RTTI_IngredientItem, 0);
+					if (ingredient) {
+						*result = ingredient->value;
+						return true;
+					}
+					break;
 				}
+			case kFormType_AlchemyItem:
+				{
+					AlchemyItem* alchItem = (AlchemyItem*)Oblivion_DynamicCast(type, 0, RTTI_TESForm, RTTI_AlchemyItem, 0);
+					if (alchItem) {
+						*result = alchItem->goldValue;
+						return true;
+					}
+					break;
+				}
+			default:
+				TESValueForm* valueForm = (TESValueForm*)Oblivion_DynamicCast(type, 0, RTTI_TESForm, RTTI_TESValueForm, 0);
+				if (valueForm) {
+					*result = valueForm->value;
+					return true;
+				} 
 			}
 			break;
 		}
@@ -1388,15 +1444,38 @@ bool ChangeObjectBaseValue(TESForm* form, ChangeValueState& state, double* resul
 			}
 		case kVal_GoldValue:
 			{
-				TESValueForm* valueForm = (TESValueForm*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESValueForm, 0);
-				if (valueForm) {
-					valueForm->value = (bMod) ? SafeModUInt32(valueForm->value, floatVal) : intVal;
-					form->MarkAsModified(TESForm::kModified_GoldValue);
-					return true;
+				switch (form->typeID)
+				{
+				case kFormType_Ingredient:
+					{
+						IngredientItem* ingredient = (IngredientItem*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_IngredientItem, 0);
+						if (ingredient) {
+							ingredient->value = (bMod) ? SafeModUInt32(ingredient->value, floatVal) : intVal;
+							form->MarkAsModified(TESForm::kModified_GoldValue);
+							return true;
+						}
+						break;
+					}
+				case kFormType_AlchemyItem:
+					{
+						AlchemyItem* alchItem = (AlchemyItem*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_AlchemyItem, 0);
+						if (alchItem) {
+							alchItem->goldValue = (bMod) ? SafeModUInt32(alchItem->goldValue, floatVal) : intVal;
+							form->MarkAsModified(TESForm::kModified_GoldValue);
+							return true;
+						}
+						break;
+					}
+				default:
+					TESValueForm* valueForm = (TESValueForm*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESValueForm, 0);
+					if (valueForm) {
+						valueForm->value = (bMod) ? SafeModUInt32(valueForm->value, floatVal) : intVal;
+						form->MarkAsModified(TESForm::kModified_GoldValue);
+						return true;
+					}
+					break;
 				}
-				break;
 			}
-
 		case kVal_Health:
 			{
 				TESHealthForm* healthForm = (TESHealthForm*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESHealthForm, 0);
@@ -1808,7 +1887,32 @@ static bool Cmd_SetCurrentHealth_Execute(COMMAND_ARGS)
 	return ChangeCurrentHealth(thisObj->baseForm, &thisObj->baseExtraList, state, result);
 }	
 	
+static bool Cmd_SetCurrentSoulLevel_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	if (!thisObj) return true;
+	TESSoulGem* soulGem = (TESSoulGem*)Oblivion_DynamicCast(thisObj->baseForm, 0, RTTI_TESForm, RTTI_TESSoulGem, 0);
+	// this needs to be a soul gem and to be a soul gem type without a soul normally in it
+	if (!soulGem || soulGem->soul != 0) return true;
 
+	UInt32 soulLevel = 0;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &soulLevel)) return true;
+	if (soulLevel > TESSoulGem::kSoul_Grand) return true;
+	if (soulLevel > soulGem->capacity) soulLevel = soulGem->capacity;
+
+	BSExtraData* xData = thisObj->baseExtraList.GetByType(kExtraData_Soul);
+	ExtraSoul* xSoul = (ExtraSoul*)Oblivion_DynamicCast(xData, 0, RTTI_BSExtraData, RTTI_ExtraSoul, 0);
+	
+	if (xSoul) {
+		xSoul->soul = soulLevel; // see if this works with soulLevel = 0.
+	} else if (soulLevel != 0) {
+		// need to add a new ExtraSoul
+		xSoul = ExtraSoul::Create();
+		xSoul->soul = soulLevel;
+		thisObj->baseExtraList.Add(xSoul);
+	}
+	return true;
+}
 
 static bool ChangeObjectValue_Execute(COMMAND_ARGS, ChangeValueState& state)
 {
@@ -2432,6 +2536,9 @@ static bool PathFunc_Execute(COMMAND_ARGS, UInt32 whichValue, EMode mode)
 }
 
 
+
+
+
 // SetModelPath
 static bool Cmd_SetModelPath_Execute(COMMAND_ARGS)
 {
@@ -3033,6 +3140,92 @@ static bool Cmd_SetContainerRespawns_Execute(COMMAND_ARGS)
 	return true;
 }
 
+static bool Cmd_IsLightCarriable_Execute(COMMAND_ARGS)
+{
+	TESForm* form = NULL;
+	*result = 0;
+
+	if (ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form))
+	{
+		if (!form)
+			if (thisObj)
+				form = thisObj->baseForm;
+	}
+	if (form)
+	{
+		TESObjectLIGH* light = (TESObjectLIGH*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESObjectLIGH, 0);
+		if (light)
+			*result = light->IsCarriable() ? 1 : 0;
+	}
+
+	return true;
+}
+
+static bool Cmd_GetLightRadius_Execute(COMMAND_ARGS)
+{
+	TESForm* form = NULL;
+	*result = 0;
+
+	if (ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form))
+	{
+		if (!form)
+			if (thisObj)
+				form = thisObj->baseForm;
+	}
+	if (form)
+	{
+		TESObjectLIGH* light = (TESObjectLIGH*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESObjectLIGH, 0);
+		if (light)
+			*result = light->GetRadius();
+	}
+
+	return true;
+}
+
+static bool Cmd_SetLightRadius_Execute(COMMAND_ARGS)
+{
+	TESForm* form = NULL;
+	UInt32 newRadius = 0;
+	*result = 0;
+
+	if (ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &newRadius, &form))
+	{
+		if (!form)
+			if (thisObj)
+				form = thisObj->baseForm;
+	}
+	if (form)
+	{
+		TESObjectLIGH* light = (TESObjectLIGH*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESObjectLIGH, 0);
+		if (light)
+		{
+			light->SetRadius(newRadius);
+			*result = 1;
+		}
+	}
+
+	return true;
+}
+
+static bool Cmd_HasName_Execute(COMMAND_ARGS)
+{
+	TESForm* form = 0;
+	*result = 0;
+
+	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
+	if (!form)
+		if (thisObj)
+			form = thisObj->baseForm;
+
+	if (form)
+	{
+		TESFullName* fullName = (TESFullName*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESFullName, 0);
+		if (fullName && fullName->name.m_dataLen)
+			*result = 1;
+	}
+
+	return true;
+}
 
 #endif
 
@@ -5491,3 +5684,71 @@ CommandInfo kCommandInfo_SetContainerRespawns =
 	0
 };
 
+CommandInfo kCommandInfo_IsLightCarriable =
+{
+	"IsLightCarriable", "CanCarry",
+	0,
+	"returns true if the light can be placed in an inventory",
+	0,
+	1,
+	kParams_OneOptionalInventoryObject,
+	HANDLER(Cmd_IsLightCarriable_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetLightRadius =
+{
+	"GetLightRadius", "GetRadius",
+	0,
+	"returns the radius of the light",
+	0,
+	1,
+	kParams_OneOptionalInventoryObject,
+	HANDLER(Cmd_GetLightRadius_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetLightRadius =
+{
+	"SetLightRadius", "SetRadius",
+	0,
+	"sets the radius of the light",
+	0,
+	2,
+	kParams_SetObjectInteger,
+	HANDLER(Cmd_SetLightRadius_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetCurrentSoulLevel =
+{
+	"SetCurrentSoulLevel", "",
+	0,
+	"sets the soul level of the current reference",
+	1, 1, kParams_OneInt,
+	HANDLER(Cmd_SetCurrentSoulLevel_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_HasName =
+{
+	"HasName",
+	"",
+	0,
+	"returns 1 if the object has a name with 1 or more characters",
+	0,
+	1,
+	kParams_OneOptionalInventoryObject,
+	HANDLER(Cmd_HasName_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};

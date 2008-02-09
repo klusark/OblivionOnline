@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="shift_jis"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="obse"
 	ProjectGUID="{01B76B21-F851-436E-ACEA-64FA03BE8C59}"
 	RootNamespace="obse"
+	SccProjectName="Perforce Project"
+	SccLocalPath="..\.."
+	SccProvider="MSSCCI:Perforce SCM"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -41,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(DXSDK_DIR)\Include&quot;"
+				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)\.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010101FF"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -127,7 +130,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(DXSDK_DIR)\Include&quot;"
+				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)\.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010101FF"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -211,7 +214,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(DXSDK_DIR)\Include&quot;"
+				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)\.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010200D6"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -297,7 +300,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(DXSDK_DIR)\Include&quot;"
+				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)\.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010200D6"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -381,7 +384,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(DXSDK_DIR)\Include&quot;"
+				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)\.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010201A0"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -467,7 +470,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(DXSDK_DIR)\Include&quot;"
+				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)\.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010201A0"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -670,6 +673,14 @@
 			</File>
 			<File
 				RelativePath=".\Commands_Console.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_Faction.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_Faction.h"
 				>
 			</File>
 			<File

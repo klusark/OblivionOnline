@@ -44,7 +44,7 @@ using namespace stdext;
 extern void RunScriptLine(const char *buf, bool IsTemp);
 
 bool QueueMode = false;
-std::deque <MobStatus> MobQueue;
+std::queue <MobStatus> MobQueue;
 typedef std::pair<TESObjectREFR *,ActorStatus> RefrStatusPair;
 hash_map<UINT32,ActorStatus> MCMobList;
 typedef std::pair<UINT32,ActorStatus> MobPair; 
@@ -67,7 +67,6 @@ bool NetSynchObject(TESObjectREFR *Refr)
 	pkgBuf.Health = (Refr->IsActor() ? ((Actor *)Refr)->GetActorValue(8) : -1);
 	pkgBuf.Magika = (Refr->IsActor() ? ((Actor *)Refr)->GetActorValue(9) : -1);
 	pkgBuf.Fatigue =(Refr->IsActor() ? ((Actor *)Refr)->GetActorValue(10) : -1);
-	_MESSAGE("Synchronising : %u %s",Refr->refID,Refr->GetEditorName());
 	if(Refr->parentCell->worldSpace)
 	{
 				pkgBuf.Flags = 4; //Exterior
@@ -107,12 +106,10 @@ bool MCMakeMC()
 // This is used in a command to go thorugh the cache and look for mobs that changed position
  bool MCbSynchActors() //called nearly every frame , so extremely important
 {
-	_MESSAGE("MCbSynchActors called");
 	//rewritten
 	//Just check up on the cells all other players are in
 	std::list <TESObjectCELL *> CellStack;
 	CellStack.push_back((*g_thePlayer)->parentCell);
-	_MESSAGE("Looking up Cells");
 	for(int i = 0 ; i < MAXCLIENTS;i++)
 	{
 		bool bInsert = true;
@@ -134,40 +131,41 @@ bool MCMakeMC()
 				CellStack.push_back(form->parentCell);
 		}
 	}
-	_MESSAGE("%d Cells for mob synch",CellStack.size());
 	//now we process each cell...
 	for(std::list <TESObjectCELL *>::iterator i = CellStack.begin();i != CellStack.end(); i++)
 	{
 		TESObjectCELL * Cell = *i;
-		_MESSAGE("Processing cell %u",Cell->refID);
 		TESObjectCELL::ObjectListEntry * ListIterator = &Cell->objectList;		
 				
 		while(ListIterator->next) // Iterate the loop
 		{
 			ListIterator = ListIterator->next;
-			//Lookup in hash_map
-			hash_map<UINT32,ActorStatus>::iterator iter =  MCMobList.find(ListIterator->refr->refID);
-			if(iter == MCMobList.end())
+			if(GetPlayerNumberFromRefID(ListIterator->refr->refID) == -1) // Do not synchronise objects used by OblivionOnline
 			{
-				_MESSAGE("Inserting new object");
-				ActorStatus temp;
-				MCMobList.insert(MobPair(ListIterator->refr->refID,temp));
-				//optimisation here?
-				iter =  MCMobList.find(ListIterator->refr->refID);
-			}
-			if((iter->second.PosX != ListIterator->refr->posX ||		//position was changed
-				iter->second.PosY != ListIterator->refr->posY ||
-				iter->second.PosZ != ListIterator->refr->posZ ||
-				iter->second.RotZ != ListIterator->refr->rotZ )||
-				iter->second.Health != (ListIterator->refr->IsActor() ? ((Actor *)ListIterator->refr)->GetActorValue(8) : -1)) // Health
-			{
-				_MESSAGE("Net Synching object");
-				iter->second.PosX = ListIterator->refr->posX;
-				iter->second.PosY = ListIterator->refr->posY;
-				iter->second.PosZ = ListIterator->refr->posZ;
-				iter->second.RotZ = ListIterator->refr->rotZ;				
-				iter->second.Health = (ListIterator->refr->IsActor() ? ((Actor *)ListIterator->refr)->GetActorValue(8) : -1);
-				NetSynchObject(ListIterator->refr);
+				//Lookup in hash_map
+				hash_map<UINT32,ActorStatus>::iterator iter =  MCMobList.find(ListIterator->refr->refID);
+				if(iter == MCMobList.end())
+				{
+					_MESSAGE("Inserting new object");
+					ActorStatus temp;
+					MCMobList.insert(MobPair(ListIterator->refr->refID,temp));
+					//optimisation here?
+					iter =  MCMobList.find(ListIterator->refr->refID);
+				}
+				/*if((iter->second.PosX != ListIterator->refr->posX ||		//position was changed
+					iter->second.PosY != ListIterator->refr->posY ||
+					iter->second.PosZ != ListIterator->refr->posZ ||
+					iter->second.RotZ != ListIterator->refr->rotZ )||
+					iter->second.Health != (ListIterator->refr->IsActor() ? ((Actor *)ListIterator->refr)->GetActorValue(8) : -1)) // Health 
+				{
+					_MESSAGE("Net Synching object");
+					iter->second.PosX = ListIterator->refr->posX;
+					iter->second.PosY = ListIterator->refr->posY;
+					iter->second.PosZ = ListIterator->refr->posZ;
+					iter->second.RotZ = ListIterator->refr->rotZ;				
+					iter->second.Health = (ListIterator->refr->IsActor() ? ((Actor *)ListIterator->refr)->GetActorValue(8) : -1);*/
+					NetSynchObject(ListIterator->refr);
+				//}
 			}
 		}
 	}
@@ -196,15 +194,17 @@ bool Cmd_MPAdvanceStack_Execute (COMMAND_ARGS)
 		*result = 0;
 		return true;
 	}
-	if(QueueMode&&  MobQueue.size())
+	if(QueueMode&& !MobQueue.empty() )
 	{
-		*result = MobQueue.begin()->RefID;
-		_MESSAGE("Monster %u",MobQueue.begin()->RefID);
-		MobQueue.pop_front();
+		UInt32* refResult = (UInt32*)result;
+		*refResult = MobQueue.front().RefID;
+		_MESSAGE("Monster %u",MobQueue.front().RefID);
+		if(!MobQueue.empty())
+			MobQueue.pop();
 	}
 	else
 	{
-		_MESSAGE("Stack End");
+		_MESSAGE("Ending Queue");
 		*result = 0;
 	}
 	return true;
@@ -218,16 +218,12 @@ bool Cmd_MPStopStack_Execute (COMMAND_ARGS)
 	}
 	return true;
 }
-
-
-
-
  CommandInfo kMPSynchActorsCommand =
 {
 	"MPSynchActors",
 	"MPSA",
 	0,
-	"Synchs Objects and resets +enables the stack",
+	"Synchs Objects and resets and enables the stack",
 	0,		 
 	0,		
 	NULL,	
@@ -264,8 +260,7 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 	TESObjectREFR * Object;
 	Object = (TESObjectREFR *)LookupFormByID(pkgBuf.refID);
 	if(Object)
-	{
-		
+	{		
 		Actor *act = (Actor *)Object;
 		if((pkgBuf.Flags & 2) && act->IsActor())
 		{
@@ -304,9 +299,11 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 			temp.RotX = pkgBuf.fRotX;
 			temp.RotY = pkgBuf.fRotY;
 			temp.RotZ = pkgBuf.fRotZ;
-			MobQueue.push_back(temp);
+			MobQueue.push(temp);
 		}
 	}
+	else
+		_ERROR("Failed to find Object");
 	}
 	// Do Health here....
 	return true;

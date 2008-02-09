@@ -139,5 +139,5 @@ void D3DHookDeInit()
 {
 	 _MESSAGE("Deinitializing Direct3D hook");
 	HookImportedFunctionsByName(GetModuleHandle(0),"KERNEL32.DLL",1,RestoreHook,(PROC *)&RealGetProcAddress,&HookedFunctions);
-
+	RealGetProcAddress = GetProcAddress;
 }

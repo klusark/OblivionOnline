@@ -26,6 +26,7 @@ extern CommandInfo kCommandInfo_GetType;
 //extern CommandInfo kCommandInfo_ModObjectValue;
 //extern CommandInfo kCommandInfo_TestSetObjectValue;
 //extern CommandInfo kCommandInfo_TestModObjectValue;
+extern CommandInfo kCommandInfo_SetCurrentSoulLevel;
 
 extern CommandInfo kCommandInfo_GetWeight;
 extern CommandInfo kCommandInfo_SetWeight;
@@ -179,3 +180,9 @@ extern CommandInfo kCommandInfo_IsClonedForm;
 extern CommandInfo kCommandInfo_CloneForm;
 
 extern CommandInfo kCommandInfo_CompareNames;
+
+extern CommandInfo kCommandInfo_IsLightCarriable;
+extern CommandInfo kCommandInfo_GetLightRadius;
+extern CommandInfo kCommandInfo_SetLightRadius;
+
+extern CommandInfo kCommandInfo_HasName;

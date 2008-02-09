@@ -16,7 +16,9 @@ BSExtraData * BaseExtraList::GetByType(UInt32 type) const
 		if(traverse->type == type)
 			return traverse;
 
+#ifdef _DEBUG
 	Console_Print("ExtraData HasType(%d) is true but it wasn't found!", type);
+#endif
 	return NULL;
 }
 
@@ -103,6 +105,8 @@ static const UInt32 s_ExtraTravelHorseSize = 0x10;
 static const UInt32 s_ExtraTravelHorseVtbl = 0x00A023FC;
 static const UInt32 s_ExtraLockSize = 0x10;
 static const UInt32 s_ExtraLockVtbl = 0x00A02210;
+static const UInt32 s_ExtraSoulSize = 0x10;
+static const UInt32 s_ExtraSoulVtbl = 0x00A022C4;
 
 #elif OBLIVION_VERSION == OBLIVION_VERSION_1_2
 
@@ -118,6 +122,8 @@ static const UInt32 s_ExtraTravelHorseSize = 0x10;
 static const UInt32 s_ExtraTravelHorseVtbl = 0x00A35A24;
 static const UInt32 s_ExtraLockSize = 0x10;
 static const UInt32 s_ExtraLockVtbl = 0x00A35820;
+static const UInt32 s_ExtraSoulSize = 0x10;
+static const UInt32 s_ExtraSoulVtbl = 0x00A358E0;
 
 #elif OBLIVION_VERSION == OBLIVION_VERSION_1_2_416
 
@@ -133,6 +139,8 @@ static const UInt32 s_ExtraTravelHorseSize = 0x10;
 static const UInt32 s_ExtraTravelHorseVtbl = 0x00A359BC;
 static const UInt32 s_ExtraLockSize = 0x10;
 static const UInt32 s_ExtraLockVtbl = 0x00A357B8;
+static const UInt32 s_ExtraSoulSize = 0x10;
+static const UInt32 s_ExtraSoulVtbl = 0x00A35878;
 
 #else
 #error unsupported oblivion version
@@ -191,4 +199,11 @@ ExtraLock* ExtraLock::Create()
 	memset(lockData, 0, sizeof(ExtraLock::Data));
 	xLock->data = lockData;
 	return xLock;
+}
+
+ExtraSoul* ExtraSoul::Create()
+{
+	ExtraSoul* xSoul = (ExtraSoul*)BSExtraData::Create(kExtraData_Soul, s_ExtraSoulSize, s_ExtraSoulVtbl);
+	memset(xSoul->padding, 0, 3);
+	return xSoul;
 }

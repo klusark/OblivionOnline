@@ -56,11 +56,11 @@ This file is part of OblivionOnline.
 #define MAXSERVERS 8
 
 #define SUPER_VERSION 0 //Not used yet
-#define MAIN_VERSION 4
-#define SUB_VERSION 5 
+#define MAIN_VERSION 5
+#define SUB_VERSION 0
 //The 2 below here are nothing but UI . Not on the netcode
 #define RELEASE_CODENAME "Release V" // The Name . Can be empty
-#define ADDITIONAL_VERSION_COMMENT "Internal Alpha") // For betas and special builds only
+#define ADDITIONAL_VERSION_COMMENT "Internal Alpha" // For betas and special builds only
 
 //Externals
 extern IDebugLog gLog;
@@ -77,6 +77,7 @@ extern TESObjectREFR* PlayerActorList[MAXCLIENTS];
 extern UInt32 SpawnID[MAXCLIENTS];
 extern int BadPackets[PACKET_COUNT];
 extern DWORD PacketTime[PACKET_COUNT];
+extern char ServerIP[15];
 
 
 #endif

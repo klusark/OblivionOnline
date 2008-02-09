@@ -92,16 +92,14 @@ extern "C"
 	#include "lauxlib.h"
 }
 #define MAXCLIENTS 12
-#define PORT 41805
-#define ADMINPORT (PORT - 1)
 
 #define SUPER_VERSION 0 /*not used yet*/
-#define MAIN_VERSION 4
-#define SUB_VERSION 5 
+#define MAIN_VERSION 5
+#define SUB_VERSION 0 
 //The 2 below here are nothing but UI . Not on the netcode
-#define RELEASE_CODENAME "Fix Release" // The Name . Can be emp to `Players' follow
+#define RELEASE_CODENAME "ReleaseV" // The Name . Can be emp to `Players' follow
 #define RELEASE_COMMENT "" // For betas and special builds only
-
+#define PORT 41805 // default port
 #define EXPECTED_MOBS 3000
 
 extern int TotalClients;

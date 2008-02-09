@@ -18,3 +18,24 @@ extern CommandInfo kCommandInfo_GetOwner;
 extern CommandInfo kCommandInfo_GetOwningFactionRequiredRank;
 extern CommandInfo kCommandInfo_GetParentCellOwner;
 extern CommandInfo kCommandInfo_GetParentCellOwningFactionRequiredRank;
+
+extern CommandInfo kCommandInfo_GetNumChildRefs;
+extern CommandInfo kCommandInfo_GetNthChildRef;
+extern CommandInfo kCommandInfo_SetScaleEX;
+
+extern CommandInfo kCommandInfo_SetPersistent;
+extern CommandInfo kCommandInfo_IsActivatable;
+extern CommandInfo kCommandInfo_IsHarvested;
+extern CommandInfo kCommandInfo_SetHarvested;
+
+extern CommandInfo kCommandInfo_HasBeenPickedUp;
+
+extern CommandInfo kCommandInfo_GetProjectileType;
+extern CommandInfo kCommandInfo_GetMagicProjectileSpell;
+extern CommandInfo kCommandInfo_GetArrowProjectileEnchantment;
+extern CommandInfo kCommandInfo_GetArrowProjectileBowEnchantment;
+extern CommandInfo kCommandInfo_GetArrowProjectilePoison;
+extern CommandInfo kCommandInfo_GetProjectileSource;
+extern CommandInfo kCommandInfo_SetMagicProjectileSpell;
+extern CommandInfo kCommandInfo_SetProjectileSource;
+extern CommandInfo kCommandInfo_ClearProjectileSource;

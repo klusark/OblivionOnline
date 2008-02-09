@@ -1,25 +1,25 @@
 #pragma once
 
 /****
- *	id	size	type
+ *	id	size	type					Decoded
  *	00	?		
  *	01	?		
  *	02	?		ExtraHavok
  *	03	?		ExtraCell3D
- *	04	?		ExtraWaterHeight
+ *	04	?		ExtraWaterHeight			*
  *	05	?		ExtraCellWaterType
  *	06	?		
  *	07	?		
- *	08	?		ExtraRegionList
- *	09	10		ExtraSeenData
+ *	08	?		ExtraRegionList				*
+ *	09	10		ExtraSeenData				*
  *	0A	?		ExtraEditorID
- *	0B	?		ExtraCellMusicType
- *	0C	?		ExtraCellClimate
+ *	0B	?		ExtraCellMusicType			*
+ *	0C	?		ExtraCellClimate			*
  *	0D	?		ExtraProcessMiddleLow
  *	0E	?		
  *	0F	?		ExtraCellCanopyShadowMask
  *	10	10		ExtraDetachTime
- *	11	?		ExtraPersistentCell
+ *	11	?		ExtraPersistentCell			*
  *	12	14		ExtraScript
  *	13	14		ExtraAction
  *	14	24		ExtraStartingPosition
@@ -28,57 +28,57 @@
  *	17	?		ExtraUsedMarkers
  *	18	?		ExtraDistantData
  *	19	?		ExtraRagDollData
- *	1A	10		ExtraContainerChanges
- *	1B	C		ExtraWorn
- *	1C	?		ExtraWornLeft
+ *	1A	10		ExtraContainerChanges		*
+ *	1B	C		ExtraWorn					*
+ *	1C	?		ExtraWornLeft				*
  *	1D	?		
- *	1E	20		ExtraPackageStartLocation
- *	1F	1C		ExtraPackage
- *	20	10		ExtraTresPassPackage
+ *	1E	20		ExtraPackageStartLocation	*
+ *	1F	1C		ExtraPackage				*
+ *	20	10		ExtraTresPassPackage		*
  *	21	10		ExtraRunOncePacks
  *	22	?		ExtraReferencePointer
- *	23	10		ExtraFollower
+ *	23	10		ExtraFollower				*
  *	24	10		ExtraLevCreaModifier
  *	25	C		ExtraGhost
  *	26	?		ExtraOriginalReference
- *	27	?		ExtraOwnership
- *	28	?		ExtraGlobal
- *	29	?		ExtraRank
- *	2A	?		ExtraCount
- *	2B	10		ExtraHealth
- *	2C	10		ExtraUses
- *	2D	10		ExtraTimeLeft
- *	2E	10		ExtraCharge
- *	2F	10		ExtraSoul
- *	30	10		ExtraLight
- *	31	10		ExtraLock
- *	32	?		ExtraTeleport
+ *	27	?		ExtraOwnership				*
+ *	28	?		ExtraGlobal					*
+ *	29	?		ExtraRank					*
+ *	2A	?		ExtraCount					*
+ *	2B	10		ExtraHealth					*
+ *	2C	10		ExtraUses					*
+ *	2D	10		ExtraTimeLeft			
+ *	2E	10		ExtraCharge					*
+ *	2F	10		ExtraSoul					*
+ *	30	10		ExtraLight					*
+ *	31	10		ExtraLock					*
+ *	32	?		ExtraTeleport				*
  *	33	?		ExtraMapMarker
  *	34	?										animation-related?
  *	35	C		ExtraLeveledCreature
  *	36	14		ExtraLeveledItem
- *	37	?		ExtraScale
+ *	37	?		ExtraScale					*
  *	38	?		ExtraSeed
  *	39	?		
  *	3A	?		NonActorMagicTarget
  *	3B	?		
  *	3C	?		
- *	3D	?		ExtraCrimeGold
+ *	3D	?		ExtraCrimeGold				*
  *	3E	?		ExtraOblivionEntry
  *	3F	?		ExtraEnableStateParent
  *	40	?		ExtraEnableStateChildren
  *	41	?		ExtraItemDropper
  *	42	14		ExtraDroppedItemList
- *	43	?		ExtraRandomTeleportMarker
- *	44	10		ExtraMerchantContainer
+ *	43	?		ExtraRandomTeleportMarker	*
+ *	44	10		ExtraMerchantContainer		*
  *	45	?		
  *	46	1C		ExtraPersuasionPercent
  *	47	C		ExtraCannotWear
- *	48	10		ExtraPoison
+ *	48	10		ExtraPoison					*
  *	49	?		
  *	4A	?		ExtraLastFinishedSequence
  *	4B	?		ExtraSavedMovementData
- *	4C	10		ExtraNorthRotation
+ *	4C	10		ExtraNorthRotation			*
  *	4D	10		ExtraXTarget
  *	4E	10		ExtraFriendHitList
  *	4F	10		ExtraHeadingTarget
@@ -87,10 +87,10 @@
  *	52	?		ExtraInvestmentGold
  *	53	?		ExtraStartingWorldOrCell
  *	54	?		
- *	55	10		ExtraQuickKey
+ *	55	10		ExtraQuickKey				*
  *	56	?		
  *	57	?		ExtraEditorRefMoveData
- *	58	10		ExtraTravelHorse
+ *	58	10		ExtraTravelHorse			*
  *	59	10		ExtraInfoGeneralTopic
  *	5A	10		ExtraHasNoRumors
  *	5B	?		ExtraSound
@@ -130,6 +130,10 @@ class TESFaction;
 class TESNPC;
 class TESGlobal;
 class TESClimate;
+class TrespassPackage;
+class TESRegionList;
+class Script;
+struct ScriptEventList;
 
 enum ExtraDataType
 {
@@ -295,6 +299,7 @@ public:
 };
 
 typedef Visitor<ExtraContainerChanges::Entry, ExtraContainerChanges::EntryData> ExtraEntryVisitor;
+typedef Visitor<ExtraContainerChanges::EntryExtendData, ExtraDataList> ExtendDataVisitor;
 
 // cell and position where the current package was started?
 class ExtraPackageStartLocation : public BSExtraData
@@ -303,7 +308,7 @@ public:
 	ExtraPackageStartLocation();
 	virtual ~ExtraPackageStartLocation();
 
-	TESObjectCELL	* cell;		// 0C
+	TESForm			* cell;		// 0C can be worldspace or cell
 	float			x, y, z;	// 10
 	UInt32			pad1C;		// 1C
 };
@@ -332,10 +337,15 @@ public:
 	{
 		Character	* character;
 		ListNode	* next;
+
+		Character* Info() const { return character; }
+        ListNode* Next() const { return next; }
 	};
 
 	ListNode	* followers;
 };
+
+typedef Visitor<ExtraFollower::ListNode, Character> ExtraFollowerVisitor;
 
 class ExtraHealth : public BSExtraData
 {
@@ -370,7 +380,9 @@ class ExtraSoul: public BSExtraData
 public:
 	ExtraSoul();
 	~ExtraSoul();
-	UInt32 soul;
+	UInt8 soul;
+	UInt8 padding[3];
+	static ExtraSoul* Create();
 };
 
 // used by torches, etc (implies one light per object?)
@@ -513,4 +525,133 @@ public:
 	~ExtraCellClimate();
 
 	TESClimate* climate;
+};
+
+class ExtraQuickKey : public BSExtraData		//turns up in ExtraContainerChanges::EntryExtendData
+{												//need to find for spells
+public:
+	ExtraQuickKey();
+	~ExtraQuickKey();
+
+	UInt8 keyID;		//appears to be 0 thru 7
+	UInt8 pad[3];
+};
+
+class ExtraScale : public BSExtraData
+{
+public:
+	ExtraScale();
+	~ExtraScale();
+
+	float scale;
+};
+
+class ExtraNorthRotation : public BSExtraData
+{
+public:
+	ExtraNorthRotation();
+	~ExtraNorthRotation();
+
+	float rotation;		//in radians, not degrees
+};
+
+class ExtraTrespassPackage : public BSExtraData
+{
+public:
+	ExtraTrespassPackage();
+	~ExtraTrespassPackage();
+
+	TrespassPackage* package;
+};
+
+class ExtraRegionList : public BSExtraData
+{
+public:
+	ExtraRegionList();
+	~ExtraRegionList();
+
+	TESRegionList* regionList;
+};
+
+class ExtraSeenData : public BSExtraData
+{
+public:
+	ExtraSeenData();
+	~ExtraSeenData();
+
+	void* unk1;			//pointer to SeenData or IntSeenData, neither exposed yet
+};
+
+class ExtraPersistentCell : public BSExtraData
+{
+public:
+	ExtraPersistentCell();
+	~ExtraPersistentCell();
+
+	TESObjectCELL* cell;
+};
+
+class ExtraCellMusicType : public BSExtraData
+{
+public:
+	ExtraCellMusicType();
+	~ExtraCellMusicType();
+
+	enum
+	{
+		kMusicType_Public = 1,
+		kMusicType_Dungeon = 2
+	};
+
+	UInt8 musicType;
+	UInt8 pad[3];
+};
+
+class ExtraCrimeGold : public BSExtraData
+{
+public:
+	ExtraCrimeGold();
+	~ExtraCrimeGold();
+
+	float crimeGold;
+};
+
+class ExtraEnableStateParent : public BSExtraData
+{
+public:
+	ExtraEnableStateParent();
+	~ExtraEnableStateParent();
+
+	TESObjectREFR	* parent;
+	UInt32			oppositeState;		//is 1 if enable state set to opposite of parent's
+};
+
+class ExtraEnableStateChildren : public BSExtraData
+{
+public:
+	ExtraEnableStateChildren();
+	~ExtraEnableStateChildren();
+
+	struct Entry
+	{
+		TESObjectREFR	* child;
+		Entry			* next;
+
+		TESObjectREFR* Info() const { return child; }
+        Entry* Next() const { return next; }
+	};
+
+	Entry childList;
+};
+
+typedef Visitor<ExtraEnableStateChildren::Entry, TESObjectREFR> EnableStateChildrenVisitor;
+
+class ExtraScript : public BSExtraData
+{
+public:
+	ExtraScript();
+	~ExtraScript();
+
+	Script			* script;
+	ScriptEventList	* eventList;
 };

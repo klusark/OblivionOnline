@@ -34,3 +34,4 @@ class IDebugOutput
 		
 		Bitfield32	flags;
 };
+

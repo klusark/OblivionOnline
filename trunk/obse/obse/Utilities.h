@@ -5,6 +5,22 @@ class TESForm;
 void DumpClass(void * theClassPtr, UInt32 nIntsToDump = 512);
 void PrintItemType(TESForm * form);
 
+class StringFinder_CI
+{
+	char* m_stringToFind;
+public:
+	StringFinder_CI(char* str) : m_stringToFind(str)
+		{	}
+
+	bool Accept(char* str)
+	{
+		if (!_stricmp(str, m_stringToFind))
+			return true;
+		else
+			return false;
+	}
+};
+
 template <class Node, class Info>
 class Visitor
 {
@@ -66,6 +82,11 @@ public:
 		}
 
 		return pCur;
+	}
+
+	const Node* FindString(char* str, const Node* prev = NULL) const
+	{
+		return Find(StringFinder_CI(str), prev);
 	}
 
 	template <class Op>

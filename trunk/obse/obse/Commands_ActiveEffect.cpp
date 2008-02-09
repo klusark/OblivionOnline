@@ -234,6 +234,7 @@ static bool Cmd_ModNthActiveEffectMagnitude_Execute(COMMAND_ARGS)
 class AEMagnitudeCounter
 {
 	UInt32 m_effectCode;
+	UInt32 m_actorVal;
 	float m_magnitude;
 	UInt8 m_majorType;
 	UInt8 m_minorType;
@@ -261,7 +262,7 @@ class AEMagnitudeCounter
 	}
 
 public:
-	AEMagnitudeCounter(UInt8 majorType = 0, UInt8 minorType = 0) : m_majorType(majorType), m_minorType(minorType), m_magnitude(0), m_effectCode(0)
+	AEMagnitudeCounter(UInt8 majorType = 0, UInt8 minorType = 0) : m_majorType(majorType), m_minorType(minorType), m_magnitude(0), m_effectCode(0), m_actorVal(kActorVal_OblivionMax)
 	{
 		if (m_majorType == 0) {
 			m_filter = (m_minorType == SpellItem::kType_Ability) ? eAllowAllButAbilities : eAllowAll;
@@ -271,10 +272,12 @@ public:
 	}
 
 	void SetEffectCode(UInt32 effectCode) { m_effectCode = effectCode; }
+	void SetActorVal(UInt32 actorVal) { m_actorVal = actorVal; }
 
 	bool Accept(ActiveEffect* ae) {
 		if (ae) {
 			if (ae->effectItem->effectCode != m_effectCode) return true;
+			if (m_actorVal != kActorVal_OblivionMax && ae->effectItem->actorValueOrOther != m_actorVal) return true;
 			bool bMatches = false;
 			MagicItem* magicItem = ae->item;
 			switch(m_filter) {
@@ -306,10 +309,13 @@ public:
 	}
 };
 
-static bool GetTotalActiveEffectMagnitude(MagicTarget* magicTarget, AEMagnitudeCounter& counter, UInt32 effectCode, double* result)
+static bool GetTotalActiveEffectMagnitude(MagicTarget* magicTarget, AEMagnitudeCounter& counter, UInt32 effectCode, UInt32 actorVal, double* result)
 {
 	if (!magicTarget) return true;
 	counter.SetEffectCode(effectCode);
+	if (actorVal != kActorVal_OblivionMax) {
+		counter.SetActorVal(actorVal);
+	}
 	ActiveEffectVisitor visitor(magicTarget->GetEffectList());
 	visitor.Visit(counter);
 	*result = counter.Magnitude();
@@ -322,7 +328,8 @@ static bool GetTotalActiveEffectMagnitude_Execute(COMMAND_ARGS, AEMagnitudeCount
 	if (!thisObj) return true;
 
 	EffectSetting* magicEffect = NULL;
-	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &magicEffect))
+	UInt32 actorVal = kActorVal_OblivionMax;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &magicEffect, & actorVal))
 		return true;
 
 	if (!magicEffect) return true;
@@ -330,7 +337,7 @@ static bool GetTotalActiveEffectMagnitude_Execute(COMMAND_ARGS, AEMagnitudeCount
 	MagicTarget * magicTarget = (MagicTarget *) Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MagicTarget, 0);
 	if (!magicTarget) return true;
 
-	return GetTotalActiveEffectMagnitude(magicTarget, counter, magicEffect->effectCode, result);
+	return GetTotalActiveEffectMagnitude(magicTarget, counter, magicEffect->effectCode, actorVal, result);
 }
 
 static bool Cmd_GetTotalActiveEffectMagnitude_Execute(COMMAND_ARGS)
@@ -405,7 +412,8 @@ static bool GetTotalActiveEffectMagnitudeC_Execute(COMMAND_ARGS, AEMagnitudeCoun
 	if (!thisObj) return true;
 
 	UInt32 effectCode = 0;
-	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &effectCode))
+	UInt32 actorVal = kActorVal_OblivionMax;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &effectCode, &actorVal))
 		return true;
 
 	if (effectCode == 0)
@@ -414,7 +422,7 @@ static bool GetTotalActiveEffectMagnitudeC_Execute(COMMAND_ARGS, AEMagnitudeCoun
 	MagicTarget * magicTarget = (MagicTarget *) Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MagicTarget, 0);
 	if (!magicTarget) return true;
 
-	return GetTotalActiveEffectMagnitude(magicTarget, counter, effectCode, result);
+	return GetTotalActiveEffectMagnitude(magicTarget, counter, effectCode, actorVal, result);
 }
 
 static bool Cmd_GetTotalActiveEffectMagnitudeC_Execute(COMMAND_ARGS)
@@ -700,6 +708,12 @@ CommandInfo kCommandInfo_ModNthActiveEffectMagnitude =
 	0
 };
 
+static ParamInfo kParams_GetTotalAE[2] =
+{
+	{	"magic effect", kParamType_MagicEffect, 0 },
+	{	"actor value", kParamType_ActorValue, 1},
+};
+
 
 CommandInfo kCommandInfo_GetTotalActiveEffectMagnitude =
 {
@@ -708,8 +722,8 @@ CommandInfo kCommandInfo_GetTotalActiveEffectMagnitude =
 	0,
 	"returns the magnitude of the all active effect",
 	1,
-	1,
-	kParams_OneMagicEffect,
+	2,
+	kParams_GetTotalAE,
 	HANDLER(Cmd_GetTotalActiveEffectMagnitude_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -723,8 +737,8 @@ CommandInfo kCommandInfo_GetTotalAENonAbilityMagnitude =
 	0,
 	"returns the magnitude of the all active effects except abilities",
 	1,
-	1,
-	kParams_OneMagicEffect,
+	2,
+	kParams_GetTotalAE,
 	HANDLER(Cmd_GetTotalAENonAbilityMagnitude_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -738,8 +752,8 @@ CommandInfo kCommandInfo_GetTotalAEAbilityMagnitude =
 	0,
 	"returns the magnitude of the all active abilities",
 	1,
-	1,
-	kParams_OneMagicEffect,
+	2,
+	kParams_GetTotalAE,
 	HANDLER(Cmd_GetTotalAEAbilityMagnitude_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -753,8 +767,8 @@ CommandInfo kCommandInfo_GetTotalAESpellMagnitude =
 	0,
 	"returns the magnitude of the all active spells",
 	1,
-	1,
-	kParams_OneMagicEffect,
+	2,
+	kParams_GetTotalAE,
 	HANDLER(Cmd_GetTotalAESpellMagnitude_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -768,8 +782,8 @@ CommandInfo kCommandInfo_GetTotalAEDiseaseMagnitude =
 	0,
 	"returns the magnitude of the all active diseases",
 	1,
-	1,
-	kParams_OneMagicEffect,
+	2,
+	kParams_GetTotalAE,
 	HANDLER(Cmd_GetTotalAEDiseaseMagnitude_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -783,8 +797,8 @@ CommandInfo kCommandInfo_GetTotalAELesserPowerMagnitude =
 	0,
 	"returns the magnitude of the all active lesser powers",
 	1,
-	1,
-	kParams_OneMagicEffect,
+	2,
+	kParams_GetTotalAE,
 	HANDLER(Cmd_GetTotalAELesserPowerMagnitude_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -798,8 +812,8 @@ CommandInfo kCommandInfo_GetTotalAEPowerMagnitude =
 	0,
 	"returns the magnitude of the all active greater powers",
 	1,
-	1,
-	kParams_OneMagicEffect,
+	2,
+	kParams_GetTotalAE,
 	HANDLER(Cmd_GetTotalAEPowerMagnitude_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -813,8 +827,8 @@ CommandInfo kCommandInfo_GetTotalAEAllSpellsMagnitude =
 	0,
 	"returns the magnitude of the all active spells",
 	1,
-	1,
-	kParams_OneMagicEffect,
+	2,
+	kParams_GetTotalAE,
 	HANDLER(Cmd_GetTotalAEAllSpellsMagnitude_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -828,8 +842,8 @@ CommandInfo kCommandInfo_GetTotalAEEnchantmentMagnitude =
 	0,
 	"returns the magnitude of the all active enchantments",
 	1,
-	1,
-	kParams_OneMagicEffect,
+	2,
+	kParams_GetTotalAE,
 	HANDLER(Cmd_GetTotalAEEnchantmentMagnitude_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -844,8 +858,8 @@ CommandInfo kCommandInfo_GetTotalAEAlchemyMagnitude =
 	0,
 	"returns the magnitude of the all active alchemy items",
 	1,
-	1,
-	kParams_OneMagicEffect,
+	2,
+	kParams_GetTotalAE,
 	HANDLER(Cmd_GetTotalAEAlchemyMagnitude_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -859,12 +873,18 @@ CommandInfo kCommandInfo_GetTotalAEIngredientMagnitude =
 	0,
 	"returns the magnitude of the all active ingredients",
 	1,
-	1,
-	kParams_OneMagicEffect,
+	2,
+	kParams_GetTotalAE,
 	HANDLER(Cmd_GetTotalAEIngredientMagnitude_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0
+};
+
+static ParamInfo kParams_GetTotalAEC[2] =
+{
+	{	"int", kParamType_Integer, 0 },
+	{	"int", kParamType_Integer, 1 },
 };
 
 CommandInfo kCommandInfo_GetTotalActiveEffectMagnitudeC =
@@ -874,8 +894,8 @@ CommandInfo kCommandInfo_GetTotalActiveEffectMagnitudeC =
 	0,
 	"returns the magnitude of the all active effect",
 	1,
-	1,
-	kParams_OneInt,
+	2,
+	kParams_GetTotalAEC,
 	HANDLER(Cmd_GetTotalActiveEffectMagnitudeC_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -889,8 +909,8 @@ CommandInfo kCommandInfo_GetTotalAENonAbilityMagnitudeC =
 	0,
 	"returns the magnitude of the all active effects except abilities",
 	1,
-	1,
-	kParams_OneInt,
+	2,
+	kParams_GetTotalAEC,
 	HANDLER(Cmd_GetTotalAENonAbilityMagnitudeC_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -904,8 +924,8 @@ CommandInfo kCommandInfo_GetTotalAEAbilityMagnitudeC =
 	0,
 	"returns the magnitude of the all active abilities",
 	1,
-	1,
-	kParams_OneInt,
+	2,
+	kParams_GetTotalAEC,
 	HANDLER(Cmd_GetTotalAEAbilityMagnitudeC_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -919,8 +939,8 @@ CommandInfo kCommandInfo_GetTotalAESpellMagnitudeC =
 	0,
 	"returns the magnitude of the all active spells",
 	1,
-	1,
-	kParams_OneInt,
+	2,
+	kParams_GetTotalAEC,
 	HANDLER(Cmd_GetTotalAESpellMagnitudeC_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -934,8 +954,8 @@ CommandInfo kCommandInfo_GetTotalAEDiseaseMagnitudeC =
 	0,
 	"returns the magnitude of the all active diseases",
 	1,
-	1,
-	kParams_OneInt,
+	2,
+	kParams_GetTotalAEC,
 	HANDLER(Cmd_GetTotalAEDiseaseMagnitudeC_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -949,8 +969,8 @@ CommandInfo kCommandInfo_GetTotalAELesserPowerMagnitudeC =
 	0,
 	"returns the magnitude of the all active lesser powers",
 	1,
-	1,
-	kParams_OneInt,
+	2,
+	kParams_GetTotalAEC,
 	HANDLER(Cmd_GetTotalAELesserPowerMagnitudeC_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -964,8 +984,8 @@ CommandInfo kCommandInfo_GetTotalAEPowerMagnitudeC =
 	0,
 	"returns the magnitude of the all active greater powers",
 	1,
-	1,
-	kParams_OneInt,
+	2,
+	kParams_GetTotalAEC,
 	HANDLER(Cmd_GetTotalAEPowerMagnitudeC_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -979,8 +999,8 @@ CommandInfo kCommandInfo_GetTotalAEAllSpellsMagnitudeC =
 	0,
 	"returns the magnitude of the all active spells",
 	1,
-	1,
-	kParams_OneInt,
+	2,
+	kParams_GetTotalAEC,
 	HANDLER(Cmd_GetTotalAEAllSpellsMagnitudeC_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -994,8 +1014,8 @@ CommandInfo kCommandInfo_GetTotalAEEnchantmentMagnitudeC =
 	0,
 	"returns the magnitude of the all active enchantments",
 	1,
-	1,
-	kParams_OneInt,
+	2,
+	kParams_GetTotalAEC,
 	HANDLER(Cmd_GetTotalAEEnchantmentMagnitudeC_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -1010,8 +1030,8 @@ CommandInfo kCommandInfo_GetTotalAEAlchemyMagnitudeC =
 	0,
 	"returns the magnitude of the all active alchemy items",
 	1,
-	1,
-	kParams_OneInt,
+	2,
+	kParams_GetTotalAEC,
 	HANDLER(Cmd_GetTotalAEAlchemyMagnitudeC_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -1025,8 +1045,8 @@ CommandInfo kCommandInfo_GetTotalAEIngredientMagnitudeC =
 	0,
 	"returns the magnitude of the all active ingredients",
 	1,
-	1,
-	kParams_OneInt,
+	2,
+	kParams_GetTotalAEC,
 	HANDLER(Cmd_GetTotalAEIngredientMagnitudeC_Execute),
 	Cmd_Default_Parse,
 	NULL,

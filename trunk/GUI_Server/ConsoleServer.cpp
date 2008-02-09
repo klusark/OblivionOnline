@@ -19,7 +19,7 @@ This file is part of OblivionOnline.
 */
 
 #include "ConsoleServer.h"
-#include "OOPackets.h"
+#include "../OblivionOnline/OOPackets.h"
 #include "PacketHandler.h"
 #include "IOSystem.h"
 #include "Lua_Binding.h"
@@ -268,6 +268,7 @@ pthread_t threads;
 					GenericLog.DoOutput(LOG_MESSAGE,"Client %d closed the Connection\n",LocalPlayer);
 					if(LocalPlayer == MasterClient)
 					{
+						MasterClient = -1;
 						// Remove him and select a new master client
 						for(int i = 0;i < MAXCLIENTS;i++)
 						{

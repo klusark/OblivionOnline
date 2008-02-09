@@ -19,21 +19,21 @@
  *  is probably similar to how MessageBox works (ie. same range limitations).
  * -The string can be up to 511 characters long, not including the null byte.
  * -You can pass up to 9 variables, but you don't have to pass any at all.
+ *
+ * Updated v0014: Takes additional format specifiers as MessageEX/MessageBoxEX
+ * retains previous functionality
  */
 bool Cmd_PrintToConsole_Execute(COMMAND_ARGS)
 {
-	char fmtstring[BUFSIZ];
-	float f0, f1, f2, f3, f4, f5, f6, f7, f8;
+	*result = 0;
+	char buffer[512];
 
-	if (ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &fmtstring, &f0, &f1, &f2, &f3, &f4,
-					&f5, &f6, &f7, &f8))
+	if (ExtractFormattedString(buffer, arg1, scriptObj, eventList, opcodeOffsetPtr))
 	{
-		Console_Print (fmtstring, f0, f1, f2, f3, f4, f5, f6, f7, f8);
-
-#ifdef _DEBUG
-		_MESSAGE(fmtstring, f0, f1, f2, f3, f4, f5, f6, f7, f8);
-#endif
+		*result = 1;
+		Console_Print(buffer);
 	}
+
 	return true;
 }
 
@@ -110,20 +110,6 @@ bool Cmd_RunBatchScript_Execute(COMMAND_ARGS)
 	return true;
 }
 
-static bool Cmd_GetFormID_Execute(COMMAND_ARGS)
-{
-	TESForm* form = NULL;
-	*result = 0;
-
-	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
-	if (form)
-		*result = form->refID;
-	else if (thisObj)
-		*result = thisObj->refID;
-
-	return true;
-}
-
 #endif
 
 ParamInfo kParams_StringFormat[10] =
@@ -155,6 +141,31 @@ ParamInfo kParams_StringFormatFile[11] =
 	{"float", kParamType_Float, 1}
 };
 
+static ParamInfo kParams_Message[21] =
+{
+	{"format string",	kParamType_String, 0},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+	{"variable",		kParamType_Float, 1},
+};
+
 CommandInfo kCommandInfo_PrintToConsole =
 {
 	"PrintToConsole",
@@ -162,8 +173,8 @@ CommandInfo kCommandInfo_PrintToConsole =
 	0,
 	"Print formatted string to console",
 	0,
-	10,
-	kParams_StringFormat,
+	21,
+	kParams_Message,
 	HANDLER(Cmd_PrintToConsole_Execute),
 	Cmd_Default_Parse,
 	NULL,
@@ -200,16 +211,3 @@ CommandInfo kCommandInfo_RunBatchScript =
 	0
 };
 
-CommandInfo kCommandInfo_GetFormID =
-{
-	"GetFormID", "GetRefID",
-	0,
-	"returns the formID of an object or reference",
-	0,
-	1,
-	kParams_OneOptionalInventoryObject,
-	HANDLER(Cmd_GetFormID_Execute),
-	Cmd_Default_Parse,
-	NULL,
-	0
-};

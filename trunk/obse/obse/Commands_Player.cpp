@@ -335,17 +335,64 @@ static bool Cmd_GetClassSpecialization_Execute(COMMAND_ARGS)
 	return true;
 }
 
-static bool Cmd_ModActorValue2_Execute(COMMAND_ARGS)
+
+static bool Cmd_GetActorValueC_Execute(COMMAND_ARGS)
 {
-	UInt32	type;
-	int		amount;
+	UInt32	type = 0;
+
+	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &type)) return true;
+
+	if(thisObj && thisObj->IsActor())
+	{
+		Actor	* actor = (Actor *)thisObj;
+		*result = actor->GetActorValue(type);
+	}
+
+	return true;
+}
+
+static bool Cmd_GetBaseActorValueC_Execute(COMMAND_ARGS)
+{
+	UInt32	type = 0;
+
+	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &type)) return true;
+
+	if(thisObj && thisObj->IsActor())
+	{
+		Actor	* actor = (Actor *)thisObj;
+		*result = actor->GetBaseActorValue(type);
+	}
+
+	return true;
+}
+
+static bool Cmd_SetActorValueC_Execute(COMMAND_ARGS)
+{
+	UInt32	type = 0;
+	int		amount = 0;
 
 	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &type, &amount)) return true;
 
 	if(thisObj && thisObj->IsActor())
 	{
 		Actor	* actor = (Actor *)thisObj;
+		actor->SetActorValue(type, amount);
+	}
 
+	return true;
+}
+
+
+static bool Cmd_ModActorValue2_Execute(COMMAND_ARGS)
+{
+	UInt32	type = 0;
+	int		amount = 0;
+
+	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &type, &amount)) return true;
+
+	if(thisObj && thisObj->IsActor())
+	{
+		Actor	* actor = (Actor *)thisObj;
 		actor->ModActorBaseValue(type, amount, 0);
 	}
 
@@ -402,6 +449,22 @@ static bool Cmd_GetActorLightAmount_Execute(COMMAND_ARGS)
 	return true;
 }
 
+
+class PrintAnimation
+{
+public:
+	PrintAnimation() : index(0) {}
+	UInt32 index;
+
+	bool Accept(char* animName)
+	{
+		Console_Print("%d> %s", index, animName);
+		_MESSAGE("%d> %s", index, animName);
+		++index;
+		return true;
+	}
+};
+
 static bool Cmd_IsCreature_Execute(COMMAND_ARGS)
 {
 	*result = 0;
@@ -416,6 +479,11 @@ static bool Cmd_IsCreature_Execute(COMMAND_ARGS)
 
 	TESCreature* creature = (TESCreature*)Oblivion_DynamicCast(actorBase, 0, RTTI_TESActorBase, RTTI_TESCreature, 0);
 	if (creature) {
+//		AnimationVisitor visitor(&creature->animation.data);
+//		UInt32 animationCount = visitor.Count();
+//		Console_Print("%s has %d animations", actorBase->GetEditorName(), animationCount);
+//		PrintAnimation printer;
+//		visitor.Visit(printer);
 		*result = 1;
 	}
 	return true;
@@ -429,6 +497,16 @@ enum {
 	kCreature_Reach,
 	kCreature_BaseScale,
 	kCreature_SoulLevel,
+	kCreature_Walks,
+	kCreature_Swims,
+	kCreature_Flies,
+	kCreature_Biped,
+	kCreature_WeaponAndShield,
+	kCreature_NoHead,
+	kCreature_NoLArm,
+	kCreature_NoRArm,
+	kCreature_NoCombatInWater,
+	kCreature_NoMovement,
 };
 
 static bool GetCreatureValue(COMMAND_ARGS, UInt32 whichVal)
@@ -481,9 +559,67 @@ static bool GetCreatureValue(COMMAND_ARGS, UInt32 whichVal)
 			}
 		case kCreature_SoulLevel:
 			{
-				*result = (creature) ? creature->soulLevel : 0;
+				if (creature) {
+					*result = creature->soulLevel;
+				} else {
+					TESNPC* npc = (TESNPC*)Oblivion_DynamicCast(actorBase, 0, RTTI_TESActorBase, RTTI_TESNPC, 0);
+					if (npc) *result = 5;
+				}
 				break;
 			}
+
+		case kCreature_Walks:
+			{
+				*result = (creature && creature->actorBaseData.CreatureWalks()) ? 1 : 0;
+				break;
+			}
+
+		case kCreature_Swims:
+			{
+				*result = (creature && creature->actorBaseData.CreatureSwims()) ? 1 : 0;
+				break;
+			}
+		case kCreature_Flies:
+			{
+				*result = (creature && creature->actorBaseData.CreatureFlies()) ? 1 : 0;
+				break;
+			}
+		case kCreature_Biped:
+			{
+				*result = (creature && creature->actorBaseData.IsCreatureBiped()) ? 1 : 0;
+				break;
+			}
+		case kCreature_WeaponAndShield:
+			{
+				*result = (creature && creature->actorBaseData.CreatureHasWeaponAndShield()) ? 1 : 0;
+				break;
+			}
+		case kCreature_NoHead:
+			{
+				*result = (creature && creature->actorBaseData.CreatureHasNoHead()) ? 1 : 0;
+				break;
+			}
+		case kCreature_NoLArm:
+			{
+				*result = (creature && creature->actorBaseData.CreatureHasNoLeftArm()) ? 1 : 0;
+				break;
+			}
+		case kCreature_NoRArm:
+			{
+				*result = (creature && creature->actorBaseData.CreatureHasNoRightArm()) ? 1 : 0;
+				break;
+			}
+		case kCreature_NoCombatInWater:
+			{
+				*result = (creature && creature->actorBaseData.CreatureNoCombatInWater()) ? 1 : 0;
+				break;
+			}
+		case kCreature_NoMovement:
+			{
+				*result = (creature && creature->actorBaseData.CreatureHasNoMovement()) ? 1 : 0;
+				break;
+			}
+
 		default:
 			*result = 0;
 	}
@@ -523,6 +659,56 @@ static bool Cmd_GetCreatureBaseScale_Execute(COMMAND_ARGS)
 static bool Cmd_GetCreatureSoulLevel_Execute(COMMAND_ARGS)
 {
 	return GetCreatureValue(PASS_COMMAND_ARGS, kCreature_SoulLevel);
+}
+
+static bool Cmd_GetCreatureWalks_Execute(COMMAND_ARGS)
+{
+	return GetCreatureValue(PASS_COMMAND_ARGS, kCreature_Walks);
+}
+
+static bool Cmd_GetCreatureSwims_Execute(COMMAND_ARGS)
+{
+	return GetCreatureValue(PASS_COMMAND_ARGS, kCreature_Swims);
+}
+
+static bool Cmd_GetCreatureFlies_Execute(COMMAND_ARGS)
+{
+	return GetCreatureValue(PASS_COMMAND_ARGS, kCreature_Flies);
+}
+
+static bool Cmd_IsCreatureBiped_Execute(COMMAND_ARGS)
+{
+	return GetCreatureValue(PASS_COMMAND_ARGS, kCreature_Biped);
+}
+
+static bool Cmd_CreatureUsesWeaponAndShield_Execute(COMMAND_ARGS)
+{
+	return GetCreatureValue(PASS_COMMAND_ARGS, kCreature_WeaponAndShield);
+}
+
+static bool Cmd_CreatureHasNoHead_Execute(COMMAND_ARGS)
+{
+	return GetCreatureValue(PASS_COMMAND_ARGS, kCreature_NoHead);
+}
+
+static bool Cmd_CreatureHasNoLeftArm_Execute(COMMAND_ARGS)
+{
+	return GetCreatureValue(PASS_COMMAND_ARGS, kCreature_NoLArm);
+}
+
+static bool Cmd_CreatureHasNoRightArm_Execute(COMMAND_ARGS)
+{
+	return GetCreatureValue(PASS_COMMAND_ARGS, kCreature_NoRArm);
+}
+
+static bool Cmd_CreatureNoCombatInWater_Execute(COMMAND_ARGS)
+{
+	return GetCreatureValue(PASS_COMMAND_ARGS, kCreature_NoCombatInWater);
+}
+
+static bool Cmd_CreatureHasNoMovement_Execute(COMMAND_ARGS)
+{
+	return GetCreatureValue(PASS_COMMAND_ARGS, kCreature_NoMovement);
 }
 
 static bool Cmd_IsThirdPerson_Execute(COMMAND_ARGS)
@@ -607,6 +793,7 @@ enum {
 	kRace_BonusSkill,
 	kRace_IsBonusSkill,
 	kRace_NthBonusSkill,
+	kRace_NthSpell,
 };
 
 static bool GetRaceValue_Execute(COMMAND_ARGS, UInt32 whichVal)
@@ -652,6 +839,17 @@ static bool GetRaceValue_Execute(COMMAND_ARGS, UInt32 whichVal)
 				*result = race->GetNthBonusSkill(intVal);
 				break;
 			}
+		case kRace_NthSpell:
+			{
+				UInt32* refResult = (UInt32*)result;
+				SpellListVisitor visitor(&race->spells.spellList);
+				TESForm* form = visitor.GetNthInfo(intVal);
+				SpellItem* spell = (SpellItem*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_SpellItem, 0);
+				if (spell) {
+					*refResult = spell->refID;
+				}
+				break;
+			}
 
 	}
 	return true;
@@ -675,6 +873,28 @@ static bool Cmd_IsRaceBonusSkill_Execute(COMMAND_ARGS)
 static bool Cmd_GetNthRaceBonusSkill_Execute(COMMAND_ARGS)
 {
 	return GetRaceValue_Execute(PASS_COMMAND_ARGS, kRace_NthBonusSkill);
+}
+
+static bool Cmd_GetRaceSpellCount_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	TESRace* race = 0;
+	ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &race);
+	if (!race) {
+		if (!thisObj) return true;
+		TESNPC* npc = (TESNPC*)Oblivion_DynamicCast(thisObj->baseForm, 0, RTTI_TESForm, RTTI_TESNPC, 0);
+		if (!npc) return true;
+		race = npc->race.race;
+		if (!race) return true;
+	}
+	SpellListVisitor visitor(&race->spells.spellList);
+	*result = visitor.Count();
+	return true;
+}
+
+static bool Cmd_GetNthRaceSpell_Execute(COMMAND_ARGS)
+{
+	return GetRaceValue_Execute(PASS_COMMAND_ARGS, kRace_NthSpell);
 }
 
 static bool Cmd_GetMerchantContainer_Execute(COMMAND_ARGS)
@@ -974,6 +1194,460 @@ static bool Cmd_CopyHair_Execute(COMMAND_ARGS)
 	return true;
 }
 
+static bool Cmd_GetNumFollowers_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	if (!thisObj)
+		return true;
+
+	BSExtraData* xData = thisObj->baseExtraList.GetByType(kExtraData_Follower);
+	if (!xData)
+		return true;
+	
+	ExtraFollower* xFollower = (ExtraFollower*)Oblivion_DynamicCast(xData, 0, RTTI_BSExtraData, RTTI_ExtraFollower, 0);
+	if (xFollower)
+		*result = ExtraFollowerVisitor(xFollower->followers).Count();
+
+	return true;
+}
+
+static bool Cmd_GetNthFollower_Execute(COMMAND_ARGS)
+{
+	UInt32 idx = 0;
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &idx))
+		return true;
+
+	else if (!thisObj)
+		return true;
+
+	BSExtraData* xData = thisObj->baseExtraList.GetByType(kExtraData_Follower);
+	if (!xData)
+		return true;
+	
+	ExtraFollower* xFollowers = (ExtraFollower*)Oblivion_DynamicCast(xData, 0, RTTI_BSExtraData, RTTI_ExtraFollower, 0);
+	if (xFollowers)
+	{
+		Character* follower = ExtraFollowerVisitor(xFollowers->followers).GetNthInfo(idx);
+		if (follower)
+			*refResult = follower->refID;
+	}
+
+	return true;
+}
+
+static bool Cmd_GetCellMusicType_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	TESObjectCELL* curCell = (*g_thePlayer)->parentCell;
+
+	BSExtraData* xData = curCell->extraData.GetByType(kExtraData_CellMusicType);
+	if (xData)
+	{
+		ExtraCellMusicType* xMusic = (ExtraCellMusicType*)Oblivion_DynamicCast(xData, 0, RTTI_BSExtraData, RTTI_ExtraCellMusicType, 0);
+		if (xMusic)
+			*result = xMusic->musicType;
+	}
+
+	return true;
+}
+
+static TESActorBase* ExtractActorBase(COMMAND_ARGS)
+{
+	TESActorBase* actorBase = NULL;
+	TESForm* actorForm = NULL;
+
+	ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &actorForm);
+	if (!actorForm)
+		if (thisObj)
+			actorForm = thisObj->baseForm;
+
+	if (actorForm)
+	{
+		actorBase = (TESActorBase*)Oblivion_DynamicCast(actorForm, 0, RTTI_TESForm, RTTI_TESActorBase, 0);
+	}
+
+	return actorBase;
+}
+
+static bool Cmd_IsActorRespawning_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	TESActorBase* actorBase = ExtractActorBase(PASS_COMMAND_ARGS);
+	if (actorBase && actorBase->actorBaseData.IsRespawning())
+		*result = 1;
+
+	return true;
+}
+
+static bool Cmd_IsPCLevelOffset_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	TESActorBase* actorBase = ExtractActorBase(PASS_COMMAND_ARGS);
+	if (actorBase && actorBase->actorBaseData.IsPCLevelOffset())
+		*result = 1;
+
+	return true;
+}
+
+static bool Cmd_GetActorMinLevel_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	TESActorBase* actorBase = ExtractActorBase(PASS_COMMAND_ARGS);
+	if (actorBase && actorBase->actorBaseData.IsPCLevelOffset())
+	{
+		*result = actorBase->actorBaseData.minLevel;
+	}
+
+	return true;
+}
+
+static bool Cmd_GetActorMaxLevel_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	TESActorBase* actorBase = ExtractActorBase(PASS_COMMAND_ARGS);
+	if (actorBase && actorBase->actorBaseData.IsPCLevelOffset())
+	{
+		*result = actorBase->actorBaseData.maxLevel;
+	}
+
+	return true;
+}
+
+static bool Cmd_HasLowLevelProcessing_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	TESActorBase* actorBase = ExtractActorBase(PASS_COMMAND_ARGS);
+	if (actorBase && actorBase->actorBaseData.HasLowLevelProcessing())
+		*result = 1;
+
+	return true;
+}
+
+static bool Cmd_IsSummonable_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	TESActorBase* actorBase = ExtractActorBase(PASS_COMMAND_ARGS);
+	if (actorBase && actorBase->actorBaseData.IsSummonable())
+		*result = 1;
+
+	return true;
+}
+
+static bool Cmd_HasNoPersuasion_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	TESActorBase* actorBase = ExtractActorBase(PASS_COMMAND_ARGS);
+	if (actorBase && actorBase->actorBaseData.HasNoPersuasion())
+		*result = 1;
+
+	return true;
+}
+
+static bool Cmd_CanCorpseCheck_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	TESActorBase* actorBase = ExtractActorBase(PASS_COMMAND_ARGS);
+	if (actorBase && actorBase->actorBaseData.CanCorpseCheck())
+		*result = 1;
+
+	return true;
+}
+
+static bool Cmd_IsFemale_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	TESActorBase* actorBase = ExtractActorBase(PASS_COMMAND_ARGS);
+	if (actorBase && actorBase->actorBaseData.IsFemale())
+		*result = 1;
+
+	return true;
+}
+
+static TESActorBase* ExtractSetActorBase(COMMAND_ARGS, UInt32* bMod)
+{
+	TESActorBase* actorBase = NULL;
+	TESForm* actorForm = NULL;
+	*bMod = 0;
+
+	ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, bMod, &actorForm);
+	if (!actorForm)
+		if (thisObj)
+			actorForm = thisObj->baseForm;
+
+	if (actorForm)
+	{
+		actorBase = (TESActorBase*)Oblivion_DynamicCast(actorForm, 0, RTTI_TESForm, RTTI_TESActorBase, 0);
+	}
+	return actorBase;
+}
+
+static bool Cmd_SetFemale_Execute(COMMAND_ARGS)
+{
+	UInt32 bMod = 0;
+	*result = 0;
+	TESActorBase* actorBase = ExtractSetActorBase(PASS_COMMAND_ARGS, &bMod);
+	if (actorBase)
+	{
+		actorBase->actorBaseData.SetFemale(bMod ? true : false);
+		actorBase->MarkAsModified(TESActorBaseData::kModified_ActorBaseFlags);
+		*result = 1;
+	}
+
+	return true;
+}
+
+static bool Cmd_SetActorRespawns_Execute(COMMAND_ARGS)
+{
+	UInt32 bMod = 0;
+	*result = 0;
+	TESActorBase* actorBase = ExtractSetActorBase(PASS_COMMAND_ARGS, &bMod);
+	if (actorBase)
+	{
+		actorBase->actorBaseData.SetRespawning(bMod ? true : false);
+		actorBase->MarkAsModified(TESActorBaseData::kModified_ActorBaseFlags);
+		*result = 1;
+	}
+
+	return true;
+}
+
+static bool Cmd_SetLowLevelProcessing_Execute(COMMAND_ARGS)
+{
+	UInt32 bMod = 0;
+	*result = 0;
+	TESActorBase* actorBase = ExtractSetActorBase(PASS_COMMAND_ARGS, &bMod);
+	if (actorBase)
+	{
+		actorBase->actorBaseData.SetLowLevelProcessing(bMod ? true : false);
+		actorBase->MarkAsModified(TESActorBaseData::kModified_ActorBaseFlags);
+		*result = 1;
+	}
+
+	return true;
+}
+
+static bool Cmd_SetNoPersuasion_Execute(COMMAND_ARGS)
+{
+	UInt32 bMod = 0;
+	*result = 0;
+	TESActorBase* actorBase = ExtractSetActorBase(PASS_COMMAND_ARGS, &bMod);
+	if (actorBase)
+	{
+		actorBase->actorBaseData.SetNoPersuasion(bMod ? true : false);
+		actorBase->MarkAsModified(TESActorBaseData::kModified_ActorBaseFlags);
+		*result = 1;
+	}
+
+	return true;
+}
+
+static bool Cmd_SetSummonable_Execute(COMMAND_ARGS)
+{
+	UInt32 bMod = 0;
+	*result = 0;
+	TESActorBase* actorBase = ExtractSetActorBase(PASS_COMMAND_ARGS, &bMod);
+	if (actorBase)
+	{
+		actorBase->actorBaseData.SetSummonable(bMod ? true : false);
+		actorBase->MarkAsModified(TESActorBaseData::kModified_ActorBaseFlags);
+		*result = 1;
+	}
+
+	return true;
+}
+
+static bool Cmd_SetCanCorpseCheck_Execute(COMMAND_ARGS)
+{
+	UInt32 bMod = 0;
+	*result = 0;
+	TESActorBase* actorBase = ExtractSetActorBase(PASS_COMMAND_ARGS, &bMod);
+	if (actorBase)
+	{
+		actorBase->actorBaseData.SetCanCorpseCheck(bMod ? true : false);
+		actorBase->MarkAsModified(TESActorBaseData::kModified_ActorBaseFlags);
+		*result = 1;
+	}
+
+	return true;
+}
+
+static bool Cmd_SetPCLevelOffset_Execute(COMMAND_ARGS)
+{
+	UInt32 minLevel = -1;
+	UInt32 maxLevel = -1;
+	UInt32 bMod = 0;
+	TESActorBase* actorBase = NULL;
+	TESForm* actorForm = NULL;
+
+	ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &bMod, &minLevel, &maxLevel, &actorForm);
+	if (!actorForm)
+		if (thisObj)
+			actorForm = thisObj->baseForm;
+
+	if (actorForm)
+	{
+		actorBase = (TESActorBase*)Oblivion_DynamicCast(actorForm, 0, RTTI_TESForm, RTTI_TESActorBase, 0);
+	}
+
+	if (actorBase)
+	{
+		actorBase->actorBaseData.SetPCLevelOffset((bMod ? true : false), minLevel, maxLevel);
+		actorBase->MarkAsModified(TESActorBaseData::kModified_ActorBaseFlags);
+	}
+
+	return true;
+}
+
+static bool Cmd_GetPlayersLastRiddenHorse_Execute(COMMAND_ARGS)
+{
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if ((*g_thePlayer)->lastRiddenHorse)
+		*refResult = (*g_thePlayer)->lastRiddenHorse->refID;
+
+	return true;
+}
+
+static bool Cmd_GetHorse_Execute(COMMAND_ARGS)
+{
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (thisObj)
+	{
+		Character* actor = (Character*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_Character, 0);
+		if (actor && actor->horseOrRider)
+			*refResult = actor->horseOrRider->refID;
+	}
+
+	return true;
+}
+
+static bool Cmd_GetRider_Execute(COMMAND_ARGS)
+{
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (thisObj)
+	{
+		Creature* horse = (Creature*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_Creature, 0);
+		if (horse && horse->horseOrRider)
+			*refResult = horse->horseOrRider->refID;
+	}
+
+	return true;
+}
+
+static bool Cmd_GetPlayersLastActivatedLoadDoor_Execute(COMMAND_ARGS)
+{
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if ((*g_thePlayer)->lastActivatedLoadDoor)
+		*refResult = (*g_thePlayer)->lastActivatedLoadDoor->refID;
+
+	return true;
+}
+
+static bool Cmd_GetCreatureSoundBase_Execute(COMMAND_ARGS)
+{
+	TESActorBase* actorBase = 0;
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &actorBase))
+		return true;
+
+	if (!actorBase)
+		if (thisObj)
+			actorBase = (TESActorBase*)Oblivion_DynamicCast(thisObj->baseForm, 0, RTTI_TESForm, RTTI_TESActorBase, 0);
+
+	TESCreature* crea = (TESCreature*)Oblivion_DynamicCast(actorBase, 0, RTTI_TESActorBase, RTTI_TESCreature, 0);
+	if (crea && crea->soundBase)
+		*refResult = crea->soundBase->refID;
+
+	return true;
+}
+
+static bool Cmd_HasModel_Execute(COMMAND_ARGS)
+{
+	char nifPath[512];
+	TESActorBase* actorBase = 0;
+	*result = 0;
+
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &nifPath, &actorBase))
+		return true;
+
+	if (!actorBase)
+		if (thisObj)
+			actorBase = (TESActorBase*)Oblivion_DynamicCast(thisObj->baseForm, 0, RTTI_TESForm, RTTI_TESActorBase, 0);
+
+	TESCreature* crea = (TESCreature*)Oblivion_DynamicCast(actorBase, 0, RTTI_TESActorBase, RTTI_TESCreature, 0);
+	if (crea && crea->modelList.FindNifPath(nifPath))
+			*result = 1;
+
+
+	return true;
+}
+
+static bool Cmd_GetRace_Execute(COMMAND_ARGS)
+{
+	TESNPC* npc = 0;
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &npc))
+		return true;
+
+	if (!npc)
+	{
+		if (thisObj && (thisObj->baseForm->typeID == kFormType_NPC))
+			npc = (TESNPC*)Oblivion_DynamicCast(thisObj->baseForm, 0, RTTI_TESForm, RTTI_TESNPC, 0);
+		else
+			return true;
+	}
+
+	*refResult = npc->race.race->refID;
+	return true;
+}
+
+//WIP
+static bool Cmd_SetRace_Execute(COMMAND_ARGS)
+{
+	TESNPC* npc = NULL;
+	TESForm* raceArg = NULL;
+
+	if(!ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &raceArg, &npc))
+		return true;
+
+	if (!npc)
+		if (thisObj)
+			npc = (TESNPC*)Oblivion_DynamicCast(thisObj->baseForm, 0, RTTI_TESForm, RTTI_TESNPC, 0);
+
+	TESRace* newRace = (TESRace*)Oblivion_DynamicCast(raceArg, 0, RTTI_TESForm, RTTI_TESRace, 0);
+	if (newRace && npc)
+	{
+		npc->race.race = newRace;
+		Console_Print("Changed Race");
+	}
+
+	return true;
+}
+
 #endif
 
 CommandInfo kCommandInfo_GetActiveSpell =
@@ -1214,18 +1888,70 @@ static ParamInfo kParams_ModActorValue2[2] =
 
 CommandInfo kCommandInfo_ModActorValue2 =
 {
-	"ModActorValue2",
-	"ModAV2",
+	"ModActorValue2", "ModAV2",
 	0,
 	"Modify an actor's value in a non-permanent fashion. [player.modabv luck, -10]",
-	1,
-	2,
-	kParams_ModActorValue2,
+	1, 2, kParams_ModActorValue2, 
 	HANDLER(Cmd_ModActorValue2_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0
 };
+
+CommandInfo kCommandInfo_GetActorValueC =
+{
+	"GetActorValueC", "GetAVC",
+	0,
+	"Return an actor's value by code",
+	1, 1, kParams_OneInt, 
+	HANDLER(Cmd_GetActorValueC_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetBaseActorValueC =
+{
+	"GetBaseActorValueC", "GetBAVC",
+	0,
+	"Return an actor's base value by code",
+	1, 1, kParams_OneInt, 
+	HANDLER(Cmd_GetBaseActorValueC_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+static ParamInfo kParams_SetModActorValueC[2] = 
+{
+	{	"actor value", kParamType_Integer, 0 }, 
+	{	"amount", kParamType_Integer, 0 },
+};
+
+CommandInfo kCommandInfo_SetActorValueC =
+{
+	"SetActorValueC", "SetAVC",
+	0,
+	"Set an actor's value by code. ",
+	1, 2, kParams_SetModActorValueC, 
+	HANDLER(Cmd_SetActorValueC_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_ModActorValueC =
+{
+	"ModActorValueC", "ModAVC",
+	0,
+	"Modify an actor's value in a non-permanent fashion.",
+	1, 2, kParams_SetModActorValueC, 
+	HANDLER(Cmd_ModActorValue2_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
 
 CommandInfo kCommandInfo_IsRefEssential =
 {
@@ -1384,19 +2110,135 @@ CommandInfo kCommandInfo_GetCreatureReach =
 
 CommandInfo kCommandInfo_GetCreatureSoulLevel =
 {
-	"GetCreatureSoulLevel",
-	"",
+	"GetCreatureSoulLevel", "GetActorSoulLevel",
 	0,
-	"returns the soul level of the calling creature or passed refID",
-	0,
-	1,
-	kParams_OneOptionalActorBase,
+	"returns the soul level of the calling actor or passed refID",
+	0, 1, kParams_OneOptionalActorBase,
 	HANDLER(Cmd_GetCreatureSoulLevel_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0
 };
 
+CommandInfo kCommandInfo_GetCreatureWalks =
+{
+	"GetCreatureWalks", "CreatureWalks",
+	0,
+	"returns 1 if the calling creature or creature refID has the Walk flag",
+	0, 1, kParams_OneOptionalActorBase,
+	HANDLER(Cmd_GetCreatureWalks_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetCreatureFlies =
+{
+	"GetCreatureFlies", "CreatureFlies",
+	0,
+	"returns 1 if the calling creature or creature refID has the Flies flag",
+	0, 1, kParams_OneOptionalActorBase,
+	HANDLER(Cmd_GetCreatureFlies_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetCreatureSwims =
+{
+	"GetCreatureSwims", "CreatureSwims",
+	0,
+	"returns 1 if the calling creature or creature refID has the Swims flag",
+	0, 1, kParams_OneOptionalActorBase,
+	HANDLER(Cmd_GetCreatureSwims_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_IsCreatureBiped =
+{
+	"IsCreatureBiped", "IsBiped",
+	0,
+	"returns 1 if the calling creature or creature refID is marked as a biped",
+	0, 1, kParams_OneOptionalActorBase,
+	HANDLER(Cmd_IsCreatureBiped_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_CreatureHasNoMovement =
+{
+	"CreatureHasNoMovement", "",
+	0,
+	"returns 1 if the calling creature or creature refID has the None movement flag",
+	0, 1, kParams_OneOptionalActorBase,
+	HANDLER(Cmd_CreatureHasNoMovement_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_CreatureHasNoHead =
+{
+	"CreatureHasNoHead", "",
+	0,
+	"returns 1 if the calling creature or creature refID has the NoHead flag",
+	0, 1, kParams_OneOptionalActorBase,
+	HANDLER(Cmd_CreatureHasNoHead_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_CreatureHasNoLeftArm =
+{
+	"CreatureHasNoLeftArm", "",
+	0,
+	"returns 1 if the calling creature or creature refID has the NoLeftArm flag",
+	0, 1, kParams_OneOptionalActorBase,
+	HANDLER(Cmd_CreatureHasNoLeftArm_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_CreatureHasNoRightArm =
+{
+	"CreatureHasNoRightArm", "",
+	0,
+	"returns 1 if the calling creature or creature refID has the NoRightArm flag",
+	0, 1, kParams_OneOptionalActorBase,
+	HANDLER(Cmd_CreatureHasNoRightArm_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_CreatureNoCombatInWater =
+{
+	"CreatureNoCombatInWater", "",
+	0,
+	"returns 1 if the calling creature or creature refID has the NoCombatInWater flag",
+	0, 1, kParams_OneOptionalActorBase,
+	HANDLER(Cmd_CreatureNoCombatInWater_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_CreatureUsesWeaponAndShield =
+{
+	"CreatureUsesWeaponAndShield", "",
+	0,
+	"returns 1 if the calling creature or creature refID has the WeaponAndShield flag",
+	0, 1, kParams_OneOptionalActorBase,
+	HANDLER(Cmd_CreatureUsesWeaponAndShield_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
 
 CommandInfo kCommandInfo_IsThirdPerson =
 {
@@ -1626,6 +2468,41 @@ CommandInfo kCommandInfo_GetNthRaceBonusSkill =
 	0
 };
 
+static ParamInfo kParams_OneOptionalRace[1] =
+{
+	{	"race", kParamType_Race, 1 },
+};
+
+
+CommandInfo kCommandInfo_GetRaceSpellCount =
+{
+	"GetRaceSpellCount",
+	"",
+	0,
+	"returns the number of spells provided by the race",
+	0,
+	1,
+	kParams_OneOptionalRace,
+	HANDLER(Cmd_GetRaceSpellCount_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetNthRaceSpell =
+{
+	"GetNthRaceSpell",
+	"",
+	0,
+	"returns the nth spell of the race",
+	0,
+	2,
+	kParams_GetRaceValueC,
+	HANDLER(Cmd_GetNthRaceSpell_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
 
 CommandInfo kCommandInfo_GetMerchantContainer =
 {
@@ -1857,6 +2734,431 @@ CommandInfo kCommandInfo_SetEyes =
 	2,
 	kParams_SetNPCBodyData,
 	HANDLER(Cmd_SetEyes_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetNumFollowers =
+{
+	"GetNumFollowers", "", 0,
+	"returns the number of characters following the calling actor",
+	1, 0, NULL,
+	HANDLER(Cmd_GetNumFollowers_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetNthFollower =
+{
+	"GetNthFollower", "", 0,
+	"returns the nth actor following the calling actor",
+	1,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_GetNthFollower_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetCellMusicType =
+{
+	"GetCellMusicType", "GetMusicType", 0,
+	"returns the music type associated with the player's current cell",
+	0, 0, NULL,
+	HANDLER(Cmd_GetCellMusicType_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+static ParamInfo kParams_GetActorBaseFlag[1] =
+{
+	{	"base actor",	kParamType_ActorBase,	1	},
+};
+
+static ParamInfo kParams_SetActorBaseFlag[2] =
+{
+	{	"bool",			kParamType_Integer,		0	},
+	{	"base actor",	kParamType_ActorBase,	1	},
+};
+
+static ParamInfo kParams_SetPCLevelOffset[4] =
+{
+	{	"bool",			kParamType_Integer,		0	},
+	{	"min level",	kParamType_Integer,		1	},
+	{	"max level",	kParamType_Integer,		1	},
+	{	"base actor",	kParamType_ActorBase,	1	},
+};
+
+CommandInfo kCommandInfo_IsActorRespawning =
+{
+	"IsActorRespawning",
+	"",
+	0,
+	"returns true if the actor respawns",
+	0,
+	1,
+	kParams_GetActorBaseFlag,
+	HANDLER(Cmd_IsActorRespawning_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_IsPCLevelOffset =
+{
+	"IsPCLevelOffset",
+	"",
+	0,
+	"returns true if the actor's level is relative to the player's level",
+	0,
+	1,
+	kParams_GetActorBaseFlag,
+	HANDLER(Cmd_IsPCLevelOffset_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_HasLowLevelProcessing =
+{
+	"HasLowLevelProcessing",
+	"HasLowLevProc",
+	0,
+	"returns true if the actor has low level processing",
+	0,
+	1,
+	kParams_GetActorBaseFlag,
+	HANDLER(Cmd_HasLowLevelProcessing_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_IsSummonable =
+{
+	"IsSummonable",
+	"",
+	0,
+	"returns true if the actor is summonable",
+	0,
+	1,
+	kParams_GetActorBaseFlag,
+	HANDLER(Cmd_IsSummonable_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_HasNoPersuasion =
+{
+	"HasNoPersuasion",
+	"",
+	0,
+	"returns true if the actor has no persuasion",
+	0,
+	1,
+	kParams_GetActorBaseFlag,
+	HANDLER(Cmd_HasNoPersuasion_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_CanCorpseCheck =
+{
+	"CanCorpseCheck",
+	"",
+	0,
+	"returns true if the actor can corpse check",
+	0,
+	1,
+	kParams_GetActorBaseFlag,
+	HANDLER(Cmd_CanCorpseCheck_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_IsFemale =
+{
+	"IsFemale", "",
+	0,
+	"returns true if the actor is female",
+	0,
+	1,
+	kParams_GetActorBaseFlag,
+	HANDLER(Cmd_IsFemale_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetActorMinLevel =
+{
+	"GetActorMinLevel",
+	"GetMinLevel",
+	0,
+	"returns the minimum level of the actor",
+	0,
+	1,
+	kParams_GetActorBaseFlag,
+	HANDLER(Cmd_GetActorMinLevel_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetActorMaxLevel =
+{
+	"GetActorMaxLevel",
+	"GetMaxLevel",
+	0,
+	"returns the maximum level of the actor",
+	0,
+	1,
+	kParams_GetActorBaseFlag,
+	HANDLER(Cmd_GetActorMaxLevel_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetFemale =
+{
+	"SetFemale",
+	"",
+	0,
+	"toggles female flag on the actor",
+	0,
+	2,
+	kParams_SetActorBaseFlag,
+	HANDLER(Cmd_SetFemale_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetActorRespawns =
+{
+	"SetActorRespawns",
+	"",
+	0,
+	"toggles respawn flag on the actor",
+	0,
+	2,
+	kParams_SetActorBaseFlag,
+	HANDLER(Cmd_SetActorRespawns_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetLowLevelProcessing =
+{
+	"SetLowLevelProcessing",
+	"SetLowLevProc",
+	0,
+	"toggles low level processing flag on the actor",
+	0,
+	2,
+	kParams_SetActorBaseFlag,
+	HANDLER(Cmd_SetLowLevelProcessing_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetSummonable =
+{
+	"SetSummonable",
+	"",
+	0,
+	"toggles summonable flag on the actor",
+	0,
+	2,
+	kParams_SetActorBaseFlag,
+	HANDLER(Cmd_SetSummonable_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetNoPersuasion =
+{
+	"SetNoPersuasion",
+	"",
+	0,
+	"toggles no persuasion flag on the actor",
+	0,
+	2,
+	kParams_SetActorBaseFlag,
+	HANDLER(Cmd_SetNoPersuasion_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetCanCorpseCheck =
+{
+	"SetCanCorpseCheck",
+	"SetCorpseCheck",
+	0,
+	"toggles can corpse check flag on the actor",
+	0,
+	2,
+	kParams_SetActorBaseFlag,
+	HANDLER(Cmd_SetCanCorpseCheck_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetPCLevelOffset =
+{
+	"SetPCLevelOffset",
+	"",
+	0,
+	"toggles PC level offset flag and optionally sets min/max levels",
+	0,
+	4,
+	kParams_SetPCLevelOffset,
+	HANDLER(Cmd_SetPCLevelOffset_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetHorse =
+{
+	"GetHorse", "",
+	0,
+	"returns a reference to the horse currently ridden by the calling actor",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_GetHorse_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetRider =
+{
+	"GetRider", "",
+	0,
+	"returns a reference to the actor currently riding the calling horse",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_GetRider_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetPlayersLastRiddenHorse =
+{
+	"GetPlayersLastRiddenHorse", "GetPCLastHorse",
+	0,
+	"returns the last horse ridden by the player",
+	0,
+	0,
+	NULL,
+	HANDLER(Cmd_GetPlayersLastRiddenHorse_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetPlayersLastActivatedLoadDoor =
+{
+	"GetPlayersLastActivatedLoadDoor", "GetPCLastLoadDoor",
+	0,
+	"returns the last load door activated by the player",
+	0,
+	0,
+	NULL,
+	HANDLER(Cmd_GetPlayersLastActivatedLoadDoor_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetCreatureSoundBase =
+{
+	"GetCreatureSoundBase", "",
+	0,
+	"returns the creature from which the specified creature's sounds are derived",
+	0,
+	1,
+	kParams_OneOptionalActorBase,
+	HANDLER(Cmd_GetCreatureSoundBase_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+static ParamInfo kParams_OneStringOneOptionalActorBase[2] =
+{
+	{	"model path",	kParamType_String,		0	},
+	{	"creature",		kParamType_ActorBase,	1	},
+};
+
+CommandInfo kCommandInfo_HasModel =
+{
+	"HasModel",
+	"",
+	0,
+	"returns 1 if the creature has the specified model path",
+	0,
+	2,
+	kParams_OneStringOneOptionalActorBase,
+	HANDLER(Cmd_HasModel_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+static ParamInfo kParams_OneNPC[1] =
+{
+	{	"NPC",	kParamType_NPC,	1	},
+};
+
+CommandInfo kCommandInfo_GetRace =
+{
+	"GetRace",
+	"",
+	0,
+	"returns the race of the specified NPC",
+	0,
+	1,
+	kParams_OneNPC,
+	HANDLER(Cmd_GetRace_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+static ParamInfo kParams_SetRace[2] =
+{
+	{	"race",	kParamType_InventoryObject,	0	},
+	{	"NPC",	kParamType_NPC,				1	},
+};
+
+CommandInfo kCommandInfo_SetRace =
+{
+	"SetRace",
+	"",
+	0,
+	"sets the race of the specified NPC",
+	0,
+	2,
+	kParams_SetRace,
+	HANDLER(Cmd_SetRace_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0

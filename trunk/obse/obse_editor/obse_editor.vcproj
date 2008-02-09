@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="shift_jis"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="obse_editor"
 	ProjectGUID="{AE98B269-67B4-4B3E-B4C8-6274F48282E8}"
 	RootNamespace="obse_editor"
+	SccProjectName="Perforce Project"
+	SccLocalPath="..\.."
+	SccProvider="MSSCCI:Perforce SCM"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -372,6 +375,14 @@
 			</File>
 			<File
 				RelativePath="..\obse\Commands_Console.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_Faction.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_Faction.h"
 				>
 			</File>
 			<File

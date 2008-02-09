@@ -231,7 +231,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\OOPackets.h"
+				RelativePath="..\OblivionOnline\OOPackets.h"
 				>
 			</File>
 			<File

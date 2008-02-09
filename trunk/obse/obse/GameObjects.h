@@ -304,6 +304,7 @@ class EffectItem;
 class ActiveEffect;
 class DialoguePackage;
 class Creature;
+class BoltShaderProperty;
 
 // 00C
 class MagicCaster
@@ -432,7 +433,8 @@ public:
 
 	enum
 	{
-		kFlags_Persistent = 0x400,		//shared bit with kFormFlags_QuestItem
+		kFlags_Persistent	= 0x00000400,		//shared bit with kFormFlags_QuestItem
+		kFlags_Taken		= 0x00000022,		//2 bits, both set when picked up by NPC/PC - need to figure out what each means
 	};
 
 	TESObjectREFR();
@@ -495,10 +497,14 @@ public:
 										// U8(typeInfo + 4) == 0x23 is true if the object is a character
 	float	rotX, rotY, rotZ;		// 020 - either public or accessed via simple inline accessor common to all child classes
 	float	posX, posY, posZ;		// 02C - seems to be private
-	float	unk038;					// 038 - scale?
+	float	scale;					// 038 
 	NiNode	* niNode;				// 03C
 	TESObjectCELL	* parentCell;	// 040
 	BaseExtraList	baseExtraList;	// 044
+
+	ScriptEventList* GetEventList() const;
+	bool IsTaken() const
+		{	return ((flags & kFlags_Taken) == kFlags_Taken) ? true : false;	}
 };
 
 // 05C+
@@ -569,7 +575,7 @@ public:
 	virtual void	Unk_8F(void) = 0;
 	virtual void	Unk_90(void) = 0;	// 90
 	virtual void	Unk_91(void) = 0;
-	virtual void	Unk_92(void) = 0;
+	virtual void	Unk_92(void) = 0;	// SendTrespassAlarm
 	virtual void	Unk_93(void) = 0;
 	virtual void	Unk_94(void) = 0;
 	virtual void	Unk_95(void) = 0;
@@ -587,7 +593,7 @@ public:
 	virtual UInt32	GetActorValue(UInt32 id) = 0;
 	virtual void	Unk_A2(void) = 0;
 	virtual void	Unk_A3(void) = 0;
-	virtual void	Unk_A4(void) = 0;
+	virtual void	SetActorValue(UInt32 value, UInt32 amount) = 0;
 	virtual void	Unk_A5(void) = 0;
 	virtual void	Unk_A6(void) = 0;
 	virtual void	Unk_A7(void) = 0;
@@ -629,7 +635,7 @@ public:
 	virtual void	Unk_CB(void) = 0;
 	virtual void	Unk_CC(void) = 0;	// get combat controller
 	virtual bool	IsInCombat(bool unk) = 0;	// is in combat?
-	virtual void	Unk_CE(void) = 0;
+	virtual TESForm *	GetCombatTarget(void) = 0;
 	virtual void	Unk_CF(void) = 0;
 	virtual void	Unk_D0(void) = 0;	// D0
 	virtual void	Unk_D1(void) = 0;
@@ -664,6 +670,7 @@ public:
 	virtual void	Unk_EE(void) = 0;
 
 	void	EquipItem(TESObjectREFR * objType, UInt32 unk1, UInt32 unk2, UInt32 unk3, bool lockEquip);
+	UInt32	GetBaseActorValue(UInt32 value);
 
 	// 8
 	struct Unk09C
@@ -706,7 +713,8 @@ public:
 	UInt32			unk0AC[(0x0CC - 0x0AC) >> 2];	// 0AC
 	TESObjectREFR	* unk0CC;						// 0CC
 	UInt32			unk0D0;							// 0D0
-	Character		* unk0D4;						// 0D4
+	Actor			* horseOrRider;					// 0D4 - For Character, currently ridden horse
+														 //- For horse (Creature), currently riding Character	
 	UInt32			unk0D8[(0x0E4 - 0x0D8) >> 2];	// 0D8
 	Actor			* unk0E4;						// 0E4
 	UInt32			unk0E8[(0x104 - 0x0E8) >> 2];	// 0E8
@@ -797,6 +805,8 @@ public:
 	// [ data ]
 	// +11C haggle amount?
 	// +588 UInt8, bit 0x01 is true if we're in third person?
+	// +590 UInt8, is time passing?
+	// +5A9 UInt8, fast travel disabled
 	// +658	UInt32, misc stat array
 	// +70C	'initial state' buffer
 
@@ -805,9 +815,9 @@ public:
 	UInt32		unk11C[(0x130 - 0x11C) >> 2];	// 11C
 	float		skillAdv[21];					// 130
 	UInt32		unk184[(0x1E0 - 0x184) >> 2];	// 184
-	Creature	* unk1E0;						// 1E0
+	Creature	* lastRiddenHorse;				// 1E0
 	UInt32		unk1E4[(0x570 - 0x1E4) >> 2];	// 1E4
-	TESObjectREFR	* unk570;					// 570
+	TESObjectREFR	* lastActivatedLoadDoor;	// 570	-most recently activated load door
 	UInt32		unk574[(0x588 - 0x574) >> 2];	// 574
 	UInt8		isThirdPerson;					// 588
 	UInt8		pad589[3];						// 589
@@ -877,3 +887,104 @@ public:
 };
 
 STATIC_ASSERT(sizeof(Sky) == 0x104);
+
+enum
+{
+	kProjectileType_Arrow,
+	kProjectileType_Ball,
+	kProjectileType_Fog,
+	kProjectileType_Bolt,
+};							//arbitrary
+
+struct MagicProjectileData
+{
+	float			speed;				// base speed * GMST fMagicProjectileBaseSpeed
+	float			distanceTraveled;	// speed * elapsedTime while in flight
+	float			elapsedTime;		// length of time projectile has existed
+	MagicCaster		* caster;			// whoever/whatever cast the spell
+										// For NonActorMagicCaster, != casting reference
+	MagicItem		* magicItem;		//can always cast to SpellItem?
+	UInt32			unk070;				
+	EffectSetting	* effectSetting;		
+};
+
+//90
+class MagicBallProjectile : public MobileObject
+{
+public:
+	MagicBallProjectile();
+	~MagicBallProjectile();
+
+	MagicProjectileData	data;				//05C
+	float				unk078;				//078
+	UInt32				unk07C;				//07C
+	UInt32				unk080;				//080 - looks like flags - (1 in flight, 2 hit target?)
+	float				unk084;				//084 - value changes after projectile hits something 
+	UInt32				unk088;				//088
+	UInt32				unk08C;				//08C
+};
+
+//9C
+class MagicFogProjectile : public MobileObject
+{
+public:
+	MagicFogProjectile();
+	~MagicFogProjectile();
+
+	MagicProjectileData	data;				//05C
+	float				unk078;				//078
+	float				unk07C;				//07C
+	float				unk080;				//080
+	float				unk084;				//084
+	UInt32				unk088;				//088 - looks like flags - (0 in flight, 1 hit target?)
+	float				unk08C;				//08C
+	UInt32				unk090;				//090 - pointer?
+	UInt32				unk094;				//094
+	UInt32				unk098;				//098 - pointer?
+};
+
+//A4
+class MagicBoltProjectile : public MobileObject
+{
+public:
+	MagicBoltProjectile();
+	~MagicBoltProjectile();
+
+	MagicProjectileData	data;				//05C
+	float				unk078;				//078
+	BoltShaderProperty	* boltShaderProperty;//07C
+	UInt32				unk080;				//080
+	UInt32				unk084;				//084
+	NiNode				* niNode088;		//088
+	UInt32				unk08C;				//08C
+	UInt32				unk090;				//090
+	NiNode				* niNode094;		//094
+	UInt32				unk098;				//098
+	UInt32				unk09C;				//09C - pointer?
+	UInt32				unk0A0;				//0A0
+};
+
+//9C
+class ArrowProjectile : public MobileObject
+{
+public:
+	ArrowProjectile();
+	~ArrowProjectile();
+
+	UInt32			unk05C;			//05C
+	UInt32			unk060;			//060
+	float			unk064;			//064
+	float			unk068;			//068
+	float			speed;			//06C - base speed * GMST fArrowSpeedMult
+	float			unk070;			//070
+	float			unk074;			//074
+	Actor			* shooter;		//078;
+	EnchantmentItem	* arrowEnch;	//07C
+	EnchantmentItem	* bowEnch;		//080
+	AlchemyItem		* poison;		//084
+	float			unk088;			//088
+	float			unk08C;			//08C
+	float			unk090;			//090
+	UInt32			unk094;			//094
+	UInt32			unk098;			//098
+};

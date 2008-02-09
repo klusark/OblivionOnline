@@ -49,7 +49,8 @@ typedef HRESULT (WINAPI *DirectInput8Create_t)(HINSTANCE hinst, DWORD dwVersion,
 HRESULT WINAPI MyDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut,
 									LPUNKNOWN punkOuter);
 DirectInput8Create_t old_DirectInput8Create;
-
+bool bTypeMode;
+WCHAR cIgnoredChars[20];
 HOOKFUNCDESC DirectInput8CreateHook[2] = 
 {
 {
@@ -69,15 +70,17 @@ HOOKFUNCDESC RestoreHook2[2] =
 
 LRESULT CALLBACK kbdhook( int ncode,WPARAM wparam,LPARAM lparam)
 {
-  if(ncode>=0)
-  {
-		BYTE KeyState[256];
-		GetKeyboardState(KeyState);
-		wchar_t Keys[20];
-		for(int i=0;i<ToUnicode(wparam,(WORD)(lparam >> 16),KeyState,Keys,20,0);i++)
-		{
-			CEGUI::System::getSingleton().injectChar(Keys[i]);
-		}
+	_MESSAGE("Win32 Hook called");
+if(ncode>=0)
+{
+	BYTE KeyState[256];
+	GetKeyboardState(KeyState);
+	wchar_t Keys[20];
+	for(int i=0;i<ToUnicode(wparam,(WORD)(lparam >> 16),KeyState,Keys,20,0);i++)
+	{
+		CEGUI::System::getSingleton().injectChar(Keys[i]);
+	}
+
   }
   //pass control to next hook.
   return ( CallNextHookEx(hook,ncode,wparam,lparam) );
@@ -93,9 +96,10 @@ HRESULT WINAPI MyDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID rii
 }
 extern "C" int SetInputHooks()
 {
+	_MESSAGE("Setting up Input hooks");
 	UINT HookedFunctions;
-	 HookImportedFunctionsByNameA(GetModuleHandle(0),"DINPUT8.DLL",1,DirectInput8CreateHook,(PROC *)old_DirectInput8Create,&HookedFunctions);
-	 hook = SetWindowsHookEx(WH_KEYBOARD,kbdhook,hDll,0);
+	HookImportedFunctionsByNameA(GetModuleHandle(0),"DINPUT8.DLL",1,DirectInput8CreateHook,(PROC *)old_DirectInput8Create,&HookedFunctions);
+	hook = SetWindowsHookEx(WH_KEYBOARD,kbdhook,hDll,0);
 	return false;
 }
 int UnSetInputHooks()

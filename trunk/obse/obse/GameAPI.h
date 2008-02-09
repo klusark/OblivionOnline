@@ -53,6 +53,8 @@ typedef bool (* _ExtractArgs)(ParamInfo * paramInfo, void * arg1, UInt32 * arg2,
 extern const _ExtractArgs ExtractArgs;
 
 bool ExtractArgsEx(ParamInfo * paramInfo, void * scriptData, UInt32 * scriptDataOffset, Script * scriptObj, ScriptEventList * eventList, ...);
+bool ExtractFormattedString(char* buffer, void* arg1, Script* scriptObj, ScriptEventList* eventList, UInt32* opcodeOffsetPtr);
+bool ExtractFloat(double &out, UInt8 * &scriptData, Script *scriptObj, ScriptEventList *eventList);
 
 typedef TESForm * (* _CreateFormInstance)(UInt8 type);
 extern const _CreateFormInstance CreateFormInstance;
@@ -739,6 +741,9 @@ enum {
 	kActorVal_OblivionMax,
 };
 
+extern char*** g_baseActorValueNames;		//those with an associated game setting string
+extern char** g_extraActorValueNames;		//MagickaMultiplier .. ResistWaterDamage (unchangeable)
+const char* GetActorValueString(UInt32 actorValue);
 bool IsValidActorValue(UInt32 actorValue);
 
 UInt32 SafeModUInt32(UInt32 originalVal, float modBy);

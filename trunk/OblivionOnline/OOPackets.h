@@ -78,6 +78,7 @@ struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE
 	short PlayerID; // 0 for client
 	WORD wVersion; // LowerByte contains subversion ( or bugfix ) Higher Byte contains major release
 	GUID guidOblivionOnline; // contains OblivionOnline GUID , this is once defined by me and never to be changed.
+	char ServerName[128];
 	char NickName[32]; // ignored when sent by client
 	char Password[32]; // will be encrypted later
 };
