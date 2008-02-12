@@ -731,6 +731,45 @@ bool ExtractFloat(double& out, UInt8* &scriptData, Script* scriptObj, ScriptEven
 	return ret;
 }
 
+const char* DXDescriptions[221] =
+{
+	0,		"ESC",	"1",	"2",	"3",	"4",	"5",	"6",	"7",	"8",	"9",	"0",
+	"-",	"=",	"BKSPC","TAB",	"Q",	"W",	"E",	"R",	"T",	"Y",	"U",	"I",
+	"O",	"P",	"[",	"]",	"ENTER","LCTRL","A",	"S",	"D",	"F",	"G",	"H",
+	"J",	"K",	"L",	";",	"'",	"~",	"LSHFT","\\",	"Z",	"X",	"C",	"V",
+	"B",	"N",	"M",	",",	".",	"/",	"RSHFT","NUM*",	"LALT",	"SPACE","CAPS",	"F1",
+	"F2",	"F3",	"F4",	"F5",	"F6",	"F7",	"F8",	"F9",	"F10",	"NUMLK","SCRLK","NUM7",
+	"NUM8",	"NUM9",	"NUM-",	"NUM4",	"NUM5",	"NUM6",	"NUM+",	"NUM1",	"NUM2",	"NUM3",	"NUM0",	"NUM.",
+	0,	0,	0,		
+	"F11",	"F12",	
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	"F13",	"F14",	"F15",	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0,	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+	"NUMENTER", "RCTRL",	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	
+	"NUM/",	0, 0, "RALT",	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+	"HOME", "UP",	"PGUP",	0,	"LEFT",	0,	"RIGHT",	0,	"END",	"DOWN",	"PGDN",	"INS",	"DEL",
+	0, 0, 0, 0, 0, 0, 0, 
+	"LWIN",	"RWIN"
+};
+
+const char* DXMouseDescriptions[9] = 
+{
+	"LMB",	"LMB",	"RMB",	"MMB",	"XMB1",	"XMB2",	"XMB3",	"XMB4",	"XMB5"
+};
+
+const char* GetDXDescription(UInt32 keycode)
+{
+	const char* ret = 0;
+	if (keycode <= 220)
+		ret =  DXDescriptions[keycode];
+	else if (255 <= keycode && keycode <= 263)
+		ret = DXMouseDescriptions[keycode - 255];
+	
+	if (!ret)
+		ret = "Nothing";
+
+	return ret;
+}
 bool ExtractFormattedString(char* buffer, void* arg1, Script* scriptObj, ScriptEventList* eventList, UInt32* opcodeOffsetPtr)
 {
 	//extracts args based on format string, prints formatted string to buffer (max 512 chars)

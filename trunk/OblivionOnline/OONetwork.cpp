@@ -249,7 +249,6 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 {
 	OOPacketType ePacketType = SelectType(acReadBuffer);
 
-	//If the client isn't authenticated, only option is waiting for auth from server via welcome
 
 	switch (ePacketType)
 	{
@@ -271,23 +270,17 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 		OOPEvent_Handler(acReadBuffer);
 		break;
 	
-	case OOPEventRegister:
-		
+	case OOPEventRegister:		
 			OOPEventRegister_Handler(acReadBuffer);
 		break;
 	case OOPFullStatUpdate:
-		if (Length == sizeof(OOPkgFullStatUpdate))
 			OOPFullStatUpdate_Handler(acReadBuffer);
-		else
-			BadPackets[OOPFullStatUpdate]++;
 		break;
 	case OOPTimeUpdate:
-			OOPTimeUpdate_Handler(acReadBuffer);
-		
+			OOPTimeUpdate_Handler(acReadBuffer);		
 		break;
 	case OOPEquipped:
-			OOPEquipped_Handler(acReadBuffer);
-		
+			OOPEquipped_Handler(acReadBuffer);		
 		break;
 	default: 
 		break;
@@ -309,7 +302,7 @@ bool OOPWelcome_Handler(char *Packet)
 		Console_Print(InPkgBuf->NickName);
 
 		char chatScript[1024];
-		sprintf(chatScript, "MESSAGE \"Welcome on %s\"", InPkgBuf->ServerName);
+		sprintf(chatScript, "MESSAGE \"Welcome on %128s\"", InPkgBuf->ServerName);
 		Console_Print("Server: %s running OblivionOnline %u.%u", InPkgBuf->ServerName,HIBYTE(InPkgBuf->wVersion),LOBYTE(InPkgBuf->wVersion));
 		RunScriptLine(chatScript, true);
 
@@ -320,10 +313,10 @@ bool OOPWelcome_Handler(char *Packet)
 		Players[LocalPlayer].Health = (*g_thePlayer)->GetActorValue(8);
 		Players[LocalPlayer].Magika = (*g_thePlayer)->GetActorValue(9);
 		Players[LocalPlayer].Fatigue = (*g_thePlayer)->GetActorValue(10);
-			//Tell server that we're ready to get init data from other clients
+		//Tell server that we're ready to get init data from other clients
 		OOPkgWelcome pkgBuf;
 		pkgBuf.etypeID = OOPWelcome;
-		pkgBuf.Flags = 1;
+		pkgBuf.Flags = 1 | 2;
 	//TODO : TUNE THAT HERE !!!!
 		UpdateExternalInfo((*g_thePlayer)->GetName(),0,"Unknown",(*g_thePlayer)->classForm->GetName(),(*g_thePlayer)->parentCell->GetName(),InPkgBuf->ServerName,ServerIP,0);
 		send(ServerSocket, (char *)&pkgBuf, sizeof(OOPkgWelcome), 0);

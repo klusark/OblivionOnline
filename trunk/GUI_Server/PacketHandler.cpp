@@ -23,6 +23,7 @@ This file is part of OblivionOnline.
 
 extern bool Connected[MAXCLIENTS];
 extern int MasterClient;
+extern char ServerName[128];
 bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgWelcome * InPkgBuf = (OOPkgWelcome *)Packet;
@@ -91,6 +92,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			OutPkgBuf.guidOblivionOnline = gcOOGUID;
 			OutPkgBuf.PlayerID = LocalPlayer;
 			OutPkgBuf.wVersion = MAKEWORD(MAIN_VERSION,SUB_VERSION); 
+			strncpy(OutPkgBuf.ServerName,ServerName,128);
 			sprintf(OutPkgBuf.NickName,"Player%2d",LocalPlayer);
 			SendBuf = (char *)malloc(sizeof(OOPkgWelcome));
 			memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgWelcome));
@@ -264,7 +266,7 @@ bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer)
 				if(ptr->Status.Health < 0)
 				{
 					GenericLog.DoOutput(LOG_MESSAGE,"Actor %u died in cell %u \n",ptr->ID,ptr->Status.CellID);
-					// Handle despawning here
+					MobTable.Remove(ptr->ID);
 				}
 		}
 		if(ptr->Status.Magika != InPkgBuf->Magika)

@@ -23,6 +23,7 @@ This file is part of OblivionOnline.
 #include "PacketHandler.h"
 #include "IOSystem.h"
 #include "Lua_Binding.h"
+#include "curl/curl.h"
 // Global Server Variables
 bool bServerAlive = true;
 int TotalClients = 0;
@@ -41,7 +42,7 @@ FILE *serverSettings;
 //Serverlist settings variables
 char ListURI[128];
 
-char ServerName[32];
+char ServerName[128];
 char ServerPassword[32];
 char AdminPassword[32];
 
@@ -134,11 +135,11 @@ pthread_t threads;
 	lua_getglobal(g_LuaInstance,"ServerName");
 	if(lua_isstring(g_LuaInstance,lua_gettop(g_LuaInstance)))
 	{
-		strncpy(ServerName,lua_tostring(g_LuaInstance,lua_gettop(g_LuaInstance)),32);
+		strncpy(ServerName,lua_tostring(g_LuaInstance,lua_gettop(g_LuaInstance)),128);
 	}
 	else
 	{
-		strncpy(ServerName,"Another OblivionOnline Server",32);
+		strncpy(ServerName,"Another OblivionOnline Server",128);
 	}
 	GenericLog.DoOutput(LOG_MESSAGE,"Server was called %s \n",ServerName);
 
@@ -361,66 +362,34 @@ void info(void *arg)
 void *info(void *arg)
 #endif
 {
+	char URL[512];
 	GenericLog.DoOutput(LOG_MESSAGE,"Master list thread started!  - ");
 	if(strlen(ListURI))
 	{
-		char ListHost [512];
-		char ListFile [256];
-		unsigned short ListPort;
 		while(serverPort==0) // We wait for initialisation
-			Sleep(50);
-#ifdef WINDOWS
-		WSADATA WSAData;
-		WSAStartup(MAKEWORD(2,0), &WSAData);
-#endif
-		
-		SOCKADDR_IN sin;
-		
-		
-		
+			Sleep(50);		
 
-		long rcs;
-		bool HasPassword;
-		HasPassword = false;
 		
 		SOCKET sock;GenericLog.DoOutput(LOG_MESSAGE,"Beginning to list server\n");
 		while(true){
-			sscanf(ListURI,"http://%512s",ListHost); // direct parsing won't work in all implementations
-			char *ptr = strstr(ListHost,":"); // Port delimiter
-			sscanf(ptr,":%u%512s",&ListPort,ListFile); 
-			*ptr = '\0';
-			// THIS IS SOOOO UGLY !!!! Replace with a proper libcurl implementation
-			char srequest[384];
-			struct hostent *he;
-			while((he = gethostbyname(ListHost)) == NULL)
+			CURL *curl = curl_easy_init();
+			CURLcode result;
+			if(curl)
 			{
-				GenericLog.DoOutput(LOG_WARNING,"Error resolving serverlist hostname. Retrying in 60 seconds.\n");
-				Sleep(60000);	//Sleep for 60 seconds and then try again
+				
+				//TODO:  If I readd passworded servers - remove the false
+				sprintf(URL, "%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i",ListURI, ServerName, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION,false);
+				curl_easy_setopt(curl,CURLOPT_URL,URL);
+				result = curl_easy_perform(curl);
+				GenericLog.DoOutput(LOG_MESSAGE,"Updated server on master list\n");
+				curl_easy_cleanup(curl);
 			}
-			sprintf(srequest, "GET /%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", ListFile, ServerName, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION, HasPassword, ListHost);
-			
-			sock = socket(PF_INET, SOCK_STREAM, 0);
-			memcpy(&sin.sin_addr, he->h_addr_list[0], he->h_length);
-			//sin.sin_addr.s_addr = inet_addr(IP);
-			sin.sin_family = AF_INET;
-			sin.sin_port = htons(ListPort);
-			rcs=connect(sock, (SOCKADDR *)&sin, sizeof(sin)); 
-			if(rcs==SOCKET_ERROR) 
+			else
 			{
-				GenericLog.DoOutput(LOG_ERROR,"Error: Serverlist connect error, code: %i\n",WSAGetLastError());
+				GenericLog.DoOutput(LOG_MESSAGE,"CURL error");
 			}
-			rcs=send(sock, srequest, strlen(srequest), 0);
-			if(rcs==SOCKET_ERROR) 
-			{
-				GenericLog.DoOutput(LOG_ERROR,"Error: Serverlist send error, code: %i\n",WSAGetLastError());
-			}
-			GenericLog.DoOutput(LOG_MESSAGE,"Updated server on master list\n");
-			closesocket(sock); 
-			Sleep(120000);
 		}
-#ifdef WINDOWS
-		WSACleanup();
-#endif
+	
 	}
 	else
 	{

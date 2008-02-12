@@ -414,7 +414,7 @@ bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 	}
 	else
 	{
-		_MESSAGE("MPGetPosY for mob called");
+		_MESSAGE("MPGetPosX for mob called");
 		if(MobQueue.size()) 
 		{
 			*result = MobQueue.front().PosX;
@@ -1339,7 +1339,7 @@ bool OBSEPlugin_Query(const OBSEInterface * obse, PluginInfo * info)
 	// fill out the info structure
 	info->infoVersion = PluginInfo::kInfoVersion;
 	info->name = "OblivionOnline";
-	info->version = 1;
+	info->version = (SUPER_VERSION << 16) &&MAKEWORD(MAIN_VERSION,SUB_VERSION);
 
 	// version checks
 	if(!obse->isEditor)
@@ -1428,5 +1428,4 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	_MESSAGE("Done loading OO Commands");
 	return true;
 }
-84.161.10.213
 };
