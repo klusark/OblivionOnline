@@ -378,6 +378,7 @@ void *info(void *arg)
 			{
 				
 				//TODO:  If I readd passworded servers - remove the false
+				//TODO: Escape string
 				sprintf(URL, "%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i",ListURI, ServerName, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION,false);
 				curl_easy_setopt(curl,CURLOPT_URL,URL);
 				result = curl_easy_perform(curl);
@@ -388,6 +389,7 @@ void *info(void *arg)
 			{
 				GenericLog.DoOutput(LOG_MESSAGE,"CURL error");
 			}
+			Sleep(120000);
 		}
 	
 	}

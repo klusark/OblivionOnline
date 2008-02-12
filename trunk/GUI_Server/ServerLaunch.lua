@@ -1,3 +1,3 @@
-ServerListURI = "http://obliviononline.gotdns.com:82/list/update.php"
-ServerName = "Linux TEST based server"
+ServerListURI = "http://www.obliviononline.org/list/update.php"
+ServerName = "LinuxTESTbasedserver"
 
