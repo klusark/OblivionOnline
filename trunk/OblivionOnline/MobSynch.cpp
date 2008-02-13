@@ -282,7 +282,7 @@ bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handl
 			}
 			_MESSAGE("Set health");
 		}
-		//if((*g_thePlayer)->parentCell->refID == pkgBuf.CellID) // remove that , and see if the performance allows it
+		if((*g_thePlayer)->parentCell->refID == pkgBuf.CellID) // remove that , and see if the performance allows it
 		{
 			MobStatus temp;
 			temp.Refr = Object;
