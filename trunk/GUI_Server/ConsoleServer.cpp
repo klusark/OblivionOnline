@@ -363,6 +363,7 @@ void *info(void *arg)
 #endif
 {
 	char URL[512];
+	char *EscapedName;
 	GenericLog.DoOutput(LOG_MESSAGE,"Master list thread started!  - ");
 	if(strlen(ListURI))
 	{
@@ -376,13 +377,13 @@ void *info(void *arg)
 			CURLcode result;
 			if(curl)
 			{
-				
+				EscapedName = curl_easy_escape(curl,ServerName,0);
 				//TODO:  If I readd passworded servers - remove the false
 				//TODO: Escape string
-				sprintf(URL, "%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i",ListURI, ServerName, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION,false);
+				sprintf(URL, "%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i",ListURI,EscapedName, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION,false);
+				curl_free(EscapedName);
 				curl_easy_setopt(curl,CURLOPT_URL,URL);
 				result = curl_easy_perform(curl);
-				GenericLog.DoOutput(LOG_MESSAGE,"Updated server on master list\n");
 				curl_easy_cleanup(curl);
 			}
 			else
