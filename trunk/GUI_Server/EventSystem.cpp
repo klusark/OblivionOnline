@@ -53,7 +53,11 @@ bool EventSystem::LoadPlugins()
 				TempPlugin->PluginID = CurrentPluginID++; // afterwards we increase it by 1
 #ifdef WINDOWS
 				TempPlugin->hDLL = LoadLibraryA(DllName.c_str());
+#else
+				//POSIX
+				hDll = dlopen(DllName.c_str(),RTLD_LAZY);
 #endif
+
 				if(!TempPlugin->hDLL)
 				{
 					delete TempPlugin;

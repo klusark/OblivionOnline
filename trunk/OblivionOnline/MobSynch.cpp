@@ -64,9 +64,9 @@ bool NetSynchObject(TESObjectREFR *Refr)
 	pkgBuf.fRotX = Refr->rotX;
 	pkgBuf.fRotY = Refr->rotY;
 	pkgBuf.fRotZ = Refr->rotZ;
-	pkgBuf.Health = (Refr->IsActor() ? ((Actor *)Refr)->GetActorValue(8) : -1);
-	pkgBuf.Magika = (Refr->IsActor() ? ((Actor *)Refr)->GetActorValue(9) : -1);
-	pkgBuf.Fatigue =(Refr->IsActor() ? ((Actor *)Refr)->GetActorValue(10) : -1);
+	pkgBuf.Health = (Refr->IsActor() ? ((Actor *)Refr)->GetActorValue(8) : -1000);
+	pkgBuf.Magika = (Refr->IsActor() ? ((Actor *)Refr)->GetActorValue(9) : -1000);
+	pkgBuf.Fatigue =(Refr->IsActor() ? ((Actor *)Refr)->GetActorValue(10) : -1000);
 	if(Refr->parentCell->worldSpace)
 	{
 				pkgBuf.Flags = 4; //Exterior
@@ -253,52 +253,52 @@ bool Cmd_MPStopStack_Execute (COMMAND_ARGS)
 };
 
 
-bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf) // called from the packet Handler
+bool NetHandleMobUpdate(OOPkgActorUpdate * pkgBuf) // called from the packet Handler
 {
 	if(!bIsMasterClient)
 	{
 	TESObjectREFR * Object;
-	Object = (TESObjectREFR *)LookupFormByID(pkgBuf.refID);
+	Object = (TESObjectREFR *)LookupFormByID(pkgBuf->refID);
 	if(Object)
 	{		
 		Actor *act = (Actor *)Object;
-		if((pkgBuf.Flags & 2) && act->IsActor())
+		if((pkgBuf->Flags & 2) && act->IsActor())
 		{
 			_MESSAGE("Trying to set health");
-			if(pkgBuf.Flags & 8)
+			if(pkgBuf->Flags & 8)
 			{
-				act->ModActorBaseValue(8,(pkgBuf.Health -act->GetActorValue(8)),0);
-				act->ModActorBaseValue(9,(pkgBuf.Magika -act->GetActorValue(9)),0);
-				act->ModActorBaseValue(10,(pkgBuf.Fatigue -act->GetActorValue(10)),0);
+				act->ModActorBaseValue(8,(pkgBuf->Health -act->GetActorValue(8)),0);
+				act->ModActorBaseValue(9,(pkgBuf->Magika -act->GetActorValue(9)),0);
+				act->ModActorBaseValue(10,(pkgBuf->Fatigue -act->GetActorValue(10)),0);
 			}
 			else
 			{
-			if(pkgBuf.Health)
-				act->ModActorBaseValue(8,pkgBuf.Health,0);
-			if(pkgBuf.Magika)
-				act->ModActorBaseValue(9,pkgBuf.Magika,0);
-			if(pkgBuf.Fatigue)
-				act->ModActorBaseValue(10,pkgBuf.Fatigue,0);
+			if(pkgBuf->Health)
+				act->ModActorBaseValue(8,pkgBuf->Health,0);
+			if(pkgBuf->Magika)
+				act->ModActorBaseValue(9,pkgBuf->Magika,0);
+			if(pkgBuf->Fatigue)
+				act->ModActorBaseValue(10,pkgBuf->Fatigue,0);
 			}
 			_MESSAGE("Set health");
 		}
-		if((*g_thePlayer)->parentCell->refID == pkgBuf.CellID) // remove that , and see if the performance allows it
+		if((*g_thePlayer)->parentCell->refID == pkgBuf->CellID) // remove that , and see if the performance allows it
 		{
 			MobStatus temp;
 			temp.Refr = Object;
-			if (pkgBuf.Flags & 4) //Is in an exterior?
+			if (pkgBuf->Flags & 4) //Is in an exterior?
 			{
 				temp.bIsInInterior = false;
 			}else{
 				temp.bIsInInterior = true;
 			}
-			temp.InCombat = pkgBuf.Flags & 32; 
-			temp.PosX = pkgBuf.fPosX;
-			temp.PosY = pkgBuf.fPosY;
-			temp.PosZ = pkgBuf.fPosZ;
-			temp.RotX = pkgBuf.fRotX;
-			temp.RotY = pkgBuf.fRotY;
-			temp.RotZ = pkgBuf.fRotZ;
+			temp.InCombat = pkgBuf->Flags & 32; 
+			temp.PosX = pkgBuf->fPosX;
+			temp.PosY = pkgBuf->fPosY;
+			temp.PosZ = pkgBuf->fPosZ;
+			temp.RotX = pkgBuf->fRotX;
+			temp.RotY = pkgBuf->fRotY;
+			temp.RotZ = pkgBuf->fRotZ;
 			MobQueue.push(temp);
 		}
 	}

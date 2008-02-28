@@ -48,7 +48,7 @@ This file is part of OblivionOnline.
 extern bool MCMakeMC();
 extern bool MCMakePassive();
 extern bool Cmd_MPSynchActors_Execute (COMMAND_ARGS);
-extern bool NetHandleMobUpdate(OOPkgActorUpdate pkgBuf); // called from the packet Handler
+extern bool NetHandleMobUpdate(OOPkgActorUpdate * pkgBuf); // called from the packet Handler
 
 extern  CommandInfo kMPSynchActorsCommand;
 extern  CommandInfo kMPStopStackCommand;

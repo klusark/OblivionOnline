@@ -24,6 +24,53 @@ This file is part of OblivionOnline.
 extern bool Connected[MAXCLIENTS];
 extern int MasterClient;
 extern char ServerName[128];
+inline void PacketErrorMsg(OOPacketType type, char *Name)
+{
+	GenericLog.DoOutput(LOG_ERROR,"A %64s package arrived marked with the Type ID %u - Ignoring \n",Name,type);
+}
+void PacketError(OOPacketType type, size_t len)
+{
+	//TODO: find indicators for Collisions : Disconnect has one , and Race as well
+
+	switch (len)
+	{
+	case sizeof(OOPkgWelcome):
+		PacketErrorMsg(type,"OOPkgWelcome");
+		break;
+	case sizeof(OOPkgEvent):
+		PacketErrorMsg(type,"OOPkgEvent");
+		break;
+	case sizeof(OOPkgEventRegister):
+		PacketErrorMsg(type,"OOPkgEventRegister");
+		break;
+	case sizeof(OOPkgActorUpdate):
+		PacketErrorMsg(type,"OOPkgActorUpdate");
+		break;
+	case sizeof(OOPkgChat):
+		PacketErrorMsg(type,"OOPkgEvent");
+		break;
+	case sizeof(OOPkgFullStatUpdate):
+		PacketErrorMsg(type,"OOPkgFullStatUpdate");
+		break;
+	case sizeof(OOPkgDisconnect):
+		PacketErrorMsg(type,"OOPkgDisconnect");
+		break;
+	case sizeof(OOPkgEquipped):
+		PacketErrorMsg(type,"OOPkgEquipped");
+		break;
+	case sizeof(OOPkgName):
+		PacketErrorMsg(type,"OOPkgName");
+		break;
+		/*
+	case sizeof(OOPkgRace):
+		PacketErrorMsg(type,"OOPkgRace");
+		break;*/
+	default:
+		PacketErrorMsg(type,"bad or unknown");
+		break;
+	}
+	return;
+}
 bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 {
 	OOPkgWelcome * InPkgBuf = (OOPkgWelcome *)Packet;
@@ -81,11 +128,11 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			}
 			*/
 				
-				OutPkgBuf.Flags = 1;
+			OutPkgBuf.Flags = 1;
 			if(MasterClient == -1)
 			{
 				// This one will be master client
-				OutPkgBuf.Flags = OutPkgBuf.Flags | 4;
+				OutPkgBuf.Flags = OutPkgBuf.Flags |  2| 4;
 				MasterClient = LocalPlayer;
 				GenericLog.DoOutput(LOG_MESSAGE,"Client %i was selected as master client", LocalPlayer);
 			}
@@ -94,9 +141,7 @@ bool OOPWelcome_Handler(char *Packet,short LocalPlayer)
 			OutPkgBuf.wVersion = MAKEWORD(MAIN_VERSION,SUB_VERSION); 
 			strncpy(OutPkgBuf.ServerName,ServerName,128);
 			sprintf(OutPkgBuf.NickName,"Player%2d",LocalPlayer);
-			SendBuf = (char *)malloc(sizeof(OOPkgWelcome));
-			memcpy(SendBuf,&OutPkgBuf,sizeof(OOPkgWelcome));
-			send(clients[LocalPlayer],SendBuf,sizeof(OOPkgWelcome),0);
+			send(clients[LocalPlayer],(char *)&OutPkgBuf,sizeof(OOPkgWelcome),0);
 			GenericLog.DoOutput(LOG_MESSAGE,"Welcoming Player%2d\n",LocalPlayer);
 			//printf("Player %2i - %s:%u\n",LocalPlayer,inet_ntoa(ConnectionInfo[LocalPlayer].sin_addr),ntohs(ConnectionInfo[LocalPlayer].sin_port));
 			free(SendBuf);

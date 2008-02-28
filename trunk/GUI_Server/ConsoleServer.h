@@ -44,7 +44,7 @@ typedef int socklen_t;
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-
+#include <dlfcn.h>
 
 //map types ...
 typedef unsigned char  BYTE;
@@ -97,7 +97,7 @@ extern "C"
 #define MAIN_VERSION 5
 #define SUB_VERSION 0 
 //The 2 below here are nothing but UI . Not on the netcode
-#define RELEASE_CODENAME "ReleaseV" // The Name . Can be emp to `Players' follow
+#define RELEASE_CODENAME "ReleaseV" // The Name . 
 #define RELEASE_COMMENT "" // For betas and special builds only
 #define PORT 41805 // default port
 #define EXPECTED_MOBS 3000
@@ -122,6 +122,7 @@ extern bool Kick(int Player);
 
 extern class OOHashTable MobTable;
 extern class IOSystem GenericLog;
+
 
 #endif
 

@@ -50,6 +50,53 @@ bool OOPEventRegister_Handler(char *Packet);
 bool OOPFullStatUpdate_Handler(char *Packet);
 bool OOPTimeUpdate_Handler(char *Packet);
 bool OOPEquipped_Handler(char *Packet);
+
+inline void PacketErrorMsg(OOPacketType type, char *Name)
+{
+	_ERROR("A %64s package arrived marked with the Type ID %u - Ignoring \n",Name,type);
+}
+void PacketError(OOPacketType type, size_t len)
+{
+	//TODO: find indicators for Collisions : Disconnect has one , and Race as well
+	switch (len)
+	{
+	case sizeof(OOPkgWelcome):
+		PacketErrorMsg(type,"OOPkgWelcome");
+		break;
+	case sizeof(OOPkgEvent):
+		PacketErrorMsg(type,"OOPkgEvent");
+		break;
+	case sizeof(OOPkgEventRegister):
+		PacketErrorMsg(type,"OOPkgEventRegister");
+		break;
+	case sizeof(OOPkgActorUpdate):
+		PacketErrorMsg(type,"OOPkgActorUpdate");
+		break;
+	case sizeof(OOPkgChat):
+		PacketErrorMsg(type,"OOPkgEvent");
+		break;
+	case sizeof(OOPkgFullStatUpdate):
+		PacketErrorMsg(type,"OOPkgFullStatUpdate");
+		break;
+	case sizeof(OOPkgDisconnect):
+		PacketErrorMsg(type,"OOPkgDisconnect");
+		break;
+	case sizeof(OOPkgEquipped):
+		PacketErrorMsg(type,"OOPkgEquipped");
+		break;
+	case sizeof(OOPkgName):
+		PacketErrorMsg(type,"OOPkgName");
+		break;
+		/*
+	case sizeof(OOPkgRace):
+		PacketErrorMsg(type,"OOPkgRace");
+		break;*/
+	default:
+		PacketErrorMsg(type,"bad or unknown");
+		break;
+	}
+	return;
+}
 //----------------------------------
 //--Begin Incoming packet handlers--
 //----------------------------------
@@ -68,7 +115,7 @@ bool NetWelcome(char *Password)
 	// Now we send out our name and gender
 	OOPkgName namepkg;
 	namepkg.etypeID = OOPName;
-	namepkg.Flags = 1 ;
+	namepkg.Flags = 1| 2 ;
 	strncpy(namepkg.Name,(*g_thePlayer)->GetName(),32); 
 	send(ServerSocket,(char *)&namepkg,sizeof(OOPkgName),0);
 	return true;
@@ -119,7 +166,7 @@ bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC, bool Initial)
 
 bool NetEquipped(PlayerStatus *Player, int PlayerID, bool Initial)
 {
-	static PlayerStatus EquipLastPlayer; // change this to some variables that do not waste as much memory
+	static OOPkgEquipped EquipLastPlayer; // change this to some variables that do not waste as much memory
 	
 	OOPkgEquipped pkgBuf;
 	DWORD tickBuf;
@@ -139,8 +186,7 @@ bool NetEquipped(PlayerStatus *Player, int PlayerID, bool Initial)
 			(Player->shield != EquipLastPlayer.shield)||
 			(Player->tail != EquipLastPlayer.tail)||
 			(Player->upper_body != EquipLastPlayer.upper_body)||
-			(Player->weapon != EquipLastPlayer.weapon)
-			|| Initial) // It has been changed since last time
+			(Player->weapon != EquipLastPlayer.weapon)) // It has been changed since last time
 		{
 			pkgBuf.etypeID = OOPEquipped;
 			pkgBuf.refID = PlayerID;
@@ -253,34 +299,55 @@ bool NetReadBuffer(char *acReadBuffer, int Length)
 	switch (ePacketType)
 	{
 	case OOPWelcome:
-		OOPWelcome_Handler(acReadBuffer);
-
+		if(VERIFYPACKETSIZE(Length,OOPkgWelcome))
+			OOPWelcome_Handler(acReadBuffer);		
+		else
+			PacketError(ePacketType,Length);
 		break;
 	case OOPDisconnect:
-		OOPDisconnect_Handler(acReadBuffer);
-
+		if(VERIFYPACKETSIZE(Length,OOPkgWelcome))
+			OOPDisconnect_Handler(acReadBuffer);
+		else
+			PacketError(ePacketType,Length);
 		break;
 	case OOPActorUpdate:
-		OOPActorUpdate_Handler(acReadBuffer);
+		if(VERIFYPACKETSIZE(Length,OOPkgWelcome))
+			OOPActorUpdate_Handler(acReadBuffer);
+		else
+			PacketError(ePacketType,Length);
 		break;
 	case OOPChat:
-		OOPChat_Handler(acReadBuffer);
-		break;
+			OOPChat_Handler(acReadBuffer);
 	case OOPEvent:
-		OOPEvent_Handler(acReadBuffer);
+		if(VERIFYPACKETSIZE(Length,OOPkgWelcome))
+			OOPEvent_Handler(acReadBuffer);
+		else
+			PacketError(ePacketType,Length);
 		break;
 	
 	case OOPEventRegister:		
+		if(VERIFYPACKETSIZE(Length,OOPkgWelcome))
 			OOPEventRegister_Handler(acReadBuffer);
+		else
+			PacketError(ePacketType,Length);
 		break;
 	case OOPFullStatUpdate:
+		if(VERIFYPACKETSIZE(Length,OOPkgWelcome))
 			OOPFullStatUpdate_Handler(acReadBuffer);
+		else
+			PacketError(ePacketType,Length);
 		break;
 	case OOPTimeUpdate:
-			OOPTimeUpdate_Handler(acReadBuffer);		
+		if(VERIFYPACKETSIZE(Length,OOPkgWelcome))
+			OOPTimeUpdate_Handler(acReadBuffer);
+		else
+			PacketError(ePacketType,Length);		
 		break;
 	case OOPEquipped:
-			OOPEquipped_Handler(acReadBuffer);		
+		if(VERIFYPACKETSIZE(Length,OOPkgWelcome))
+			OOPEquipped_Handler(acReadBuffer);	
+		else
+			PacketError(ePacketType,Length);	
 		break;
 	default: 
 		break;
@@ -300,11 +367,7 @@ bool OOPWelcome_Handler(char *Packet)
 		sscanf(InPkgBuf->NickName, "Player%2d", &LocalPlayer);
 		_MESSAGE("Received Player ID %u",LocalPlayer);
 		Console_Print(InPkgBuf->NickName);
-
-		char chatScript[1024];
-		sprintf(chatScript, "MESSAGE \"Welcome on %128s\"", InPkgBuf->ServerName);
-		Console_Print("Server: %s running OblivionOnline %u.%u", InPkgBuf->ServerName,HIBYTE(InPkgBuf->wVersion),LOBYTE(InPkgBuf->wVersion));
-		RunScriptLine(chatScript, true);
+		_MESSAGE("Server: %s running OblivionOnline %u.%u", InPkgBuf->ServerName,HIBYTE(InPkgBuf->wVersion),LOBYTE(InPkgBuf->wVersion));
 
 		PlayerConnected[LocalPlayer] = true;
 		PlayersInitial[LocalPlayer].Health = (*g_thePlayer)->GetActorValue(8);
@@ -316,7 +379,7 @@ bool OOPWelcome_Handler(char *Packet)
 		//Tell server that we're ready to get init data from other clients
 		OOPkgWelcome pkgBuf;
 		pkgBuf.etypeID = OOPWelcome;
-		pkgBuf.Flags = 1 | 2;
+		pkgBuf.Flags = 1 ;
 	//TODO : TUNE THAT HERE !!!!
 		UpdateExternalInfo((*g_thePlayer)->GetName(),0,"Unknown",(*g_thePlayer)->classForm->GetName(),(*g_thePlayer)->parentCell->GetName(),InPkgBuf->ServerName,ServerIP,0);
 		send(ServerSocket, (char *)&pkgBuf, sizeof(OOPkgWelcome), 0);
@@ -324,12 +387,12 @@ bool OOPWelcome_Handler(char *Packet)
 // Here we hande the so -called "Mode Flags " from 4 (MC ) upwards.
 
 // Flag 4 - Master Client ...
-	if(InPkgBuf->Flags & 4) // Master Client
+	if(InPkgBuf->Flags & 4 & 2) // Master Client
 	{
 		_MESSAGE("Received master client");
 		MCMakeMC();
 	}
-	else
+	else if( InPkgBuf->Flags & 2)
 	{
 		_MESSAGE("Received passive client");
 		MCMakePassive();
@@ -498,17 +561,17 @@ bool OOPActorUpdate_Handler(char *Packet)
 	}
 	else //Mob
 	{
-		NetHandleMobUpdate(*InPkgBuf);
+		NetHandleMobUpdate(InPkgBuf);
 	}
 	return true;
 }
-
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
 bool OOPChat_Handler(char *Packet)
 {
 	OOPkgChat * InPkgBuf = (OOPkgChat *)Packet;
 
 	char MessageDest[1024] = "\0";
-	for(int i=0; i<InPkgBuf->Length; i++)
+	for(int i=0; i<max(InPkgBuf->Length,1024); i++)
 	{
 		MessageDest[i] = Packet[i+sizeof(OOPkgChat)];
 	}

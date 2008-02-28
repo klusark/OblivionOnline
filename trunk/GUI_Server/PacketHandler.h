@@ -23,7 +23,7 @@ This file is part of OblivionOnline.
 
 #include "ConsoleServer.h"
 #include "../OblivionOnline/OOPackets.h"
-
+extern void PacketError(OOPacketType type, size_t len);
 extern bool OOPWelcome_Handler(char *Packet,short LocalPlayer);
 extern bool OOPDisconnect_Handler(char *Packet,short LocalPlayer);
 extern bool OOPActorUpdate_Handler(char *Packet,short LocalPlayer);

@@ -51,7 +51,8 @@ static const GUID OO =
 
 enum OOPacketType
 {
-	OOPWelcome = 0,		//Send to synchronise versions , 
+	OOPBollocks = 0,		//bad Packet - should be triggered
+	OOPWelcome = 1,		//Send to synchronise versions , 
 	OOPError,			//For triggering a resend due to bad data
 	OOPEvent,			//An Event is triggered by a plugin
 	OOPEventRegister,	//An Event is registered, server only
@@ -64,6 +65,7 @@ enum OOPacketType
 	OOPName,
 	OOPAdminInfo,		//Contains admin control data and console messages
 	OOPAcceptMessage,
+
 	OOPACModVerify = 65555,
 	OOPACVerify = 65556 // ATTENTION  PACKETS 65555 and 65556 are reserver for AuthMod and Auth
 };
@@ -74,7 +76,7 @@ struct OOPkgWelcome //THIS PACKET IS NOT CHANGEABLE ; IT STAYS LIKE THIS BECAUSE
 {
 	//4 bytes(most common enum) is a lot .... but better than a short and a hell of problems later
 	OOPacketType etypeID;  // has to be OOPWelcome
-	short Flags; // 1 - master Client
+	short Flags; // 1 - Ready for Data 2-ignore data & set mode 4 -master client
 	short PlayerID; // 0 for client
 	WORD wVersion; // LowerByte contains subversion ( or bugfix ) Higher Byte contains major release
 	GUID guidOblivionOnline; // contains OblivionOnline GUID , this is once defined by me and never to be changed.
@@ -189,8 +191,11 @@ inline OOPacketType SelectType(char *Packet)
 {
 	return *((OOPacketType *)Packet);
 }
-
-
+#ifndef NO_PACKET_VERIFICATION
+#define VERIFYPACKETSIZE(len,type) ((len) == sizeof(type))
+#else
+#define VERIFYPACKETSIZE(len,type) (1)
+#endif
 
 
 

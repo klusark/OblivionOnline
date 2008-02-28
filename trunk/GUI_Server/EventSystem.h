@@ -40,7 +40,7 @@ struct Plugin
 #ifdef WINDOWS
 	HMODULE hDLL;
 #else
-	unsigned long hDLL;
+	void* hDLL;
 #endif
 	std::list<EventHook *> hooks;
 };

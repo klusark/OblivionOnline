@@ -41,7 +41,7 @@ This file is part of OblivionOnline.
 #include "xfiregameclient.h"
 inline void UpdateXFireInfo(const char *Name,unsigned int Level,char* Race, const char *Class,const char *Cell,const char *ServerName,const char *ServerIP,unsigned short Players)
 {
-	
+	/*
 	char Character[300];
 	char VersionString[200];
 	const char *key[100],*value[100]; 
@@ -58,7 +58,7 @@ inline void UpdateXFireInfo(const char *Name,unsigned int Level,char* Race, cons
 	key[4] = "Server IP";
 	value[4] = ServerIP;
 	XfireSetCustomGameData(3, key, value);
-	
+	*/
 }
 
 #endif

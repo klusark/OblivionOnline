@@ -324,34 +324,56 @@ int ScanBuffer(char *acReadBuffer, short LocalPlayer, short nBytesRead)
 
 	switch (ePacketType)
 	{
+	case OOPBollocks:
+		GenericLog.DoOutput(LOG_FATALERROR,"Received unitialized packet of %8u Bytes - don't give alcohol to either coders or networking hardware people :-)\n",nBytesRead);
+		break;
 	case OOPWelcome:
-		OOPWelcome_Handler(acReadBuffer,LocalPlayer);
+		if(VERIFYPACKETSIZE(nBytesRead,OOPkgWelcome))
+			OOPWelcome_Handler(acReadBuffer,LocalPlayer);
+		else
+			PacketError(ePacketType,nBytesRead);
 		break;
 	case OOPDisconnect:
-		OOPDisconnect_Handler(acReadBuffer,LocalPlayer);
+		if(VERIFYPACKETSIZE(nBytesRead,OOPkgDisconnect))
+			OOPDisconnect_Handler(acReadBuffer,LocalPlayer);
+		else
+			PacketError(ePacketType,nBytesRead);
 		break;
 	case OOPActorUpdate:
-		
-		OOPActorUpdate_Handler(acReadBuffer,LocalPlayer);
+		//TODO : Useless Packages sent
+		// if(VERIFYPACKETSIZE(nBytesRead,OOPkgActorUpdate))
+			OOPActorUpdate_Handler(acReadBuffer,LocalPlayer);
+		//else
+		//	PacketError(ePacketType,nBytesRead);
 		break;
 	case OOPChat:
-		OOPChat_Handler(acReadBuffer,LocalPlayer);
-		break;
+		OOPChat_Handler(acReadBuffer,LocalPlayer);		
 	case OOPEvent:
-		OOPEvent_Handler(acReadBuffer,LocalPlayer);
+		if(VERIFYPACKETSIZE(nBytesRead,OOPkgEvent))
+			OOPEvent_Handler(acReadBuffer,LocalPlayer);
+		else
+			PacketError(ePacketType,nBytesRead);
 		break;
 	case OOPEventRegister:
-		OOPEventRegister_Handler(acReadBuffer,LocalPlayer);
+		if(VERIFYPACKETSIZE(nBytesRead,OOPkgEventRegister))
+			OOPEventRegister_Handler(acReadBuffer,LocalPlayer);
+		else
+			PacketError(ePacketType,nBytesRead);
 		break;
 	case OOPFullStatUpdate:
-		OOPFullStatUpdate_Handler(acReadBuffer,LocalPlayer);
+		if(VERIFYPACKETSIZE(nBytesRead,OOPkgFullStatUpdate))
+			OOPFullStatUpdate_Handler(acReadBuffer,LocalPlayer);
+		else
+			PacketError(ePacketType,nBytesRead);
 		break;
 	case OOPEquipped:
-		OOPEquipped_Handler(acReadBuffer,LocalPlayer);
+	//	if(VERIFYPACKETSIZE(nBytesRead,OOPkgEquipped))
+			OOPEquipped_Handler(acReadBuffer,LocalPlayer);
+	//	else
+	//		PacketError(ePacketType,nBytesRead);
 		break;
-	case OOPName:
+	case OOPName:		
 		OOPName_Handler(acReadBuffer,LocalPlayer);
-		break;	
 	}
 	return true;
 }
