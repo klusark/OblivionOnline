@@ -87,17 +87,21 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 		}
 		if(FD_ISSET(acceptSocket,&fdSet))
 		{
-
+			SOCKADDR_IN addr;
+			size_t addr_size = sizeof(SOCKADDR_IN);			
+			SOCKET sock = accept(acceptSocket,&addr,&addr_size);
+			netsys->AddNewPlayer(addr,sock);
 		}
 	}
 }
  OO_TPROC_RET NetworkSystem::UDPProc(void *thisptr)
 {
+	SOCKADDR_IN listenaddr;
+	SOCKADDR_IN inaddr;
+	UINT32 Player;
 	BYTE *PacketBuffer;
 	NetworkSystem *netsys = (NetworkSystem *) thisptr;
 	SOCKET sock = socket(AF_INET,SOCK_DGRAM,0);
-	SOCKADDR_IN listenaddr;
-	SOCKADDR_IN inaddr;
 	unsigned short port = (unsigned short) netsys->GetGS()->GetLua()->GetInteger("ServicePort");
 	size_t size;
 	int inaddr_len = sizeof(SOCKADDR_IN);
@@ -116,7 +120,11 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 	{
 		PacketBuffer = (BYTE*) malloc (PACKET_SIZE); //TODO : Free these!!!
 		size = recvfrom(sock,(char *)PacketBuffer,PACKET_SIZE,0,(SOCKADDR *)&inaddr,&inaddr_len);
-		netsys->RegisterTraffic(netsys->GetPlayerFromAddr(inaddr),size,PacketBuffer,false);
+		Player = netsys->GetPlayerFromAddr(inaddr);
+		if(Player != 0)
+			netsys->RegisterTraffic(netsys->GetPlayerFromAddr(inaddr),size,PacketBuffer,false);
+		else
+			netsys->GetGS()->GetIO()<<Warning<<"Unknown player sent data to UDP "
 		free(PacketBuffer);
 	}
 }
@@ -133,7 +141,7 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 	return true;
  } 
 
-UINT32 NetworkSystem::AddNewPlayer( SOCKADDR_IN addr )
+ UINT32 NetworkSystem::AddNewPlayer( SOCKADDR_IN addr,SOCKET TCPSock )
  {
 
 	 std::stringstream msg;

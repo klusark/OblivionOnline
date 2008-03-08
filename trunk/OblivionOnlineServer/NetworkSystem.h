@@ -49,7 +49,7 @@ public:
 	{
 		return m_GS;
 	}
-	UINT32 AddNewPlayer(SOCKADDR_IN addr);
+	UINT32 AddNewPlayer(SOCKADDR_IN addr,SOCKET TCPSock);
 	inline bool SendChunk(UINT32 PlayerID,UINT32 FormID,bool IsPlayer,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
 		OutPacket *packet = m_OutPackets[PlayerID];
@@ -65,8 +65,7 @@ public:
 		std::map<u_long,UINT32>::iterator iter = m_AddressPlayer.find(addr.sin_addr.S_un.S_addr);
 		if(iter != m_AddressPlayer.end())
 			return iter->second;
-		//TODO : We got a new player - register and welcome him
-		return AddNewPlayer(addr);
+		return 0;
 	}
 	UINT32 GetPlayerCount()
 	{
