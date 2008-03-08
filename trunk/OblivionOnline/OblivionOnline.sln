@@ -9,9 +9,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServerBrowser", "..\ServerB
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "..\Setup\Setup.vdproj", "{5F7C8062-9DC2-4367-997F-A914B5EA4073}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleServer", "..\GUI_Server\ConsoleServer.vcproj", "{841E2B49-F188-435B-B326-0848AEE7705C}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "curllib", "..\GUI_Server\libcurl\curl-7.18.0\lib\curllib.vcproj", "{87EE9DA4-DE1E-4448-8324-183C98DCA588}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OblivionOnlineServer", "..\OblivionOnlineServer\OblivionOnlineServer.vcproj", "{9CEB2A39-13F4-499A-995C-2077F44177DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,14 +33,14 @@ Global
 		{21D0FD3A-8E4E-4FAD-AC1A-A8B159AC3EDC}.Release|Win32.Build.0 = Release|Win32
 		{5F7C8062-9DC2-4367-997F-A914B5EA4073}.Debug|Win32.ActiveCfg = Debug
 		{5F7C8062-9DC2-4367-997F-A914B5EA4073}.Release|Win32.ActiveCfg = Release
-		{841E2B49-F188-435B-B326-0848AEE7705C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{841E2B49-F188-435B-B326-0848AEE7705C}.Debug|Win32.Build.0 = Debug|Win32
-		{841E2B49-F188-435B-B326-0848AEE7705C}.Release|Win32.ActiveCfg = Release|Win32
-		{841E2B49-F188-435B-B326-0848AEE7705C}.Release|Win32.Build.0 = Release|Win32
 		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Debug|Win32.ActiveCfg = Debug|Win32
 		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Debug|Win32.Build.0 = Debug|Win32
 		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Release|Win32.ActiveCfg = Release|Win32
 		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Release|Win32.Build.0 = Release|Win32
+		{9CEB2A39-13F4-499A-995C-2077F44177DF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9CEB2A39-13F4-499A-995C-2077F44177DF}.Debug|Win32.Build.0 = Debug|Win32
+		{9CEB2A39-13F4-499A-995C-2077F44177DF}.Release|Win32.ActiveCfg = Release|Win32
+		{9CEB2A39-13F4-499A-995C-2077F44177DF}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

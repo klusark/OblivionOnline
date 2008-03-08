@@ -53,7 +53,7 @@
 				AdditionalIncludeDirectories=".;..\include;..\..\.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;BUILDING_LIBCURL"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				PrecompiledHeaderFile=".\Release/curllib.pch"
 				AssemblerListingLocation=".\Release/"
@@ -159,6 +159,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="winmm.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
