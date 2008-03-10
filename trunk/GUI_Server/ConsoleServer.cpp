@@ -404,7 +404,7 @@ void *info(void *arg)
 				//TODO: Escape string
 				sprintf(URL, "%s?name=%s&port=%u&players=%i&maxplayers=%i&VersionMajor=%i&VersionMinor=%i&HasPassword=%i",ListURI,EscapedName, serverPort, TotalClients, MAXCLIENTS, MAIN_VERSION, SUB_VERSION,false);
 				curl_free(EscapedName);
-				curl_easy_setopt(curl,CURLOPT_URL,URL);
+				curl_easy_setopt(curl,CURLOPT_URL,URL); 
 				result = curl_easy_perform(curl);
 				curl_easy_cleanup(curl);
 			}

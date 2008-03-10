@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ScreenIOProvider.h"
 #include "logIOProvider.h"
 #include "NetworkSystem.h"
+#include "ChatIOProvider.h"
 #include <string>
 #include <sstream>
 #include "curl/curl.h"
@@ -28,16 +29,17 @@ GameServer::GameServer(void)
 {
 	//Initialize all subsystems
 	/*
-	1. Lua system - Configurations 
-	2. Event - it triggers everything and IO needs it
-	3. IO
-	4 .ScreenIOProvider
-	5 .LogIOProvider
-	5. EntityManager
-	6. Netsystem - perhaps add Providers here
-	7. NetIOProvider - "Partyline"
+	1. Lua system - Configurations  Done - add operator[] perhaps
+	2. Event - it triggers everything and IO needs it Done
+	3. IO Done
+	4 .ScreenIOProvider Done
+	5 .LogIOProvider Done
+	5. EntityManager Done
+	6. Netsystem  Done TCP(DONE) UDP(DONE)
+	7. ChatIOProvider Done
+	8. PartyLine ---
 
-	what else do we need? 
+	Perhaps some other stuff
 	*/
 	m_script = new LuaSystem(this);
 	m_script->RunStartupScripts("ServerLaunch.lua");
@@ -52,6 +54,7 @@ GameServer::GameServer(void)
 	m_Entities = new EntityManager(m_Evt);
 	m_Netsystem = new NetworkSystem(this);
 	m_Netsystem->StartReceiveThreads();
+	m_IO->RegisterIOProvider(new ChatIOProvider(this,m_IOSys));
 	//In this thread we now run the server browser update
 	AdvertiseGameServer();
 }
@@ -61,6 +64,7 @@ GameServer::~GameServer(void)
 	/*
 	inverse order from construction
 	*/
+	delete m_Netsystem;
 	delete m_Entities;
 	delete m_IO;
 	delete m_Evt;
@@ -70,7 +74,7 @@ GameServer::~GameServer(void)
 void GameServer::AdvertiseGameServer()
 {
 	string RealmListURI = m_script->GetString("RealmlistURI");
-	string ServerName  = m_script->GetString("RealmlistURI");
+	string ServerName  = m_script->GetString("Name");
 	char  *EscapedName;
 	if(ServerName.length() != 0)
 	{

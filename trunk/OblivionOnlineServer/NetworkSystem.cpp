@@ -40,6 +40,7 @@ bool NetworkSystem::StartReceiveThreads()
 }
 OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 {
+	BYTE data[PACKET_SIZE];
 	NetworkSystem *netsys = (NetworkSystem *) _netsys;
 	unsigned short port = (unsigned short) netsys->GetGS()->GetLua()->GetInteger("ServicePort");
 	SOCKET acceptSocket = socket(AF_INET,SOCK_STREAM,0);
@@ -88,9 +89,24 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 		if(FD_ISSET(acceptSocket,&fdSet))
 		{
 			SOCKADDR_IN addr;
-			size_t addr_size = sizeof(SOCKADDR_IN);			
-			SOCKET sock = accept(acceptSocket,&addr,&addr_size);
+			int addr_size = sizeof(SOCKADDR_IN);			
+			SOCKET sock = accept(acceptSocket,(SOCKADDR *)&addr,&addr_size);
 			netsys->AddNewPlayer(addr,sock);
+		}
+		for(std::map<UINT,SOCKET>::iterator i = netsys->m_TCPSockets.begin();i!= netsys->m_TCPSockets.end();i++)
+		{
+			if(FD_ISSET(i->second,&fdSet))
+			{
+				rc = recv(i->second,(char *)data,PACKET_SIZE,0);
+				if(rc==0 || rc==SOCKET_ERROR)
+				{
+					//TODO: Handle player disconnect
+				}
+				else
+				{
+					netsys->RegisterTraffic(i->first,rc,data,true);
+				}
+			}
 		}
 	}
 }
@@ -124,7 +140,7 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 		if(Player != 0)
 			netsys->RegisterTraffic(netsys->GetPlayerFromAddr(inaddr),size,PacketBuffer,false);
 		else
-			netsys->GetGS()->GetIO()<<Warning<<"Unknown player sent data to UDP "
+			netsys->GetGS()->GetIO()<<Warning<<"Unknown player sent data to UDP "<<endl;
 		free(PacketBuffer);
 	}
 }

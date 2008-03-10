@@ -190,6 +190,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\ChatIOProvider.h"
+				>
+			</File>
+			<File
 				RelativePath=".\DefaultSettings.h"
 				>
 			</File>
@@ -578,6 +582,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\ChatIOProvider.cpp"
+			>
+		</File>
 		<File
 			RelativePath=".\main.cpp"
 			>

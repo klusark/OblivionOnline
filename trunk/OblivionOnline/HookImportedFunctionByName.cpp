@@ -51,11 +51,11 @@ BOOL BUGSUTIL_DLLINTERFACE
     // Double check the parameters.
     ASSERT ( NULL != szImportMod ) ;
     ASSERT ( 0 != uiCount ) ;
-    ASSERT ( FALSE == IsBadReadPtr ( paHookArray ,
+    /*ASSERT ( FALSE == IsBadReadPtr ( paHookArray , 
                                      sizeof (HOOKFUNCDESC) * uiCount ));
     ASSERT ( FALSE == IsBadWritePtr ( paOrigFuncs ,
                                       sizeof ( PROC ) * uiCount ) ) ;
-    ASSERT ( FALSE == IsBadWritePtr ( puiHooked , sizeof ( UINT ) ) ) ;
+    ASSERT ( FALSE == IsBadWritePtr ( puiHooked , sizeof ( UINT ) ) ) ; */
 #ifdef _DEBUG
     // Check each function name in the hook array.
     {

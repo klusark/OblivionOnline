@@ -51,6 +51,7 @@ lua_Integer LuaSystem::GetInteger(std::string Name)
 std::string LuaSystem::GetString(std::string Name)
 {
 	lua_getglobal(m_Lua,Name.c_str());
+	if(lua_isstring(m_Lua,lua_gettop(m_Lua)))
 	return std::string(lua_tostring(m_Lua,lua_gettop(m_Lua)));
 }
 void LuaSystem::SetNumeric(std::string Name, lua_Number value)

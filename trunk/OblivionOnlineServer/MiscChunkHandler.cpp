@@ -21,17 +21,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "InPacket.h"
 size_t HandleChatChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
-	//TODO : handle chat
-	return true;
+	size_t retval;
+	UINT16 supposedlength = *(unsigned short *)(chunkdata + 2);
+	std::string *chatmessage;
+	if(supposedlength > len - 4)
+		retval = len;
+	else
+		retval = supposedlength;
+	
+	chatmessage = new std::string((char *)(chunkdata + 4),retval);
+	//TODO: Handle chat message
+	delete chatmessage;
+	return retval;
 }
 size_t HandleVersionChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
 	if(*(chunkdata + 2) == VERSION_SUPER && *(chunkdata+3) == VERSION_MAJOR && *(chunkdata+4) == VERSION_MINOR )
-		gs->GetIO()<<GameMessage<<"Client "<<FormID <<" authenticated with the correct version" << endl;
+		gs->GetIO()<<SystemMessage<<"Client "<<FormID <<" authenticated with the correct version" << endl;
 	else
 	{
 		//TODO: kick him
-		gs->GetIO()<<"Client "<<FormID <<" tried to authenticate with an incorrect version:"<<*chunkdata<<*(chunkdata+1)<<*(chunkdata+2)<< endl;
+		gs->GetIO()<<SystemMessage<<"Client "<<FormID <<" tried to authenticate with an incorrect version:"<<*chunkdata<<*(chunkdata+1)<<*(chunkdata+2)<< endl;
 	}
-	return true;
+	return GetMinChunkSize(PkgChunk::Version);
 }

@@ -36,7 +36,9 @@ enum LogLevel
 	GameMessage,
 	Warning,
 	Error,
-	FatalError
+	FatalError,
+	PlayerChat,
+	AdminChat
 };
 class IOSystem : public std::streambuf
 {
@@ -118,6 +120,12 @@ private:
 			break;
 		case FatalError:
 			Message +="[FatalError]";
+			break;
+		case PlayerChat:
+			Message +="";
+			break;
+		case AdminChat:
+			Message +="[Admin]";
 			break;
 		default:
 			Message +="[unknown]";
