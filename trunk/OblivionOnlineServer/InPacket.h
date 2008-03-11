@@ -15,7 +15,8 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/#pragma once
+*/
+#pragma once
 #include "GlobalDefines.h"
 #include "GameServer.h"
 #include "ChunkHandler.h"
@@ -41,8 +42,11 @@ public:
 	InPacket(NetworkSystem *sys,GameServer *gs,BYTE * stream,size_t streamlen)
 	{
 		m_sys = sys;
+		/*
 		m_stream = (BYTE*)malloc(streamlen);
 		memcpy(m_stream,stream,streamlen); // So the stream can be released
+		*/
+		m_stream = stream;
 		m_current = m_stream;
 		m_currentchunk = 0;
 		m_GS = gs;

@@ -817,6 +817,26 @@
 				</File>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="NetCode"
+			>
+			<File
+				RelativePath=".\ChunkHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\InPacket.h"
+				>
+			</File>
+			<Filter
+				Name="ChunkHandler"
+				>
+				<File
+					RelativePath=".\HandleObjectChunk.cpp"
+					>
+				</File>
+			</Filter>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
