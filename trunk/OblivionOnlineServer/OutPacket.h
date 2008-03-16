@@ -42,7 +42,7 @@ private:
 		if(*m_Bytes_written  < PACKET_SIZE) // m_Bytes_written + 1 <= tuned
 		{
 			*m_Dataptr = data;
-			m_Bytes_written++;
+			*m_Bytes_written++;
 			return true;
 		}
 		return false;
@@ -52,8 +52,8 @@ private:
 		if(*m_Bytes_written + 1 < PACKET_SIZE)// m_Bytes_written + 2 <= tuned
 		{
 			*((WORD *)m_Dataptr) = data;
-			m_Bytes_written++; // faster here
-			m_Bytes_written++;
+			*m_Bytes_written++; // faster here
+			*m_Bytes_written++;
 			return true;
 		}
 		return false;
@@ -75,6 +75,7 @@ private:
 			memcpy(m_Dataptr,data,len);
 			return true;
 		}
+		*m_Bytes_written += len;
 		return false;
 	}
 	inline BYTE FindObjectID(UINT32 FormID,bool IsPlayer)
@@ -139,5 +140,16 @@ public:
 		if(RequiresReliable(ChunkType))
 			m_Reliable = true;
 	}
-
+	inline BYTE* GetData()
+	{
+		return m_Data;
+	}
+	inline bool Reliable()
+	{
+		return m_Reliable;
+	}
+	inline size_t Size()
+	{
+		return *m_Bytes_written;
+	}
 };

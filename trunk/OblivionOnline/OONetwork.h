@@ -1,6 +1,6 @@
 /*
 
-Copyright(c) 2007-2008   Julian Bangert aka masterfreek64, Joseph Pearson aka chessmaster42
+Copyright(c) 2007-2008   Julian Bangert aka masterfreek64
 
 This file is part of OblivionOnline.
 
@@ -56,6 +56,6 @@ extern bool NetDisconnect();
 extern bool NetChat(char *Message);
 extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC);
 extern bool NetReadBuffer(char *acReadBuffer, int Length);
-extern bool NetEquipped(PlayerStatus *Player, int PlayerID, bool Initial);
+extern bool NetEquipped(UINT32 slot, int PlayerID);
 
 #endif

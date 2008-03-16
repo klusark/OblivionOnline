@@ -28,6 +28,7 @@ class NetworkSystem
 {
 private:
 	GameServer *m_GS;
+	SOCKET m_UDPSock;
 	DWORD m_resendinterval;
 	DWORD m_lastsent;
 	OO_THREAD m_TCPThread;
@@ -53,7 +54,15 @@ public:
 	inline bool SendChunk(UINT32 PlayerID,UINT32 FormID,bool IsPlayer,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
 		OutPacket *packet = m_OutPackets[PlayerID];
-		return packet->AddChunk(FormID,IsPlayer,ChunkSize,ChunkType,data);
+		if(packet->AddChunk(FormID,IsPlayer,ChunkSize,ChunkType,data) == true)
+			return true;
+		else
+		{
+			if(packet->Reliable())
+				SendReliableStream(PlayerID,packet->Size(),packet->GetData());
+			else
+				SendUnreliableStream(PlayerID,packet->Size(),packet->GetData());
+		}
 	}
 	bool RegisterTraffic(UINT32 PlayerID,size_t size,BYTE *data,bool reliable);
 	//TODO : Place these in  a callback ?

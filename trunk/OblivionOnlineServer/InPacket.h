@@ -85,13 +85,15 @@ public:
 			return HandleStatChunk(m_GS,this,chunkdata,maxsize,FormID,status);
 		case Skill:
 			return HandleSkillChunk(m_GS,this,chunkdata,maxsize,FormID,status);
+		case Equip:
+			return HandleEquipChunk(m_GS,this,chunkdata,maxsize,FormID,status);
 		case Chat:
 			return HandleChatChunk(m_GS,this,chunkdata,maxsize,FormID,status);
 		case Auth:
 			//return HandleAuthChunk(m_GS,this,chunkdata,maxsize,FormID,status);
-			return false;
+			return GetMinChunkSize(Auth);
 		case ClientType:
-			return false;
+			return GetMinChunkSize(ClientType);
 		case Version:
 			return HandleVersionChunk(m_GS,this,chunkdata,maxsize,FormID,status);
 		default:

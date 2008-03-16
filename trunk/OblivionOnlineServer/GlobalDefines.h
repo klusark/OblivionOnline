@@ -42,3 +42,4 @@ typedef HANDLE SEMAPHORE
 
 #endif
 using namespace std;
+#define MAX_EQUIPSLOTS 18

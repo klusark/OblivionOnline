@@ -776,69 +776,26 @@ bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
 
 		if (actorNumber != -1)
 		{
-
+			static UINT32 Equip[20];
 			double itemResult;
 			UInt32* itemRef = (UInt32*)&itemResult;
 			feGetObject getObject;
+			//TODO: Unroll loop maybe
+			for(int i = 0; i <= 20; i++) // traverse Slots
+			{
+				if(i == 18 || i == 19 || i== 9 || i == 10 || i == 11 || i == 12 || i == 14) // These do not exist 
+					continue;
+				if (!FindEquipped(thisObj, i, &getObject, &itemResult))
+				{
+					*itemRef = 0;
+				}
+				if( Equip[i] != *itemRef)
+				{
+					NetEquipped(i,actorNumber);
+					Equip[i] = *itemRef;
+				}
+			}
 
-			if (FindEquipped(thisObj, 0, &getObject, &itemResult))
-				Players[actorNumber].head = *itemRef;
-			else
-				Players[actorNumber].head = 0;
-			if (FindEquipped(thisObj, 1, &getObject, &itemResult))
-				Players[actorNumber].hair = *itemRef;
-			else
-				Players[actorNumber].hair = 0;
-			if (FindEquipped(thisObj, 2, &getObject, &itemResult))
-				Players[actorNumber].upper_body = *itemRef;
-			else
-				Players[actorNumber].upper_body = 0;
-			if (FindEquipped(thisObj, 3, &getObject, &itemResult))
-				Players[actorNumber].lower_body = *itemRef;
-			else
-				Players[actorNumber].lower_body = 0;
-			if (FindEquipped(thisObj, 4, &getObject, &itemResult))
-				Players[actorNumber].hand = *itemRef;
-			else
-				Players[actorNumber].hand = 0;
-			if (FindEquipped(thisObj, 5, &getObject, &itemResult))
-				Players[actorNumber].foot = *itemRef;
-			else
-				Players[actorNumber].foot = 0;
-			if (FindEquipped(thisObj, 6, &getObject, &itemResult))
-				Players[actorNumber].right_ring = *itemRef;
-			else
-				Players[actorNumber].right_ring = 0;
-			if (FindEquipped(thisObj, 7, &getObject, &itemResult))
-				Players[actorNumber].left_ring = *itemRef;
-			else
-				Players[actorNumber].left_ring = 0;
-			if (FindEquipped(thisObj, 8, &getObject, &itemResult))
-				Players[actorNumber].amulet = *itemRef;
-			else
-				Players[actorNumber].amulet = 0;
-			if (FindEquipped(thisObj, 13, &getObject, &itemResult))
-				Players[actorNumber].shield = *itemRef;
-			else
-				Players[actorNumber].shield = 0;
-			if (FindEquipped(thisObj, 15, &getObject, &itemResult))
-				Players[actorNumber].tail = *itemRef;
-			else
-				Players[actorNumber].tail = 0;
-			if (FindEquipped(thisObj, 16, &getObject, &itemResult))
-				Players[actorNumber].weapon = *itemRef;
-			else
-				Players[actorNumber].weapon = 0;
-			if (FindEquipped(thisObj, 17, &getObject, &itemResult))
-				Players[actorNumber].ammo = *itemRef;
-			else
-				Players[actorNumber].ammo = 0;
-			if (FindEquipped(thisObj, 20, &getObject, &itemResult))	//Robes are 20 not 18 (CS Wiki is wrong)
-				Players[actorNumber].robes = *itemRef;
-			else
-				Players[actorNumber].robes = 0;
-
-			NetEquipped(&Players[actorNumber], actorNumber, false);
 		}
 	}
 	return true;

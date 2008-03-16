@@ -118,3 +118,13 @@ size_t HandleNameChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len 
 	ent->SetName(ReadANSIString(chunkdata + 2,len-2));
 	return ent->Name().length() + 2;
 }
+size_t HandleEquipChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
+{
+	Entity *ent = gs->GetEntities()->GetEntity(status,FormID);
+	if(ent == NULL)
+	{
+		gs->GetIO()<<Error<<"Error handling Equip chunk: Entity not registered"<< endl;
+		return 0;
+	}	
+	ent->SetEquip(*(BYTE*)(chunkdata + 2),*(UINT32 *)(chunkdata + 3));
+}

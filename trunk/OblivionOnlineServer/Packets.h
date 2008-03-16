@@ -55,12 +55,14 @@ TYPE#	Description
 8		Race   . UINT32
 9		Class  . ANSI string
 10		Name   . ANSI string
-11		Stat	 BYTE slot and then short Value
+11		Stat	 BYTE stat and then short Value
 12		Skill	 BYTE Skill and then short Value
-13		Chat	. ANSI string
-14		Auth	. ANSI string Username , 512 bit SHA-512 
-15		Client Type. BYTE : 0 if passive , 1 if master client. Passive is assumed until further notice ;)
-16		Version .	SUPER , MAJOR AND MINOR as bytes
+13		Equip .  BYTE slot and UINT32 Equip
+14		Chat	. ANSI string
+15		Auth	. ANSI string Username , 512 bit SHA-512 
+16		Client Type. BYTE : 0 if passive , 1 if master client. Passive is assumed until further notice ;)
+17		Version .	SUPER , MAJOR AND MINOR as bytes
+18		PlayerID . UINT32 Player ID - sent only by server
 */
 #define PACKET_SIZE 1024u
 #define PACKET_HEADER_SIZE 3
@@ -81,10 +83,12 @@ enum PkgChunk
 	Name     = 10,
 	Stat     = 11,
 	Skill    = 12,
-	Chat     = 13,
-	Auth	 = 14,
-	ClientType = 15,
-	Version	= 16
+	Equip	 = 13,
+	Chat     = 14,
+	Auth	 = 15,
+	ClientType = 16,
+	Version	= 17,
+	PlayerID = 18
 };
 inline bool RequiresReliable(PkgChunk type)
 {
@@ -115,6 +119,8 @@ inline bool RequiresReliable(PkgChunk type)
 		return true;
 	case Skill:
 		return true;
+	case Equip:
+		return true;
 	case Chat:
 		return true;
 	case Auth:
@@ -122,6 +128,8 @@ inline bool RequiresReliable(PkgChunk type)
 	case ClientType:
 		return true;
 	case Version:
+		return true;
+	case PlayerID:
 		return true;
 	default:
 		return false;
@@ -163,6 +171,8 @@ inline size_t GetMinChunkSize(PkgChunk type)
 		return sizeof(BYTE);
 	case Version:
 		return 3*sizeof(BYTE);
+	case PlayerID:
+		return sizeof(UINT32);
 	default:
 		return sizeof(unsigned short);
 	}
@@ -178,5 +188,8 @@ inline UINT8 GetObject(BYTE *stream)
 }
 inline std::string ReadANSIString(BYTE* BaseStream,size_t maxlen)
 {
-	return std::string((char *)(BaseStream + sizeof(unsigned short)),min(maxlen,*(unsigned short *)BaseStream)) ;
+	return std::string((char *)(BaseStream + sizeof(unsigned short)), ((maxlen < *(unsigned short *)BaseStream) ? (maxlen) : *(unsigned short *)BaseStream));
 }
+#define STATUS_OBJECT 0
+#define STATUS_NPC 1
+#define STATUS_PLAYER 2

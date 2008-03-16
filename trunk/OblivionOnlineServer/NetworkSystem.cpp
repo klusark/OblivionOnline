@@ -186,4 +186,16 @@ NetworkSystem::NetworkSystem( GameServer *Server )
 	WSAStartup(MAKEWORD(2,2),&wsad);
 #endif
 	m_TCPSockets.clear();
+	m_UDPSock = socket(AF_INET,SOCK_DGRAM,0);
+}
+
+bool NetworkSystem::SendReliableStream( UINT32 PlayerID,size_t length,BYTE *data )
+{
+	send(m_TCPSockets.find(PlayerID)->second,(const char *)data,length,0);
+	return true;
+}
+bool NetworkSystem::SendUnreliableStream( UINT32 PlayerID,size_t length,BYTE *data )
+{
+	sendto(m_UDPSock,(const char *)data,length,0,(SOCKADDR *)&m_PlayerAddresses.find(PlayerID)->second,sizeof(SOCKADDR_IN));
+	return true;
 }

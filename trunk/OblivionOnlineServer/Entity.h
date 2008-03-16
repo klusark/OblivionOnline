@@ -20,7 +20,7 @@ GNU Affero General Public License for more details.
 class Entity
 {
 private:
-
+	UINT32 m_Equip[32]; // Enuf 
 	float m_PosX,m_PosY,m_PosZ,m_RotX,m_RotY,m_RotZ;
 	UINT32 m_RefID,m_CellID,m_Race;
 	short m_Health, m_Magicka , m_Fatigue;	
@@ -139,6 +139,11 @@ public:
 	{
 		m_Race = value;
 	}
+	inline void SetEquip(BYTE slot,UINT32 value)
+	{
+		if(slot < MAX_EQUIPSLOTS)
+			m_Equip[slot ] = value;
+	}
 	inline void SetName(std::string Name)
 	{
 		m_Name = Name;
@@ -168,6 +173,13 @@ public:
 	inline UINT32 RefID()
 	{
 		return m_RefID;
+	}
+	inline UINT32 Equip(UINT32 slot)
+	{
+		if(slot < MAX_EQUIPSLOTS)
+			return m_Equip[slot];
+		else
+			return 0;
 	}
 	inline UINT32 CellID()
 	{

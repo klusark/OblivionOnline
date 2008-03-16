@@ -891,6 +891,14 @@
 					RelativePath=".\HandleRaceChunk.cpp"
 					>
 				</File>
+				<File
+					RelativePath=".\HandleSkillChunk.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\HandleStatChunk.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<File
