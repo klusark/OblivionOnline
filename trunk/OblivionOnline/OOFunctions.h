@@ -53,4 +53,5 @@ inline USHORT GetSpawnIDFromPlayerID(USHORT  PlayerID) // retrieves a player num
 {
 	return ((LocalPlayer >= PlayerID) ? PlayerID : (PlayerID -1));
 };
+
 #endif

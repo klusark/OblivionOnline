@@ -825,18 +825,90 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Event.h"
+				>
+			</File>
+			<File
+				RelativePath=".\EventSystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\EventSystem.h"
+				>
+			</File>
+			<File
 				RelativePath=".\InPacket.h"
+				>
+			</File>
+			<File
+				RelativePath=".\OutboundNetwork.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\OutboundNetwork.h"
 				>
 			</File>
 			<Filter
 				Name="ChunkHandler"
 				>
 				<File
+					RelativePath=".\HandleCellIDChunk.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\HandleChatChunk.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\HandleClassChunk.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\HandleGenderChunk.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\HandleHealthFatigueMagickaChunk.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\HandleMiscChunk.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\HandleNameChunk.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\HandleObjectChunk.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\HandlePositionChunk.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\HandleRaceChunk.cpp"
 					>
 				</File>
 			</Filter>
 		</Filter>
+		<File
+			RelativePath=".\EntityManager.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\EntityManager.h"
+			>
+		</File>
+		<File
+			RelativePath=".\EntityUpdateManager.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\EntityUpdateManager.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -37,6 +37,7 @@ This file is part of OblivionOnline.
 	forward this exception.
 */
 #include "main.h"
+#include "OOPackets.h"
 #include <hash_map>
 #include <stack>
 #include <queue>

@@ -39,7 +39,6 @@ This file is part of OblivionOnline.
 #ifndef OONETWORK_H
 #define OONETWORK_H
 #include "OOStructs.h"
-#include "OOPackets.h"
 #include "main.h"
 
 //Update times for packets (in milliseconds)
@@ -52,7 +51,7 @@ This file is part of OblivionOnline.
 
 
 extern bool NetActorUpdate(PlayerStatus *Player, int PlayerID, bool IsPC, bool Initial);
-extern bool NetWelcome(char *Password);
+extern bool NetWelcome();
 extern bool NetDisconnect();
 extern bool NetChat(char *Message);
 extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC);

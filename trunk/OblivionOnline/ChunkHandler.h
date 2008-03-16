@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 // Client chunk handler
+#include "OOFunctions.h"
 class InPacket;
 size_t HandleObjectChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status);
 size_t HandlePositionChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);

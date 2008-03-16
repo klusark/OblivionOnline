@@ -48,10 +48,12 @@ This file is part of OblivionOnline.
 #include "obse/ParamInfos.h"
 #include "obse/GameObjects.h"
 #include "OONetwork.h"
+#include "OOPackets.h"
 #include "OOStructs.h"
 #include "OBSEFunctions.h"
 #include "OOFunctions.H"
 #include "MobSynch.h"
+#include "OutboundNetwork.h"
 #define MAXCLIENTS 12
 #define MAXSERVERS 8
 
@@ -78,6 +80,10 @@ extern UInt32 SpawnID[MAXCLIENTS];
 extern int BadPackets[PACKET_COUNT];
 extern DWORD PacketTime[PACKET_COUNT];
 extern char ServerIP[15];
+extern OutboundNetwork outnet;
 
-
+inline UINT32 GetPlayerFormID(UINT32 PlayerID)
+{
+	return SpawnID[(LocalPlayer >= PlayerID) ? PlayerID : (PlayerID -1)]; // TODO: Revamp this
+}
 #endif

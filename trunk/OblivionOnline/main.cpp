@@ -40,6 +40,7 @@ This file is part of OblivionOnline.
 #include "UserInterface.h"
 #include "OONetwork.h"
 #include "D3Dhook.h"
+#include "InPacket.h"
 // Global variables
 extern "C" HINSTANCE OODll;
 bool bIsConnected = false;
@@ -168,13 +169,15 @@ int OO_Deinitialize ()
 
 DWORD WINAPI RecvThread(LPVOID Params)
 {
-	char buf[512];
+	char buf[PACKET_SIZE];
 	int rc;
-
+	InPacket * pkg;
 	while(bIsConnected)
 	{
-		rc = recv(ServerSocket,buf,512,0);
-		NetReadBuffer(buf, rc);
+		rc = recv(ServerSocket,buf,PACKET_SIZE,0);
+		pkg = new InPacket((BYTE *)buf,rc);
+		pkg->HandlePacket();
+		delete pkg;
 	}
 	return 0;
 }
@@ -222,11 +225,12 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 			else 
 			{
 				_MESSAGE("Successfully Connected to %s:%u",IP[i],ClientPort[i]);
+				outnet.SetAddress(ServerAddr);
 				bIsConnected = true;
 				hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
 				//hPredictionEngine = CreateThread(NULL,NULL,PredictionEngine,NULL,NULL,NULL);
 				//Now try to connect with default password
-				NetWelcome("nopassword");
+				NetWelcome();
 				Console_Print("Oblivion connected to %s",IP[i]);
 				sprintf(ServerIP,"%s",IP[i]);
 				//usrInterface.SetGlobalState(true); // we start it ...
@@ -955,7 +959,7 @@ bool Cmd_MPLogin_Execute (COMMAND_ARGS)
 {
 	char Password[32];
 	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &Password)) return true;
-	if(!NetWelcome(Password)) return true;
+	if(!NetWelcome()) return true;
 	TotalPlayers = 1;
 	return true;
 }
