@@ -225,10 +225,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MobSynch.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\OBSEFunctions.cpp"
 				>
 			</File>
@@ -257,10 +253,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MobSynch.h"
-				>
-			</File>
-			<File
 				RelativePath=".\OBSEFunctions.h"
 				>
 			</File>
@@ -284,77 +276,77 @@
 				RelativePath=".\UserInterface.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Hooks"
-			>
 			<Filter
-				Name="Direct3D"
+				Name="Hooks"
 				>
-				<File
-					RelativePath=".\D3DHook.cpp"
+				<Filter
+					Name="Direct3D"
 					>
-				</File>
-				<File
-					RelativePath=".\D3DHook.h"
+					<File
+						RelativePath=".\D3DHook.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\D3DHook.h"
+						>
+					</File>
+					<File
+						RelativePath=".\FakeD3D.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Code"
 					>
-				</File>
-				<File
-					RelativePath=".\FakeD3D.h"
+					<File
+						RelativePath=".\BugslayerUtil.h"
+						>
+					</File>
+					<File
+						RelativePath=".\GetLoadedModules.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\HookImportedFunctionByName.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\MemDumperValidator.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\MemDumperValidator.h"
+						>
+					</File>
+					<File
+						RelativePath=".\MSJDBG.h"
+						>
+					</File>
+					<File
+						RelativePath=".\NT4ProcessInfo.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\TLHELPProcessInfo.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Input"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Code"
-				>
-				<File
-					RelativePath=".\BugslayerUtil.h"
-					>
-				</File>
-				<File
-					RelativePath=".\GetLoadedModules.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\HookImportedFunctionByName.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\MemDumperValidator.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\MemDumperValidator.h"
-					>
-				</File>
-				<File
-					RelativePath=".\MSJDBG.h"
-					>
-				</File>
-				<File
-					RelativePath=".\NT4ProcessInfo.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\TLHELPProcessInfo.cpp"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Input"
-				>
-				<File
-					RelativePath=".\FakeDI8.h"
-					>
-				</File>
-				<File
-					RelativePath=".\InputHook.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\InputHook.h"
-					>
-				</File>
+					<File
+						RelativePath=".\FakeDI8.h"
+						>
+					</File>
+					<File
+						RelativePath=".\InputHook.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\InputHook.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -841,6 +833,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\NetSend.h"
+				>
+			</File>
+			<File
 				RelativePath=".\OutboundNetwork.cpp"
 				>
 			</File>
@@ -900,21 +896,77 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="Send Functions"
+				>
+				<File
+					RelativePath=".\NetSendChat.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\NetSendEquip.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\NetSendPosition.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
+		<Filter
+			Name="Commands"
+			>
+			<File
+				RelativePath=".\Commands.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ConnectCommands.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DisconnectCommands.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\EquipCommands.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MiscCommands.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PositionCommands.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\QueueManagementCommands.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SendActorCommands.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SpawnCommands.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\StatnTimeCommands.cpp"
+				>
+			</File>
+		</Filter>
+		<File
+			RelativePath=".\Entity.h"
+			>
+		</File>
 		<File
 			RelativePath=".\EntityManager.cpp"
 			>
 		</File>
 		<File
 			RelativePath=".\EntityManager.h"
-			>
-		</File>
-		<File
-			RelativePath=".\EntityUpdateManager.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\EntityUpdateManager.h"
 			>
 		</File>
 	</Files>

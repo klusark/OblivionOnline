@@ -40,6 +40,7 @@ This file is part of OblivionOnline.
 #define main_h
 
 #include <list>
+#include <queue>
 #include <stdio.h>
 #include <Windows.h>
 #include "obse/PluginAPI.h"
@@ -52,8 +53,8 @@ This file is part of OblivionOnline.
 #include "OOStructs.h"
 #include "OBSEFunctions.h"
 #include "OOFunctions.H"
-#include "MobSynch.h"
 #include "OutboundNetwork.h"
+#include "EntityManager.h"
 #define MAXCLIENTS 12
 #define MAXSERVERS 8
 
@@ -64,17 +65,15 @@ This file is part of OblivionOnline.
 #define RELEASE_CODENAME "Release V" // The Name . Can be empty
 #define ADDITIONAL_VERSION_COMMENT "Internal Alpha" // For betas and special builds only
 
+extern std::queue<Entity *> UpdateQueue;
 //Externals
 extern IDebugLog gLog;
 extern bool bIsConnected;
-extern int LocalPlayer;
-extern int TotalPlayers;
+extern UINT32 LocalPlayer;
+extern UINT32 TotalPlayers;
 extern bool PlayerConnected[MAXCLIENTS];
 extern SOCKET ServerSocket;
 extern HANDLE hRecvThread;
-extern HANDLE hPredictionEngine;
-extern PlayerStatus Players[MAXCLIENTS];
-extern PlayerStatus PlayersInitial[MAXCLIENTS];
 extern TESObjectREFR* PlayerActorList[MAXCLIENTS];
 extern UInt32 SpawnID[MAXCLIENTS];
 extern int BadPackets[PACKET_COUNT];
@@ -86,4 +85,8 @@ inline UINT32 GetPlayerFormID(UINT32 PlayerID)
 {
 	return SpawnID[(LocalPlayer >= PlayerID) ? PlayerID : (PlayerID -1)]; // TODO: Revamp this
 }
+extern DWORD WINAPI RecvThread(LPVOID Params);
+extern int OO_Initialize();
+extern int OO_Deinitialize();
+extern EntityManager Entities;
 #endif

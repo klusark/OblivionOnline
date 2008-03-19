@@ -1,6 +1,7 @@
+
 /*
 
-Copyright(c) 2007-2008   Julian Bangert aka masterfreek64
+Copyright(c) 2007-2008   Julian Bangert aka masterfreek64, Joseph Pearson aka chessmaster42
 
 This file is part of OblivionOnline.
 
@@ -35,48 +36,29 @@ The GNU General Public License gives permission to release a modified version wi
 exception; this exception also makes it possible to release a modified version which carries 
 forward this exception.
 */
-#include "Entity.h"
-#include "EntityManager.h"
 #include "main.h"
 
-bool EntityManager::RegisterEntity(Entity *Entity)
-{
-#ifndef OO_USE_HASHMAP
-		m_objects.insert(IDEntityPair(Entity->RefID,Entity));
-#else
-		m_objects.Insert(Entity);
-#endif	
-	return true;
-}
-bool EntityManager::DeleteEntity(Entity *Entity)
-{
-	delete Entity;
-	return true;
-}
-bool EntityManager::DeleteEntities()
-{
-	#ifndef OO_USE_HASHMAP
-	for(std::map<UINT32,Entity *>::iterator i = m_objects.begin();i != m_objects.end();i++)
-	{
-		delete i->second;
-	}
-	m_objects.clear();
-	#else
-	// TODO
-	printf("SOMEBODY TOLD YOU NOT TO MESS WITH DEVELOPMENT CODE !!! BETTER LISTEN");
-	#endif	
-	return true;
-}
-bool EntityManager::DeRegisterEntity(Entity *Entity)
-{
 
-#ifndef OO_USE_HASHMAP
-		m_objects.erase(Entity->RefID);
-#else
-	if(Entity->Player())
-		m_players.Remove(Entity);
-	else
-		m_objects.Remove(Entity);
-#endif	
-	return true;	
+
+bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
+{
+	// A heavy command xD
+	// 1 - send local player data up .
+	// 2 - send health magicka and fatigue up.
+	// if MC :
+	// 2 - send up position , stat equip , etc of NPCs
+	return true;
 }
+
+
+CommandInfo kMPSendActorCommand =
+{
+	"MPSendActor",
+	"MPSP",
+	0,
+	"Sends out data - long long routine",
+	0,		// requires parent obj
+	0,		// doesn't have params
+	NULL,	// no param table
+	Cmd_MPSendActor_Execute
+};

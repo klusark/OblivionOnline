@@ -1,6 +1,7 @@
+
 /*
 
-Copyright(c) 2007-2008   Julian Bangert aka masterfreek64
+Copyright(c) 2007-2008   Julian Bangert aka masterfreek64, Joseph Pearson aka chessmaster42
 
 This file is part of OblivionOnline.
 
@@ -35,48 +36,58 @@ The GNU General Public License gives permission to release a modified version wi
 exception; this exception also makes it possible to release a modified version which carries 
 forward this exception.
 */
-#include "Entity.h"
-#include "EntityManager.h"
 #include "main.h"
-
-bool EntityManager::RegisterEntity(Entity *Entity)
+bool Cmd_MPGetStat_Execute (COMMAND_ARGS)
 {
-#ifndef OO_USE_HASHMAP
-		m_objects.insert(IDEntityPair(Entity->RefID,Entity));
-#else
-		m_objects.Insert(Entity);
-#endif	
-	return true;
-}
-bool EntityManager::DeleteEntity(Entity *Entity)
-{
-	delete Entity;
-	return true;
-}
-bool EntityManager::DeleteEntities()
-{
-	#ifndef OO_USE_HASHMAP
-	for(std::map<UINT32,Entity *>::iterator i = m_objects.begin();i != m_objects.end();i++)
+	int statNumber = 0;
+	if (!thisObj)
 	{
-		delete i->second;
+		Console_Print("Error, no reference given for MPGetStat");
+		return true;
 	}
-	m_objects.clear();
-	#else
-	// TODO
-	printf("SOMEBODY TOLD YOU NOT TO MESS WITH DEVELOPMENT CODE !!! BETTER LISTEN");
-	#endif	
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &statNumber)) return true;
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+			//float statAmount = GetStat(ActorBuf, statNumber);
+		//if (statAmount == -1)
+		//Console_Print("Tried to get stat of non-initialized actor");
+		//*result = statAmount;
+	}
 	return true;
 }
-bool EntityManager::DeRegisterEntity(Entity *Entity)
+CommandInfo kMPSendFullStatCommand =
 {
+	"MPSendFullStat",
+	"MPSFS",
+	0,
+	"Send all stats of calling ref",
+	0,		// requires parent obj
+	0,		// doesn't have params
+	NULL,	// no param table
+	Cmd_MPSendFullStat_Execute
+};
 
-#ifndef OO_USE_HASHMAP
-		m_objects.erase(Entity->RefID);
-#else
-	if(Entity->Player())
-		m_players.Remove(Entity);
-	else
-		m_objects.Remove(Entity);
-#endif	
-	return true;	
-}
+CommandInfo kMPSyncTimeCommand =
+{
+	"MPSyncTime",
+	"MPSTM",
+	0,
+	"Requests server time sync",
+	0,		// requires parent obj
+	0,		// doesn't have params
+	NULL,	// no param table
+	Cmd_MPSyncTime_Execute
+};
+
+CommandInfo kMPGetStatCommand =
+{
+	"MPGetStat",
+	"MPGST",
+	0,
+	"Gets stats",
+	0,		// requires parent obj
+	1,		// has 1 param
+	kParams_OneInt,	// int param table
+	Cmd_MPGetStat_Execute
+};

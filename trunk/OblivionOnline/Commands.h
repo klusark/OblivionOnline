@@ -1,6 +1,7 @@
+
 /*
 
-Copyright(c) 2007-2008   Julian Bangert aka masterfreek64
+Copyright(c) 2007-2008   Julian Bangert aka masterfreek64, Joseph Pearson aka chessmaster42
 
 This file is part of OblivionOnline.
 
@@ -35,48 +36,42 @@ The GNU General Public License gives permission to release a modified version wi
 exception; this exception also makes it possible to release a modified version which carries 
 forward this exception.
 */
-#include "Entity.h"
-#include "EntityManager.h"
-#include "main.h"
 
-bool EntityManager::RegisterEntity(Entity *Entity)
-{
-#ifndef OO_USE_HASHMAP
-		m_objects.insert(IDEntityPair(Entity->RefID,Entity));
-#else
-		m_objects.Insert(Entity);
-#endif	
-	return true;
-}
-bool EntityManager::DeleteEntity(Entity *Entity)
-{
-	delete Entity;
-	return true;
-}
-bool EntityManager::DeleteEntities()
-{
-	#ifndef OO_USE_HASHMAP
-	for(std::map<UINT32,Entity *>::iterator i = m_objects.begin();i != m_objects.end();i++)
-	{
-		delete i->second;
-	}
-	m_objects.clear();
-	#else
-	// TODO
-	printf("SOMEBODY TOLD YOU NOT TO MESS WITH DEVELOPMENT CODE !!! BETTER LISTEN");
-	#endif	
-	return true;
-}
-bool EntityManager::DeRegisterEntity(Entity *Entity)
-{
+extern CommandInfo kMPConnectCommand;
+extern CommandInfo kMPSendActorCommand;
+extern CommandInfo kMPSendFullStatCommand;
+extern CommandInfo kMPSendChatCommand;
+extern CommandInfo kMPGetPosXCommand;
+extern CommandInfo kMPGetPosYCommand;
+extern CommandInfo kMPGetPosZCommand;
+extern CommandInfo kMPGetRotZCommand;
+extern CommandInfo kMPGetCellCommand;
 
-#ifndef OO_USE_HASHMAP
-		m_objects.erase(Entity->RefID);
-#else
-	if(Entity->Player())
-		m_players.Remove(Entity);
-	else
-		m_objects.Remove(Entity);
-#endif	
-	return true;	
-}
+extern CommandInfo kMPGetIsInInteriorCommand;
+extern CommandInfo kMPGetStatCommand;
+
+//Debug
+extern CommandInfo kMPGetDebugDataCommand;
+
+//Misc.
+extern CommandInfo kMPGetSpawnedRefCommand;
+extern CommandInfo kMPSpawnedCommand;
+extern CommandInfo kMPTotalPlayersCommand;
+extern CommandInfo kMPDisconnectCommand;
+extern CommandInfo kMPClearSpawnCommand;
+
+//Equipment
+extern CommandInfo kMPSendEquippedCommand;
+extern CommandInfo kMPGetEquipmentCommand;
+
+
+
+extern CommandInfo kMPGetMyIDCommand;
+extern CommandInfo kMPGetNewObjectCommand;
+
+// Mob Synch
+extern CommandInfo kMPSynchActorsCommand;
+extern CommandInfo kMPAdvanceStackCommand;
+extern CommandInfo kMPStopStackCommand;
+
+extern CommandInfo kMPShowGUICommand;

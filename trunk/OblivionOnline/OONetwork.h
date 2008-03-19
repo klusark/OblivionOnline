@@ -56,6 +56,7 @@ extern bool NetDisconnect();
 extern bool NetChat(char *Message);
 extern bool NetFullStatUpdate(PlayerStatus *Player, int PlayerID, bool Initial, bool IsPC);
 extern bool NetReadBuffer(char *acReadBuffer, int Length);
-extern bool NetEquipped(UINT32 slot, int PlayerID);
+
+
 
 #endif

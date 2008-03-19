@@ -94,7 +94,7 @@ int GetPlayerNumberFromRefID(UInt32 refID) // retrieves a player number from a r
 	}
 	return -1;
 }
-
+/*
 float GetStat(Actor* ActorBuf, int statNum)
 {
 	float statValue = -1;
@@ -151,3 +151,4 @@ float GetStat(Actor* ActorBuf, int statNum)
 	}
 	return statValue;
 }
+*/

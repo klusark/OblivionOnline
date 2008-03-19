@@ -87,6 +87,8 @@ public:
 			return false;
 		case Version:
 			return HandleVersionChunk(this,chunkdata,maxsize,FormID,status);
+		case PlayerID:
+			return HandlePlayerIDChunk(this,chunkdata,maxsize,FormID,status);
 		default:
 			return false;
 		}

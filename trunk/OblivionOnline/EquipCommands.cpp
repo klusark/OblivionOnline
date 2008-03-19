@@ -1,3 +1,4 @@
+
 /*
 
 Copyright(c) 2007-2008   Julian Bangert aka masterfreek64
@@ -35,48 +36,93 @@ The GNU General Public License gives permission to release a modified version wi
 exception; this exception also makes it possible to release a modified version which carries 
 forward this exception.
 */
-#include "Entity.h"
-#include "EntityManager.h"
 #include "main.h"
-
-bool EntityManager::RegisterEntity(Entity *Entity)
+#include "Entity.h"
+#include "NetSend.h"
+//Reworked 3/19/2008
+bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 {
-#ifndef OO_USE_HASHMAP
-		m_objects.insert(IDEntityPair(Entity->RefID,Entity));
-#else
-		m_objects.Insert(Entity);
-#endif	
-	return true;
-}
-bool EntityManager::DeleteEntity(Entity *Entity)
-{
-	delete Entity;
-	return true;
-}
-bool EntityManager::DeleteEntities()
-{
-	#ifndef OO_USE_HASHMAP
-	for(std::map<UINT32,Entity *>::iterator i = m_objects.begin();i != m_objects.end();i++)
+	if (!thisObj)
 	{
-		delete i->second;
+		Console_Print("Error, no reference given for MPGetEquipment");
+		return true;
 	}
-	m_objects.clear();
-	#else
-	// TODO
-	printf("SOMEBODY TOLD YOU NOT TO MESS WITH DEVELOPMENT CODE !!! BETTER LISTEN");
-	#endif	
+	if (thisObj->IsActor())
+	{
+		Actor *ActorBuf = (Actor *)thisObj;
+		Entity *ent = Entities.GetEntity(ActorBuf->refID);
+		BYTE i = 0;
+		if(ent ==NULL)
+			ent = new Entity(thisObj->refID);
+		for(;i < MAX_EQUIPSLOTS;i++)
+		{
+			if(ent->EquipChanged[i])
+			{
+				ent->EquipChanged[i] = false;
+				*((UINT32 *)result) = ent->Equip[i];
+				return true;
+			}
+		}
+		*result = 0;
+	}
+
 	return true;
 }
-bool EntityManager::DeRegisterEntity(Entity *Entity)
+//TODO: Tweak this
+extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEquippedFunctor, double* result);
+bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
 {
-
-#ifndef OO_USE_HASHMAP
-		m_objects.erase(Entity->RefID);
-#else
-	if(Entity->Player())
-		m_players.Remove(Entity);
-	else
-		m_objects.Remove(Entity);
-#endif	
-	return true;	
+	if (!thisObj)
+	{
+		Console_Print("Error, no reference given for MPSendEquipped");
+		return true;
+	}
+	if (thisObj->IsActor())
+	{
+		double itemResult;
+		UInt32* itemRef = (UInt32*)&itemResult;
+		Entity * ent = Entities.GetEntity(thisObj->refID);
+		feGetObject getObject;
+		if(ent ==NULL)
+			ent = new Entity(thisObj->refID);				
+		//TODO: Unroll loop maybe
+		for(int i = 0; i <= 20; i++) // traverse Slots
+		{
+			if(i == 18 || i == 19 || i== 9 || i == 10 || i == 11 || i == 12 || i == 14) // These do not exist 
+				continue;
+			if (!FindEquipped(thisObj, i, &getObject, &itemResult))
+			{
+				*itemRef = 0;
+			}
+			if( ent->Equip[i] != *itemRef)
+			{
+				NetSendEquip(thisObj->refID,ent->status,i,*itemRef);				
+				ent->Equip[i] = *itemRef;
+			}
+		}
+	}
+	return true;
 }
+CommandInfo kMPSendEquippedCommand =
+{
+	"MPSendEquipped",
+	"MPSE",
+	0,
+	"Sends an actors equipment",
+	0,		// requires parent obj
+	0,		// no params
+	NULL,	// no param table
+	Cmd_MPSendEquipped_Execute
+};
+
+CommandInfo kMPGetEquipmentCommand =
+{
+	"MPGetEquipment",
+	"MPGE",
+	0,
+	"Gets an actors equipment in the specifiec slot",
+	0,		// requires parent obj
+	1,		// 1 param
+	kParams_OneInt,	// int param table
+	Cmd_MPGetEquipment_Execute
+};

@@ -1,16 +1,39 @@
 /*
-OblivionOnline Server- An open source game server for the OblivionOnline mod
-Copyright (C)  2008   Julian Bangert
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
+Copyright(c) 2007-2008   Julian Bangert aka masterfreek64
 
-This program is distributed in the hope that it will be useful,
+This file is part of OblivionOnline.
+
+OblivionOnline is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+OblivionOnline is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Linking OblivionOnline statically or dynamically with other modules is making a combined work based
+on OblivionOnline. Thus, the terms and conditions of the GNU General Public License cover 
+the whole combination.
+
+In addition, as a special exception, the copyright holders of  OblivionOnline give you permission to 
+combine OblivionOnline program with free software programs or libraries that are released under
+the GNU LGPL and with code included in the standard release of Oblivion Script Extender by Ian Patterson (OBSE)
+under the OBSE license (or modified versions of such code, with unchanged license). You may copy and distribute such a system 
+following the terms of the GNU GPL for  OblivionOnline and the licenses of the other code concerned,
+provided that you include the source code of that other code when and as the GNU GPL
+requires distribution of source code.
+
+Note that people who make modified versions of  OblivionOnline are not obligated to grant this special exception
+for their modified versions; it is their choice whether to do so. 
+The GNU General Public License gives permission to release a modified version without this
+exception; this exception also makes it possible to release a modified version which carries 
+forward this exception.
 */
 #pragma once
 #include "../OblivionOnlineServer/GlobalDefines.h"
@@ -25,17 +48,7 @@ class EntityManager
 {	
 private:
 	std::map<UINT32,Entity *> m_objects; //Includes actors
-	std::map<UINT32,Entity *> m_players;
-	EventSystem *m_evt;
 public:
-	inline const std::map<UINT32,Entity *>& GetPlayerList() // TODO : evaluate if this is necessary
-	{
-		return m_players;
-	}
-	EntityManager(EventSystem *evt)
-	{
-		m_evt = evt;
-	}
 	~EntityManager(void)
 	{
 		DeleteEntities();
@@ -44,33 +57,22 @@ public:
 	bool DeleteEntity(Entity *Entity);
 	bool DeRegisterEntity(Entity *Entity);
 	bool DeleteEntities();
-	inline Entity * GetEntity(bool IsPlayer,UINT32 RefID)
+	inline Entity * GetEntity(UINT32 RefID)
 	{
 		std::map<UINT32,Entity *>::iterator iter;
 #ifndef OO_USE_HASHMAP
-	if(IsPlayer)
-	{
-		iter =  m_players.find(RefID);
-		if(iter != m_players.end())
-			return iter->second;
-	}
-	else
-	{
+	
 		iter =  m_objects.find(RefID);
 		if(iter != m_objects.end())
 			return iter->second;
-	}
-	return NULL;
+		return NULL;
 #else
-	if(IsPlayer)
-		return m_players.Find(RefID);
-	else
 		return m_objects.Find(RefID);
 #endif
 	}
-	inline EventSystem *GetEventSystem()
+	Entity& operator[](UINT32 FormID)
 	{
-		return m_evt;
+		return *GetEntity(FormID);
 	}
 };
 
