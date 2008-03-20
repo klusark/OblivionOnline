@@ -37,7 +37,6 @@ This file is part of OblivionOnline.
 */
 #include "main.h"
 #include "UserInterface.h"
-#include "OONetwork.h"
 #include "D3Dhook.h"
 #include "InPacket.h"
 #include "Commands.h"
@@ -50,7 +49,7 @@ IDebugLog gLog;
 bool PlayerConnected[MAXCLIENTS];
 UINT32 LocalPlayer;
 UINT32 TotalPlayers;
-
+bool bIsMasterClient = false;
 UInt32 SpawnID[MAXCLIENTS];
 
 SOCKET ServerSocket;
@@ -60,10 +59,6 @@ HANDLE hPredictionEngine;
 
 TESObjectREFR* PlayerActorList[MAXCLIENTS];
 //UserInterface usrInterface;
-
-int BadPackets[PACKET_COUNT];	//Keeps track of # of bad packets of each type
-
-DWORD PacketTime[PACKET_COUNT]; //System time when this packet was received.'
 char ServerIP[15];
 
 bool bFrameRendered = false;
@@ -82,6 +77,7 @@ extern  "C" void OpenLog(int bOblivion)
 }
 int OO_Initialize()
 {
+	
 	long rc;
 	WSADATA wsa;
 	rc = WSAStartup(MAKEWORD(2,0),&wsa);
@@ -90,6 +86,11 @@ int OO_Initialize()
 	_MESSAGE("Initializing GUI");
 	InitialiseUI();
 	Entities.DeleteEntities();
+	TotalPlayers = 0;
+	for(int i=0; i<MAXCLIENTS; i++)
+	{
+		PlayerConnected[i] = false;
+	}
 	return rc;
 }
 
@@ -97,34 +98,7 @@ int OO_Deinitialize ()
 {
 	for(int i=0; i<MAXCLIENTS; i++)
 	{
-		/*
-			Players[i].PosX = 3200; // In testcave 1.  a location that is in every esm ...
-		Players[i].PosY = 0;
-		Players[i].PosZ = 0;
-		Players[i].RotX = 0;
-		Players[i].RotY = 0;
-		Players[i].RotZ = 0;
-		Players[i].CellID = 0x34E1D; // TestCave01
-		Players[i].Health = 1;
-		Players[i].bStatsInitialized = false;
-		Players[i].bIsInInterior = true;
-		Players[i].head = 0;
-		Players[i].hair = 0;
-		Players[i].upper_body = 0;
-		Players[i].lower_body = 0;
-		Players[i].hand = 0;
-		Players[i].foot = 0;
-		Players[i].right_ring = 0;
-		Players[i].left_ring = 0;
-		Players[i].amulet = 0;
-		Players[i].shield = 0;
-		Players[i].tail = 0;
-		Players[i].weapon = 0;
-		Players[i].ammo = 0;
-		Players[i].robes = 0;
-
 		PlayerConnected[i] = false;
-		*/
 	}
 	TotalPlayers = 0;
 	TerminateThread(hRecvThread, 0);
@@ -136,6 +110,7 @@ int OO_Deinitialize ()
 	WSACleanup();
 	DeinitialiseUI();
 	D3DHookDeInit();
+
 	return 1;
 }
 
@@ -233,7 +208,6 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 
 	//Data sending
 	obse->RegisterCommand(&kMPSendActorCommand);
-	obse->RegisterCommand(&kMPSendFullStatCommand);
 	obse->RegisterCommand(&kMPSendChatCommand);
 
 
@@ -244,8 +218,6 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPGetRotZCommand);
 	obse->RegisterCommand(&kMPGetCellCommand);
 	obse->RegisterCommand(&kMPGetIsInInteriorCommand);
-	obse->RegisterCommand(&kMPGetStatCommand);
-	
 	//Debug
 	obse->RegisterCommand(&kMPGetDebugDataCommand);
 
@@ -257,14 +229,14 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPClearSpawnCommand);
 
 	//Equipment
-	obse->RegisterCommand(&kMPSendEquippedCommand);
 	obse->RegisterCommand(&kMPGetEquipmentCommand);
 
 
-
+	obse->RegisterCommand(&kMPGetNewObjectCommand);
 	obse->RegisterCommand(&kMPGetMyIDCommand);
 	
 	obse->RegisterCommand(&kMPShowGUICommand);
+	obse->RegisterCommand(&kGetParentCellCommand);
 	_MESSAGE("Done loading OO Commands");
 	return true;
 }

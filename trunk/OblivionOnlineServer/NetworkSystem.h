@@ -33,6 +33,7 @@ private:
 	DWORD m_lastsent;
 	OO_THREAD m_TCPThread;
 	OO_THREAD m_UDPThread;
+	UINT32 m_MasterClient;
 	//TODO : Defer packet processing to some other threads -use boost thread queue
 	std::map<UINT32,OutPacket *> m_OutPackets; // All packets the server is currently writing to
 	std::map<UINT32,SOCKET> m_TCPSockets;
@@ -51,10 +52,11 @@ public:
 		return m_GS;
 	}
 	UINT32 AddNewPlayer(SOCKADDR_IN addr,SOCKET TCPSock);
-	inline bool SendChunk(UINT32 PlayerID,UINT32 FormID,bool IsPlayer,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
+	bool PlayerDisconnect(UINT32 ID);
+	inline bool SendChunk(UINT32 PlayerID,UINT32 FormID,BYTE status,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
 		OutPacket *packet = m_OutPackets[PlayerID];
-		if(packet->AddChunk(FormID,IsPlayer,ChunkSize,ChunkType,data) == true)
+		if(packet->AddChunk(FormID,status,ChunkSize,ChunkType,data) == true)
 			return true;
 		else
 		{
@@ -63,6 +65,14 @@ public:
 			else
 				SendUnreliableStream(PlayerID,packet->Size(),packet->GetData());
 		}
+	}
+	inline bool Send(UINT32 PlayerID)
+	{
+		OutPacket *packet = m_OutPackets[PlayerID];
+		if(packet->Reliable())
+			return SendReliableStream(PlayerID,packet->Size(),packet->GetData());
+		else
+			return SendUnreliableStream(PlayerID,packet->Size(),packet->GetData());
 	}
 	bool RegisterTraffic(UINT32 PlayerID,size_t size,BYTE *data,bool reliable);
 	//TODO : Place these in  a callback ?

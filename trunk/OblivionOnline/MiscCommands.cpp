@@ -1,7 +1,7 @@
 
 /*
 
-Copyright(c) 2007-2008   Julian Bangert aka masterfreek64, Joseph Pearson aka chessmaster42
+Copyright(c) 2007-2008   Julian Bangert aka masterfreek64
 
 This file is part of OblivionOnline.
 
@@ -71,17 +71,9 @@ bool Cmd_MPGetMyID_Execute (COMMAND_ARGS)
 		return true;
 	}
 	*(UINT32 *)result = GetPlayerNumberFromRefID(thisObj->refID);
-}
-
-
-bool Cmd_MPLogin_Execute (COMMAND_ARGS)
-{
-	char Password[32];
-	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &Password)) return true;
-	if(!NetWelcome()) return true;
-	TotalPlayers = 1;
 	return true;
 }
+
 bool Cmd_MPShowGUI_Execute(COMMAND_ARGS)
 {
 	if(!bUIInitialized)
@@ -91,8 +83,16 @@ bool Cmd_MPShowGUI_Execute(COMMAND_ARGS)
 	}
 	return true;
 }
-
-
+bool Cmd_GetParentCell_Execute(COMMAND_ARGS)
+{
+	if (!thisObj)
+	{
+		Console_Print("Error, no reference given for GetParentCell");
+		return true;
+	}
+	*(UINT32 *)result = thisObj->parentCell->refID;
+	return true;
+}
 CommandInfo kMPSendChatCommand =
 {
 	"MPSendChat",
@@ -133,18 +133,6 @@ CommandInfo kMPGetMyIDCommand =
 	Cmd_MPGetMyID_Execute
 };
 
-CommandInfo kMPLoginCommand =
-{
-	"MPLogin",
-	"login",
-	0,
-	"Authenticates the client",
-	0,		// requires parent obj
-	1,		// 1 param
-	kParams_OneString,	// one string
-	Cmd_MPLogin_Execute
-};
-
 CommandInfo kMPShowGUICommand =
 {
 	"MPShowGUI",
@@ -163,6 +151,17 @@ CommandInfo kMPTotalPlayersCommand =
 	"MPTPS",
 	0,
 	"Returns number of players connected",
+	0,		// requires parent obj
+	0,		// doesn't have params
+	NULL,	// no param table
+	Cmd_MPTotalPlayers_Execute
+};
+CommandInfo kGetParentCellCommand =
+{
+	"GetParentCell",
+	"GPC",
+	0,
+	"Gets an objects parent cell",
 	0,		// requires parent obj
 	0,		// doesn't have params
 	NULL,	// no param table

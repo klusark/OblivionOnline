@@ -43,42 +43,45 @@ CEGUI::DirectX9Renderer * myRenderer;
 bool bUIInitialized = false;
 DWORD WINAPI InitialiseUI()
 {
-	char _ApplicationPath [MAX_PATH];
-	GetModuleFileName(0,_ApplicationPath,MAX_PATH);
-	strrchr(_ApplicationPath,'\\')[0] = '\0';
-	//we could in theory free ApplicationPath
-	std::string ApplicationPath(_ApplicationPath);
-	//Sleep(20000);// 20 seconds for Oblivion to load
-	_MESSAGE("Loading CEGUI");
-	if(!OblivionDirect3D9Device)
+	if(!bUIInitialized)
 	{
-		_ERROR("Device not found - aborting GUI");
-		return false;
+		char _ApplicationPath [MAX_PATH];
+		GetModuleFileName(0,_ApplicationPath,MAX_PATH);
+		strrchr(_ApplicationPath,'\\')[0] = '\0';
+		//we could in theory free ApplicationPath
+		std::string ApplicationPath(_ApplicationPath);
+		//Sleep(20000);// 20 seconds for Oblivion to load
+		_MESSAGE("Loading CEGUI");
+		if(!OblivionDirect3D9Device)
+		{
+			_ERROR("Device not found - aborting GUI");
+			return false;
+		}
+		myRenderer = new CEGUI::DirectX9Renderer(OblivionDirect3D9Device,100);
+		_MESSAGE("Created renderer");
+		CEGUI::Window* myRoot;
+		_MESSAGE("Creating CEGUI::System - view CEGUI.log for further information");
+		CEGUI::System *system = new CEGUI::System(myRenderer);
+		CEGUI::DefaultResourceProvider *rp = ((CEGUI::DefaultResourceProvider *)system->getResourceProvider());
+		rp->setResourceGroupDirectory("default",ApplicationPath + "\\OblivionOnline\\GUI\\");
+		rp->setResourceGroupDirectory("schemes",ApplicationPath + "\\OblivionOnline\\GUI\\");
+		rp->setResourceGroupDirectory("imagesets",ApplicationPath + "\\OblivionOnline\\GUI\\");
+		rp->setResourceGroupDirectory("fonts",ApplicationPath + "\\OblivionOnline\\GUI\\");
+		rp->setResourceGroupDirectory("looknfeel",ApplicationPath + "\\OblivionOnline\\GUI\\");
+		rp->setResourceGroupDirectory("layouts",ApplicationPath + "\\OblivionOnline\\GUI\\");
+		rp->setDefaultResourceGroup("default");
+		CEGUI::ImagesetManager::getSingleton().createImageset("TaharezLook.imageset");
+		// load in the scheme file, which auto-loads the TaharezLook imageset
+		CEGUI::SchemeManager::getSingleton().loadScheme("TaharezLook.scheme");
+		// load in a font.  The first font loaded automatically becomes the default font.
+		CEGUI::FontManager::getSingleton().createFont("fkp-16.font");
+		CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
+		myRoot = CEGUI::WindowManager::getSingleton().loadWindowLayout("OOChat.layout");
+		CEGUI::System::getSingleton().setGUISheet(myRoot);
+		
+		bUIInitialized = true;
+		_MESSAGE("Successfully loaded GUI");
 	}
-	myRenderer = new CEGUI::DirectX9Renderer(OblivionDirect3D9Device,100);
-	_MESSAGE("Created renderer");
-	CEGUI::Window* myRoot;
-	_MESSAGE("Creating CEGUI::System - view CEGUI.log for further information");
-	CEGUI::System *system = new CEGUI::System(myRenderer);
-	CEGUI::DefaultResourceProvider *rp = ((CEGUI::DefaultResourceProvider *)system->getResourceProvider());
-	rp->setResourceGroupDirectory("default",ApplicationPath + "\\OblivionOnline\\GUI\\");
-	rp->setResourceGroupDirectory("schemes",ApplicationPath + "\\OblivionOnline\\GUI\\");
-	rp->setResourceGroupDirectory("imagesets",ApplicationPath + "\\OblivionOnline\\GUI\\");
-	rp->setResourceGroupDirectory("fonts",ApplicationPath + "\\OblivionOnline\\GUI\\");
-	rp->setResourceGroupDirectory("looknfeel",ApplicationPath + "\\OblivionOnline\\GUI\\");
-	rp->setResourceGroupDirectory("layouts",ApplicationPath + "\\OblivionOnline\\GUI\\");
-	rp->setDefaultResourceGroup("default");
-	CEGUI::ImagesetManager::getSingleton().createImageset("TaharezLook.imageset");
-	// load in the scheme file, which auto-loads the TaharezLook imageset
-	CEGUI::SchemeManager::getSingleton().loadScheme("TaharezLook.scheme");
-	// load in a font.  The first font loaded automatically becomes the default font.
-	CEGUI::FontManager::getSingleton().createFont("fkp-16.font");
-	CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
-	myRoot = CEGUI::WindowManager::getSingleton().loadWindowLayout("OOChat.layout");
-	CEGUI::System::getSingleton().setGUISheet(myRoot);
-	
-	bUIInitialized = true;
-	_MESSAGE("Successfully loaded GUI");
 	return 1;
 }
 void DeinitialiseUI()

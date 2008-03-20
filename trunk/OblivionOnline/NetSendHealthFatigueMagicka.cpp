@@ -35,19 +35,21 @@ exception; this exception also makes it possible to release a modified version w
 forward this exception.
 */
 #include "main.h"
-bool NetSendPosition( UINT32 FormID,BYTE Status,float PosX,float PosY,float PosZ,float RotX,float RotY,float RotZ )
+bool NetSendHealth(UINT32 FormID,BYTE Status,short Value)
 {
-	float Data[6] =
-	{
-		PosX,PosY,PosZ,RotX,RotY,RotZ
-	};
 	FormID = TranslateFormID(FormID,Status); // get  a net form ID
-	outnet.AddChunk(FormID,Status,GetMinChunkSize(Position),Position,(BYTE *)&Data);
+	outnet.AddChunk(FormID,Status,GetMinChunkSize(Health),Health,(BYTE *)&Value);
 	return true;
 }
-bool NetSendCellID( UINT32 FormID,BYTE Status,UINT32 CellID )
+bool NetSendMagicka(UINT32 FormID,BYTE Status,short Value)
 {
 	FormID = TranslateFormID(FormID,Status); // get  a net form ID
-	outnet.AddChunk(FormID,Status,GetMinChunkSize(PkgChunk::CellID),PkgChunk::CellID,(BYTE *)&CellID);
+	outnet.AddChunk(FormID,Status,GetMinChunkSize(Magicka),Magicka,(BYTE *)&Value);
+	return true;
+}
+bool NetSendFatigue(UINT32 FormID,BYTE Status,short Value)
+{
+	FormID = TranslateFormID(FormID,Status); // get  a net form ID
+	outnet.AddChunk(FormID,Status,GetMinChunkSize(Fatigue),Fatigue,(BYTE *)&Value);
 	return true;
 }

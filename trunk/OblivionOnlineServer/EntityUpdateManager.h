@@ -17,8 +17,9 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include "EntityManager.h"
-#include "NetworkSystem.h"
+class NetworkSystem;
+class Entity;
+class EntityManager;
 class GameServer;
 class EntityUpdateManager
 {
@@ -37,9 +38,9 @@ public:
 	void OnMagickaUpdate(Entity *ent);
 	void GlobalSend(Entity *ent);
 	void OnNameUpdate(Entity *ent);
-
+	void OnEquipUdate(Entity *ent,unsigned char slot);
 	void OnClassUpdate(Entity *ent);
-
+	void OnCellChange(Entity *ent);
 	void OnRaceUpdate(Entity *ent);
 	void OnGenderUpdate(Entity *ent);
 };

@@ -34,3 +34,4 @@ size_t HandleFatigueChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 Form
 size_t HandleMagickaChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
 size_t HandleHealthChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
 size_t HandlePlayerIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
+size_t HandleClientTypeChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status);

@@ -48,7 +48,7 @@ struct Entity
 	short Health,Magicka,Fatigue;
 	bool EquipChanged[MAX_EQUIPSLOTS]; //TODO: CHANGE THAT 
 	BYTE status;
-	double PosX,PosY,PosZ,RotZ;
+	double PosX,PosY,PosZ,RotX,RotY,RotZ;
 	Entity(UINT32 refID)
 		:RefID(refID)
 	{

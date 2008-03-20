@@ -84,7 +84,7 @@ public:
 			//return HandleAuthChunk(this,chunkdata,maxsize,FormID,status);
 			return false;
 		case ClientType:
-			return false;
+			return HandleClientTypeChunk(this,chunkdata,maxsize,FormID,status);
 		case Version:
 			return HandleVersionChunk(this,chunkdata,maxsize,FormID,status);
 		case PlayerID:

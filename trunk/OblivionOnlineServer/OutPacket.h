@@ -78,11 +78,11 @@ private:
 		*m_Bytes_written += len;
 		return false;
 	}
-	inline BYTE FindObjectID(UINT32 FormID,bool IsPlayer)
+	inline BYTE FindObjectID(UINT32 FormID,BYTE Status)
 	{	
 		for(BYTE i = 0;i < MAX_OBJECTS_PER_PACKET; i++)
 		{
-			if(m_IsPlayer[i] == IsPlayer && m_ObjectID[i] == FormID)
+			if(m_IsPlayer[i] == (Status == STATUS_PLAYER) && m_ObjectID[i] == FormID)
 				return i;
 		}	
 		return MAX_OBJECTS_PER_PACKET;
@@ -91,12 +91,12 @@ private:
 	{
 		return PACKET_SIZE - *m_Bytes_written;
 	}
-	inline BYTE GetObjectID(UINT32 FormID,bool IsPlayer)
+	inline BYTE GetObjectID(UINT32 FormID,BYTE Status)
 	{		
 		BYTE i = 0;		
 		for(i = 0;i < MAX_OBJECTS_PER_PACKET; i++)
 		{
-			if(m_IsPlayer[i] == IsPlayer && m_ObjectID[i] == FormID)
+			if(m_IsPlayer[i] == (Status == STATUS_PLAYER) && m_ObjectID[i] == FormID)
 				return i;
 		}
 		//write it
@@ -105,13 +105,10 @@ private:
 		if(i == MAX_OBJECTS_PER_PACKET )
 			return MAX_OBJECTS_PER_PACKET; // We found no empty slot
 		m_ObjectID[i] = FormID;
-		m_IsPlayer[i] = IsPlayer;		
+		m_IsPlayer[i] = (STATUS_PLAYER == Status);		
 		WriteWord((PkgChunk::Object & CHUNKMASK)|(i & OBJECTMASK));
 		WriteUINT32(FormID);
-		if(IsPlayer)
-			WriteByte(1);
-		else
-			WriteByte(0);
+		WriteByte(Status);
 		return i;
 	}
 public:
@@ -128,11 +125,11 @@ public:
 	~OutPacket(void)
 	{
 	}
-	inline bool AddChunk(UINT32 FormID,bool IsPlayer,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
+	inline bool AddChunk(UINT32 FormID,BYTE Status,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
 		if(RemainingDataSize() < ChunkSize + 2)  // Chunk Header
 			return false; // No more space
-		BYTE ObjectID = GetObjectID(FormID,IsPlayer);
+		BYTE ObjectID = GetObjectID(FormID,Status);
 		if( ObjectID == MAX_OBJECTS_PER_PACKET)
 			return false; // TOO many objects or too less space
 		WriteWord((ChunkType & CHUNKMASK)|(ObjectID & OBJECTMASK));

@@ -60,7 +60,6 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 				hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
 				//hPredictionEngine = CreateThread(NULL,NULL,PredictionEngine,NULL,NULL,NULL);
 				//Now try to connect with default password
-				NetWelcome();
 				Console_Print("Oblivion connected to %s",IP[i]);
 				sprintf(ServerIP,"%s",IP[i]);
 				//usrInterface.SetGlobalState(true); // we start it ...

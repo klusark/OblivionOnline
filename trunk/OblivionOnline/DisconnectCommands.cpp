@@ -21,7 +21,6 @@ bool Cmd_MPDisconnect_Execute (COMMAND_ARGS)
 {
 	if(bIsConnected)
 	{
-		NetDisconnect();
 		OO_Deinitialize();
 		bIsConnected = false;
 		Console_Print("You have disconnected");

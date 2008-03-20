@@ -36,6 +36,7 @@ bool NetworkSystem::StartReceiveThreads()
 	CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)TCPProc,(LPVOID) this,0,(LPDWORD)&m_TCPThread);
 	CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)UDPProc,(LPVOID) this,0,(LPDWORD)&m_TCPThread);
 #endif
+	m_MasterClient = 0;
 	return true;
 }
 OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
@@ -159,8 +160,7 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 
  UINT32 NetworkSystem::AddNewPlayer( SOCKADDR_IN addr,SOCKET TCPSock )
  {
-
-	 std::stringstream msg;
+	BYTE masterclient;
 	 UINT32 ID = 0;
 	 std::map<UINT32,SOCKADDR_IN>::iterator iter;
 	 //Find a new RefID
@@ -170,11 +170,19 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 			  break;
 	 }
 	 if(iter == m_PlayerAddresses.end())
-		 ID = (--iter)->first + 1;
+		 ID++;
+
 	 m_PlayerAddresses[ID] = addr;
 	 m_AddressPlayer[addr.sin_addr.S_un.S_addr] = ID;
 	 m_OutPackets[ID] = new OutPacket(ID);
 	 m_GS->GetIO()<<GameMessage<< "New player" << ID << "joined from address"<< inet_ntoa(addr.sin_addr) << ":" <<ntohs(addr.sin_port)<<endl;
+	 if(m_MasterClient == 0)
+	 {
+		 masterclient = 1;
+		 m_MasterClient = ID;
+		 m_GS->GetIO()<<GameMessage<<"Selected new master client"<<ID<<endl;
+		 m_OutPackets[ID]->AddChunk(ID,STATUS_PLAYER,GetMinChunkSize(ClientType),ClientType,(BYTE *)&masterclient);
+	 }
 	 return ID;
 }
 
@@ -197,5 +205,30 @@ bool NetworkSystem::SendReliableStream( UINT32 PlayerID,size_t length,BYTE *data
 bool NetworkSystem::SendUnreliableStream( UINT32 PlayerID,size_t length,BYTE *data )
 {
 	sendto(m_UDPSock,(const char *)data,length,0,(SOCKADDR *)&m_PlayerAddresses.find(PlayerID)->second,sizeof(SOCKADDR_IN));
+	return true;
+}
+
+bool NetworkSystem::PlayerDisconnect( UINT32 ID )
+{
+	BYTE masterclient = 1;
+	m_GS->GetIO()<<GameMessage<<"Client "<<ID<< "disconnected" <<endl;
+	m_AddressPlayer.erase(m_PlayerAddresses[ID].sin_addr.S_un.S_addr);
+	m_PlayerAddresses.erase(ID);
+	delete m_OutPackets[ID];
+	m_OutPackets.erase(ID);
+	m_GS->GetIO()<<GameMessage<<"We now have"<<GetPlayerCount()<< "players" <<endl;
+	if(m_MasterClient == ID)
+	{
+		if(GetPlayerCount() > 0) // We have already reduced it
+		{
+			m_MasterClient = m_OutPackets.begin()->first;
+			m_OutPackets.begin()->second->AddChunk(m_MasterClient,true,GetMinChunkSize(ClientType),ClientType,&masterclient);
+			m_GS->GetIO()<<GameMessage<<"Selected new master client"<<m_MasterClient<<endl;
+		}
+		else
+		{
+			m_MasterClient = 0;
+		}
+	}
 	return true;
 }

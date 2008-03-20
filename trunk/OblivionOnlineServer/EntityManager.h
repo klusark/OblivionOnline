@@ -14,12 +14,14 @@ GNU Affero General Public License for more details.
 */
 #pragma once
 #include "GlobalDefines.h"
+#include "EntityUpdateManager.h"
 #ifndef OO_USE_HASHMAP	//Slower and more secure 
 #include <map>
 #else
 #endif
 class Entity;
 class EventSystem;
+class NetworkSystem;
 typedef std::pair<UINT32,Entity *> IDEntityPair;
 class EntityManager
 {	
@@ -33,14 +35,20 @@ private:
 
 #endif
 	EventSystem *m_evt;
+	EntityUpdateManager *m_updatemgr;
 public:
 	inline const std::map<UINT32,Entity *>& GetPlayerList() // TODO : evaluate if this is necessary
 	{
 		return m_players;
 	}
-	EntityManager(EventSystem *evt)
+	EntityManager(EventSystem *evt,NetworkSystem *netsys)
 	{
 		m_evt = evt;
+		m_updatemgr = new EntityUpdateManager(this,netsys);
+	}
+	EntityUpdateManager* GetUpdateMgr()
+	{
+		return m_updatemgr;
 	}
 	~EntityManager(void)
 	{

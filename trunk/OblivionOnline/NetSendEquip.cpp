@@ -1,6 +1,6 @@
 /*
 
-Copyright(c) 2007-2008   Julian Bangert aka masterfreek64 and Joseph Pearson
+Copyright(c) 2007-2008   Julian Bangert aka masterfreek64
 This file is part of OblivionOnline.
 
 OblivionOnline is free software; you can redistribute it and/or modify
@@ -40,6 +40,7 @@ bool NetSendEquip( UINT32 FormID,BYTE Status,BYTE Slot,UINT32 EquipID )
 	BYTE data[5];
 	data[0] = Slot;
 	*(( UINT32 *)data + 1) = EquipID;
+	FormID = TranslateFormID(FormID,Status); // get  a net form ID
 	outnet.AddChunk(FormID,Status,GetMinChunkSize(Equip),Equip,data);
 	return true;
 }

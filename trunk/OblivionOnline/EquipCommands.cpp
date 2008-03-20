@@ -68,52 +68,6 @@ bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 
 	return true;
 }
-//TODO: Tweak this
-extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEquippedFunctor, double* result);
-bool Cmd_MPSendEquipped_Execute (COMMAND_ARGS)
-{
-	if (!thisObj)
-	{
-		Console_Print("Error, no reference given for MPSendEquipped");
-		return true;
-	}
-	if (thisObj->IsActor())
-	{
-		double itemResult;
-		UInt32* itemRef = (UInt32*)&itemResult;
-		Entity * ent = Entities.GetEntity(thisObj->refID);
-		feGetObject getObject;
-		if(ent ==NULL)
-			ent = new Entity(thisObj->refID);				
-		//TODO: Unroll loop maybe
-		for(int i = 0; i <= 20; i++) // traverse Slots
-		{
-			if(i == 18 || i == 19 || i== 9 || i == 10 || i == 11 || i == 12 || i == 14) // These do not exist 
-				continue;
-			if (!FindEquipped(thisObj, i, &getObject, &itemResult))
-			{
-				*itemRef = 0;
-			}
-			if( ent->Equip[i] != *itemRef)
-			{
-				NetSendEquip(thisObj->refID,ent->status,i,*itemRef);				
-				ent->Equip[i] = *itemRef;
-			}
-		}
-	}
-	return true;
-}
-CommandInfo kMPSendEquippedCommand =
-{
-	"MPSendEquipped",
-	"MPSE",
-	0,
-	"Sends an actors equipment",
-	0,		// requires parent obj
-	0,		// no params
-	NULL,	// no param table
-	Cmd_MPSendEquipped_Execute
-};
 
 CommandInfo kMPGetEquipmentCommand =
 {

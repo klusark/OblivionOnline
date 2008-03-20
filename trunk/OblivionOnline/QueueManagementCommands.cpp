@@ -1,7 +1,7 @@
 
 /*
 
-Copyright(c) 2007-2008   Julian Bangert aka masterfreek64, Joseph Pearson aka chessmaster42
+Copyright(c) 2007-2008   Julian Bangert aka masterfreek64
 
 This file is part of OblivionOnline.
 
@@ -38,13 +38,21 @@ forward this exception.
 */
 #include "main.h"
 
-
+#include "Entity.h"
 
 
 
 
 bool Cmd_MPGetNewObject_Execute (COMMAND_ARGS)
 {
+	UINT32 *refResult = (UINT32 *)result;
+	if(!UpdateQueue.empty())
+	{
+		*refResult = UpdateQueue.front()->RefID;
+		UpdateQueue.pop();
+	}
+	else
+		*refResult = 0;
 	return true;
 }
 CommandInfo kMPGetNewObjectCommand =

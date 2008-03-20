@@ -18,12 +18,12 @@ GNU Affero General Public License for more details.
 bool EntityManager::RegisterEntity(Entity *Entity)
 {
 #ifndef OO_USE_HASHMAP
-	if(Entity->Player())
+	if(Entity->Status())
 		m_players.insert(IDEntityPair(Entity->RefID(),Entity));
 	else
 		m_objects.insert(IDEntityPair(Entity->RefID(),Entity));
 #else
-	if(Entity->Player())
+	if(Entity->Status())
 		m_players.Insert(Entity);
 	else
 		m_objects.Insert(Entity);
@@ -58,12 +58,12 @@ bool EntityManager::DeRegisterEntity(Entity *Entity)
 {
 
 #ifndef OO_USE_HASHMAP
-	if(Entity->Player())
+	if(Entity->Status())
 		m_players.erase(Entity->RefID());
 	else
 		m_objects.erase(Entity->RefID());
 #else
-	if(Entity->Player())
+	if(Entity->Status())
 		m_players.Remove(Entity);
 	else
 		m_objects.Remove(Entity);

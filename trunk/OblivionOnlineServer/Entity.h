@@ -20,7 +20,7 @@ GNU Affero General Public License for more details.
 class Entity
 {
 private:
-	UINT32 m_Equip[32]; // Enuf 
+	UINT32 m_Equip[MAX_EQUIPSLOTS]; // Enuf 
 	float m_PosX,m_PosY,m_PosZ,m_RotX,m_RotY,m_RotZ;
 	UINT32 m_RefID,m_CellID,m_Race;
 	short m_Health, m_Magicka , m_Fatigue;	
@@ -67,7 +67,7 @@ public:
 			m_PosX = PosX;
 			m_PosY = PosY;
 			m_PosZ = PosZ;
-			//TODO : trigger move event
+			m_mgr->GetUpdateMgr()->OnPositionUpdate(this);
 		}
 	}
 	inline void SetRotation(float RotX,float RotY,float RotZ)
@@ -77,50 +77,60 @@ public:
 			m_RotX = RotX;
 			m_RotY = RotY;
 			m_RotZ = RotZ;
-			//TODO : Trigger Move event
+			m_mgr->GetUpdateMgr()->OnPositionUpdate(this);
 		}
 	}
 	inline void MoveNRot(float PosX,float PosY,float PosZ,float RotX,float RotY,float RotZ)
 	{
 		Move(PosX,PosY,PosZ);
 		SetRotation(RotX,RotY,RotZ);
+		m_mgr->GetUpdateMgr()->OnPositionUpdate(this);
 	}
 	inline void ChangeCell(UINT32 CellID)
 	{
 		m_CellID = CellID;
+		m_mgr->GetUpdateMgr()->OnCellChange(this);
 	}
 	inline void ModHealth(short Relative)
 	{
 		m_Health += Relative;
 		//TODO : trigger health event
+		m_mgr->GetUpdateMgr()->OnHealthUpdate(this);
 	}
 	inline void ModMagicka(short Relative)
 	{
 		m_Magicka += Relative;
+		m_mgr->GetUpdateMgr()->OnMagickaUpdate(this);
 	}
 	inline void ModFatigue(short Relative)
 	{
 		m_Fatigue += Relative;
+		m_mgr->GetUpdateMgr()->OnFatigueUpdate(this);
 	}
 	inline void SetFemale(bool value)
 	{
 		m_Female = value;
+		m_mgr->GetUpdateMgr()->OnGenderUpdate(this);
 	}
 	inline void SetCell(UINT32 value)
 	{
 		m_CellID = value;
+		m_mgr->GetUpdateMgr()->OnCellChange(this);
 	}
 	inline void SetHealth(short value)
 	{
 		m_Health = value;
+		m_mgr->GetUpdateMgr()->OnHealthUpdate(this);
 	}
 	inline void SetMagicka(short value)
 	{
 		m_Magicka = value;
+		m_mgr->GetUpdateMgr()->OnMagickaUpdate(this);
 	}
 	inline void SetFatigue(short value)
 	{
 		m_Fatigue = value;
+		m_mgr->GetUpdateMgr()->OnFatigueUpdate(this);
 	}
 	inline void SetStat(BYTE statid,signed short value)
 	{
@@ -138,19 +148,23 @@ public:
 	inline void SetRace(UINT32 value)
 	{
 		m_Race = value;
+		m_mgr->GetUpdateMgr()->OnRaceUpdate(this);
 	}
 	inline void SetEquip(BYTE slot,UINT32 value)
 	{
 		if(slot < MAX_EQUIPSLOTS)
 			m_Equip[slot ] = value;
+		m_mgr->GetUpdateMgr()->OnEquipUdate(this,slot);
 	}
 	inline void SetName(std::string Name)
 	{
 		m_Name = Name;
+		m_mgr->GetUpdateMgr()->OnNameUpdate(this);
 	}
 	inline void SetClassName(std::string Class)
 	{
 		m_Class = Class;
+		m_mgr->GetUpdateMgr()->OnClassUpdate(this);
 	}
 	inline std::string Name()
 	{
@@ -229,7 +243,7 @@ public:
 	{
 		return m_Fatigue;
 	}
-	inline bool Player()
+	inline BYTE Status()
 	{
 		return m_Player;
 	}

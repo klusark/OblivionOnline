@@ -1,7 +1,7 @@
 
 /*
 
-Copyright(c) 2007-2008   Julian Bangert aka masterfreek64, Joseph Pearson aka chessmaster42
+Copyright(c) 2007-2008   Julian Bangert aka masterfreek64
 
 This file is part of OblivionOnline.
 
@@ -39,7 +39,6 @@ forward this exception.
 
 extern CommandInfo kMPConnectCommand;
 extern CommandInfo kMPSendActorCommand;
-extern CommandInfo kMPSendFullStatCommand;
 extern CommandInfo kMPSendChatCommand;
 extern CommandInfo kMPGetPosXCommand;
 extern CommandInfo kMPGetPosYCommand;
@@ -48,7 +47,6 @@ extern CommandInfo kMPGetRotZCommand;
 extern CommandInfo kMPGetCellCommand;
 
 extern CommandInfo kMPGetIsInInteriorCommand;
-extern CommandInfo kMPGetStatCommand;
 
 //Debug
 extern CommandInfo kMPGetDebugDataCommand;
@@ -61,7 +59,6 @@ extern CommandInfo kMPDisconnectCommand;
 extern CommandInfo kMPClearSpawnCommand;
 
 //Equipment
-extern CommandInfo kMPSendEquippedCommand;
 extern CommandInfo kMPGetEquipmentCommand;
 
 
@@ -69,9 +66,6 @@ extern CommandInfo kMPGetEquipmentCommand;
 extern CommandInfo kMPGetMyIDCommand;
 extern CommandInfo kMPGetNewObjectCommand;
 
-// Mob Synch
-extern CommandInfo kMPSynchActorsCommand;
-extern CommandInfo kMPAdvanceStackCommand;
-extern CommandInfo kMPStopStackCommand;
-
 extern CommandInfo kMPShowGUICommand;
+
+extern CommandInfo kGetParentCellCommand;

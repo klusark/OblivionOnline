@@ -39,10 +39,11 @@ This file is part of OblivionOnline.
 #define _OOFUNCTIONS_H
 
 #include "main.h"
+#include "../OblivionOnlineServer/Packets.h"
 extern void RunScriptLine(const char *buf, bool IsTemp);
-extern int GetPlayerNumberFromRefID(UInt32 refID);
+extern UINT32 GetPlayerNumberFromRefID(UInt32 refID);
 extern UINT32 LocalPlayer;
-
+extern UInt32 SpawnID[];
 
 inline int GetPlayerNumberFromSpawnNumber(USHORT SpawnNumber) 
 {
@@ -54,4 +55,14 @@ inline USHORT GetSpawnIDFromPlayerID(USHORT  PlayerID) // retrieves a player num
 	return ((LocalPlayer >= PlayerID) ? PlayerID : (PlayerID -1));
 };
 
+inline UINT32 GetPlayerFormID(UINT32 PlayerID)
+{
+	return SpawnID[(LocalPlayer >= PlayerID) ? PlayerID : (PlayerID -1)]; // TODO: Revamp this
+}
+inline UINT32 TranslateFormID(UINT32 FormID,BYTE Status) // Translation from local (status independent) FormID to a global(status dependent) FormID
+{
+	if(Status == STATUS_PLAYER)
+		return GetPlayerNumberFromRefID(FormID);
+	return FormID;
+}
 #endif

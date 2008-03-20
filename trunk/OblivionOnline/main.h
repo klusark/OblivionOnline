@@ -43,14 +43,12 @@ This file is part of OblivionOnline.
 #include <queue>
 #include <stdio.h>
 #include <Windows.h>
+#include "../OblivionOnlineServer/GlobalDefines.h"
 #include "obse/PluginAPI.h"
 #include "obse/CommandTable.h"
 #include "obse/GameAPI.h"
 #include "obse/ParamInfos.h"
 #include "obse/GameObjects.h"
-#include "OONetwork.h"
-#include "OOPackets.h"
-#include "OOStructs.h"
 #include "OBSEFunctions.h"
 #include "OOFunctions.H"
 #include "OutboundNetwork.h"
@@ -69,6 +67,7 @@ extern std::queue<Entity *> UpdateQueue;
 //Externals
 extern IDebugLog gLog;
 extern bool bIsConnected;
+extern bool bIsMasterClient;
 extern UINT32 LocalPlayer;
 extern UINT32 TotalPlayers;
 extern bool PlayerConnected[MAXCLIENTS];
@@ -76,15 +75,9 @@ extern SOCKET ServerSocket;
 extern HANDLE hRecvThread;
 extern TESObjectREFR* PlayerActorList[MAXCLIENTS];
 extern UInt32 SpawnID[MAXCLIENTS];
-extern int BadPackets[PACKET_COUNT];
-extern DWORD PacketTime[PACKET_COUNT];
 extern char ServerIP[15];
 extern OutboundNetwork outnet;
 
-inline UINT32 GetPlayerFormID(UINT32 PlayerID)
-{
-	return SpawnID[(LocalPlayer >= PlayerID) ? PlayerID : (PlayerID -1)]; // TODO: Revamp this
-}
 extern DWORD WINAPI RecvThread(LPVOID Params);
 extern int OO_Initialize();
 extern int OO_Deinitialize();

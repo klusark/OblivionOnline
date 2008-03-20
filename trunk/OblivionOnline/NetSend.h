@@ -1,6 +1,6 @@
 /*
 
-Copyright(c) 2007-2008   Julian Bangert aka masterfreek64 and Joseph Pearson
+Copyright(c) 2007-2008   Julian Bangert aka masterfreek64
 This file is part of OblivionOnline.
 
 OblivionOnline is free software; you can redistribute it and/or modify
@@ -38,3 +38,7 @@ forward this exception.
 bool NetSendEquip( UINT32 FormID,BYTE Status,BYTE Slot,UINT32 EquipID );
 bool NetSendChat(BYTE *message,size_t length);
 bool NetSendPosition( UINT32 FormID,BYTE Status,float PosX,float PosY,float PosZ,float RotX,float RotY,float RotZ );
+bool NetSendCellID( UINT32 FormID,BYTE Status,UINT32 CellID );
+bool NetSendHealth(UINT32 FormID,BYTE Status,short Value);
+bool NetSendMagicka(UINT32 FormID,BYTE Status,short Value);
+bool NetSendFatigue(UINT32 FormID,BYTE Status,short Value);

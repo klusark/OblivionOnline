@@ -233,10 +233,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\OONetwork.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\obse\obse\ParamInfos.h"
 				>
 			</File>
@@ -258,18 +254,6 @@
 			</File>
 			<File
 				RelativePath=".\OOFunctions.h"
-				>
-			</File>
-			<File
-				RelativePath=".\OONetwork.h"
-				>
-			</File>
-			<File
-				RelativePath=".\OOPackets.h"
-				>
-			</File>
-			<File
-				RelativePath=".\OOStructs.h"
 				>
 			</File>
 			<File
@@ -908,6 +892,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\NetSendHealthFatigueMagicka.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\NetSendPosition.cpp"
 					>
 				</File>
@@ -950,10 +938,6 @@
 			</File>
 			<File
 				RelativePath=".\SpawnCommands.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\StatnTimeCommands.cpp"
 				>
 			</File>
 		</Filter>

@@ -52,11 +52,8 @@ void RunScriptLine(const char *buf, bool IsTemp)
 	tempScriptObj->CompileAndRun(*((void **)scriptState), 1, NULL);
 	tempScriptObj->StaticDestructor();
 }
-int GetPlayerNumberFromRefID(UInt32 refID) // retrieves a player number from a refID in spawn
+UINT32 GetPlayerNumberFromRefID(UInt32 refID) // retrieves a player number from a refID in spawn
 {
-
-	// Compare reference ID's and determine which actor we have selected in-game
-	
 	bool foundID = false;
 	if (refID == (*g_thePlayer)->refID)
 	{
@@ -80,7 +77,7 @@ int GetPlayerNumberFromRefID(UInt32 refID) // retrieves a player number from a r
 		// more safe than any evaluation of the type currentspawn += (LocalPlayer == i) , this is not dependent on bool int conversion
 		//,currentplayer += ((i == LocalPlayer)?0:1)
 		int currentplayer = ((0 == LocalPlayer) ? 1 : 0);
-		for (int currentspawn = 0 ;  currentspawn<MAXCLIENTS; currentplayer++ ,
+		for (UINT32 currentspawn = 0 ;  currentspawn<MAXCLIENTS; currentplayer++ ,
 			currentspawn += ((currentplayer == LocalPlayer)?0:1))
 		{
 			if(SpawnID[currentspawn] == refID) // we find it quite fast. 12 cmp cycles 12 add cycles

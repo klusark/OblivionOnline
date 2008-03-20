@@ -33,11 +33,11 @@ GameServer::GameServer(void)
 	2. Event - it triggers everything and IO needs it Done
 	3. IO Done
 	4 .ScreenIOProvider Done
-	5 .LogIOProvider Done
-	5. EntityManager Done
+	5 .LogIOProvider Done	
 	6. Netsystem  Done TCP(DONE) UDP(DONE)
-	7. ChatIOProvider Done
-	8. PartyLine ---
+	7. Entity Manager
+	8. ChatIOProvider Done
+	9. PartyLine ---
 
 	Perhaps some other stuff
 	*/
@@ -50,9 +50,9 @@ GameServer::GameServer(void)
 	DisplayBootupMessage();
 	*m_IO<<BootMessage<<"Script , Event and Local IO running" << endl;
 	*m_IO<<BootMessage<<"Opening Log file" << endl;
-	m_IO->RegisterIOProvider(new LogIOProvider(m_IOSys,LogLevel::BootMessage,m_script->GetString("Logfile")));
-	m_Entities = new EntityManager(m_Evt);
+	m_IO->RegisterIOProvider(new LogIOProvider(m_IOSys,LogLevel::BootMessage,m_script->GetString("Logfile")));	
 	m_Netsystem = new NetworkSystem(this);
+	m_Entities = new EntityManager(m_Evt,m_Netsystem);
 	m_Netsystem->StartReceiveThreads();
 	m_IO->RegisterIOProvider(new ChatIOProvider(this,m_IOSys));
 	//In this thread we now run the server browser update
@@ -86,11 +86,10 @@ void GameServer::AdvertiseGameServer()
 				if(curl)
 				{
 					char *EscapedName = curl_easy_escape(curl,ServerName.c_str(),0);
-					
 					URL<<RealmListURI;
 					URL << "?name=" << string( EscapedName) << "&port=" <<m_script->GetInteger("ServicePort") <<"&players=" <<
-						m_Netsystem->GetPlayerCount() <<"&VersionSuper=" << VERSION_SUPER <<"&VersionMajor="
-						<< VERSION_MAJOR << "&VersionMinor=" << VERSION_MINOR << "&HasPassword="<<0;
+						m_Netsystem->GetPlayerCount()<<"&MaxPlayers="<<MAX_PLAYERS <<"&VersionSuper=" << VERSION_SUPER <<"&VersionMajor="
+						<< VERSION_MAJOR << "&VersionMinor=" << VERSION_MINOR << "&HasPassword="<<0<<'\0'<<endl;
 
 					//TODO:  If I readd passworded servers - remove the false
 					//TODO: Escape string
