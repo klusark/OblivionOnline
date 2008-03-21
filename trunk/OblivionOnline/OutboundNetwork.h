@@ -37,6 +37,7 @@ forward this exception.
 */
 #pragma once
 #include <string>
+#include <process.h>
 #include "../OblivionOnlineServer/GlobalDefines.h"
 #include "../OblivionOnlineServer/Packets.h"
 
@@ -126,6 +127,7 @@ private:
 			return MAX_OBJECTS_PER_PACKET; // We found no empty slot
 		m_ObjectID[i] = FormID;
 		m_Status[i] = Status;		
+		_MESSAGE("Adding new Object to packet %u %u ",FormID,Status);
 		WriteWord((PkgChunk::Object & CHUNKMASK)|(i & OBJECTMASK));
 		WriteUINT32(FormID);
 		WriteByte(Status);
@@ -144,6 +146,7 @@ public:
 		m_Reliable = false;
 		m_UDP = socket(AF_INET,SOCK_DGRAM,0);
 		InitializeCriticalSection(&m_criticalsection);
+		_beginthread(SendThread,0,NULL);
 	}
 	~OutboundNetwork(void)
 	{
@@ -164,6 +167,7 @@ public:
 	}
 	inline bool AddChunk(UINT32 FormID,bool IsPlayer,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
+		_MESSAGE("Adding %u  Chunk for FormID %u",ChunkType,FormID);
 		if(RemainingDataSize() < ChunkSize + 2)  // Chunk Header
 			return false; // No more space
 		BYTE ObjectID = GetObjectID(FormID,IsPlayer);
@@ -174,10 +178,12 @@ public:
 		Write(ChunkSize,data);
 		if(RequiresReliable(ChunkType))
 			m_Reliable = true;
+		_MESSAGE("New packet size: %u",*m_Bytes_written);
 		LeaveCriticalSection(&m_criticalsection);
 		if(*m_Bytes_written >= PACKET_SIZE)
 			Send();
 		return true;
 	}
+	static void SendThread(void * ARG);
 	bool Send();
 };

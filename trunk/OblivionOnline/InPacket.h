@@ -52,6 +52,7 @@ public:
 			return false;
 		UINT32 FormID = this->ObjectIDs[GetObject(chunkdata)];
 		BYTE status = this->Status[GetObject(chunkdata)];
+		_MESSAGE("Foudn %u chunk",chunk);
 		switch(chunk)
 		{
 		case	Object:
@@ -100,6 +101,7 @@ public:
 		BYTE *m_end = m_stream + m_streamlen;
 		ChunkCount = m_stream[0];//The Data
 		m_current += 3;
+		_MESSAGE("Handling Packet");
 		for(;i < ChunkCount;i++)
 		{
 			retval = HandleChunk(m_current,m_end);

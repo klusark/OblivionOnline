@@ -33,7 +33,7 @@ private:
 	UINT16 *m_Bytes_written;
 	UINT8 *m_Chunks_written;
 	
-	
+	BYTE m_ObjectsWritten;
 	bool m_Reliable;
 
 
@@ -42,7 +42,7 @@ private:
 		if(*m_Bytes_written  < PACKET_SIZE) // m_Bytes_written + 1 <= tuned
 		{
 			*m_Dataptr = data;
-			*m_Bytes_written++;
+			(*m_Bytes_written)++;
 			return true;
 		}
 		return false;
@@ -52,8 +52,8 @@ private:
 		if(*m_Bytes_written + 1 < PACKET_SIZE)// m_Bytes_written + 2 <= tuned
 		{
 			*((WORD *)m_Dataptr) = data;
-			*m_Bytes_written++; // faster here
-			*m_Bytes_written++;
+			(*m_Bytes_written)++; // faster here
+			(*m_Bytes_written)++;
 			return true;
 		}
 		return false;
@@ -63,7 +63,7 @@ private:
 		if(*m_Bytes_written + sizeof(UINT32) <= PACKET_SIZE)
 		{
 			*((UINT32 *)m_Dataptr) = data;
-			*m_Bytes_written += sizeof(UINT32);
+			(*m_Bytes_written) += sizeof(UINT32);
 			return true;
 		}
 		return false;
@@ -75,7 +75,7 @@ private:
 			memcpy(m_Dataptr,data,len);
 			return true;
 		}
-		*m_Bytes_written += len;
+		(*m_Bytes_written) += len;
 		return false;
 	}
 	inline BYTE FindObjectID(UINT32 FormID,BYTE Status)
@@ -102,13 +102,16 @@ private:
 		//write it
 		if( RemainingDataSize() < (sizeof(UINT32) + 3))
 			return MAX_OBJECTS_PER_PACKET;		//packet full
-		if(i == MAX_OBJECTS_PER_PACKET )
+		//Search for a new slot
+		if(m_ObjectsWritten == MAX_OBJECTS_PER_PACKET )
 			return MAX_OBJECTS_PER_PACKET; // We found no empty slot
+		i = m_ObjectsWritten;
 		m_ObjectID[i] = FormID;
 		m_IsPlayer[i] = (STATUS_PLAYER == Status);		
 		WriteWord((PkgChunk::Object & CHUNKMASK)|(i & OBJECTMASK));
 		WriteUINT32(FormID);
 		WriteByte(Status);
+		m_ObjectsWritten++;
 		return i;
 	}
 public:
@@ -119,8 +122,11 @@ public:
 		m_Dataptr = m_Data + PACKET_HEADER_SIZE;
 		m_Bytes_written =  (UINT16 *)((UINT8 *)m_Data + 1); 
 		m_Chunks_written = (UINT8 *)m_Data;
+		*m_Bytes_written = PACKET_HEADER_SIZE;
+		*m_Chunks_written = 0;
 		m_Reliable = false;
 		m_Player = Player;
+		m_ObjectsWritten = 0;
 	}
 	~OutPacket(void)
 	{
@@ -134,8 +140,10 @@ public:
 			return false; // TOO many objects or too less space
 		WriteWord((ChunkType & CHUNKMASK)|(ObjectID & OBJECTMASK));
 		Write(ChunkSize,data);
+		(*m_Chunks_written)++;
 		if(RequiresReliable(ChunkType))
 			m_Reliable = true;
+		return true;
 	}
 	inline BYTE* GetData()
 	{

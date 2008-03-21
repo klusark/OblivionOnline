@@ -122,19 +122,10 @@ DWORD WINAPI RecvThread(LPVOID Params)
 	while(bIsConnected)
 	{
 		rc = recv(ServerSocket,buf,PACKET_SIZE,0);
+		_MESSAGE("Received new packet");
 		pkg = new InPacket((BYTE *)buf,rc);
 		pkg->HandlePacket();
 		delete pkg;
-	}
-	return 0;
-}
-
-DWORD WINAPI SendThread(LPVOID Params)
-{
-	while(bIsConnected)
-	{
-		Sleep(50);
-		outnet.Send();
 	}
 	return 0;
 }

@@ -165,6 +165,7 @@ public:
 			state->Apply();
 			state->Release();
 		}
+		SetEvent(hEvtSendPacket);
 		EndScene();
 		return m_device->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 	}

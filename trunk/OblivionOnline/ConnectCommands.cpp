@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "main.h"
+#include "UserInterface.h"
 bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 {
 	if(!bIsConnected)
@@ -56,13 +57,17 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 			{
 				_MESSAGE("Successfully Connected to %s:%u",IP[i],ClientPort[i]);
 				outnet.SetAddress(ServerAddr);
-				bIsConnected = true;
 				hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
 				//hPredictionEngine = CreateThread(NULL,NULL,PredictionEngine,NULL,NULL,NULL);
 				//Now try to connect with default password
 				Console_Print("Oblivion connected to %s",IP[i]);
+				_MESSAGE("Waiting for player ID...");
 				sprintf(ServerIP,"%s",IP[i]);
 				//usrInterface.SetGlobalState(true); // we start it ...
+				if(bUIInitialized)
+				{
+					SetConnectionMessage("Waiting for player ID");
+				}
 				break;
 			}
 		}

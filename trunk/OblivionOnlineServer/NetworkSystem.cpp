@@ -60,7 +60,7 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 	}
 	else
 	{
-		netsys->GetGS()->GetIO()<<BootMessage<<"TCP Bound to port" << port <<endl;
+		netsys->GetGS()->GetIO()<<BootMessage<<"TCP Bound to port " << port <<endl;
 	}
 	rc = listen(acceptSocket,4)==SOCKET_ERROR;
 	if(rc == SOCKET_ERROR)
@@ -71,7 +71,7 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 	}
 	else
 	{
-
+		
 		netsys->GetGS()->GetIO()<<BootMessage<<"TCP listening"<<endl;
 	}
 	while(1)
@@ -101,7 +101,8 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 				rc = recv(i->second,(char *)data,PACKET_SIZE,0);
 				if(rc==0 || rc==SOCKET_ERROR)
 				{
-					//TODO: Handle player disconnect
+					netsys->GetGS()->GetIO()<<GameMessage<<"Player "<< i->first << "disconnected"<<endl;
+					netsys->PlayerDisconnect(i->first);
 				}
 				else
 				{
@@ -137,22 +138,26 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 	{
 		PacketBuffer = (BYTE*) malloc (PACKET_SIZE); //TODO : Free these!!!
 		size = recvfrom(sock,(char *)PacketBuffer,PACKET_SIZE,0,(SOCKADDR *)&inaddr,&inaddr_len);
-		Player = netsys->GetPlayerFromAddr(inaddr);
-		if(Player != 0)
-			netsys->RegisterTraffic(netsys->GetPlayerFromAddr(inaddr),size,PacketBuffer,false);
-		else
-			netsys->GetGS()->GetIO()<<Warning<<"Unknown player sent data to UDP "<<endl;
-		free(PacketBuffer);
+		if(size != 0)
+		{
+			Player = netsys->GetPlayerFromAddr(inaddr);
+			if(Player != 0)
+				netsys->RegisterTraffic(netsys->GetPlayerFromAddr(inaddr),size,PacketBuffer,false);
+			else
+				netsys->GetGS()->GetIO()<<Warning<<"Unknown player sent data to UDP "<<endl;
+			free(PacketBuffer);
+		}
 	}
 }
 
  bool NetworkSystem::RegisterTraffic( UINT32 PlayerID,size_t size,BYTE *data,bool reliable )
  {
-	if(!reliable && !ValidatePacketLength(data,size))
+	/*
+	 if(!reliable && !ValidatePacketLength(data,size))
 	{
 		m_GS->GetIO()<<Warning<<"Found Packet with wrong size - ignoring"<<endl;
 		return false;
-	}
+	}*/
 	InPacket *pkg = new InPacket(this,m_GS,data,size);
 	pkg->HandlePacket();
 	return true;
@@ -169,15 +174,16 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 		  if(++ID != iter->first)
 			  break;
 	 }
-	 if(iter == m_PlayerAddresses.end())
-		 ID++;
-
 	 m_PlayerAddresses[ID] = addr;
 	 m_AddressPlayer[addr.sin_addr.S_un.S_addr] = ID;
-	 m_OutPackets[ID] = new OutPacket(ID);
+	 m_TCPSockets[ID] = TCPSock;
+	 m_OutPackets[ID] = new OutPacket(ID);	
+	 m_OutPackets[ID]->AddChunk(0,STATUS_PLAYER,GetMinChunkSize(PkgChunk::PlayerID),PlayerID,(BYTE *)&ID);
+     Send(ID);
 	 m_GS->GetIO()<<GameMessage<< "New player" << ID << "joined from address"<< inet_ntoa(addr.sin_addr) << ":" <<ntohs(addr.sin_port)<<endl;
-	 if(m_MasterClient == 0)
+	 if(m_MasterClientDefined == 0)
 	 {
+		 m_MasterClientDefined = 1;
 		 masterclient = 1;
 		 m_MasterClient = ID;
 		 m_GS->GetIO()<<GameMessage<<"Selected new master client"<<ID<<endl;
@@ -195,16 +201,35 @@ NetworkSystem::NetworkSystem( GameServer *Server )
 #endif
 	m_TCPSockets.clear();
 	m_UDPSock = socket(AF_INET,SOCK_DGRAM,0);
+	m_MasterClientDefined = 0;
 }
 
 bool NetworkSystem::SendReliableStream( UINT32 PlayerID,size_t length,BYTE *data )
 {
-	send(m_TCPSockets.find(PlayerID)->second,(const char *)data,length,0);
+	std::map<UINT32,SOCKET>::iterator iter = m_TCPSockets.find(PlayerID);
+	if(iter == m_TCPSockets.end())
+		return false;
+	long rc = send(iter->second,(const char *)data,length,0);
+	if(rc == SOCKET_ERROR)
+	{
+#ifdef WIN32
+		m_GS->GetIO()<<Error<<"Sending TCP/IP failed . Error:"<<WSAGetLastError();
+#else
+		m_GS->GetIO()<<Error<<"Sending TCP/IP failed . Error:"<<errno;
+#endif
+	}
+	if(rc!= length)
+	{
+		m_GS->GetIO()<<Error<<"Sending TCP/IP failed . Sent "<<rc<<"bytes instead of"<<length<<endl;
+	}
 	return true;
 }
 bool NetworkSystem::SendUnreliableStream( UINT32 PlayerID,size_t length,BYTE *data )
 {
-	sendto(m_UDPSock,(const char *)data,length,0,(SOCKADDR *)&m_PlayerAddresses.find(PlayerID)->second,sizeof(SOCKADDR_IN));
+	std::map<UINT32,SOCKADDR_IN>::iterator iter = m_PlayerAddresses.find(PlayerID);
+	if(iter == m_PlayerAddresses.end())
+		return false;
+	sendto(m_UDPSock,(const char *)data,length,0,(SOCKADDR *)&iter->second,sizeof(SOCKADDR_IN));
 	return true;
 }
 
@@ -228,6 +253,7 @@ bool NetworkSystem::PlayerDisconnect( UINT32 ID )
 		else
 		{
 			m_MasterClient = 0;
+			m_MasterClientDefined = 0;
 		}
 	}
 	return true;

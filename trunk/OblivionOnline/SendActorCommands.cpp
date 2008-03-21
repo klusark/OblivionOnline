@@ -49,6 +49,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 	// if MC :
 	// 2 - send up position , stat equip , etc of NPCs
 	//(*g_thePlayer) is ignored
+	_MESSAGE("MPSendActor called ");
 	feGetObject getObject;		
 	UINT32 i;
 	UINT32 ActorValue;
@@ -100,13 +101,13 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 	{
 		if(i == 18 || i == 19 || i== 9 || i == 10 || i == 11 || i == 12 || i == 14) // These do not exist 
 			continue;
-		if (!FindEquipped(thisObj, i, &getObject, &itemResult))
+		if (!FindEquipped((*g_thePlayer), i, &getObject, &itemResult))
 		{
 			*itemRef = 0;
 		}
 		if( ent->Equip[i] != *itemRef)
 		{
-			NetSendEquip(thisObj->refID,ent->status,i,*itemRef);				
+			NetSendEquip((*g_thePlayer)->refID,ent->status,i,*itemRef);				
 			ent->Equip[i] = *itemRef;
 		}
 	}

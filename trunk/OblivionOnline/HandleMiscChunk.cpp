@@ -36,6 +36,7 @@ forward this exception.
 */
 #include "InPacket.h"
 #include "ChunkHandler.h"
+#include "UserInterface.h"
 size_t HandleVersionChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
 {
 	if(*(chunkdata + 2) == VERSION_SUPER && *(chunkdata+3) == VERSION_MAJOR && *(chunkdata+4) == VERSION_MINOR )
@@ -52,6 +53,9 @@ size_t HandlePlayerIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 For
 	LocalPlayer = *(UINT32 *)(chunkdata + 2);
 	Console_Print("Received Player ID %u",LocalPlayer);
 	_MESSAGE("Received Player ID %u",LocalPlayer);
+	bIsConnected = true;
+	if(bUIInitialized)
+		SetConnectionMessage("Good to go");
 	return GetMinChunkSize(PlayerID);
 }
 size_t HandleClientTypeChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)

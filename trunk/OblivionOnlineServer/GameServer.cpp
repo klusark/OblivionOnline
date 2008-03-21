@@ -88,8 +88,8 @@ void GameServer::AdvertiseGameServer()
 					char *EscapedName = curl_easy_escape(curl,ServerName.c_str(),0);
 					URL<<RealmListURI;
 					URL << "?name=" << string( EscapedName) << "&port=" <<m_script->GetInteger("ServicePort") <<"&players=" <<
-						m_Netsystem->GetPlayerCount()<<"&MaxPlayers="<<MAX_PLAYERS <<"&VersionSuper=" << VERSION_SUPER <<"&VersionMajor="
-						<< VERSION_MAJOR << "&VersionMinor=" << VERSION_MINOR << "&HasPassword="<<0<<'\0'<<endl;
+						m_Netsystem->GetPlayerCount()<<"&maxplayers="<<MAX_PLAYERS <<"&VersionMajor="
+						<< VERSION_MAJOR << "&VersionMinor=" << VERSION_MINOR << "&HasPassword="<<0;
 
 					//TODO:  If I readd passworded servers - remove the false
 					//TODO: Escape string

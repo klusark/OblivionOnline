@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "main.h"
-
+#include "UserInterface.h"
 bool Cmd_MPDisconnect_Execute (COMMAND_ARGS)
 {
 	if(bIsConnected)
@@ -24,6 +24,8 @@ bool Cmd_MPDisconnect_Execute (COMMAND_ARGS)
 		OO_Deinitialize();
 		bIsConnected = false;
 		Console_Print("You have disconnected");
+		if(bUIInitialized)
+			SetConnectionMessage("You have succesfully disconnected");
 	}else{
 		Console_Print("You are not connected");
 	}

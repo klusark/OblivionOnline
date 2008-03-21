@@ -82,4 +82,6 @@ extern DWORD WINAPI RecvThread(LPVOID Params);
 extern int OO_Initialize();
 extern int OO_Deinitialize();
 extern EntityManager Entities;
+
+extern "C" HANDLE hEvtSendPacket;
 #endif

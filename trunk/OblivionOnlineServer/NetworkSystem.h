@@ -39,9 +39,10 @@ private:
 	std::map<UINT32,SOCKET> m_TCPSockets;
 	std::map<UINT32,SOCKADDR_IN> m_PlayerAddresses;
 	std::map<u_long,UINT32> m_AddressPlayer; // This is the type of INET_ADDR.sin_addr.s_addr
+	BYTE m_MasterClientDefined;
 	static bool ValidatePacketLength(BYTE *data,size_t reportedSize)
 	{
-		return (*(UINT16 *)((BYTE *)data+1)) == reportedSize;
+		return (*(UINT16 *)((BYTE *)data+1)) < reportedSize;
 	}
 	
 public:

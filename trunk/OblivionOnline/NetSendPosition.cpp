@@ -41,7 +41,9 @@ bool NetSendPosition( UINT32 FormID,BYTE Status,float PosX,float PosY,float PosZ
 	{
 		PosX,PosY,PosZ,RotX,RotY,RotZ
 	};
+	_MESSAGE("Old FormID %u",FormID);
 	FormID = TranslateFormID(FormID,Status); // get  a net form ID
+	_MESSAGE("New FormID %u",FormID);
 	outnet.AddChunk(FormID,Status,GetMinChunkSize(Position),Position,(BYTE *)&Data);
 	return true;
 }
