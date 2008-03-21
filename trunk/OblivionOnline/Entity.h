@@ -52,6 +52,7 @@ struct Entity
 	Entity(UINT32 refID)
 		:RefID(refID)
 	{
+		_MESSAGE("Spawned Entity %u",refID);
 		CellID = 0;
 		RaceID = 0;
 		refr = NULL;

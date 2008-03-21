@@ -53,7 +53,7 @@ size_t HandlePlayerIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 For
 	LocalPlayer = *(UINT32 *)(chunkdata + 2);
 	Console_Print("Received Player ID %u",LocalPlayer);
 	_MESSAGE("Received Player ID %u",LocalPlayer);
-	bIsConnected = true;
+	bIsInitialized = true;
 	if(bUIInitialized)
 		SetConnectionMessage("Good to go");
 	return GetMinChunkSize(PlayerID);

@@ -63,6 +63,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 				Console_Print("Oblivion connected to %s",IP[i]);
 				_MESSAGE("Waiting for player ID...");
 				sprintf(ServerIP,"%s",IP[i]);
+				bIsConnected = true;
 				//usrInterface.SetGlobalState(true); // we start it ...
 				if(bUIInitialized)
 				{

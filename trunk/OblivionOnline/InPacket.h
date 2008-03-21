@@ -52,7 +52,7 @@ public:
 			return false;
 		UINT32 FormID = this->ObjectIDs[GetObject(chunkdata)];
 		BYTE status = this->Status[GetObject(chunkdata)];
-		_MESSAGE("Foudn %u chunk",chunk);
+		_MESSAGE("Found %u chunk",chunk);
 		switch(chunk)
 		{
 		case	Object:
@@ -107,7 +107,7 @@ public:
 			retval = HandleChunk(m_current,m_end);
 			if(retval == 0)
 			{
-				_WARNING("Ignoring rest of packet ");
+				_WARNING("Bad chunk : Ignoring rest of packet ");
 				return;
 			}
 			m_current += retval;

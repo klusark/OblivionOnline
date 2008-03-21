@@ -44,7 +44,7 @@ This file is part of OblivionOnline.
 // Global variables
 extern "C" HINSTANCE OODll;
 bool bIsConnected = false;
-
+bool bIsInitialized = false;
 IDebugLog gLog;
 bool PlayerConnected[MAXCLIENTS];
 UINT32 LocalPlayer;
@@ -121,6 +121,7 @@ DWORD WINAPI RecvThread(LPVOID Params)
 	InPacket * pkg;
 	while(bIsConnected)
 	{
+		_MESSAGE("Waiting for incoming traffic...");
 		rc = recv(ServerSocket,buf,PACKET_SIZE,0);
 		_MESSAGE("Received new packet");
 		pkg = new InPacket((BYTE *)buf,rc);
