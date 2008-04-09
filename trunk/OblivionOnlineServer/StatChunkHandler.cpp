@@ -28,7 +28,7 @@ size_t HandleHealthChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t le
 		return 0;
 	}	
 	ent->SetHealth(*(INT16 *)(chunkdata + 2));
-	return GetMinChunkSize(PkgChunk::Health);
+	return GetMinChunkSize(PkgChunk::Health) + sizeof(unsigned short);
 }
 size_t HandleMagickaChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
@@ -39,7 +39,7 @@ size_t HandleMagickaChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t l
 		return 0;
 	}	
 	ent->SetMagicka(*(INT16*)(chunkdata + 2));
-	return GetMinChunkSize(PkgChunk::Magicka);
+	return GetMinChunkSize(PkgChunk::Magicka) + sizeof(unsigned short);
 }
 size_t HandleFatigueChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
@@ -50,7 +50,7 @@ size_t HandleFatigueChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t l
 		return 0;
 	}	
 	ent->SetFatigue(*(INT16 *)(chunkdata + 2));
-	return GetMinChunkSize(PkgChunk::Fatigue);
+	return GetMinChunkSize(PkgChunk::Fatigue) + sizeof(unsigned short);
 }
 size_t HandleStatChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
@@ -61,7 +61,7 @@ size_t HandleStatChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len 
 		return 0;
 	}	
 	ent->SetStat(*(chunkdata +2),*(INT16 *)(chunkdata+3));
-	return GetMinChunkSize(PkgChunk::Stat);
+	return GetMinChunkSize(PkgChunk::Stat) + sizeof(unsigned short);
 }
 size_t HandleSkillChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
@@ -72,7 +72,7 @@ size_t HandleSkillChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len
 		return 0;
 	}	
 	ent->SetSkill(*(chunkdata +2),*(INT16 *)(chunkdata+3));
-	return GetMinChunkSize(PkgChunk::Skill);
+	return GetMinChunkSize(PkgChunk::Skill) + sizeof(unsigned short);
 }
 size_t HandleGenderChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
@@ -83,7 +83,7 @@ size_t HandleGenderChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t le
 		return 0;
 	}	
 	ent->SetFemale(*(chunkdata+2));
-	return GetMinChunkSize(PkgChunk::Gender);
+	return GetMinChunkSize(PkgChunk::Gender) + sizeof(unsigned short);
 }
 size_t HandleRaceChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
@@ -94,7 +94,7 @@ size_t HandleRaceChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len 
 		return 0;
 	}	
 	ent->SetRace(*(UINT32 *)(chunkdata + 2));
-	return GetMinChunkSize(PkgChunk::Race);
+	return GetMinChunkSize(PkgChunk::Race) + sizeof(unsigned short);
 }
 
 size_t HandleClassChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len,UINT32 FormID,BYTE status)
@@ -106,7 +106,7 @@ size_t HandleClassChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len
 		return 0;
 	}	
 	ent->SetClassName(ReadANSIString(chunkdata + 2,len-2));
-	return ent->ClassName().length() + 2;//TODO: think of more clever way to handle strings
+	return ent->ClassName().length() + 2 + sizeof(unsigned short);//TODO: think of more clever way to handle strings
 }
 size_t HandleNameChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
@@ -117,7 +117,7 @@ size_t HandleNameChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len 
 		return 0;
 	}	
 	ent->SetName(ReadANSIString(chunkdata + 2,len-2));
-	return ent->Name().length() + 2;
+	return ent->Name().length() + 2 + sizeof(unsigned short);
 }
 size_t HandleEquipChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
@@ -128,4 +128,5 @@ size_t HandleEquipChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len
 		return 0;
 	}	
 	ent->SetEquip(*(BYTE*)(chunkdata + 2),*(UINT32 *)(chunkdata + 3));
+	return GetMinChunkSize(PkgChunk::Equip)  + sizeof(unsigned short);
 }

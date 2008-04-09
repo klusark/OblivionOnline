@@ -34,6 +34,6 @@ size_t HandleGenderChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormI
 		else
 			Console_Print("Actor %u should be male",FormID);
 	}
-	return GetMinChunkSize(Gender);
+	return GetMinChunkSize(Gender) + sizeof(unsigned short);
 
 }

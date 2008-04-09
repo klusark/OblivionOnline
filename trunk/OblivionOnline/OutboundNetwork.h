@@ -49,21 +49,20 @@ private:
 	BYTE m_Status[MAX_OBJECTS_PER_PACKET];
 	
 	UINT32 m_Player;
-	BYTE *m_Dataptr; 
 	UINT16 *m_Bytes_written;
 	UINT8 *m_Chunks_written;
 	SOCKADDR_IN m_addr;
 	
 	bool m_Reliable;
-
+	BYTE m_ObjectsWritten;
 	SOCKET  m_UDP;
 	CRITICAL_SECTION m_criticalsection;
 	inline bool WriteByte(BYTE data)
 	{
 		if(*m_Bytes_written  < PACKET_SIZE) // m_Bytes_written + 1 <= tuned
 		{
-			*m_Dataptr = data;
-			*m_Bytes_written++;
+			*(m_Data + *m_Bytes_written) = data;
+			(*m_Bytes_written)++;
 			return true;
 		}
 		return false;
@@ -72,9 +71,8 @@ private:
 	{
 		if(*m_Bytes_written + 1 < PACKET_SIZE)// m_Bytes_written + 2 <= tuned
 		{
-			*((WORD *)m_Dataptr) = data;
-			*m_Bytes_written++; // faster here
-			*m_Bytes_written++;
+			*(WORD *)(m_Data + *m_Bytes_written) = data;
+			*m_Bytes_written += sizeof(UINT16);
 			return true;
 		}
 		return false;
@@ -83,7 +81,7 @@ private:
 	{
 		if(*m_Bytes_written + sizeof(UINT32) <= PACKET_SIZE)
 		{
-			*((UINT32 *)m_Dataptr) = data;
+			*(UINT32 *)(m_Data + *m_Bytes_written) = data;
 			*m_Bytes_written += sizeof(UINT32);
 			return true;
 		}
@@ -93,10 +91,11 @@ private:
 	{
 		if(*m_Bytes_written + len <= PACKET_SIZE)
 		{
-			memcpy(m_Dataptr,data,len);
+			memcpy(m_Data + *m_Bytes_written,data,len);
+			*m_Bytes_written += len;
 			return true;
 		}
-		*m_Bytes_written += len;
+		
 		return false;
 	}
 	inline BYTE FindObjectID(UINT32 FormID,BYTE Status)
@@ -114,42 +113,47 @@ private:
 	}
 	inline BYTE GetObjectID(UINT32 FormID,BYTE Status)
 	{		
+
 		BYTE i = 0;		
 		for(i = 0;i < MAX_OBJECTS_PER_PACKET; i++)
 		{
-			if(m_Status[i] == Status && m_ObjectID[i] == FormID)
+			if((m_Status[i] == STATUS_PLAYER) == (Status == STATUS_PLAYER) && m_ObjectID[i] == FormID)
 				return i;
 		}
 		//write it
 		if( RemainingDataSize() < (sizeof(UINT32) + 3))
-			return MAX_OBJECTS_PER_PACKET;		//packet full
-		if(i == MAX_OBJECTS_PER_PACKET )
+
+			//Search for a new slot
+		if(m_ObjectsWritten == MAX_OBJECTS_PER_PACKET )
 			return MAX_OBJECTS_PER_PACKET; // We found no empty slot
+		i = m_ObjectsWritten;
 		m_ObjectID[i] = FormID;
-		m_Status[i] = Status;		
-		_MESSAGE("Adding new Object to packet %u %u ",FormID,Status);
-		WriteWord((PkgChunk::Object & CHUNKMASK)|(i & OBJECTMASK));
+		m_Status[i] =  Status;		
+		WriteWord((   ((UINT16)PkgChunk::Object)   & CHUNKMASK)|(i & OBJECTMASK) );
+		(*m_Chunks_written)++;
 		WriteUINT32(FormID);
 		WriteByte(Status);
+		m_ObjectsWritten++;
 		return i;
 	}
-public:
+public:	
 	OutboundNetwork()
 	{
 		WSADATA data;
 		WSAStartup(MAKEWORD(2,2),&data);
 		memset(m_ObjectID,0,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
 		memset(m_Status,false,sizeof(BYTE)*MAX_OBJECTS_PER_PACKET);
-		m_Dataptr = m_Data + PACKET_HEADER_SIZE;
 		m_Bytes_written =  (UINT16 *)((UINT8 *)m_Data + 1); 
 		m_Chunks_written = (UINT8 *)m_Data;
 		m_Reliable = false;
 		m_UDP = socket(AF_INET,SOCK_DGRAM,0);
+		*m_Chunks_written = 0;
+		*m_Bytes_written = PACKET_HEADER_SIZE;
 		InitializeCriticalSection(&m_criticalsection);
-		_beginthread(SendThread,0,NULL);
 	}
 	~OutboundNetwork(void)
 	{
+		DeleteCriticalSection(&m_criticalsection);
 	}
 	void SetAddress(SOCKADDR_IN addr)
 	{
@@ -159,20 +163,27 @@ public:
 	{
 		memset(m_ObjectID,0,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
 		memset(m_Status,false,sizeof(BYTE)*MAX_OBJECTS_PER_PACKET);
-		m_Dataptr = m_Data + PACKET_HEADER_SIZE;
 		m_Bytes_written =  (UINT16 *)((UINT8 *)m_Data + 1); 
 		m_Chunks_written = (UINT8 *)m_Data;
+		*m_Chunks_written = 0;
+		*m_Bytes_written = PACKET_HEADER_SIZE;
 		m_Reliable = false;
-		m_UDP = socket(AF_INET,SOCK_DGRAM,0);
+		
 	}
 	inline bool AddChunk(UINT32 FormID,bool IsPlayer,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
 		_MESSAGE("Adding %u  Chunk for FormID %u",ChunkType,FormID);
-		if(RemainingDataSize() < ChunkSize + 2)  // Chunk Header
-			return false; // No more space
+		if(RemainingDataSize() < (ChunkSize + 2))  // Chunk Header
+		{
+			_MESSAGE("Sending because for lack of space");
+			Send();
+		}
 		BYTE ObjectID = GetObjectID(FormID,IsPlayer);
 		if( ObjectID == MAX_OBJECTS_PER_PACKET)
-			return false; // TOO many objects or too less space
+		{
+			Send();
+			ObjectID = GetObjectID(FormID,IsPlayer);
+		}
 		EnterCriticalSection(&m_criticalsection);
 		WriteWord((ChunkType & CHUNKMASK)|(ObjectID & OBJECTMASK));
 		Write(ChunkSize,data);
@@ -184,6 +195,5 @@ public:
 			Send();
 		return true;
 	}
-	static void SendThread(void * ARG);
 	bool Send();
 };

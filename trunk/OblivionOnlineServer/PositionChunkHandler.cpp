@@ -30,7 +30,7 @@ size_t HandlePositionChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t 
 		return 0;
 	}	
 	ent->MoveNRot(floats[0],floats[1],floats[2],floats[3],floats[4],floats[5]);
-	return GetMinChunkSize(PkgChunk::Position);
+	return GetMinChunkSize(PkgChunk::Position) + sizeof(unsigned short);
 }
 size_t HandleCellIDChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
@@ -41,6 +41,6 @@ size_t HandleCellIDChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t le
 		return 0;
 	}	
 	ent->SetCell(*(UINT32*)(chunkdata +2));
-	return GetMinChunkSize(PkgChunk::CellID);
+	return GetMinChunkSize(PkgChunk::CellID) + sizeof(unsigned short);
 }
 

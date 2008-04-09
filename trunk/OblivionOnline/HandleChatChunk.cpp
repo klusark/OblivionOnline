@@ -21,5 +21,5 @@ size_t HandleChatChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,
 { 
 	Console_Print("Player %i: %s", FormID, (char *)(chunkdata +2 + sizeof(unsigned short)));
 	QueueUIMessage((char *)(chunkdata +2 + sizeof(unsigned short)),0,1, 5);
-	return (2 + sizeof(unsigned short) + (len < *(unsigned short *)(chunkdata +2) ) ? (len) : *(unsigned short *)(chunkdata +2));
+	return (sizeof(unsigned short)+ sizeof(unsigned short) + sizeof(unsigned short) + (len < *(unsigned short *)(chunkdata +2) ) ? (len) : *(unsigned short *)(chunkdata +2));
 }

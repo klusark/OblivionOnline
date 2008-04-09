@@ -165,7 +165,7 @@ public:
 			state->Apply();
 			state->Release();
 		}
-		SetEvent(hEvtSendPacket);
+		outnet.Send();
 		EndScene();
 		return m_device->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 	}

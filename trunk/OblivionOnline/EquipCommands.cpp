@@ -42,6 +42,8 @@ forward this exception.
 //Reworked 3/19/2008
 bool Cmd_MPGetEquipment_Execute (COMMAND_ARGS)
 {
+	if(!bIsInitialized)
+		return true;
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetEquipment");

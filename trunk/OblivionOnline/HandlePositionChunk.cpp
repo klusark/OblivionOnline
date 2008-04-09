@@ -53,5 +53,5 @@ size_t HandlePositionChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 For
 	ent->RotY = floats[4];
 	ent->RotZ = floats[5];
 	UpdateQueue.push(ent);
-	return GetMinChunkSize(Position);
+	return GetMinChunkSize(Position) + sizeof(unsigned short);
 }

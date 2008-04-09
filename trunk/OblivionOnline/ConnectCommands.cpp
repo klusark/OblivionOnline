@@ -57,6 +57,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 			{
 				_MESSAGE("Successfully Connected to %s:%u",IP[i],ClientPort[i]);
 				outnet.SetAddress(ServerAddr);
+
 				hRecvThread = CreateThread(NULL,NULL,RecvThread,NULL,NULL,NULL);
 				//hPredictionEngine = CreateThread(NULL,NULL,PredictionEngine,NULL,NULL,NULL);
 				//Now try to connect with default password
@@ -64,6 +65,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 				_MESSAGE("Waiting for player ID...");
 				sprintf(ServerIP,"%s",IP[i]);
 				bIsConnected = true;
+				bIsInitialized = false;
 				//usrInterface.SetGlobalState(true); // we start it ...
 				if(bUIInitialized)
 				{

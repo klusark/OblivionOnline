@@ -101,9 +101,9 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 				rc = recv(i->second,(char *)data,PACKET_SIZE,0);
 				if(rc==0 || rc==SOCKET_ERROR)
 				{
-					netsys->GetGS()->GetIO()<<GameMessage<<"Player "<< i->first << "disconnected"<<endl;
 					netsys->PlayerDisconnect(i->first);
-				}
+					return; // These sockets will be read after the next select()
+				}	
 				else
 				{
 					netsys->RegisterTraffic(i->first,rc,data,true);
@@ -141,7 +141,7 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 		if(size != 0)
 		{
 			Player = netsys->GetPlayerFromAddr(inaddr);
-			if(Player != 0)
+			if(Player != -1)
 				netsys->RegisterTraffic(netsys->GetPlayerFromAddr(inaddr),size,PacketBuffer,false);
 			else
 				netsys->GetGS()->GetIO()<<Warning<<"Unknown player sent data to UDP "<<endl;
@@ -179,7 +179,6 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 	 m_TCPSockets[ID] = TCPSock;
 	 m_OutPackets[ID] = new OutPacket(ID);	
 	 m_OutPackets[ID]->AddChunk(0,STATUS_PLAYER,GetMinChunkSize(PkgChunk::PlayerID),PlayerID,(BYTE *)&ID);
-     Send(ID);
 	 m_GS->GetIO()<<GameMessage<< "New player" << ID << "joined from address"<< inet_ntoa(addr.sin_addr) << ":" <<ntohs(addr.sin_port)<<endl;
 	 if(m_MasterClientDefined == 0)
 	 {
@@ -189,6 +188,7 @@ OO_TPROC_RET NetworkSystem::TCPProc(void* _netsys)
 		 m_GS->GetIO()<<GameMessage<<"Selected new master client"<<ID<<endl;
 		 m_OutPackets[ID]->AddChunk(ID,STATUS_PLAYER,GetMinChunkSize(ClientType),ClientType,(BYTE *)&masterclient);
 	 }
+	 Send(ID);
 	 return ID;
 }
 
@@ -222,6 +222,7 @@ bool NetworkSystem::SendReliableStream( UINT32 PlayerID,size_t length,BYTE *data
 	{
 		m_GS->GetIO()<<Error<<"Sending TCP/IP failed . Sent "<<rc<<"bytes instead of"<<length<<endl;
 	}
+	m_GS->GetIO()<<GameMessage<<"Sending reliable packet for player"<<PlayerID<<endl;
 	return true;
 }
 bool NetworkSystem::SendUnreliableStream( UINT32 PlayerID,size_t length,BYTE *data )
@@ -230,6 +231,7 @@ bool NetworkSystem::SendUnreliableStream( UINT32 PlayerID,size_t length,BYTE *da
 	if(iter == m_PlayerAddresses.end())
 		return false;
 	sendto(m_UDPSock,(const char *)data,length,0,(SOCKADDR *)&iter->second,sizeof(SOCKADDR_IN));
+	m_GS->GetIO()<<GameMessage<<"Sending unreliable packet for player"<<PlayerID<<endl;
 	return true;
 }
 
@@ -241,6 +243,7 @@ bool NetworkSystem::PlayerDisconnect( UINT32 ID )
 	m_PlayerAddresses.erase(ID);
 	delete m_OutPackets[ID];
 	m_OutPackets.erase(ID);
+	m_TCPSockets.erase(ID);
 	m_GS->GetIO()<<GameMessage<<"We now have"<<GetPlayerCount()<< "players" <<endl;
 	if(m_MasterClient == ID)
 	{

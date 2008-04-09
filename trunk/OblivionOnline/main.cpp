@@ -119,6 +119,7 @@ DWORD WINAPI RecvThread(LPVOID Params)
 	char buf[PACKET_SIZE];
 	int rc;
 	InPacket * pkg;
+	_MESSAGE("Receive thread started");
 	while(bIsConnected)
 	{
 		_MESSAGE("Waiting for incoming traffic...");

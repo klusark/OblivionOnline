@@ -28,5 +28,5 @@ size_t HandleObjectChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t le
 	{
 		new Entity(gs->GetEntities(),FormID,false,false,(Status == 2),Status);
 	}
-	return GetMinChunkSize(PkgChunk::Object);
+	return GetMinChunkSize(PkgChunk::Object) + sizeof(unsigned short);
 }

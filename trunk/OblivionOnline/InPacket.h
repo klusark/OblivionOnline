@@ -47,9 +47,10 @@ public:
 	inline size_t HandleChunk(BYTE* chunkdata,BYTE* EndPtr )
 	{
 		PkgChunk chunk = GetChunkType(chunkdata);
-		unsigned long maxsize = (unsigned long)EndPtr - (unsigned long)chunkdata;
-		if(GetMinChunkSize(chunk) < maxsize )
-			return false;
+		//TODO: Reenable 
+			unsigned long maxsize = (unsigned long)EndPtr - (unsigned long)chunkdata; 
+		if(GetMinChunkSize(chunk) > maxsize )
+			return false; 
 		UINT32 FormID = this->ObjectIDs[GetObject(chunkdata)];
 		BYTE status = this->Status[GetObject(chunkdata)];
 		_MESSAGE("Found %u chunk",chunk);
@@ -101,7 +102,7 @@ public:
 		BYTE *m_end = m_stream + m_streamlen;
 		ChunkCount = m_stream[0];//The Data
 		m_current += 3;
-		_MESSAGE("Handling Packet");
+		_MESSAGE("Handling Packet with %u chunks",ChunkCount);
 		for(;i < ChunkCount;i++)
 		{
 			retval = HandleChunk(m_current,m_end);
@@ -114,6 +115,7 @@ public:
 			if(m_current > m_end)
 			{
 				//m_GS->GetIO() << Warning<< "Bad Packet: too less data"<<endl;
+				break;
 			}
 			if(m_current == m_end)
 			{

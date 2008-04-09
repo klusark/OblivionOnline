@@ -38,6 +38,8 @@ forward this exception.
 #include "Entity.h"
 bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 {
+	if(!bIsInitialized)
+		return true;
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetPosX");
@@ -50,6 +52,8 @@ bool Cmd_MPGetPosX_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetPosY_Execute (COMMAND_ARGS)
 {
+	if(!bIsInitialized)
+		return true;
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetPosY");
@@ -62,6 +66,8 @@ bool Cmd_MPGetPosY_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetPosZ_Execute (COMMAND_ARGS)
 {
+	if(!bIsInitialized)
+		return true;
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetPosZ");
@@ -74,6 +80,8 @@ bool Cmd_MPGetPosZ_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetRotZ_Execute (COMMAND_ARGS)
 {
+	if(!bIsInitialized)
+		return true;
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetPosX");
@@ -86,6 +94,8 @@ bool Cmd_MPGetRotZ_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 {
+	if(!bIsInitialized)
+		return true;
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetIsInterior");
@@ -100,6 +110,8 @@ bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetCell_Execute (COMMAND_ARGS)
 {
+	if(!bIsInitialized)
+		return true;
 	if (!thisObj)
 	{
 		Console_Print("Error, no reference given for MPGetCell");

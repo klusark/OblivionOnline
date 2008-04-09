@@ -28,6 +28,6 @@ size_t HandleRaceChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,
 	{
 		Console_Print("Actor %u should have race",FormID,*(UINT32 *)(chunkdata +2) );
 	}
-	return GetMinChunkSize(Race);
+	return GetMinChunkSize(Race) + sizeof(unsigned short);
 
 }

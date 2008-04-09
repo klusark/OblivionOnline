@@ -43,13 +43,15 @@ forward this exception.
 extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEquippedFunctor, double* result);
 bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 {
+	if(!bIsInitialized)
+		return true;
 	// A heavy command xD
 	// 1 - send local player data up .
 	// 2 - send health magicka and fatigue  + equip up.
 	// if MC :
 	// 2 - send up position , stat equip , etc of NPCs
 	//(*g_thePlayer) is ignored
-	_MESSAGE("MPSendActor called ");
+	_MESSAGE("MPSendActor called on initialized game");
 	feGetObject getObject;		
 	UINT32 i;
 	UINT32 ActorValue;
@@ -182,7 +184,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 					ent = Entities.GetEntity(ListIterator->refr->refID);
 					
 					if(ent == NULL)
-						new Entity(ListIterator->refr->refID);
+						ent = new Entity(ListIterator->refr->refID);
 					//Synch that object too
 					if(ListIterator->refr->IsActor())
 						Status = STATUS_NPC; // We ignore player objects - so
@@ -196,12 +198,12 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 						ent->RotX = ListIterator->refr->rotX;
 						ent->RotY = ListIterator->refr->rotY;
 						ent->RotZ = ListIterator->refr->rotZ;
-						NetSendPosition(ListIterator->refr->refID, (STATUS_PLAYER),ent->PosX,ent->PosY,ent->PosZ,ent->RotX,ent->RotY,ent->RotZ);
+						NetSendPosition(ListIterator->refr->refID, Status,ent->PosX,ent->PosY,ent->PosZ,ent->RotX,ent->RotY,ent->RotZ);
 					}
 					if(ListIterator->refr->parentCell->refID != ent->CellID)
 					{
 						ent->CellID = ListIterator->refr->refID;
-						NetSendCellID(ListIterator->refr->refID,STATUS_PLAYER,ent->CellID);
+						NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
 					}
 					if(Status == STATUS_NPC)
 					{
@@ -210,25 +212,26 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 						if(ActorValue != ent->Health)
 						{
 							ent->Health = ActorValue;
-							NetSendHealth(ListIterator->refr->refID,STATUS_PLAYER,ActorValue);
+							NetSendHealth(ListIterator->refr->refID,Status,ActorValue);
 						}
 						ActorValue = actor->GetActorValue(9);
 						if(ActorValue != ent->Magicka)
 						{
 							ent->Magicka = ActorValue;
-							NetSendMagicka(ListIterator->refr->refID,STATUS_PLAYER,ActorValue);
+							NetSendMagicka(ListIterator->refr->refID,Status,ActorValue);
 						}
 						ActorValue = actor->GetActorValue(10);
 						if(ActorValue != ent->Fatigue)
 						{
 							ent->Fatigue = ActorValue;
-							NetSendFatigue(ListIterator->refr->refID,STATUS_PLAYER,ActorValue);
+							NetSendFatigue(ListIterator->refr->refID,Status,ActorValue);
 						}	
 					}
 				}
 			}
 		}
 	}
+	outnet.Send();
 	return true;
 }
 

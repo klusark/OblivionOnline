@@ -179,12 +179,12 @@ inline size_t GetMinChunkSize(PkgChunk type)
 }
 inline PkgChunk GetChunkType(BYTE *stream)
 {
-	return (PkgChunk)(*((INT16 *)(stream)) && CHUNKMASK);
+	return (PkgChunk)(*((INT16 *)(stream)) & CHUNKMASK);
 }
 
 inline UINT8 GetObject(BYTE *stream)
 {
-	return (PkgChunk)(*((INT16 *)(stream)) && OBJECTMASK);
+	return (PkgChunk)(*((INT16 *)(stream)) & OBJECTMASK);
 }
 inline std::string ReadANSIString(BYTE* BaseStream,size_t maxlen)
 {

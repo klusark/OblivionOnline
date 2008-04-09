@@ -54,9 +54,10 @@ public:
 	inline size_t HandleChunk(BYTE* chunkdata,BYTE* EndPtr )
 	{
 		PkgChunk chunk = GetChunkType(chunkdata);
+		
 		unsigned long maxsize = (unsigned long)EndPtr - (unsigned long)chunkdata;
-		if(GetMinChunkSize(chunk) < maxsize )
-			return false;
+		/*if(GetMinChunkSize(chunk) < maxsize )
+			return false;*/
 		UINT32 FormID = this->ObjectIDs[GetObject(chunkdata)];
 		BYTE status = this->Status[GetObject(chunkdata)];
 		switch(chunk)
@@ -97,7 +98,7 @@ public:
 		case Version:
 			return HandleVersionChunk(m_GS,this,chunkdata,maxsize,FormID,status);
 		default:
-			return false;
+			return 0;
 		}
 	} 
 	void HandlePacket()

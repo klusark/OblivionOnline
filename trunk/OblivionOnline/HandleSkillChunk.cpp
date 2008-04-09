@@ -20,6 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 size_t HandleSkillChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
 { 
 	//TODO: Handle this
-	return GetMinChunkSize(Skill);
+	return GetMinChunkSize(Skill) + sizeof(unsigned short);
 
 }

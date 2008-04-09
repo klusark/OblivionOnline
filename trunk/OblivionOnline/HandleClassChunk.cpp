@@ -21,5 +21,5 @@ size_t HandleClassChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID
 {
 	//TODO: Handle Class Chunk
 	std::string ClassName = ReadANSIString(chunkdata + 2,len-2);
-	return ClassName.length() + 2;
+	return ClassName.length() +  + sizeof(unsigned short) + sizeof(unsigned short);
 }

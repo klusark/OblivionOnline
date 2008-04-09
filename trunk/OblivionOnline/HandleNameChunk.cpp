@@ -44,5 +44,5 @@ size_t HandleNameChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,
 		FormID = GetPlayerFormID(FormID); // Get a player representation
 	Npc = (TESObjectREFR *)LookupFormByID(FormID);
 	Npc->SetName(Name.c_str());
-	return 2+Name.length();
+	return 2+Name.length() + sizeof(unsigned short);
 }

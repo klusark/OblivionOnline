@@ -46,7 +46,7 @@ size_t HandleVersionChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 Form
 		Console_Print("Incorrect Server Version %u.%u.%u",*(chunkdata + 2),*(chunkdata +3),*(chunkdata + 4));
 		_ERROR("Incorrect Server Version %u.%u.%u",*(chunkdata + 2),*(chunkdata +3),*(chunkdata + 4));
 	}
-	return GetMinChunkSize(PkgChunk::Version);
+	return GetMinChunkSize(PkgChunk::Version) + sizeof(unsigned short);
 }
 size_t HandlePlayerIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
 {
@@ -56,7 +56,7 @@ size_t HandlePlayerIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 For
 	bIsInitialized = true;
 	if(bUIInitialized)
 		SetConnectionMessage("Good to go");
-	return GetMinChunkSize(PlayerID);
+	return GetMinChunkSize(PlayerID) + sizeof(unsigned short);
 }
 size_t HandleClientTypeChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
 {
@@ -72,5 +72,5 @@ size_t HandleClientTypeChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 F
 		_MESSAGE("Passive Client");
 		Console_Print("Passive Client");
 	}
-	return GetMinChunkSize(ClientType);
+	return GetMinChunkSize(ClientType) + sizeof(unsigned short);
 }

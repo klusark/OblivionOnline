@@ -41,5 +41,5 @@ size_t HandleCellIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormI
 	obj->ChangeCell(cell);
 	Console_Print("Entity %u changed to cell %u",FormID,Value);
 	//TODO : See if this works
-	return GetMinChunkSize(CellID);
+	return GetMinChunkSize(CellID) + sizeof(unsigned short);
 }

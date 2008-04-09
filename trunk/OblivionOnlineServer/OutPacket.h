@@ -43,17 +43,18 @@ private:
 		{
 			*m_Dataptr = data;
 			(*m_Bytes_written)++;
+			m_Dataptr++;
 			return true;
 		}
 		return false;
 	}
-	inline bool WriteWord(WORD data)
+	inline bool WriteWord(UINT16 data)
 	{
 		if(*m_Bytes_written + 1 < PACKET_SIZE)// m_Bytes_written + 2 <= tuned
 		{
-			*((WORD *)m_Dataptr) = data;
-			(*m_Bytes_written)++; // faster here
-			(*m_Bytes_written)++;
+			*((UINT16 *)m_Dataptr) = data;
+			*m_Bytes_written += sizeof(UINT16);
+			m_Dataptr+=sizeof(UINT16);
 			return true;
 		}
 		return false;
@@ -63,7 +64,8 @@ private:
 		if(*m_Bytes_written + sizeof(UINT32) <= PACKET_SIZE)
 		{
 			*((UINT32 *)m_Dataptr) = data;
-			(*m_Bytes_written) += sizeof(UINT32);
+			*m_Bytes_written += sizeof(UINT32);
+			m_Dataptr+=sizeof(UINT32);
 			return true;
 		}
 		return false;
@@ -73,9 +75,10 @@ private:
 		if(*m_Bytes_written + len <= PACKET_SIZE)
 		{
 			memcpy(m_Dataptr,data,len);
+			(*m_Bytes_written) += len;
+			m_Dataptr+=len;
 			return true;
 		}
-		(*m_Bytes_written) += len;
 		return false;
 	}
 	inline BYTE FindObjectID(UINT32 FormID,BYTE Status)
@@ -108,7 +111,8 @@ private:
 		i = m_ObjectsWritten;
 		m_ObjectID[i] = FormID;
 		m_IsPlayer[i] = (STATUS_PLAYER == Status);		
-		WriteWord((PkgChunk::Object & CHUNKMASK)|(i & OBJECTMASK));
+		WriteWord((   ((UINT16)PkgChunk::Object)   & CHUNKMASK)|(i & OBJECTMASK));
+		(*m_Chunks_written)++;
 		WriteUINT32(FormID);
 		WriteByte(Status);
 		m_ObjectsWritten++;
@@ -131,6 +135,18 @@ public:
 	~OutPacket(void)
 	{
 	}
+	inline void Reset()
+	{
+		memset(m_ObjectID,0,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
+		memset(m_IsPlayer,false,sizeof(bool)*MAX_OBJECTS_PER_PACKET);
+		m_Dataptr = m_Data + PACKET_HEADER_SIZE;
+		m_Bytes_written =  (UINT16 *)((UINT8 *)m_Data + 1); 
+		m_Chunks_written = (UINT8 *)m_Data;
+		*m_Bytes_written = PACKET_HEADER_SIZE;
+		*m_Chunks_written = 0;
+		m_Reliable = false;
+		m_ObjectsWritten = 0;
+	}
 	inline bool AddChunk(UINT32 FormID,BYTE Status,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
 		if(RemainingDataSize() < ChunkSize + 2)  // Chunk Header
@@ -138,7 +154,7 @@ public:
 		BYTE ObjectID = GetObjectID(FormID,Status);
 		if( ObjectID == MAX_OBJECTS_PER_PACKET)
 			return false; // TOO many objects or too less space
-		WriteWord((ChunkType & CHUNKMASK)|(ObjectID & OBJECTMASK));
+		WriteWord(((UINT16)ChunkType & CHUNKMASK)|(ObjectID & OBJECTMASK));
 		Write(ChunkSize,data);
 		(*m_Chunks_written)++;
 		if(RequiresReliable(ChunkType))

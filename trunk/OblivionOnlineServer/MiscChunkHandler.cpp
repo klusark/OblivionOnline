@@ -32,7 +32,7 @@ size_t HandleChatChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len 
 	chatmessage = new std::string((char *)(chunkdata + 4),retval);
 	//TODO: Handle chat message
 	delete chatmessage;
-	return retval;
+	return retval + sizeof(unsigned short);
 }
 size_t HandleVersionChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
@@ -43,5 +43,5 @@ size_t HandleVersionChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t l
 		//TODO: kick him
 		gs->GetIO()<<SystemMessage<<"Client "<<FormID <<" tried to authenticate with an incorrect version:"<<*chunkdata<<*(chunkdata+1)<<*(chunkdata+2)<< endl;
 	}
-	return GetMinChunkSize(PkgChunk::Version);
+	return GetMinChunkSize(PkgChunk::Version) + sizeof(unsigned short);
 }

@@ -55,16 +55,20 @@ bool EntityManager::DeleteEntity(Entity *Entity)
 }
 bool EntityManager::DeleteEntities()
 {
-	#ifndef OO_USE_HASHMAP
-	for(std::map<UINT32,Entity *>::iterator i = m_objects.begin();i != m_objects.end();i++)
+	if(!m_objects.empty())
 	{
-		delete i->second;
+		#ifndef OO_USE_HASHMAP
+		for(std::map<UINT32,Entity *>::iterator i = m_objects.begin();i != m_objects.end();i++)
+		{
+			if(i->second != NULL)
+				delete i->second;
+		}
+		m_objects.clear();
+		#else
+		// TODO
+		printf("SOMEBODY TOLD YOU NOT TO MESS WITH DEVELOPMENT CODE !!! BETTER LISTEN");
+		#endif	
 	}
-	m_objects.clear();
-	#else
-	// TODO
-	printf("SOMEBODY TOLD YOU NOT TO MESS WITH DEVELOPMENT CODE !!! BETTER LISTEN");
-	#endif	
 	return true;
 }
 bool EntityManager::DeRegisterEntity(Entity *Entity)

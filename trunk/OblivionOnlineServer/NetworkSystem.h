@@ -65,15 +65,17 @@ public:
 				SendReliableStream(PlayerID,packet->Size(),packet->GetData());
 			else
 				SendUnreliableStream(PlayerID,packet->Size(),packet->GetData());
+			packet->Reset();
 		}
 	}
 	inline bool Send(UINT32 PlayerID)
 	{
-		OutPacket *packet = m_OutPackets[PlayerID];
+		OutPacket *packet = m_OutPackets[PlayerID];		
 		if(packet->Reliable())
 			return SendReliableStream(PlayerID,packet->Size(),packet->GetData());
 		else
 			return SendUnreliableStream(PlayerID,packet->Size(),packet->GetData());
+		packet->Reset();
 	}
 	bool RegisterTraffic(UINT32 PlayerID,size_t size,BYTE *data,bool reliable);
 	//TODO : Place these in  a callback ?
@@ -85,11 +87,15 @@ public:
 		std::map<u_long,UINT32>::iterator iter = m_AddressPlayer.find(addr.sin_addr.S_un.S_addr);
 		if(iter != m_AddressPlayer.end())
 			return iter->second;
-		return 0;
+		return -1;
 	}
 	UINT32 GetPlayerCount()
 	{
 		return  m_AddressPlayer.size();
+	}
+	UINT32 GetMasterClient()
+	{
+		return m_MasterClient;
 	}
 	static OO_TPROC_RET UDPProc(void *thisptr);
 	static OO_TPROC_RET TCPProc(void *thisptr);

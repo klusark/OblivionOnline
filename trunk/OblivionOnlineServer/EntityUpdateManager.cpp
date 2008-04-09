@@ -16,6 +16,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "Gameserver.h"
 #include "EntityUpdateManager.h"
 #include "Entity.h"
 #include "NetworkSystem.h"
@@ -99,11 +100,24 @@ void EntityUpdateManager::GlobalSend( Entity *ent )
 void EntityUpdateManager::OnMagickaUpdate( Entity *ent )
 {
 	short Magicka = ent->Magicka();
-	for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+	if(ent->Status() < STATUS_PLAYER)
 	{
-		if(i->second != ent)
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
 		{
-			m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Magicka),PkgChunk::Magicka,(BYTE *)&Magicka);
+			if(i->first != m_net->GetMasterClient())
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Magicka),PkgChunk::Magicka,(BYTE *)&Magicka);
+			}
+		}
+	}
+	else
+	{
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+		{
+			if(i->first != ent->RefID())
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Magicka),PkgChunk::Magicka,(BYTE *)&Magicka);
+			}
 		}
 	}
 }
@@ -111,11 +125,24 @@ void EntityUpdateManager::OnMagickaUpdate( Entity *ent )
 void EntityUpdateManager::OnFatigueUpdate( Entity *ent )
 {
 	short Fatigue = ent->Fatigue();
-	for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+	if(ent->Status() < STATUS_PLAYER)
 	{
-		if(i->second != ent)
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
 		{
-			m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Fatigue),PkgChunk::Fatigue,(BYTE *)Fatigue);
+			if(i->first != m_net->GetMasterClient())
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Fatigue),PkgChunk::Fatigue,(BYTE *)Fatigue);
+			}
+		}
+	}
+	else
+	{
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+		{
+			if(i->first != ent->RefID())
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Fatigue),PkgChunk::Fatigue,(BYTE *)Fatigue);
+			}
 		}
 	}
 }
@@ -123,11 +150,24 @@ void EntityUpdateManager::OnFatigueUpdate( Entity *ent )
 void EntityUpdateManager::OnHealthUpdate( Entity *ent )
 {
 	short Health = ent->Health();
-	for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+	if(ent->Status() < STATUS_PLAYER)
 	{
-		if(i->second != ent)
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
 		{
-			m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Health),PkgChunk::Health,(BYTE *)Health);
+			if(i->first != m_net->GetMasterClient())
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Health),PkgChunk::Health,(BYTE *)Health);
+			}
+		}
+	}
+	else
+	{
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+		{
+			if(i->first != ent->RefID())
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Health),PkgChunk::Health,(BYTE *)Health);
+			}
 		}
 	}
 }
@@ -143,23 +183,48 @@ void EntityUpdateManager::OnPositionUpdate( Entity *ent ) /*Triggers Events and 
 		ent->RotY(),
 		ent->RotZ()
 	};
-	for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+	if(ent->Status() < STATUS_PLAYER)
 	{
-		if(i->second->CellID() == ent->CellID() && ( i->second != ent))
-		{
-			m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Position),PkgChunk::Position,(BYTE*)&ChunkData);
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+		{			
+			if(m_net->GetMasterClient() != i->first && i->second->CellID() == ent->CellID())
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Position),PkgChunk::Position,(BYTE*)&ChunkData);
+			}
+		}
+	}
+	else
+	{
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+		{			
+			if(ent->RefID() != i->first && i->second->CellID() == ent->CellID())
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Position),PkgChunk::Position,(BYTE*)&ChunkData);
+			}
 		}
 	}
 }
-
 void EntityUpdateManager::OnCellChange( Entity *ent )
 {
 	UINT32 ChunkData = ent->CellID();
-	for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+	if(ent->Status() < STATUS_PLAYER)
 	{
-		if(i->second->CellID() == ent->CellID() && ( i->second != ent))
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
 		{
-			m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::CellID),PkgChunk::CellID,(BYTE*)&ChunkData);
+			if( i->first != m_net->GetMasterClient() )
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::CellID),PkgChunk::CellID,(BYTE*)&ChunkData);
+			}
+		}
+	}
+	else
+	{
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+		{
+			if( i->first != ent->RefID() )
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::CellID),PkgChunk::CellID,(BYTE*)&ChunkData);
+			}
 		}
 	}
 }
@@ -169,11 +234,24 @@ void EntityUpdateManager::OnEquipUdate( Entity *ent,BYTE slot )
 	BYTE ChunkData[5];
 	ChunkData[0] = slot;
 	*(UINT32 *)(ChunkData +1) = ent->Equip(slot);
-	for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+	if(ent->Status() < STATUS_PLAYER)
 	{
-		if(i->second->CellID() == ent->CellID() && ( i->second != ent))
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
 		{
-			m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Equip),PkgChunk::Equip,(BYTE*)&ChunkData);
+			if( i->first != m_net->GetMasterClient())
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Equip),PkgChunk::Equip,(BYTE*)&ChunkData);
+			}
+		}
+	}
+	else
+	{
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+		{
+			if(i->first != ent->RefID())
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Equip),PkgChunk::Equip,(BYTE*)&ChunkData);
+			}
 		}
 	}
 }

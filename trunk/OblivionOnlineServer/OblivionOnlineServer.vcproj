@@ -264,18 +264,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Event"
-			>
-			<File
-				RelativePath=".\EventSystem.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\EventSystem.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Abstract Classes"
 			>
 			<File
@@ -326,6 +314,18 @@
 				RelativePath=".\EntityUpdateManager.h"
 				>
 			</File>
+			<Filter
+				Name="Event"
+				>
+				<File
+					RelativePath=".\EventSystem.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\EventSystem.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Util"
@@ -563,6 +563,10 @@
 			Name="IO"
 			>
 			<File
+				RelativePath=".\ChatIOProvider.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\IOSystem.cpp"
 				>
 			</File>
@@ -583,10 +587,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\ChatIOProvider.cpp"
-			>
-		</File>
 		<File
 			RelativePath=".\main.cpp"
 			>

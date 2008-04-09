@@ -42,5 +42,5 @@ size_t HandleObjectChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormI
 	FormID = pkg->ObjectIDs[GetObject(chunkdata)] = *((UINT32 *)(chunkdata + 2));
 	Status = pkg->Status[GetObject(chunkdata)] = *(chunkdata + 2 +sizeof(UINT32));
 	//TODO: Handle spawning
-	return GetMinChunkSize(PkgChunk::Object);
+	return GetMinChunkSize(PkgChunk::Object) + sizeof(unsigned short);
 }

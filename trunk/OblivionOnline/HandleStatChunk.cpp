@@ -39,5 +39,5 @@ forward this exception.
 size_t HandleStatChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
 { 
 	//TODO: Handle this
-	return GetMinChunkSize(Stat);
+	return GetMinChunkSize(Stat) + sizeof(unsigned short);
 }
