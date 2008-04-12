@@ -22,7 +22,6 @@ bool OutboundNetwork::Send()
 {
 	if(bIsInitialized)
 	{
-		_MESSAGE("Attempting to send out data : %u Bytes , reliable %1u",*m_Bytes_written,m_Reliable);
 		if(*m_Bytes_written <= 3)
 			return false;
 		EnterCriticalSection(&m_criticalsection);
@@ -34,7 +33,6 @@ bool OutboundNetwork::Send()
 		{
 			sendto(m_UDP,(const char *)m_Data,*m_Bytes_written,0,(SOCKADDR *)&m_addr,sizeof(SOCKADDR_IN));
 		}
-		_MESSAGE("Sent out data : %u Bytes , reliable %1u",*m_Bytes_written,m_Reliable);
 		Reset();
 		LeaveCriticalSection(&m_criticalsection);
 		return true; //TODO: Error Handling - Fragmentation Handling

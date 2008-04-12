@@ -112,8 +112,7 @@ private:
 		return PACKET_SIZE - *m_Bytes_written;
 	}
 	inline BYTE GetObjectID(UINT32 FormID,BYTE Status)
-	{		
-
+	{
 		BYTE i = 0;		
 		for(i = 0;i < MAX_OBJECTS_PER_PACKET; i++)
 		{
@@ -122,7 +121,7 @@ private:
 		}
 		//write it
 		if( RemainingDataSize() < (sizeof(UINT32) + 3))
-
+			return MAX_OBJECTS_PER_PACKET;
 			//Search for a new slot
 		if(m_ObjectsWritten == MAX_OBJECTS_PER_PACKET )
 			return MAX_OBJECTS_PER_PACKET; // We found no empty slot
@@ -134,6 +133,7 @@ private:
 		WriteUINT32(FormID);
 		WriteByte(Status);
 		m_ObjectsWritten++;
+		
 		return i;
 	}
 public:	
@@ -141,10 +141,11 @@ public:
 	{
 		WSADATA data;
 		WSAStartup(MAKEWORD(2,2),&data);
-		memset(m_ObjectID,0,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
-		memset(m_Status,false,sizeof(BYTE)*MAX_OBJECTS_PER_PACKET);
-		m_Bytes_written =  (UINT16 *)((UINT8 *)m_Data + 1); 
+		memset(m_ObjectID,0xffffffff,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
+		memset(m_Status,255,sizeof(BYTE)*MAX_OBJECTS_PER_PACKET);
+		m_Bytes_written =  (UINT16 *)(m_Data + 1); 
 		m_Chunks_written = (UINT8 *)m_Data;
+		m_ObjectsWritten = 0;
 		m_Reliable = false;
 		m_UDP = socket(AF_INET,SOCK_DGRAM,0);
 		*m_Chunks_written = 0;
@@ -161,37 +162,38 @@ public:
 	}
 	void Reset()
 	{
-		memset(m_ObjectID,0,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
-		memset(m_Status,false,sizeof(BYTE)*MAX_OBJECTS_PER_PACKET);
-		m_Bytes_written =  (UINT16 *)((UINT8 *)m_Data + 1); 
+		memset(m_ObjectID,0xffffffff,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
+		memset(m_Status,255,sizeof(BYTE)*MAX_OBJECTS_PER_PACKET);
+		m_Bytes_written =  (UINT16 *)(m_Data + 1); 
 		m_Chunks_written = (UINT8 *)m_Data;
+		m_ObjectsWritten = 0;
 		*m_Chunks_written = 0;
 		*m_Bytes_written = PACKET_HEADER_SIZE;
 		m_Reliable = false;
 		
 	}
-	inline bool AddChunk(UINT32 FormID,bool IsPlayer,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
+	inline bool AddChunk(UINT32 FormID,BYTE Status,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
-		_MESSAGE("Adding %u  Chunk for FormID %u",ChunkType,FormID);
+		if(*m_Chunks_written >= UCHAR_MAX)
+			Send();
 		if(RemainingDataSize() < (ChunkSize + 2))  // Chunk Header
 		{
-			_MESSAGE("Sending because for lack of space");
 			Send();
 		}
-		BYTE ObjectID = GetObjectID(FormID,IsPlayer);
+		BYTE ObjectID = GetObjectID(FormID,Status);
 		if( ObjectID == MAX_OBJECTS_PER_PACKET)
 		{
 			Send();
-			ObjectID = GetObjectID(FormID,IsPlayer);
+			ObjectID = GetObjectID(FormID,Status);
 		}
 		EnterCriticalSection(&m_criticalsection);
 		WriteWord((ChunkType & CHUNKMASK)|(ObjectID & OBJECTMASK));
 		Write(ChunkSize,data);
+		(*m_Chunks_written)++;
 		if(RequiresReliable(ChunkType))
 			m_Reliable = true;
-		_MESSAGE("New packet size: %u",*m_Bytes_written);
 		LeaveCriticalSection(&m_criticalsection);
-		if(*m_Bytes_written >= PACKET_SIZE)
+		if(*m_Bytes_written == PACKET_SIZE)
 			Send();
 		return true;
 	}

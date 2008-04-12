@@ -41,17 +41,13 @@ bool NetSendPosition( UINT32 FormID,BYTE Status,float PosX,float PosY,float PosZ
 	{
 		PosX,PosY,PosZ,RotX,RotY,RotZ
 	};
-	_MESSAGE("Old FormID %u  for status %u",FormID,Status);
 	FormID = TranslateFormID(FormID,Status); // get  a net form ID
-	_MESSAGE("New FormID %u",FormID);
 	outnet.AddChunk(FormID,Status,GetMinChunkSize(Position),Position,(BYTE *)&Data);
 	return true;
 }
 bool NetSendCellID( UINT32 FormID,BYTE Status,UINT32 CellID )
 {
-	_MESSAGE("Old FormID %u  for status %u",FormID,Status);
 	FormID = TranslateFormID(FormID,Status); // get  a net form ID
-	_MESSAGE("New FormID %u",FormID);
 	outnet.AddChunk(FormID,Status,GetMinChunkSize(PkgChunk::CellID),PkgChunk::CellID,(BYTE *)&CellID);
 	return true;
 }

@@ -49,11 +49,10 @@ public:
 		PkgChunk chunk = GetChunkType(chunkdata);
 		//TODO: Reenable 
 			unsigned long maxsize = (unsigned long)EndPtr - (unsigned long)chunkdata; 
-		if(GetMinChunkSize(chunk) > maxsize )
-			return false; 
+		/*if(GetMinChunkSize(chunk) > maxsize )
+			return false; */
 		UINT32 FormID = this->ObjectIDs[GetObject(chunkdata)];
 		BYTE status = this->Status[GetObject(chunkdata)];
-		_MESSAGE("Found %u chunk",chunk);
 		switch(chunk)
 		{
 		case	Object:
@@ -102,13 +101,11 @@ public:
 		BYTE *m_end = m_stream + m_streamlen;
 		ChunkCount = m_stream[0];//The Data
 		m_current += 3;
-		_MESSAGE("Handling Packet with %u chunks",ChunkCount);
 		for(;i < ChunkCount;i++)
 		{
 			retval = HandleChunk(m_current,m_end);
 			if(retval == 0)
 			{
-				_WARNING("Bad chunk : Ignoring rest of packet ");
 				return;
 			}
 			m_current += retval;
@@ -130,6 +127,5 @@ public:
 	}
 	~InPacket(void)
 	{
-		free(m_stream);
 	}
 };

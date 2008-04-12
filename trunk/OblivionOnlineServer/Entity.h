@@ -1,6 +1,6 @@
 
 /*
-OblivionOnline Server- An open source game server for the OblivionOnline mod
+This file is part of OblivionOnline Server- An open source game server for the OblivionOnline mod
 Copyright (C)  2008   Julian Bangert
 
 This program is free software: you can redistribute it and/or modify
@@ -57,6 +57,7 @@ public:
 		m_Race = race;
 		m_Name = name;
 		m_Class = classname;
+		m_mgr->RegisterEntity(this);
 	}
 
 	

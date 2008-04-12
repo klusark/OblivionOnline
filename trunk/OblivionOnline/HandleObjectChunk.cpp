@@ -36,11 +36,15 @@ forward this exception.
 */
 #include "InPacket.h"
 #include "ChunkHandler.h"
+#include "Entity.h"
 size_t HandleObjectChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
 {
 	//DO not advance the header - instead write the object data
 	FormID = pkg->ObjectIDs[GetObject(chunkdata)] = *((UINT32 *)(chunkdata + 2));
 	Status = pkg->Status[GetObject(chunkdata)] = *(chunkdata + 2 +sizeof(UINT32));
-	//TODO: Handle spawning
+	if(Entities.GetEntity(FormID) == NULL)
+	{
+		new Entity(FormID);
+	}
 	return GetMinChunkSize(PkgChunk::Object) + sizeof(unsigned short);
 }

@@ -1,5 +1,5 @@
 /*
-OblivionOnline Server- An open source game server for the OblivionOnline mod
+This file is part of OblivionOnline Server- An open source game server for the OblivionOnline mod
 Copyright (C)  2008   Julian Bangert
 
 This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,6 @@ void EntityUpdateManager::OnRaceUpdate( Entity *ent )
 	{
 		if(i->second != ent)
 		{
-
 			m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Race),PkgChunk::Race,(BYTE*)&race);
 		}
 	}

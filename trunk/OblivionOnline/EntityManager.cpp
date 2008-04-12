@@ -58,10 +58,14 @@ bool EntityManager::DeleteEntities()
 	if(!m_objects.empty())
 	{
 		#ifndef OO_USE_HASHMAP
-		for(std::map<UINT32,Entity *>::iterator i = m_objects.begin();i != m_objects.end();i++)
+		std::map<UINT32,Entity *>::iterator i = m_objects.begin();
+		while(1) // notice order of check and increment here... 
 		{
+			if(i == m_objects.end())
+				break;
 			if(i->second != NULL)
 				delete i->second;
+			i++;
 		}
 		m_objects.clear();
 		#else

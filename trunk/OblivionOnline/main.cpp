@@ -122,9 +122,7 @@ DWORD WINAPI RecvThread(LPVOID Params)
 	_MESSAGE("Receive thread started");
 	while(bIsConnected)
 	{
-		_MESSAGE("Waiting for incoming traffic...");
 		rc = recv(ServerSocket,buf,PACKET_SIZE,0);
-		_MESSAGE("Received new packet");
 		pkg = new InPacket((BYTE *)buf,rc);
 		pkg->HandlePacket();
 		delete pkg;

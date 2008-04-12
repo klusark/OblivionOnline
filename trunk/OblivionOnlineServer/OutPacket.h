@@ -1,5 +1,5 @@
 /*
-OblivionOnline Server- An open source game server for the OblivionOnline mod
+This file is part of OblivionOnline Server- An open source game server for the OblivionOnline mod
 Copyright (C)  2008   Julian Bangert
 
 This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ class OutPacket
 private:
 	BYTE m_Data[PACKET_SIZE];
 	UINT32 m_ObjectID[MAX_OBJECTS_PER_PACKET];
-	bool m_IsPlayer[MAX_OBJECTS_PER_PACKET];
+	BYTE m_Status[MAX_OBJECTS_PER_PACKET];
 	
 	UINT32 m_Player;
 	BYTE *m_Dataptr; 
@@ -85,7 +85,7 @@ private:
 	{	
 		for(BYTE i = 0;i < MAX_OBJECTS_PER_PACKET; i++)
 		{
-			if(m_IsPlayer[i] == (Status == STATUS_PLAYER) && m_ObjectID[i] == FormID)
+			if((m_Status[i] == STATUS_PLAYER) == (Status == STATUS_PLAYER) && m_ObjectID[i] == FormID)
 				return i;
 		}	
 		return MAX_OBJECTS_PER_PACKET;
@@ -99,7 +99,7 @@ private:
 		BYTE i = 0;		
 		for(i = 0;i < MAX_OBJECTS_PER_PACKET; i++)
 		{
-			if(m_IsPlayer[i] == (Status == STATUS_PLAYER) && m_ObjectID[i] == FormID)
+			if((m_Status[i]== STATUS_PLAYER) == (Status == STATUS_PLAYER) && m_ObjectID[i] == FormID)
 				return i;
 		}
 		//write it
@@ -110,7 +110,7 @@ private:
 			return MAX_OBJECTS_PER_PACKET; // We found no empty slot
 		i = m_ObjectsWritten;
 		m_ObjectID[i] = FormID;
-		m_IsPlayer[i] = (STATUS_PLAYER == Status);		
+		m_Status[i] = (STATUS_PLAYER == Status);		
 		WriteWord((   ((UINT16)PkgChunk::Object)   & CHUNKMASK)|(i & OBJECTMASK));
 		(*m_Chunks_written)++;
 		WriteUINT32(FormID);
@@ -121,8 +121,8 @@ private:
 public:
 	OutPacket(UINT32 Player)
 	{
-		memset(m_ObjectID,0,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
-		memset(m_IsPlayer,false,sizeof(bool)*MAX_OBJECTS_PER_PACKET);
+		memset(m_ObjectID,0xffffffff,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
+		memset(m_Status,255,sizeof(bool)*MAX_OBJECTS_PER_PACKET);
 		m_Dataptr = m_Data + PACKET_HEADER_SIZE;
 		m_Bytes_written =  (UINT16 *)((UINT8 *)m_Data + 1); 
 		m_Chunks_written = (UINT8 *)m_Data;
@@ -137,8 +137,8 @@ public:
 	}
 	inline void Reset()
 	{
-		memset(m_ObjectID,0,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
-		memset(m_IsPlayer,false,sizeof(bool)*MAX_OBJECTS_PER_PACKET);
+		memset(m_ObjectID,0xffffffff,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
+		memset(m_Status,255,sizeof(bool)*MAX_OBJECTS_PER_PACKET);
 		m_Dataptr = m_Data + PACKET_HEADER_SIZE;
 		m_Bytes_written =  (UINT16 *)((UINT8 *)m_Data + 1); 
 		m_Chunks_written = (UINT8 *)m_Data;
@@ -149,6 +149,8 @@ public:
 	}
 	inline bool AddChunk(UINT32 FormID,BYTE Status,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
+		if(*m_Chunks_written >= 0xff) // TOO many chunks
+			return false;
 		if(RemainingDataSize() < ChunkSize + 2)  // Chunk Header
 			return false; // No more space
 		BYTE ObjectID = GetObjectID(FormID,Status);
