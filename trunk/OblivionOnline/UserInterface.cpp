@@ -93,7 +93,8 @@ void DeinitialiseUI()
 }
 void RegisterChatMessage(char *message)
 {
-	/*
+	if(CEGUI::System::getSingletonPtr() ==NULL)
+		return;
 	CEGUI::Window *chatwin = CEGUI::WindowManager::getSingleton().getWindow("ChatMessage");
 	if(chatwin)
 		chatwin->setText(chatwin->getText() +"\n"+message);
@@ -102,7 +103,7 @@ void RegisterChatMessage(char *message)
 		Console_Print("Could not find CEGUI Window ChatMessage");
 		_ERROR("Could not find ChatMessage");
 	}
-	*/
+	
 }
 void SetConnectionMessage(char *message)
 {

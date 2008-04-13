@@ -52,6 +52,8 @@ size_t HandlePositionChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 For
 	ent->RotX = floats[3];
 	ent->RotY = floats[4];
 	ent->RotZ = floats[5];
-	UpdateQueue.push(ent);
+	TESObjectREFR *obj = (TESObjectREFR *)LookupFormByID(FormID);
+	if(obj != NULL)
+		UpdateQueue.push(ent);
 	return GetMinChunkSize(Position) + sizeof(unsigned short);
 }

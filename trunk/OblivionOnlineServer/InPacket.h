@@ -111,20 +111,16 @@ public:
 		for(;i < ChunkCount;i++)
 		{
 			retval = HandleChunk(m_current,m_end);
+			if(m_current >= m_end)
+			{
+				return;
+			}
 			if(retval == 0)
 			{
-				m_GS->GetIO()<<Warning<<"Ignoring rest of packet "<< endl;
+				//m_GS->GetIO()<<Warning<<"Ignoring rest of packet "<< endl;
 				return;
 			}
 			m_current += retval;
-			if(m_current > m_end)
-			{
-				m_GS->GetIO() << Warning<< "Bad Packet: too less data"<<endl;
-			}
-			if(m_current == m_end)
-			{
-				break;
-			}
 		}
 		if(i != ChunkCount)
 		{

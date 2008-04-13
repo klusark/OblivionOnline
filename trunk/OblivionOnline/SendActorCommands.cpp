@@ -179,6 +179,10 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 			while(ListIterator->next) // Iterate the loop
 			{
 				ListIterator = ListIterator->next;
+				if(ListIterator->refr->IsActor())
+					Status = STATUS_NPC; // We ignore player objects - so
+				else 
+					continue;
 				if(GetPlayerNumberFromRefID(ListIterator->refr->refID) == -1) // Do not synchronise objects used by OblivionOnline
 				{
 					ent = Entities.GetEntity(ListIterator->refr->refID);
@@ -186,10 +190,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 					if(ent == NULL)
 						ent = new Entity(ListIterator->refr->refID);
 					//Synch that object too
-					if(ListIterator->refr->IsActor())
-						Status = STATUS_NPC; // We ignore player objects - so
-					else 
-						Status = STATUS_OBJECT;
+					
 					if(ListIterator->refr->posX != ent->PosX|| ListIterator->refr->posY != ent->PosY || ListIterator->refr->posZ != ent->PosZ || ListIterator->refr->rotZ != ent->RotZ || ListIterator->refr->rotX != ent->RotX ||ListIterator->refr->rotY != ent->RotY)
 					{
 						ent->PosX = ListIterator->refr->posX;

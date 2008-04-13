@@ -222,7 +222,6 @@ bool NetworkSystem::SendReliableStream( UINT32 PlayerID,size_t length,BYTE *data
 	{
 		m_GS->GetIO()<<Error<<"Sending TCP/IP failed . Sent "<<rc<<"bytes instead of"<<length<<endl;
 	}
-	m_GS->GetIO()<<GameMessage<<"Sending reliable packet for player"<<PlayerID<<endl;
 	return true;
 }
 bool NetworkSystem::SendUnreliableStream( UINT32 PlayerID,size_t length,BYTE *data )
@@ -231,7 +230,6 @@ bool NetworkSystem::SendUnreliableStream( UINT32 PlayerID,size_t length,BYTE *da
 	if(iter == m_PlayerAddresses.end())
 		return false;
 	sendto(m_UDPSock,(const char *)data,length,0,(SOCKADDR *)&iter->second,sizeof(SOCKADDR_IN));
-	m_GS->GetIO()<<GameMessage<<"Sending unreliable packet for player"<<PlayerID<<endl;
 	return true;
 }
 

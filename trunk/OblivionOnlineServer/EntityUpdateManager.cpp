@@ -130,7 +130,7 @@ void EntityUpdateManager::OnFatigueUpdate( Entity *ent )
 		{
 			if(i->first != m_net->GetMasterClient())
 			{
-				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Fatigue),PkgChunk::Fatigue,(BYTE *)Fatigue);
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Fatigue),PkgChunk::Fatigue,(BYTE *)&Fatigue);
 			}
 		}
 	}
@@ -140,7 +140,7 @@ void EntityUpdateManager::OnFatigueUpdate( Entity *ent )
 		{
 			if(i->first != ent->RefID())
 			{
-				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Fatigue),PkgChunk::Fatigue,(BYTE *)Fatigue);
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Fatigue),PkgChunk::Fatigue,(BYTE *)&Fatigue);
 			}
 		}
 	}
@@ -155,7 +155,7 @@ void EntityUpdateManager::OnHealthUpdate( Entity *ent )
 		{
 			if(i->first != m_net->GetMasterClient())
 			{
-				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Health),PkgChunk::Health,(BYTE *)Health);
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Health),PkgChunk::Health,(BYTE *)&Health);
 			}
 		}
 	}
@@ -165,7 +165,7 @@ void EntityUpdateManager::OnHealthUpdate( Entity *ent )
 		{
 			if(i->first != ent->RefID())
 			{
-				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Health),PkgChunk::Health,(BYTE *)Health);
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Health),PkgChunk::Health,(BYTE *)&Health);
 			}
 		}
 	}

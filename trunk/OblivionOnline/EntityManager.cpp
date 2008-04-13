@@ -59,15 +59,13 @@ bool EntityManager::DeleteEntities()
 	{
 		#ifndef OO_USE_HASHMAP
 		std::map<UINT32,Entity *>::iterator i = m_objects.begin();
-		while(1) // notice order of check and increment here... 
+		while(! m_objects.empty()) // notice order of check and increment here... 
 		{
-			if(i == m_objects.end())
-				break;
+			std::map<UINT32,Entity *>::iterator i = m_objects.begin();
 			if(i->second != NULL)
 				delete i->second;
-			i++;
+			m_objects.erase(i);
 		}
-		m_objects.clear();
 		#else
 		// TODO
 		printf("SOMEBODY TOLD YOU NOT TO MESS WITH DEVELOPMENT CODE !!! BETTER LISTEN");

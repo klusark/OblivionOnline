@@ -14,6 +14,7 @@ GNU Affero General Public License for more details.
 */
 #pragma once
 #include "GlobalDefines.h"
+#include "Packets.h"
 #include "EntityUpdateManager.h"
 #ifndef OO_USE_HASHMAP	//Slower and more secure 
 #include <map>
@@ -58,11 +59,10 @@ public:
 	bool DeleteEntity(Entity *Entity);
 	bool DeRegisterEntity(Entity *Entity);
 	bool DeleteEntities();
-	inline Entity * GetEntity(bool IsPlayer,UINT32 RefID)
+	inline Entity * GetEntity(BYTE status,UINT32 RefID)
 	{
 		std::map<UINT32,Entity *>::iterator iter;
-#ifndef OO_USE_HASHMAP
-	if(IsPlayer)
+	if(status == STATUS_PLAYER)
 	{
 		iter =  m_players.find(RefID);
 		if(iter != m_players.end())
@@ -75,12 +75,6 @@ public:
 			return iter->second;
 	}
 	return NULL;
-#else
-	if(IsPlayer)
-		return m_players.Find(RefID);
-	else
-		return m_objects.Find(RefID);
-#endif
 	}
 	inline EventSystem *GetEventSystem()
 	{

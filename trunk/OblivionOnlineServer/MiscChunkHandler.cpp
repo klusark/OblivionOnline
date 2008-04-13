@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Gameserver.h"
 #include "ChunkHandler.h"
+#include "Entity.h"
+#include "NetworkSystem.h"
 #include "InPacket.h"
 size_t HandleChatChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
@@ -30,7 +32,11 @@ size_t HandleChatChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len 
 		retval = supposedlength;
 	
 	chatmessage = new std::string((char *)(chunkdata + 4),retval);
-	//TODO: Handle chat message
+	gs->GetIO()<<PlayerChat<<FormID<<" :"<<*chatmessage<<endl;
+	for(map<UINT32,Entity *>::const_iterator i =  gs->GetEntities()->GetPlayerList().begin(); i != gs->GetEntities()->GetPlayerList().end() ; i++)
+	{
+		gs->GetNetwork()->SendChunk(i->second->RefID(),FormID,status,chatmessage->length() + 2,PkgChunk::Chat,(BYTE*)chatmessage->c_str());		
+	}
 	delete chatmessage;
 	return retval + sizeof(unsigned short);
 }

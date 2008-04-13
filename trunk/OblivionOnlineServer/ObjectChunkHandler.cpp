@@ -25,7 +25,7 @@ size_t HandleObjectChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t le
 	//DO not advance the header - instead write the object data
 	FormID = pkg->ObjectIDs[GetObject(chunkdata)] = *((UINT32 *)(chunkdata + 2));
 	Status = pkg->Status[GetObject(chunkdata)] = *(chunkdata + 2 +sizeof(UINT32));
-	if(gs->GetEntities()->GetEntity(Status == STATUS_PLAYER,FormID) == NULL)
+	if(gs->GetEntities()->GetEntity(Status,FormID) == NULL)
 	{
 		new Entity(gs->GetEntities(),FormID,false,false,(Status == 2),Status);
 	}
