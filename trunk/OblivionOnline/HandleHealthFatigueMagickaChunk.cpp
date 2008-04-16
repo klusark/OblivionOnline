@@ -31,7 +31,7 @@ size_t HandleHealthChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormI
 		FormID = GetPlayerFormID(FormID); // Get a player representation
 	Npc = (Actor *)LookupFormByID(FormID);
 	if(Npc != NULL && Npc->IsActor())
-		Npc->ModActorBaseValue(8,Npc->GetBaseActorValue(8) - Value, 0);
+		//Npc->ModActorValue(8,Npc->GetBaseActorValue(8) - Value, 0);
 	return GetMinChunkSize(Health) + sizeof(unsigned short);
 }
 size_t HandleMagickaChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
@@ -48,7 +48,7 @@ size_t HandleMagickaChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 Form
 		FormID = GetPlayerFormID(FormID); // Get a player representation
 	Npc = (Actor *)LookupFormByID(FormID);
 	if(Npc != NULL && Npc->IsActor())
-		Npc->ModActorBaseValue(9,Npc->GetBaseActorValue(9) - Value, 0);
+		//Npc->ModActorValue(9,Npc->GetBaseActorValue(9) - Value, 0);
 	return GetMinChunkSize(Magicka) + sizeof(unsigned short);
 }
 size_t HandleFatigueChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
@@ -65,6 +65,6 @@ size_t HandleFatigueChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 Form
 		FormID = GetPlayerFormID(FormID); // Get a player representation
 	Npc = (Actor *)LookupFormByID(FormID);
 	if(Npc != NULL && Npc->IsActor())
-		Npc->ModActorBaseValue(10,Npc->GetBaseActorValue(10) - Value, 0);
+		//Npc->ModActorValue(10,Npc->GetBaseActorValue(10) - Value, 0);
 	return GetMinChunkSize(Fatigue) + sizeof(unsigned short);
 }
