@@ -176,6 +176,7 @@ public:
 	{
 		if(*m_Chunks_written >= UCHAR_MAX)
 			Send();
+		_MESSAGE("Adding %u chunk for FormID %ul with Status %u , size %u ",ChunkType,FormID,Status,ChunkSize);
 		if(RemainingDataSize() < (ChunkSize + 2))  // Chunk Header
 		{
 			Send();

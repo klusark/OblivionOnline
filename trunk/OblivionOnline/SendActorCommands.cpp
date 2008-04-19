@@ -51,7 +51,6 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 	// if MC :
 	// 2 - send up position , stat equip , etc of NPCs
 	//(*g_thePlayer) is ignored
-	_MESSAGE("MPSendActor called on initialized game");
 	feGetObject getObject;		
 	UINT32 i;
 	UINT32 ActorValue;
