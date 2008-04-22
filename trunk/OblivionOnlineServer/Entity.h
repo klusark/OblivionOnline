@@ -24,22 +24,21 @@ private:
 	UINT32 m_Equip[MAX_EQUIPSLOTS]; // Enuf 
 	float m_PosX,m_PosY,m_PosZ,m_RotX,m_RotY,m_RotZ;
 	UINT32 m_RefID,m_CellID,m_Race;
-	bool m_Player,m_Actor,m_GlobalSynch,m_Female;//Player : is a player , Actor: is an actor , GlobalSynch: Is important for quests and must therefore always be synched
+	bool m_Status,m_Actor,m_GlobalSynch,m_Female;//Player : is a player , Actor: is an actor , GlobalSynch: Is important for quests and must therefore always be synched
 	bool m_TriggerEvents;
 	EntityManager *m_mgr;
 	
 	std::string m_Name; // A std::string should not waste TOO much space 
 	std::string m_Class;
 public:
-	Entity(EntityManager *mgr,UINT32 refID,bool TriggerEvents = false,bool GlobalSynch= false,
-		bool Player = false,bool Actor = false,float posX = 0 , float posY = 0 , float posZ = 0,UINT32 CellID = 0,
+	Entity(EntityManager *mgr,UINT32 refID,BYTE Status,bool TriggerEvents = false,bool GlobalSynch= false,
+		float posX = 0 , float posY = 0 , float posZ = 0,UINT32 CellID = 0,
 		float rotX = 0 , float rotY = 0 , float rotZ = 0,short health = 0,short magicka = 0 , short fatigue = 0 ,
 		bool female = false,UINT32 race = 0,std::string name = std::string(""),std::string classname = std::string(""))
 	{
 		m_mgr = mgr;
 		m_RefID = refID;
-		m_Player = Player;
-		m_Actor = Actor;
+		m_Status = Status;
 		m_PosX = posX;
 		m_PosY = posY;
 		m_PosZ = posZ;
@@ -194,11 +193,7 @@ public:
 	}
 	inline BYTE Status()
 	{
-		return m_Player;
-	}
-	inline bool Actor()
-	{
-		return m_Actor;
+		return m_Status;
 	}
 	inline bool GlobalSynch()
 	{

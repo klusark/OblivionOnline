@@ -81,19 +81,19 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 	if(ActorValue != ent->Health)
 	{
 		ent->Health = ActorValue;
-		NetSendHealth((*g_thePlayer)->refID,STATUS_PLAYER,ActorValue);
+		NetSendActorValue((*g_thePlayer)->refID,STATUS_PLAYER,8,ActorValue);
 	}
 	ActorValue = (*g_thePlayer)->GetActorValue(9);
 	if(ActorValue != ent->Magicka)
 	{
 		ent->Magicka = ActorValue;
-		NetSendMagicka((*g_thePlayer)->refID,STATUS_PLAYER,ActorValue);
+		NetSendActorValue((*g_thePlayer)->refID,STATUS_PLAYER,9,ActorValue);
 	}
 	ActorValue = (*g_thePlayer)->GetActorValue(10);
 	if(ActorValue != ent->Fatigue)
 	{
 		ent->Fatigue = ActorValue;
-		NetSendFatigue((*g_thePlayer)->refID,STATUS_PLAYER,ActorValue);
+		NetSendActorValue((*g_thePlayer)->refID,STATUS_PLAYER,10,ActorValue);
 	}	
 	//player equip
 		
@@ -125,19 +125,19 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 			if(ActorValue != ent->Health)
 			{
 				ent->Health = ActorValue;
-				NetSendHealth(SpawnID[i],STATUS_PLAYER,ActorValue);
+				NetSendActorValue(SpawnID[i],STATUS_PLAYER,8,ActorValue);
 			}
 			ActorValue = actor->GetActorValue(9);
 			if(ActorValue != ent->Magicka)
 			{
 				ent->Magicka = ActorValue;
-				NetSendMagicka(SpawnID[i],STATUS_PLAYER,ActorValue);
+				NetSendActorValue(SpawnID[i],STATUS_PLAYER,9,ActorValue);
 			}
 			ActorValue = actor->GetActorValue(10);
 			if(ActorValue != ent->Fatigue)
 			{
 				ent->Fatigue = ActorValue;
-				NetSendFatigue(SpawnID[i],STATUS_PLAYER,ActorValue);
+				NetSendActorValue(SpawnID[i],STATUS_PLAYER,10,ActorValue);
 			}	
 		}
 	}
@@ -212,19 +212,19 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 						if(ActorValue != ent->Health)
 						{
 							ent->Health = ActorValue;
-							NetSendHealth(ListIterator->refr->refID,Status,ActorValue);
+							NetSendActorValue(ListIterator->refr->refID,Status,8,ActorValue);
 						}
 						ActorValue = actor->GetActorValue(9);
 						if(ActorValue != ent->Magicka)
 						{
 							ent->Magicka = ActorValue;
-							NetSendMagicka(ListIterator->refr->refID,Status,ActorValue);
+							NetSendActorValue(ListIterator->refr->refID,Status,9,ActorValue);
 						}
 						ActorValue = actor->GetActorValue(10);
 						if(ActorValue != ent->Fatigue)
 						{
 							ent->Fatigue = ActorValue;
-							NetSendFatigue(ListIterator->refr->refID,Status,ActorValue);
+							NetSendActorValue(ListIterator->refr->refID,Status,10,ActorValue);
 						}	
 					}
 				}

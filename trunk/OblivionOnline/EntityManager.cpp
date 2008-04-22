@@ -64,8 +64,8 @@ bool EntityManager::DeleteEntities()
 			std::map<UINT32,Entity *>::iterator i = m_objects.begin();
 			if(i->second != NULL)
 				delete i->second;
-			m_objects.erase(i);
 		}
+		m_objects.clear();
 		#else
 		// TODO
 		printf("SOMEBODY TOLD YOU NOT TO MESS WITH DEVELOPMENT CODE !!! BETTER LISTEN");
