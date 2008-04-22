@@ -80,32 +80,26 @@ void EntityUpdateManager::GlobalSend( Entity *ent )
 		ent->RotY(),
 		ent->RotZ()
 	};
-	signed short Health = ent->Fatigue()
-		,Magicka = ent->Magicka()
-		,Fatigue = ent->Fatigue();
+
 	for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
 	{
 		if(i->second != ent)
 		{
 			m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Position),PkgChunk::Position,(BYTE *)&ChunkData);
-			m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Health),PkgChunk::Health,(BYTE *) &Health);
-			m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Fatigue),PkgChunk::Fatigue,(BYTE *) &Magicka);
-			m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Magicka),PkgChunk::Magicka,(BYTE *) &Fatigue);
-
+			//TODO: send out stats
 		}
 	}
 }
-
-void EntityUpdateManager::OnMagickaUpdate( Entity *ent )
+void EntityUpdateManager::OnAVUpdate(Entity *ent,unsigned char AVCode)
 {
-	short Magicka = ent->Magicka();
+	short Value = ent->ActorValue(AVCode);
 	if(ent->Status() < STATUS_PLAYER)
 	{
 		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
 		{
 			if(i->first != m_net->GetMasterClient())
 			{
-				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Magicka),PkgChunk::Magicka,(BYTE *)&Magicka);
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::ActorValue),PkgChunk::ActorValue,(BYTE *)&Value);
 			}
 		}
 	}
@@ -115,62 +109,11 @@ void EntityUpdateManager::OnMagickaUpdate( Entity *ent )
 		{
 			if(i->first != ent->RefID())
 			{
-				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Magicka),PkgChunk::Magicka,(BYTE *)&Magicka);
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::ActorValue),PkgChunk::ActorValue,(BYTE *)&Value);
 			}
 		}
 	}
 }
-
-void EntityUpdateManager::OnFatigueUpdate( Entity *ent )
-{
-	short Fatigue = ent->Fatigue();
-	if(ent->Status() < STATUS_PLAYER)
-	{
-		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
-		{
-			if(i->first != m_net->GetMasterClient())
-			{
-				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Fatigue),PkgChunk::Fatigue,(BYTE *)&Fatigue);
-			}
-		}
-	}
-	else
-	{
-		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
-		{
-			if(i->first != ent->RefID())
-			{
-				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Fatigue),PkgChunk::Fatigue,(BYTE *)&Fatigue);
-			}
-		}
-	}
-}
-
-void EntityUpdateManager::OnHealthUpdate( Entity *ent )
-{
-	short Health = ent->Health();
-	if(ent->Status() < STATUS_PLAYER)
-	{
-		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
-		{
-			if(i->first != m_net->GetMasterClient())
-			{
-				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Health),PkgChunk::Health,(BYTE *)&Health);
-			}
-		}
-	}
-	else
-	{
-		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
-		{
-			if(i->first != ent->RefID())
-			{
-				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Health),PkgChunk::Health,(BYTE *)&Health);
-			}
-		}
-	}
-}
-
 void EntityUpdateManager::OnPositionUpdate( Entity *ent ) /*Triggers Events and network code */
 {
 	float ChunkData[6] =

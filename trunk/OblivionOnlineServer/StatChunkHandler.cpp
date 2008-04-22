@@ -19,60 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "GameServer.h"
 #include "NetworkSystem.h"
 #include "Entity.h"
-size_t HandleHealthChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
+size_t HandleActorValueChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {
 	Entity *ent = gs->GetEntities()->GetEntity(status,FormID);
 	if(ent == NULL)
 	{
-		gs->GetIO()<<Error<<"Error handling health chunk: Entity not registered"<< endl;
+		gs->GetIO()<<Error<<"Error handling actor value chunk: Entity not registered"<< endl;
 		return 0;
 	}	
-	ent->SetHealth(*(INT16 *)(chunkdata + 2));
-	return GetMinChunkSize(PkgChunk::Health) + sizeof(unsigned short);
-}
-size_t HandleMagickaChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
-{
-	Entity *ent = gs->GetEntities()->GetEntity(status,FormID);
-	if(ent == NULL)
-	{
-		gs->GetIO()<<Error<<"Error handling magicka chunk: Entity not registered"<< endl;
-		return 0;
-	}	
-	ent->SetMagicka(*(INT16*)(chunkdata + 2));
-	return GetMinChunkSize(PkgChunk::Magicka) + sizeof(unsigned short);
-}
-size_t HandleFatigueChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
-{
-	Entity *ent = gs->GetEntities()->GetEntity(status,FormID);
-	if(ent == NULL)
-	{
-		gs->GetIO()<<Error<<"Error handling fatigue chunk: Entity not registered"<< endl;
-		return 0;
-	}	
-	ent->SetFatigue(*(INT16 *)(chunkdata + 2));
-	return GetMinChunkSize(PkgChunk::Fatigue) + sizeof(unsigned short);
-}
-size_t HandleStatChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
-{
-	Entity *ent = gs->GetEntities()->GetEntity(status,FormID);
-	if(ent == NULL)
-	{
-		gs->GetIO()<<Error<<"Error handling stat chunk: Entity not registered"<< endl;
-		return 0;
-	}	
-	ent->SetStat(*(chunkdata +2),*(INT16 *)(chunkdata+3));
-	return GetMinChunkSize(PkgChunk::Stat) + sizeof(unsigned short);
-}
-size_t HandleSkillChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
-{
-	Entity *ent = gs->GetEntities()->GetEntity(status,FormID);
-	if(ent == NULL)
-	{
-		gs->GetIO()<<Error<<"Error handling skill chunk: Entity not registered"<< endl;
-		return 0;
-	}	
-	ent->SetSkill(*(chunkdata +2),*(INT16 *)(chunkdata+3));
-	return GetMinChunkSize(PkgChunk::Skill) + sizeof(unsigned short);
+	ent->SetActorValue(*(chunkdata+2),*(INT16 *)(chunkdata + 3));
+	return GetMinChunkSize(PkgChunk::ActorValue) + sizeof(unsigned short);
 }
 size_t HandleGenderChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
 {

@@ -63,6 +63,7 @@ char ServerIP[15];
 
 bool bFrameRendered = false;
 std::queue<Entity *> UpdateQueue;
+std::queue<std::pair<BYTE,short>> ActorValueUpdateQueue;
 // Prototypes
 
 EntityManager Entities;

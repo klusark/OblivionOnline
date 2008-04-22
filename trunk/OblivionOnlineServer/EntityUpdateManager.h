@@ -33,9 +33,7 @@ public:
 		m_net = netsys;
 	};
 	void OnPositionUpdate(Entity *ent);//Triggers Events and network code;
-	void OnHealthUpdate(Entity *ent);
-	void OnFatigueUpdate(Entity *ent);
-	void OnMagickaUpdate(Entity *ent);
+	void OnAVUpdate(Entity *ent,unsigned char AVCode);
 	void GlobalSend(Entity *ent);
 	void OnNameUpdate(Entity *ent);
 	void OnEquipUdate(Entity *ent,unsigned char slot);

@@ -938,6 +938,10 @@
 				Name="ChunkHandler"
 				>
 				<File
+					RelativePath=".\HandleAVChunk.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\HandleCellIDChunk.cpp"
 					>
 				</File>
@@ -951,10 +955,6 @@
 				</File>
 				<File
 					RelativePath=".\HandleGenderChunk.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\HandleHealthFatigueMagickaChunk.cpp"
 					>
 				</File>
 				<File
@@ -977,28 +977,20 @@
 					RelativePath=".\HandleRaceChunk.cpp"
 					>
 				</File>
-				<File
-					RelativePath=".\HandleSkillChunk.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\HandleStatChunk.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="Send Functions"
 				>
+				<File
+					RelativePath=".\NetSendActorValue.cpp"
+					>
+				</File>
 				<File
 					RelativePath=".\NetSendChat.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\NetSendEquip.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\NetSendHealthFatigueMagicka.cpp"
 					>
 				</File>
 				<File

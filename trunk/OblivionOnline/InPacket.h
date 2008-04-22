@@ -61,12 +61,6 @@ public:
 			return HandlePositionChunk(this,chunkdata,maxsize,FormID,status);
 		case CellID:
 			return HandleCellIDChunk(this,chunkdata,maxsize,FormID,status);
-		case	Health:
-			return HandleHealthChunk(this,chunkdata,maxsize,FormID,status);
-		case Magicka:
-			return HandleMagickaChunk(this,chunkdata,maxsize,FormID,status);
-		case Fatigue:
-			return HandleFatigueChunk(this,chunkdata,maxsize,FormID,status);
 		case Gender:
 			return HandleGenderChunk(this,chunkdata,maxsize,FormID,status);
 		case Race:
@@ -75,10 +69,8 @@ public:
 			return HandleClassChunk(this,chunkdata,maxsize,FormID,status);
 		case Name:
 			return HandleNameChunk(this,chunkdata,maxsize,FormID,status);
-		case Stat:
-			return HandleStatChunk(this,chunkdata,maxsize,FormID,status);
-		case Skill:
-			return HandleSkillChunk(this,chunkdata,maxsize,FormID,status);
+		case ActorValue:
+			return HandleAVChunk(this,chunkdata,maxsize,FormID,status);
 		case Chat:
 			return HandleChatChunk(this,chunkdata,maxsize,FormID,status);
 		case Auth:

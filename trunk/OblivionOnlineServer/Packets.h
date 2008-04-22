@@ -48,15 +48,16 @@ TYPE#	Description
 1		ObjectID chunk - contains a single UINT32 field which specifies the FormID of this object. After that 1 byte to specify the type: 0 object, 1 actor , 2 player
 2		Position . 6 floats : PosX, PosY, PosZ ,RotX,RotY,RotZ
 3		CellID . One UINT32
-4		Health.  One short (signed) 
-5		Magicka. Signed Short
-6		Fatigue. Signed Short
+		EMPTY(old Health)
+		EMPTY(old Magicka)
+		EMPTY(old Fatigue)
+
 7		Gender . One Byte 1 if female
 8		Race   . UINT32
 9		Class  . ANSI string
 10		Name   . ANSI string
-11		Stat	 BYTE stat and then short Value
-12		Skill	 BYTE Skill and then short Value
+11		ActorValue. BYTE AV Code and then short Value
+12		EMPTY
 13		Equip .  BYTE slot and UINT32 Equip
 14		Chat	. ANSI string
 15		Auth	. ANSI string Username , 512 bit SHA-512 
@@ -74,15 +75,11 @@ enum PkgChunk
 	Object	 = 1,
 	Position = 2,
 	CellID	 = 3,
-	Health   = 4,
-	Magicka  = 5,
-	Fatigue	 = 6,
 	Gender   = 7,
 	Race     = 8,
 	Class    = 9,
 	Name     = 10,
-	Stat     = 11,
-	Skill    = 12,
+	ActorValue= 11,
 	Equip	 = 13,
 	Chat     = 14,
 	Auth	 = 15,
@@ -101,12 +98,6 @@ inline bool RequiresReliable(PkgChunk type)
 		return false;
 	case CellID:
 		return true;
-	case	Health:
-		return false;
-	case Magicka:
-		return false;
-	case Fatigue:
-		return false;
 	case Gender:
 		return true;
 	case Race:
@@ -115,9 +106,7 @@ inline bool RequiresReliable(PkgChunk type)
 		return true;
 	case Name:
 		return true;
-	case Stat:
-		return true;
-	case Skill:
+	case ActorValue:
 		return true;
 	case Equip:
 		return true;
@@ -145,12 +134,6 @@ inline size_t GetMinChunkSize(PkgChunk type)
 		return 6*sizeof(float);
 	case CellID:
 		return sizeof(UINT32);
-	case	Health:
-		return sizeof(signed short);
-	case Magicka:
-		return sizeof(unsigned short);
-	case Fatigue:
-		return sizeof(unsigned short);
 	case Gender:
 		return sizeof(BYTE);
 	case Race:
@@ -159,9 +142,7 @@ inline size_t GetMinChunkSize(PkgChunk type)
 		return sizeof(unsigned short);
 	case Name:
 		return sizeof(unsigned short);
-	case Stat:
-		return sizeof(BYTE)+sizeof(unsigned short);
-	case Skill:
+	case ActorValue:
 		return sizeof(BYTE)+sizeof(unsigned short);
 	case Chat:
 		return sizeof(unsigned short);

@@ -64,6 +64,7 @@ This file is part of OblivionOnline.
 #define ADDITIONAL_VERSION_COMMENT "Internal Alpha" // For betas and special builds only
 
 extern std::queue<Entity *> UpdateQueue;
+extern std::queue<std::pair<BYTE,short>> ActorValueUpdateQueue;
 //Externals
 extern IDebugLog gLog;
 extern bool bIsConnected;

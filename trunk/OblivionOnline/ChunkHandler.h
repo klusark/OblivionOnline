@@ -28,10 +28,6 @@ size_t HandleNameChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,
 size_t HandleClassChunk(InPacket *pkg, BYTE* chunkdata,size_t len,UINT32 FormID,BYTE status);
 size_t HandleRaceChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
 size_t HandleGenderChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
-size_t HandleSkillChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
-size_t HandleStatChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
-size_t HandleFatigueChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
-size_t HandleMagickaChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
-size_t HandleHealthChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
+size_t HandleAVChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
 size_t HandlePlayerIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
 size_t HandleClientTypeChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status);

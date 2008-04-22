@@ -20,15 +20,14 @@ GNU Affero General Public License for more details.
 class Entity
 {
 private:
+	short m_ActorValues[72];
 	UINT32 m_Equip[MAX_EQUIPSLOTS]; // Enuf 
 	float m_PosX,m_PosY,m_PosZ,m_RotX,m_RotY,m_RotZ;
 	UINT32 m_RefID,m_CellID,m_Race;
-	short m_Health, m_Magicka , m_Fatigue;	
 	bool m_Player,m_Actor,m_GlobalSynch,m_Female;//Player : is a player , Actor: is an actor , GlobalSynch: Is important for quests and must therefore always be synched
 	bool m_TriggerEvents;
 	EntityManager *m_mgr;
-	std::vector <signed short> m_skills;
-	std::vector <signed short> m_stats;
+	
 	std::string m_Name; // A std::string should not waste TOO much space 
 	std::string m_Class;
 public:
@@ -48,15 +47,13 @@ public:
 		m_RotY = rotY;
 		m_RotZ = rotZ;
 		m_CellID = CellID;
-		m_Health = health;
-		m_Magicka = magicka;
-		m_Fatigue = fatigue;
 		m_GlobalSynch = true;
 		m_TriggerEvents = TriggerEvents;
 		m_Female = female;
 		m_Race = race;
 		m_Name = name;
 		m_Class = classname;
+		memset(m_ActorValues,0,72*sizeof(short));
 		m_mgr->RegisterEntity(this);
 	}
 
@@ -92,22 +89,6 @@ public:
 		m_CellID = CellID;
 		m_mgr->GetUpdateMgr()->OnCellChange(this);
 	}
-	inline void ModHealth(short Relative)
-	{
-		m_Health += Relative;
-		//TODO : trigger health event
-		m_mgr->GetUpdateMgr()->OnHealthUpdate(this);
-	}
-	inline void ModMagicka(short Relative)
-	{
-		m_Magicka += Relative;
-		m_mgr->GetUpdateMgr()->OnMagickaUpdate(this);
-	}
-	inline void ModFatigue(short Relative)
-	{
-		m_Fatigue += Relative;
-		m_mgr->GetUpdateMgr()->OnFatigueUpdate(this);
-	}
 	inline void SetFemale(bool value)
 	{
 		m_Female = value;
@@ -117,29 +98,6 @@ public:
 	{
 		m_CellID = value;
 		m_mgr->GetUpdateMgr()->OnCellChange(this);
-	}
-	inline void SetHealth(short value)
-	{
-		m_Health = value;
-		m_mgr->GetUpdateMgr()->OnHealthUpdate(this);
-	}
-	inline void SetMagicka(short value)
-	{
-		m_Magicka = value;
-		m_mgr->GetUpdateMgr()->OnMagickaUpdate(this);
-	}
-	inline void SetFatigue(short value)
-	{
-		m_Fatigue = value;
-		m_mgr->GetUpdateMgr()->OnFatigueUpdate(this);
-	}
-	inline void SetStat(BYTE statid,signed short value)
-	{
-		m_stats[statid] = value;
-	}
-	inline void SetSkill(BYTE statid,signed short value)
-	{
-		m_skills[statid] = value;
 	}
 	inline void SetGlobalSynch(bool value)
 	{
@@ -166,6 +124,12 @@ public:
 	{
 		m_Class = Class;
 		m_mgr->GetUpdateMgr()->OnClassUpdate(this);
+	}
+	inline void SetActorValue(BYTE ActorValue,short Value)
+	{
+		if(ActorValue < 72)
+			m_ActorValues[ActorValue] = Value;		
+		m_mgr->GetUpdateMgr()->OnAVUpdate(this,ActorValue);
 	}
 	inline std::string Name()
 	{
@@ -223,26 +187,10 @@ public:
 	inline float RotZ()
 	{
 		return m_RotZ;
-	}
-	inline short Health()
+	};
+	inline signed short ActorValue(BYTE statid)
 	{
-		return m_Health;
-	}
-	inline signed short Stat(BYTE statid)
-	{
-		return m_stats[statid];
-	}
-	inline signed short Skill(BYTE statid)
-	{
-		return m_skills[statid];
-	}
-	inline short Magicka()
-	{
-		return m_Magicka;
-	}
-	inline short Fatigue()
-	{
-		return m_Fatigue;
+		return m_ActorValues[statid];
 	}
 	inline BYTE Status()
 	{
