@@ -115,7 +115,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 	//Health of the other players
 	for(i = 0;i < MAXCLIENTS ;i++)
 	{
-		if(SpawnID[i] != 0 && PlayerConnected[i])
+		if(SpawnID[i] != 0)
 		{
 			ent = Entities.GetEntity(SpawnID[i]); 		
 			if(ent == NULL)
@@ -125,19 +125,19 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 			if(ActorValue != ent->Health)
 			{
 				ent->Health = ActorValue;
-				NetSendActorValue(SpawnID[i],STATUS_PLAYER,8,ActorValue);
+				NetSendActorValue(i,STATUS_PLAYER,8,ActorValue);
 			}
 			ActorValue = actor->GetActorValue(9);
 			if(ActorValue != ent->Magicka)
 			{
 				ent->Magicka = ActorValue;
-				NetSendActorValue(SpawnID[i],STATUS_PLAYER,9,ActorValue);
+				NetSendActorValue(i,STATUS_PLAYER,9,ActorValue);
 			}
 			ActorValue = actor->GetActorValue(10);
 			if(ActorValue != ent->Fatigue)
 			{
 				ent->Fatigue = ActorValue;
-				NetSendActorValue(SpawnID[i],STATUS_PLAYER,10,ActorValue);
+				NetSendActorValue(i,STATUS_PLAYER,10,ActorValue);
 			}	
 		}
 	}

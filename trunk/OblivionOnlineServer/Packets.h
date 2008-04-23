@@ -65,7 +65,7 @@ TYPE#	Description
 17		Version .	SUPER , MAJOR AND MINOR as bytes
 18		PlayerID . UINT32 Player ID - sent only by server
 */
-#define PACKET_SIZE 1024u
+#define PACKET_SIZE 1024
 #define PACKET_HEADER_SIZE 3
 #define MAX_OBJECTS_PER_PACKET 16
 #define OBJECTMASK 0xff000000

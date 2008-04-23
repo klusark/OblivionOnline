@@ -59,10 +59,4 @@ inline UINT32 GetPlayerFormID(UINT32 PlayerID)
 {
 	return SpawnID[(LocalPlayer >= PlayerID) ? PlayerID : (PlayerID -1)]; // TODO: Revamp this
 }
-inline UINT32 TranslateFormID(UINT32 FormID,BYTE Status) // Translation from local (status independent) FormID to a global(status dependent) FormID
-{
-	if(Status == STATUS_PLAYER)
-		return GetPlayerNumberFromRefID(FormID);
-	return FormID;
-}
 #endif

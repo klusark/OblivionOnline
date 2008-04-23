@@ -33,8 +33,8 @@ bool ChatIOProvider::DoOutput( LogLevel LogLevel,std::string Message )
 	memcpy(data + 2,Message.c_str(),Message.length());
 	for(map<UINT32,Entity *>::const_iterator i =  m_gs->GetEntities()->GetPlayerList().begin(); i != m_gs->GetEntities()->GetPlayerList().end() ; i++)
 	{
-		m_gs->GetNetwork()->SendChunk(i->second->RefID(),i->second->RefID(),true,Message.length() + 2,PkgChunk::Chat,data);
-		m_gs->GetNetwork()->Send(i->second->RefID());
+		//m_gs->GetNetwork()->SendChunk(i->second->RefID(),i->second->RefID(),true,Message.length() + 2,PkgChunk::Chat,data);
+		//m_gs->GetNetwork()->Send(i->second->RefID());
 	}
 	return true;
 }

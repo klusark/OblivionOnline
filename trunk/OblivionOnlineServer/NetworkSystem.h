@@ -57,6 +57,8 @@ public:
 	inline bool SendChunk(UINT32 PlayerID,UINT32 FormID,BYTE status,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
 		OutPacket *packet = m_OutPackets[PlayerID];
+		if(packet == NULL)
+			return false; //TODO: Report bug
 		if(packet->AddChunk(FormID,status,ChunkSize,ChunkType,data) == true)
 			return true;
 		else
@@ -70,7 +72,9 @@ public:
 	}
 	inline bool Send(UINT32 PlayerID)
 	{
-		OutPacket *packet = m_OutPackets[PlayerID];		
+		OutPacket *packet = m_OutPackets[PlayerID];	
+		if(packet == NULL)
+			return false;//TODO: Report bug
 		if(packet->Reliable())
 			return SendReliableStream(PlayerID,packet->Size(),packet->GetData());
 		else
