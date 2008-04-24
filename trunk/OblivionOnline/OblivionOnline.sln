@@ -13,6 +13,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "curllib", "..\GUI_Server\li
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OblivionOnlineServer", "..\OblivionOnlineServer\OblivionOnlineServer.vcproj", "{9CEB2A39-13F4-499A-995C-2077F44177DF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Debugger Tools", "Debugger Tools", "{73856D08-B7B7-494B-85A6-06662EB4727B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetDebug", "..\NetDebug\NetDebug.vcproj", "{FDEF50CB-0F36-4498-8D26-CAFE350A38A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -53,6 +57,12 @@ Global
 		{9CEB2A39-13F4-499A-995C-2077F44177DF}.Release_debug|Win32.Build.0 = Release|Win32
 		{9CEB2A39-13F4-499A-995C-2077F44177DF}.Release|Win32.ActiveCfg = Release|Win32
 		{9CEB2A39-13F4-499A-995C-2077F44177DF}.Release|Win32.Build.0 = Release|Win32
+		{FDEF50CB-0F36-4498-8D26-CAFE350A38A3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FDEF50CB-0F36-4498-8D26-CAFE350A38A3}.Debug|Win32.Build.0 = Debug|Win32
+		{FDEF50CB-0F36-4498-8D26-CAFE350A38A3}.Release_debug|Win32.ActiveCfg = Release|Win32
+		{FDEF50CB-0F36-4498-8D26-CAFE350A38A3}.Release_debug|Win32.Build.0 = Release|Win32
+		{FDEF50CB-0F36-4498-8D26-CAFE350A38A3}.Release|Win32.ActiveCfg = Release|Win32
+		{FDEF50CB-0F36-4498-8D26-CAFE350A38A3}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
