@@ -202,6 +202,10 @@
 				RelativePath=".\GlobalDefines.h"
 				>
 			</File>
+			<File
+				RelativePath=".\ModuleManager.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Netcode"
@@ -247,6 +251,34 @@
 				</File>
 				<File
 					RelativePath=".\StatChunkHandler.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="IO"
+				>
+				<File
+					RelativePath=".\ChatIOProvider.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\IOSystem.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\IOSystem.h"
+					>
+				</File>
+				<File
+					RelativePath=".\LogIOProvider.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ScreenIOProvider.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ScreenIOProvider.h"
 					>
 				</File>
 			</Filter>
@@ -560,35 +592,23 @@
 			</Filter>
 		</Filter>
 		<Filter
-			Name="IO"
+			Name="Extendibility"
 			>
 			<File
-				RelativePath=".\ChatIOProvider.cpp"
+				RelativePath=".\Module.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\IOSystem.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\IOSystem.h"
-				>
-			</File>
-			<File
-				RelativePath=".\LogIOProvider.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ScreenIOProvider.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ScreenIOProvider.h"
+				RelativePath=".\Module.h"
 				>
 			</File>
 		</Filter>
 		<File
 			RelativePath=".\main.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\ModuleManager.cpp"
 			>
 		</File>
 		<File
