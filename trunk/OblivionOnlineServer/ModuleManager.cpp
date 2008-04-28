@@ -1,7 +1,8 @@
 #include "ModuleManager.h"
 
-ModuleManager::ModuleManager(void)
+ModuleManager::ModuleManager(GameServer * gs)
 {
+	m_gs = gs;
 }
 
 ModuleManager::~ModuleManager(void)

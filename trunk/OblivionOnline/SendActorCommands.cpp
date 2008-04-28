@@ -108,7 +108,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		}
 		if( ent->Equip[i] != *itemRef)
 		{
-			NetSendEquip((*g_thePlayer)->refID,ent->status,i,*itemRef);				
+			NetSendEquip((*g_thePlayer)->refID,STATUS_PLAYER,i,*itemRef);				
 			ent->Equip[i] = *itemRef;
 		}
 	}

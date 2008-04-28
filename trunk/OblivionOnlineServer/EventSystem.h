@@ -28,6 +28,12 @@ public:
 	~EventSystem(void);
 	Event *GetEventFromID(UINT32);
 	bool RegisterEvent(Event *evt);
+	UINT32 GetEventID()
+	{
+		return m_CurrentEventID++;
+	}
 protected:
 	GameServer *m_server;	
+private:
+	UINT32 m_CurrentEventID;
 };

@@ -14,6 +14,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Affero General Public License for more details.
 */
 #pragma once
+#include "Entity.h"
 #include "EntityManager.h"
 #include "EntityUpdateManager.h"
 #include <vector>
@@ -27,7 +28,7 @@ private:
 	bool m_Status,m_Actor,m_GlobalSynch,m_Female;//Player : is a player , Actor: is an actor , GlobalSynch: Is important for quests and must therefore always be synched
 	bool m_TriggerEvents;
 	EntityManager *m_mgr;
-	
+	Entity *m_MoveEvent,*m_ActorValueEvent,*CellChangeEvent,*m_DeathEvent;
 	std::string m_Name; // A std::string should not waste TOO much space 
 	std::string m_Class;
 public:
@@ -54,6 +55,7 @@ public:
 		m_Class = classname;
 		memset(m_ActorValues,0,72*sizeof(short));
 		m_mgr->RegisterEntity(this);
+		m_mgr->GetEventSystem();
 	}
 
 	

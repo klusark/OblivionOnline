@@ -41,8 +41,8 @@ This file is part of OblivionOnline.
 #include "main.h"
 #include "../OblivionOnlineServer/Packets.h"
 extern void RunScriptLine(const char *buf, bool IsTemp);
-extern UINT32 GetPlayerNumberFromRefID(UInt32 refID);
 extern UINT32 LocalPlayer;
+extern UINT32 GetPlayerNumberFromRefID(UInt32 refID);
 extern UInt32 SpawnID[];
 
 inline int GetPlayerNumberFromSpawnNumber(USHORT SpawnNumber) 

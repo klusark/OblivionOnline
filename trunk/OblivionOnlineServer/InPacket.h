@@ -25,7 +25,7 @@ class InPacket
 {
 private:
 	NetworkSystem *m_sys;
-	size_t streamlen;
+	size_t m_streamlen;
 	BYTE *m_stream;
 	BYTE *m_current;
 	GameServer *m_GS; 
@@ -47,6 +47,8 @@ public:
 		m_stream = stream;
 		m_current = m_stream;
 		m_currentchunk = 0;
+		m_supposedsize = *(UINT16*)(stream+1);
+		m_streamlen = streamlen;
 		m_GS = gs;
 	} 
 	inline size_t HandleChunk(BYTE* chunkdata,BYTE* EndPtr )
@@ -96,7 +98,7 @@ public:
 	{
 		size_t retval;
 		int i = 0;
-		BYTE *m_end = m_stream + streamlen;
+		BYTE *m_end = m_stream + min(m_streamlen,m_supposedsize);
 		ChunkCount = m_stream[0];//The Data
 		m_current += 3;
 		for(;i < ChunkCount;i++)

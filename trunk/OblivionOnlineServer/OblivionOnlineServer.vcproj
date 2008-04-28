@@ -202,10 +202,6 @@
 				RelativePath=".\GlobalDefines.h"
 				>
 			</File>
-			<File
-				RelativePath=".\ModuleManager.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Netcode"
@@ -299,10 +295,6 @@
 			Name="Abstract Classes"
 			>
 			<File
-				RelativePath=".\Event.h"
-				>
-			</File>
-			<File
 				RelativePath=".\IOProvider.h"
 				>
 			</File>
@@ -346,18 +338,6 @@
 				RelativePath=".\EntityUpdateManager.h"
 				>
 			</File>
-			<Filter
-				Name="Event"
-				>
-				<File
-					RelativePath=".\EventSystem.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\EventSystem.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Util"
@@ -602,13 +582,33 @@
 				RelativePath=".\Module.h"
 				>
 			</File>
+			<File
+				RelativePath=".\ModuleManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ModuleManager.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Event"
+			>
+			<File
+				RelativePath=".\Event.h"
+				>
+			</File>
+			<File
+				RelativePath=".\EventSystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\EventSystem.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\main.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\ModuleManager.cpp"
 			>
 		</File>
 		<File

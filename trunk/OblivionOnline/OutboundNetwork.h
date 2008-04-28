@@ -38,9 +38,10 @@ forward this exception.
 #pragma once
 #include <string>
 #include <process.h>
+#include "GameObjects.h"
 #include "../OblivionOnlineServer/GlobalDefines.h"
 #include "../OblivionOnlineServer/Packets.h"
-
+extern UINT32 LocalPlayer;
 class OutboundNetwork
 {
 private:
@@ -174,9 +175,10 @@ public:
 	}
 	inline bool AddChunk(UINT32 FormID,BYTE Status,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
+		if(Status == STATUS_PLAYER && FormID == (*g_thePlayer)->refID)
+			FormID = LocalPlayer;
 		if(*m_Chunks_written >= UCHAR_MAX)
 			Send();
-		_MESSAGE("Adding %u chunk for FormID %ul with Status %u , size %u ",ChunkType,FormID,Status,ChunkSize);
 		if(RemainingDataSize() < (ChunkSize + 2))  // Chunk Header
 		{
 			Send();

@@ -5,6 +5,7 @@
 #endif
 extern class GameServer;
 extern class ModuleManager;
+typedef int(*InitialiseCallback) (GameServer *gs,BYTE,BYTE,BYTE);
 class Module
 {
 public:

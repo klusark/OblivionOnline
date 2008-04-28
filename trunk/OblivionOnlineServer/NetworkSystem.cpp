@@ -33,8 +33,8 @@ bool NetworkSystem::StartReceiveThreads()
 {
 	m_GS->GetIO()<<BootMessage<<"Starting receive threads"<< endl;
 #ifdef WIN32
-	CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)TCPProc,(LPVOID) this,0,(LPDWORD)&m_TCPThread);
-	CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)UDPProc,(LPVOID) this,0,(LPDWORD)&m_TCPThread);
+	_beginthread(TCPProc,0,(LPVOID) this);
+	_beginthread(UDPProc,0,(LPVOID) this);
 #endif
 	m_MasterClient = 0;
 	return true;
