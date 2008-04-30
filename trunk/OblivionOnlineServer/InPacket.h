@@ -50,6 +50,8 @@ public:
 		m_supposedsize = *(UINT16*)(stream+1);
 		m_streamlen = streamlen;
 		m_GS = gs;
+		memset(ObjectIDs,0xffff,16*sizeof(UINT32));
+		memset(Status,255,16);
 	} 
 	inline size_t HandleChunk(BYTE* chunkdata,BYTE* EndPtr )
 	{

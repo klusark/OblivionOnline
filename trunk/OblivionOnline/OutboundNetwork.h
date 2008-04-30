@@ -171,7 +171,7 @@ public:
 		*m_Chunks_written = 0;
 		*m_Bytes_written = PACKET_HEADER_SIZE;
 		m_Reliable = false;
-		
+		memset(m_Data,0,PACKET_SIZE);
 	}
 	inline bool AddChunk(UINT32 FormID,BYTE Status,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{

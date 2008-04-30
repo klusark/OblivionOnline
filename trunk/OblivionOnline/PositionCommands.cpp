@@ -103,7 +103,13 @@ bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 	}
 	Entity *ent = Entities.GetEntity(thisObj->refID);
 	TESObjectCELL *obj = (TESObjectCELL *)Oblivion_DynamicCast(LookupFormByID(ent->CellID),0,RTTI_TESObjectCELL,RTTI_TESForm,0);	
-	*(UINT32 *) result = obj->IsInterior();
+	if(obj != NULL)
+		*(UINT32 *) result = obj->IsInterior();
+	else
+	{
+		*result = 0;
+		Console_Print("MPGetIsInterior was called");
+	}
 	return true;
 }
 

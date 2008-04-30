@@ -13,7 +13,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Affero General Public License for more details.
 */
 #include "EntityManager.h"
-
+#include "EventSystem.h"
 #include "Entity.h"
 bool EntityManager::RegisterEntity(Entity *Entity)
 {
@@ -38,6 +38,7 @@ bool EntityManager::DeleteEntity(Entity *Entity)
 bool EntityManager::DeleteEntities()
 {
 	#ifndef OO_USE_HASHMAP
+
 	for(std::map<UINT32,Entity *>::iterator i = m_objects.begin();i != m_objects.end();i++)
 	{
 		delete i->second;

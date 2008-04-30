@@ -4,9 +4,9 @@
 "ProjectType" = "8:{978C614F-708E-4E1A-B201-565925725DBA}"
 "IsWebType" = "8:FALSE"
 "ProjectName" = "8:Setup"
-"LanguageId" = "3:0"
+"LanguageId" = "3:1033"
 "CodePage" = "3:1252"
-"UILanguageId" = "3:0"
+"UILanguageId" = "3:1033"
 "SccProjectName" = "8:"
 "SccLocalPath" = "8:"
 "SccAuxPath" = "8:"
@@ -33,6 +33,24 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_660308DB841C436CB5034E7334D4A2D6"
+        "OwnerKey" = "8:_7081F5E37E294EAC808882DF33CC688D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7081F5E37E294EAC808882DF33CC688D"
+        "OwnerKey" = "8:_D8FC3191466C47AA91AC7CFCD033383B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7081F5E37E294EAC808882DF33CC688D"
+        "OwnerKey" = "8:_DB4E0A0AD1A349658CB58B64B693F1C5"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_896BA777CEA0402A83B452039F542FFB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -41,6 +59,12 @@
         {
         "MsmKey" = "8:_94655F51BFB44F93B46B7E776739739A"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9FAE5564FD039C4C897C69B7CD27C1E7"
+        "OwnerKey" = "8:_DB4E0A0AD1A349658CB58B64B693F1C5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -156,10 +180,10 @@
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Visual.C++.8.0.x86"
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Visual.C++.9.0.x86"
                     {
                     "Name" = "8:Visual C++ Runtime Libraries (x86)"
-                    "ProductCode" = "8:Microsoft.Visual.C++.8.0.x86"
+                    "ProductCode" = "8:Microsoft.Visual.C++.9.0.x86"
                     }
                 }
             }
@@ -282,6 +306,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9FAE5564FD039C4C897C69B7CD27C1E7"
+            {
+            "SourcePath" = "8:d3dx9_36.dll"
+            "TargetName" = "8:d3dx9_36.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_2EA12E733C5F4F699EB2DE6858B2D7BA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C1D1EE62602E485E814B9CF99FE60436"
@@ -594,26 +638,27 @@
         }
         "MsiBootstrapper"
         {
-        "LangId" = "3:0"
+        "LangId" = "3:1033"
+        "RequiresElevation" = "11:FALSE"
         }
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:OblivionOnline"
-        "ProductCode" = "8:{367F53A8-1D53-44D1-A144-B0E974CCF494}"
-        "PackageCode" = "8:{E2221FF8-F22E-4201-81A6-8E0E4047B0CB}"
+        "ProductCode" = "8:{3BEFB4E1-5F43-497F-8DAC-980947D7A00F}"
+        "PackageCode" = "8:{02D2AD96-A306-47D9-9D71-A9367AF21390}"
         "UpgradeCode" = "8:{75CB2856-DAF1-4317-BD19-A84910A0AAFB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.4.5"
+        "ProductVersion" = "8:0.5.0"
         "Manufacturer" = "8:OblivionOnline Team"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
         "Title" = "8:OblivionOnline"
         "Subject" = "8:"
-        "ARPCONTACT" = "8:Masterfreek64 aka Julian Bangert and chessmaster 42 aka Jospeh Pearson , and many others"
+        "ARPCONTACT" = "8:Julian Bangert"
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:Makes Oblivion a multiplayer game"
         "ARPURLINFOABOUT" = "8:"
@@ -1130,6 +1175,34 @@
         }
         "MergeModule"
         {
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_660308DB841C436CB5034E7334D4A2D6"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:microsoft_vc90_crt_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_7081F5E37E294EAC808882DF33CC688D"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
         "ProjectOutput"
         {
@@ -1219,7 +1292,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D8FC3191466C47AA91AC7CFCD033383B"
             {
-            "SourcePath" = "8:..\\obliviononline\\debug\\ServerBrowser.exe"
+            "SourcePath" = "8:..\\OblivionOnline\\debug\\ServerBrowser.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_DC58B7A30A9345F186E102386A49AB33"
@@ -1247,7 +1320,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DB4E0A0AD1A349658CB58B64B693F1C5"
             {
-            "SourcePath" = "8:..\\obliviononline\\release\\OblivionOnline.dll"
+            "SourcePath" = "8:..\\OblivionOnline\\release\\OblivionOnline.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_2EA12E733C5F4F699EB2DE6858B2D7BA"
@@ -1273,9 +1346,6 @@
                 {
                 }
             }
-        }
-        "VJSharpPlugin"
-        {
         }
     }
 }

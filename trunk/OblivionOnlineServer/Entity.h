@@ -25,8 +25,9 @@ private:
 	UINT32 m_Equip[MAX_EQUIPSLOTS]; // Enuf 
 	float m_PosX,m_PosY,m_PosZ,m_RotX,m_RotY,m_RotZ;
 	UINT32 m_RefID,m_CellID,m_Race; 
-	bool m_Status,m_Actor,m_GlobalSynch,m_Female;//Player : is a player , Actor: is an actor , GlobalSynch: Is important for quests and must therefore always be synched
+	bool m_Actor,m_GlobalSynch,m_Female;//Player : is a player , Actor: is an actor , GlobalSynch: Is important for quests and must therefore always be synched
 	bool m_TriggerEvents;
+	BYTE  m_Status;
 	EntityManager *m_mgr;
 	Entity *m_MoveEvent,*m_ActorValueEvent,*CellChangeEvent,*m_DeathEvent;
 	std::string m_Name; // A std::string should not waste TOO much space 
