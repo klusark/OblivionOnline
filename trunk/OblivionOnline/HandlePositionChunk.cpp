@@ -41,6 +41,7 @@ size_t HandlePositionChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 For
 {
 	Entity *ent;
 	float *floats = (float *)(chunkdata + 2);
+	_MESSAGE("FormID %u status %u Position: %f %f %f %f %f %f",floats[0],floats[1],floats[2],floats[3],floats[4],floats[5]);
 	if(Status == STATUS_PLAYER)
 		FormID = GetPlayerFormID(FormID); // Get a player representation
 	ent = Entities.GetEntity(FormID);

@@ -46,7 +46,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;DIRECT3DHOOK_EXPORTS;CEGUI_STATIC;OBLIVION_VERSION=0x010201A0"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="2"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
@@ -257,7 +257,7 @@
 				OptimizeReferences="1"
 				EnableCOMDATFolding="2"
 				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
+				DataExecutionPrevention="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -289,6 +289,7 @@
 	<References>
 		<ProjectReference
 			ReferencedProjectIdentifier="{20C6411C-596F-4B85-BE4E-8BC91F59D8A6}"
+			RelativePathToProject="..\common\common.vcproj"
 		/>
 	</References>
 	<Files>

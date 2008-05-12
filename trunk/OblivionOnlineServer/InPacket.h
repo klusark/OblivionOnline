@@ -44,10 +44,10 @@ public:
 		m_sys = sys;
 		m_stream = (BYTE*)malloc(streamlen);
 		memcpy(m_stream,stream,streamlen); // So the stream can be released
-		m_stream = stream;
+		m_stream = m_stream;
 		m_current = m_stream;
 		m_currentchunk = 0;
-		m_supposedsize = *(UINT16*)(stream+1);
+		m_supposedsize = *(UINT16*)(m_stream+1);
 		m_streamlen = streamlen;
 		m_GS = gs;
 		memset(ObjectIDs,0xffff,16*sizeof(UINT32));
@@ -105,11 +105,13 @@ public:
 		m_current += 3;
 		for(;i < ChunkCount;i++)
 		{
-			retval = HandleChunk(m_current,m_end);
 			if(m_current >= m_end)
 			{
+				
 				return;
 			}
+			retval = HandleChunk(m_current,m_end);
+			
 			if(retval == 0)
 			{
 				//m_GS->GetIO()<<Warning<<"Ignoring rest of packet "<< endl;

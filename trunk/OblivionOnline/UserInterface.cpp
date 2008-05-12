@@ -97,7 +97,7 @@ void RegisterChatMessage(char *message)
 		return;
 	CEGUI::Window *chatwin = CEGUI::WindowManager::getSingleton().getWindow("ChatMessage");
 	if(chatwin)
-		chatwin->setText(chatwin->getText() +"\n"+message);
+		chatwin->setText(message);
 	else
 	{
 		Console_Print("Could not find CEGUI Window ChatMessage");

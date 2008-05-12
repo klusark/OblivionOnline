@@ -83,7 +83,7 @@ private:
 		if(*m_Bytes_written + sizeof(UINT32) <= PACKET_SIZE)
 		{
 			*(UINT32 *)(m_Data + *m_Bytes_written) = data;
-			*m_Bytes_written += sizeof(UINT32);
+			(*m_Bytes_written) += sizeof(UINT32);
 			return true;
 		}
 		return false;
@@ -93,7 +93,7 @@ private:
 		if(*m_Bytes_written + len <= PACKET_SIZE)
 		{
 			memcpy(m_Data + *m_Bytes_written,data,len);
-			*m_Bytes_written += len;
+			(*m_Bytes_written) += len;
 			return true;
 		}
 		

@@ -17,9 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "InPacket.h"
 #include "ChunkHandler.h"
+#include "UserInterface.h"
 size_t HandleChatChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
 { 
 	Console_Print("Player %i: %s", FormID, (char *)(chunkdata +2 + sizeof(unsigned short)));
 	QueueUIMessage((char *)(chunkdata +2 + sizeof(unsigned short)),0,1, 5);
+	RegisterChatMessage((char *)(chunkdata +2+ sizeof(unsigned short)));
 	return (sizeof(unsigned short)+ sizeof(unsigned short) + sizeof(unsigned short) + (len < *(unsigned short *)(chunkdata +2) ) ? (len) : *(unsigned short *)(chunkdata +2));
 }
