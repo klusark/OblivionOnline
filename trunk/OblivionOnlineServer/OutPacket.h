@@ -53,7 +53,7 @@ private:
 		if(*m_Bytes_written + 1 < PACKET_SIZE)// m_Bytes_written + 2 <= tuned
 		{
 			*((UINT16 *)m_Dataptr) = data;
-			*m_Bytes_written += sizeof(UINT16);
+			(*m_Bytes_written) += sizeof(UINT16);
 			m_Dataptr+=sizeof(UINT16);
 			return true;
 		}
@@ -64,7 +64,7 @@ private:
 		if(*m_Bytes_written + sizeof(UINT32) <= PACKET_SIZE)
 		{
 			*((UINT32 *)m_Dataptr) = data;
-			*m_Bytes_written += sizeof(UINT32);
+			(*m_Bytes_written) += sizeof(UINT32);
 			m_Dataptr+=sizeof(UINT32);
 			return true;
 		}

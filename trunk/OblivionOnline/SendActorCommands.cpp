@@ -61,6 +61,11 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 	BYTE Status;
 	if(ent == NULL)
 		ent = new Entity((*g_thePlayer)->refID);	
+	if((*g_thePlayer)->parentCell->refID != ent->CellID)
+	{
+		ent->CellID = (*g_thePlayer)->parentCell->refID;
+		NetSendCellID((*g_thePlayer)->refID,STATUS_PLAYER,ent->CellID);
+	}
 	if((*g_thePlayer)->posX != ent->PosX|| (*g_thePlayer)->posY != ent->PosY || (*g_thePlayer)->posZ != ent->PosZ || (*g_thePlayer)->rotZ != ent->RotZ || (*g_thePlayer)->rotX != ent->RotX ||(*g_thePlayer)->rotY != ent->RotY)
 	{
 		ent->PosX = (*g_thePlayer)->posX;
@@ -71,11 +76,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		ent->RotZ = (*g_thePlayer)->rotZ;
 		NetSendPosition((*g_thePlayer)->refID,STATUS_PLAYER,ent->PosX,ent->PosY,ent->PosZ,ent->RotX,ent->RotY,ent->RotZ);
 	}
-	if((*g_thePlayer)->parentCell->refID != ent->CellID)
-	{
-		ent->CellID = (*g_thePlayer)->parentCell->refID;
-		NetSendCellID((*g_thePlayer)->refID,STATUS_PLAYER,ent->CellID);
-	}
+	
 	// Health , Magicka , Fatigue
 	ActorValue = (*g_thePlayer)->GetActorValue(8);
 	if(ActorValue != ent->Health)
@@ -189,7 +190,11 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 					if(ent == NULL)
 						ent = new Entity(ListIterator->refr->refID);
 					//Synch that object too
-					
+					if(ListIterator->refr->parentCell->refID != ent->CellID)
+					{
+						ent->CellID = ListIterator->refr->refID;
+						NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
+					}
 					if(ListIterator->refr->posX != ent->PosX|| ListIterator->refr->posY != ent->PosY || ListIterator->refr->posZ != ent->PosZ || ListIterator->refr->rotZ != ent->RotZ || ListIterator->refr->rotX != ent->RotX ||ListIterator->refr->rotY != ent->RotY)
 					{
 						ent->PosX = ListIterator->refr->posX;
@@ -200,11 +205,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 						ent->RotZ = ListIterator->refr->rotZ;
 						NetSendPosition(ListIterator->refr->refID, Status,ent->PosX,ent->PosY,ent->PosZ,ent->RotX,ent->RotY,ent->RotZ);
 					}
-					if(ListIterator->refr->parentCell->refID != ent->CellID)
-					{
-						ent->CellID = ListIterator->refr->refID;
-						NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
-					}
+					
 					if(Status == STATUS_NPC)
 					{
 						actor = (Actor *)LookupFormByID(ListIterator->refr->refID);
