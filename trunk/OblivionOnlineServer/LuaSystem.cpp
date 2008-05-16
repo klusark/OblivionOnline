@@ -18,6 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "LuaSystem.h"
 #include "DefaultSettings.h"
+
+int oolua_LoadModule(lua_State *state)
+{
+	return 0;
+}
 LuaSystem::LuaSystem(GameServer *gs)
 {
 	m_GS = gs;
@@ -76,4 +81,6 @@ void LuaSystem::DefaultSettings()
 	SetString("Name",DEFAULT_SERVERNAME);
 	SetString("RealmlistURI",DEFAULT_REALMLIST);
 	SetString("Logfile",DEFAULT_LOGFILE);
+	lua_pushcfunction(m_Lua,oolua_LoadModule);
+	lua_setglobal(m_Lua,"LoadModule");
 }

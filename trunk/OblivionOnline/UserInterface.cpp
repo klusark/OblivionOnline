@@ -95,7 +95,7 @@ void RegisterChatMessage(char *message)
 {
 	if(CEGUI::System::getSingletonPtr() ==NULL)
 		return;
-	CEGUI::Window *chatwin = CEGUI::WindowManager::getSingleton().getWindow("ChatMessage");
+	CEGUI::Window *chatwin = CEGUI::WindowManager::getSingleton().getWindow("ChatText");
 	if(chatwin)
 		chatwin->setText(message);
 	else

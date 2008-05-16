@@ -180,6 +180,7 @@
 	<References>
 		<ProjectReference
 			ReferencedProjectIdentifier="{87EE9DA4-DE1E-4448-8324-183C98DCA588}"
+			RelativePathToProject="..\GUI_Server\libcurl\curl-7.18.0\lib\curllib.vcproj"
 		/>
 	</References>
 	<Files>
@@ -607,10 +608,6 @@
 		</Filter>
 		<File
 			RelativePath=".\main.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\ReadMe.txt"
 			>
 		</File>
 	</Files>

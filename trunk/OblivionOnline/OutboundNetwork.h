@@ -165,13 +165,13 @@ public:
 	{
 		memset(m_ObjectID,0xffffffff,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
 		memset(m_Status,255,sizeof(BYTE)*MAX_OBJECTS_PER_PACKET);
+		memset(m_Data,0,PACKET_SIZE);
 		m_Bytes_written =  (UINT16 *)(m_Data + 1); 
 		m_Chunks_written = (UINT8 *)m_Data;
 		m_ObjectsWritten = 0;
 		*m_Chunks_written = 0;
 		*m_Bytes_written = PACKET_HEADER_SIZE;
 		m_Reliable = false;
-		memset(m_Data,0,PACKET_SIZE);
 	}
 	inline bool AddChunk(UINT32 FormID,BYTE Status,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{

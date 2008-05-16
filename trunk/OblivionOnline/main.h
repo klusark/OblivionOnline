@@ -63,8 +63,7 @@ This file is part of OblivionOnline.
 #define RELEASE_CODENAME "Release V" // The Name . Can be empty
 #define ADDITIONAL_VERSION_COMMENT "Internal Alpha" // For betas and special builds only
 
-extern std::queue<Entity *> UpdateQueue;
-extern std::queue<std::pair<BYTE,short>> ActorValueUpdateQueue;
+extern std::deque<Entity *> UpdateQueue;
 //Externals
 extern IDebugLog gLog;
 extern bool bIsConnected;

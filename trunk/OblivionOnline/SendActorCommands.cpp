@@ -189,11 +189,11 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 					
 					if(ent == NULL)
 						ent = new Entity(ListIterator->refr->refID);
-					//Synch that object too
+					//Sync that object too
 					if(ListIterator->refr->parentCell->refID != ent->CellID)
 					{
-						ent->CellID = ListIterator->refr->refID;
-						NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
+						ent->CellID = ListIterator->refr->parentCell->refID;
+						NetSendCellID(ListIterator->refr->refID,Status,ListIterator->refr->parentCell->refID);
 					}
 					if(ListIterator->refr->posX != ent->PosX|| ListIterator->refr->posY != ent->PosY || ListIterator->refr->posZ != ent->PosZ || ListIterator->refr->rotZ != ent->RotZ || ListIterator->refr->rotX != ent->RotX ||ListIterator->refr->rotY != ent->RotY)
 					{

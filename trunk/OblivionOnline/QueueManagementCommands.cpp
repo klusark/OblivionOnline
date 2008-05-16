@@ -49,7 +49,7 @@ bool Cmd_MPGetNewObject_Execute (COMMAND_ARGS)
 	if(!UpdateQueue.empty())
 	{
 		*refResult = UpdateQueue.front()->RefID;
-		UpdateQueue.pop();
+		UpdateQueue.pop_front();
 	}
 	else
 		*refResult = 0;

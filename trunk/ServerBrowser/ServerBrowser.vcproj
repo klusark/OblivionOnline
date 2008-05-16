@@ -248,6 +248,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="..\OblivionOnlineServer\ReadMe.txt"
+			>
+		</File>
+		<File
 			RelativePath=".\ReadMe.txt"
 			>
 		</File>

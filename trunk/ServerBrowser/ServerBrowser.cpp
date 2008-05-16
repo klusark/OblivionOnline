@@ -309,14 +309,14 @@ INT_PTR CALLBACK ServerBrowserDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 		if(TempFile)
 		{
 
-		  MessageBox(NULL,"Starting to download servers from Supertreks list. Programm may freeze.","Download",0);
+		  MessageBox(NULL,"Starting to download servers from the official server list. Program may freeze.","Download",0);
 		  curl_global_init(CURL_GLOBAL_ALL);
 
 		  /* init the curl session */
 		  curl_handle = curl_easy_init();
 
 		  /* specify URL to get */
-		  curl_easy_setopt(curl_handle, CURLOPT_URL, "http://71.164.181.152/list/raw.php");
+		  curl_easy_setopt(curl_handle, CURLOPT_URL, "http://obliviononline.org/list/raw.php");
 		   curl_easy_setopt(curl_handle, CURLOPT_PORT, 82);
 			
 		  /* With a .dll we have to specify the pointer to fwrite ourselves */
@@ -325,12 +325,12 @@ INT_PTR CALLBACK ServerBrowserDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 			
 		  /* some servers don't like requests that are made without a user-agent
 			 field, so we provide one */
-		  curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "OblivionOnlineLauncher/4.4");
+		  curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "OblivionOnlineLauncher");
 		  /* We want no stupid output in a console :) */
 		   curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, 1);
 		  
 		   
-		  TempFile = fopen("ootemp1","a");;
+		  TempFile = fopen("ootemp1","w");;
 		  /* get it! */
 		  
 			curl_easy_perform(curl_handle);
@@ -362,71 +362,4 @@ INT_PTR CALLBACK ServerBrowserDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 		break;
 	}
 	return (INT_PTR)FALSE;
-}
-bool bNetAuthenticate(SOCKADDR_IN Server)
-{
-	WSADATA wsa;
-	char szPath[MAX_PATH];
-	FILE *Plugins_txt;
-	WSAStartup(MAKEWORD(2,0),&wsa);
-	SOCKET sock;
-	short ModCount = 0;
-	std::queue <std::string> ModQueue;
-	Server.sin_family = AF_INET;
-	sock = socket(AF_INET,SOCK_STREAM,0);
-
-	if(SUCCEEDED(SHGetFolderPath(NULL, 
-                             CSIDL_LOCAL_APPDATA, 
-                             NULL, 
-                             0, 
-                             szPath))) 
-	{
-		PathAppend(szPath, TEXT("Oblivion\\Plugins.txt"));
-		Plugins_txt=fopen(szPath,"r");
-		if(Plugins_txt)
-		{
-			//read in Plugins.txt
-			while(!feof(Plugins_txt))
-			{
-				char ModName[64];
-				std::string TempString;
-				fscanf(Plugins_txt,"%64s",ModName);
-				TempString = ModName;
-				ModQueue.push(TempString);
-				ModCount++;					
-			}
-			if(connect(sock,(SOCKADDR *)&Server,sizeof(SOCKADDR_IN)) != SOCKET_ERROR)
-			{
-				ServerAuthPacket AuthPkg;
-				ServerModAuthPacket ModAuthPkg;
-				AuthPkg.PacketID = 65556; // the packet ID for this packet should be constant
-				strcpy(AuthPkg.ClientName,"OblivionOnline Nick goes here"); // has to be implemented
-				AuthPkg.ModCount = ModCount; 
-				// NOTE:
-				// WE IGNORE THE CRC32
-				ModAuthPkg.PacketID = 65555; 
-				send(sock,(char *)&AuthPkg,sizeof(ServerAuthPacket),0);
-				for(unsigned int i = 1 ; i < ModQueue.size() ;i++) 
-				{
-					std::string TempString = ModQueue.front();
-					sprintf(ModAuthPkg.EspName,"%64s",TempString.c_str());
-					ModQueue.pop();
-					ModAuthPkg.ModOrder = i;
-					send(sock,(char *)&ModAuthPkg,sizeof(ServerModAuthPacket),0);
-				}
-				//Somehow await the data
-			}
-			else
-			{
-				MessageBoxA(NULL,"Could not connect to server","Authentication Error",NULL);
-			}
-			//Authenticate on the network
-		}
-		else
-		{
-			MessageBoxA(NULL,"Could not open Plugins.txt , check that Oblivion is installed","Authentication Error",NULL);
-		}
-
-	}
-	return false;// by default we could not authenticate
 }

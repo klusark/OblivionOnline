@@ -86,11 +86,6 @@ public:
 		SetRotation(RotX,RotY,RotZ);
 		m_mgr->GetUpdateMgr()->OnPositionUpdate(this);
 	}
-	inline void ChangeCell(UINT32 CellID)
-	{
-		m_CellID = CellID;
-		m_mgr->GetUpdateMgr()->OnCellChange(this);
-	}
 	inline void SetFemale(bool value)
 	{
 		m_Female = value;

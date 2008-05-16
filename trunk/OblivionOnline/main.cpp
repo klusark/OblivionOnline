@@ -62,8 +62,7 @@ TESObjectREFR* PlayerActorList[MAXCLIENTS];
 char ServerIP[15];
 
 bool bFrameRendered = false;
-std::queue<Entity *> UpdateQueue;
-std::queue<std::pair<BYTE,short>> ActorValueUpdateQueue;
+std::deque<Entity *> UpdateQueue;
 // Prototypes
 
 EntityManager Entities;

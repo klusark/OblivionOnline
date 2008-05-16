@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ChunkHandler.h"
 size_t HandleCellIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
 { 
-	
 	UINT32 Value = *(UINT32*)(chunkdata + 2);
 	if(Status == STATUS_PLAYER)
 		FormID = GetPlayerFormID(FormID); // Get a player representation
@@ -28,9 +27,10 @@ size_t HandleCellIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormI
 	if(ent == NULL)
 		ent = new Entity(FormID);
 	ent->CellID = Value;
+	
 	TESObjectREFR *obj = (TESObjectREFR *)LookupFormByID(FormID);
 	if(obj != NULL)
-		UpdateQueue.push(ent);
+		SafeAddUpdateQueue(ent);
 	Console_Print("Entity %u changed to cell %u",FormID,Value);
 	//TODO : See if this works
 	return GetMinChunkSize(CellID) + sizeof(unsigned short);
