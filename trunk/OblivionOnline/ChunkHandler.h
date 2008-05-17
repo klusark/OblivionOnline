@@ -39,10 +39,13 @@ inline void SafeAddUpdateQueue(Entity * ent)
 	{
 		deque<Entity *>::iterator UpdateIterator;
 		UpdateIterator = UpdateQueue.begin();
-		while(UpdateIterator != UpdateQueue.end())
+		while(1)
 		{
+			if(UpdateIterator == UpdateQueue.end())
+				break; //really bad , but fixes some crashes ??
 			if((*UpdateIterator) == ent )
 				return;
+			UpdateIterator++;
 		}
 	}
 	UpdateQueue.push_back(ent);

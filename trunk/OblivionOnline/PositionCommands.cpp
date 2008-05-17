@@ -108,7 +108,6 @@ bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 	else
 	{
 		*result = 0;
-		Console_Print("MPGetIsInterior was called");
 	}
 	return true;
 }
