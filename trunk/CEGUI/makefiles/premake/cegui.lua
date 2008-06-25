@@ -195,7 +195,7 @@ do
 		config_h.CEGUI_CODEC_FREEIMAGE = "1"
 	end
 	
-	
+	config_h.USE_FREETYPE2_STATIC = ""
 	
 	-- It is important that if this changes you re run premake inorder to
 	-- get the correct window renderer with a static build.

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="freetype"
 	ProjectGUID="{78B079BD-9FC7-4B9E-B4A6-96DA0F00248B}"
 	RootNamespace="freetype"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -70,7 +71,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\freetype235.lib"
+				OutputFile="$(SolutionDir)\Lib\freetype235.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -145,7 +146,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\freetype235MT.lib"
+				OutputFile="$(SolutionDir)\Lib\freetype235MT.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -220,7 +221,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\freetype235ST.lib"
+				OutputFile="$(SolutionDir)\Lib\freetype235ST.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -292,7 +293,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\freetype235_D.lib"
+				OutputFile="$(SolutionDir)\Lib\freetype235_D.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -365,7 +366,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\freetype235ST_D.lib"
+				OutputFile="$(SolutionDir)\Lib\freetype235ST_D.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -439,7 +440,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\freetype235MT_D.lib"
+				OutputFile="$(SolutionDir)\Lib\freetype235MT_D.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
