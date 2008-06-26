@@ -42,6 +42,7 @@ AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -82,6 +83,7 @@ CEGUI_IRRLICHT_VERSION_INFO = @CEGUI_IRRLICHT_VERSION_INFO@
 CEGUI_NULL_CFLAGS = @CEGUI_NULL_CFLAGS@
 CEGUI_NULL_LIBS = @CEGUI_NULL_LIBS@
 CEGUI_OPENGL_VERSION_INFO = @CEGUI_OPENGL_VERSION_INFO@
+CEGUI_SAMPLES_CFLAGS = @CEGUI_SAMPLES_CFLAGS@
 CEGUI_SAMPLES_USE_IRRLICHT_FALSE = @CEGUI_SAMPLES_USE_IRRLICHT_FALSE@
 CEGUI_SAMPLES_USE_IRRLICHT_TRUE = @CEGUI_SAMPLES_USE_IRRLICHT_TRUE@
 CEGUI_SAMPLES_USE_OGRE_FALSE = @CEGUI_SAMPLES_USE_OGRE_FALSE@
@@ -103,6 +105,8 @@ Corona_CFLAGS = @Corona_CFLAGS@
 Corona_LIBS = @Corona_LIBS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+DSYMUTIL = @DSYMUTIL@
 DevIL_CFLAGS = @DevIL_CFLAGS@
 DevIL_LIBS = @DevIL_LIBS@
 ECHO = @ECHO@
@@ -133,7 +137,13 @@ LTLIBOBJS = @LTLIBOBJS@
 Lua_CFLAGS = @Lua_CFLAGS@
 Lua_LIBS = @Lua_LIBS@
 MAKEINFO = @MAKEINFO@
+MINGW32_BUILD_FALSE = @MINGW32_BUILD_FALSE@
+MINGW32_BUILD_TRUE = @MINGW32_BUILD_TRUE@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OIS_CFLAGS = @OIS_CFLAGS@
+OIS_LIBS = @OIS_LIBS@
 OpenGL_CFLAGS = @OpenGL_CFLAGS@
 OpenGL_LIBS = @OpenGL_LIBS@
 PACKAGE = @PACKAGE@
@@ -145,6 +155,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SILLY_CFLAGS = @SILLY_CFLAGS@
@@ -212,6 +223,11 @@ target_alias = @target_alias@
 xerces_CFLAGS = @xerces_CFLAGS@
 xerces_LIBS = @xerces_LIBS@
 INCLUDES = -I$(top_srcdir)/include
+
+@MINGW32_BUILD_TRUE@libCEGUITinyXMLParser_la_CPPFLAGS = -DCEGUITINYXMLPARSER_EXPORTS
+@MINGW32_BUILD_TRUE@libCEGUITinyXMLParser_la_LDFLAGS = -no-undefined -avoid-version
+@MINGW32_BUILD_TRUE@libCEGUITinyXMLParser_la_LIBADD = -L$(top_builddir)/src -lCEGUIBase
+
 lib_LTLIBRARIES = libCEGUITinyXMLParser.la
 
 libCEGUITinyXMLParser_la_SOURCES = CEGUITinyXMLParser.cpp \
@@ -233,22 +249,28 @@ CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-libCEGUITinyXMLParser_la_LDFLAGS =
-libCEGUITinyXMLParser_la_LIBADD =
-am_libCEGUITinyXMLParser_la_OBJECTS = CEGUITinyXMLParser.lo \
-	CEGUITinyXMLParserModule.lo tinystr.lo tinyxml.lo \
-	tinyxmlerror.lo tinyxmlparser.lo
+@MINGW32_BUILD_TRUE@libCEGUITinyXMLParser_la_DEPENDENCIES =
+@MINGW32_BUILD_FALSE@libCEGUITinyXMLParser_la_DEPENDENCIES =
+am_libCEGUITinyXMLParser_la_OBJECTS = \
+	libCEGUITinyXMLParser_la-CEGUITinyXMLParser.lo \
+	libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.lo \
+	libCEGUITinyXMLParser_la-tinystr.lo \
+	libCEGUITinyXMLParser_la-tinyxml.lo \
+	libCEGUITinyXMLParser_la-tinyxmlerror.lo \
+	libCEGUITinyXMLParser_la-tinyxmlparser.lo
 libCEGUITinyXMLParser_la_OBJECTS = \
 	$(am_libCEGUITinyXMLParser_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CEGUITinyXMLParser.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CEGUITinyXMLParserModule.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/tinystr.Plo ./$(DEPDIR)/tinyxml.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/tinyxmlerror.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/tinyxmlparser.Plo
+@AMDEP_TRUE@DEP_FILES = \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Plo
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -310,12 +332,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGUITinyXMLParser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGUITinyXMLParserModule.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tinystr.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tinyxml.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tinyxmlerror.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tinyxmlparser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
@@ -350,137 +372,203 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
 
-tinystr.o: ceguitinyxml/tinystr.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tinystr.o -MD -MP -MF "$(DEPDIR)/tinystr.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o tinystr.o `test -f 'ceguitinyxml/tinystr.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinystr.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/tinystr.Tpo" "$(DEPDIR)/tinystr.Po"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/tinystr.Tpo"; exit 1; \
+libCEGUITinyXMLParser_la-CEGUITinyXMLParser.o: CEGUITinyXMLParser.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-CEGUITinyXMLParser.o -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-CEGUITinyXMLParser.o `test -f 'CEGUITinyXMLParser.cpp' || echo '$(srcdir)/'`CEGUITinyXMLParser.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Tpo"; exit 1; \
 @am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinystr.cpp' object='tinystr.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/tinystr.Po' tmpdepfile='$(DEPDIR)/tinystr.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUITinyXMLParser.cpp' object='libCEGUITinyXMLParser_la-CEGUITinyXMLParser.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Po' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tinystr.o `test -f 'ceguitinyxml/tinystr.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinystr.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-CEGUITinyXMLParser.o `test -f 'CEGUITinyXMLParser.cpp' || echo '$(srcdir)/'`CEGUITinyXMLParser.cpp
 
-tinystr.obj: ceguitinyxml/tinystr.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tinystr.obj -MD -MP -MF "$(DEPDIR)/tinystr.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o tinystr.obj `if test -f 'ceguitinyxml/tinystr.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinystr.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinystr.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/tinystr.Tpo" "$(DEPDIR)/tinystr.Po"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/tinystr.Tpo"; exit 1; \
+libCEGUITinyXMLParser_la-CEGUITinyXMLParser.obj: CEGUITinyXMLParser.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-CEGUITinyXMLParser.obj -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-CEGUITinyXMLParser.obj `if test -f 'CEGUITinyXMLParser.cpp'; then $(CYGPATH_W) 'CEGUITinyXMLParser.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUITinyXMLParser.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Tpo"; exit 1; \
 @am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinystr.cpp' object='tinystr.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/tinystr.Po' tmpdepfile='$(DEPDIR)/tinystr.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUITinyXMLParser.cpp' object='libCEGUITinyXMLParser_la-CEGUITinyXMLParser.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Po' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tinystr.obj `if test -f 'ceguitinyxml/tinystr.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinystr.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinystr.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-CEGUITinyXMLParser.obj `if test -f 'CEGUITinyXMLParser.cpp'; then $(CYGPATH_W) 'CEGUITinyXMLParser.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUITinyXMLParser.cpp'; fi`
 
-tinystr.lo: ceguitinyxml/tinystr.cpp
-@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tinystr.lo -MD -MP -MF "$(DEPDIR)/tinystr.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o tinystr.lo `test -f 'ceguitinyxml/tinystr.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinystr.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/tinystr.Tpo" "$(DEPDIR)/tinystr.Plo"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/tinystr.Tpo"; exit 1; \
+libCEGUITinyXMLParser_la-CEGUITinyXMLParser.lo: CEGUITinyXMLParser.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-CEGUITinyXMLParser.lo -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-CEGUITinyXMLParser.lo `test -f 'CEGUITinyXMLParser.cpp' || echo '$(srcdir)/'`CEGUITinyXMLParser.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Tpo"; exit 1; \
 @am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinystr.cpp' object='tinystr.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/tinystr.Plo' tmpdepfile='$(DEPDIR)/tinystr.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUITinyXMLParser.cpp' object='libCEGUITinyXMLParser_la-CEGUITinyXMLParser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.Plo' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParser.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tinystr.lo `test -f 'ceguitinyxml/tinystr.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinystr.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-CEGUITinyXMLParser.lo `test -f 'CEGUITinyXMLParser.cpp' || echo '$(srcdir)/'`CEGUITinyXMLParser.cpp
 
-tinyxml.o: ceguitinyxml/tinyxml.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tinyxml.o -MD -MP -MF "$(DEPDIR)/tinyxml.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o tinyxml.o `test -f 'ceguitinyxml/tinyxml.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxml.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/tinyxml.Tpo" "$(DEPDIR)/tinyxml.Po"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/tinyxml.Tpo"; exit 1; \
+libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.o: CEGUITinyXMLParserModule.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.o -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.o `test -f 'CEGUITinyXMLParserModule.cpp' || echo '$(srcdir)/'`CEGUITinyXMLParserModule.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Tpo"; exit 1; \
 @am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxml.cpp' object='tinyxml.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/tinyxml.Po' tmpdepfile='$(DEPDIR)/tinyxml.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUITinyXMLParserModule.cpp' object='libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Po' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tinyxml.o `test -f 'ceguitinyxml/tinyxml.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxml.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.o `test -f 'CEGUITinyXMLParserModule.cpp' || echo '$(srcdir)/'`CEGUITinyXMLParserModule.cpp
 
-tinyxml.obj: ceguitinyxml/tinyxml.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tinyxml.obj -MD -MP -MF "$(DEPDIR)/tinyxml.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o tinyxml.obj `if test -f 'ceguitinyxml/tinyxml.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinyxml.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinyxml.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/tinyxml.Tpo" "$(DEPDIR)/tinyxml.Po"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/tinyxml.Tpo"; exit 1; \
+libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.obj: CEGUITinyXMLParserModule.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.obj -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.obj `if test -f 'CEGUITinyXMLParserModule.cpp'; then $(CYGPATH_W) 'CEGUITinyXMLParserModule.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUITinyXMLParserModule.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Tpo"; exit 1; \
 @am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxml.cpp' object='tinyxml.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/tinyxml.Po' tmpdepfile='$(DEPDIR)/tinyxml.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUITinyXMLParserModule.cpp' object='libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Po' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tinyxml.obj `if test -f 'ceguitinyxml/tinyxml.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinyxml.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinyxml.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.obj `if test -f 'CEGUITinyXMLParserModule.cpp'; then $(CYGPATH_W) 'CEGUITinyXMLParserModule.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUITinyXMLParserModule.cpp'; fi`
 
-tinyxml.lo: ceguitinyxml/tinyxml.cpp
-@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tinyxml.lo -MD -MP -MF "$(DEPDIR)/tinyxml.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o tinyxml.lo `test -f 'ceguitinyxml/tinyxml.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxml.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/tinyxml.Tpo" "$(DEPDIR)/tinyxml.Plo"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/tinyxml.Tpo"; exit 1; \
+libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.lo: CEGUITinyXMLParserModule.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.lo -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.lo `test -f 'CEGUITinyXMLParserModule.cpp' || echo '$(srcdir)/'`CEGUITinyXMLParserModule.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Tpo"; exit 1; \
 @am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxml.cpp' object='tinyxml.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/tinyxml.Plo' tmpdepfile='$(DEPDIR)/tinyxml.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUITinyXMLParserModule.cpp' object='libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.Plo' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tinyxml.lo `test -f 'ceguitinyxml/tinyxml.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxml.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-CEGUITinyXMLParserModule.lo `test -f 'CEGUITinyXMLParserModule.cpp' || echo '$(srcdir)/'`CEGUITinyXMLParserModule.cpp
 
-tinyxmlerror.o: ceguitinyxml/tinyxmlerror.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tinyxmlerror.o -MD -MP -MF "$(DEPDIR)/tinyxmlerror.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o tinyxmlerror.o `test -f 'ceguitinyxml/tinyxmlerror.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlerror.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/tinyxmlerror.Tpo" "$(DEPDIR)/tinyxmlerror.Po"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/tinyxmlerror.Tpo"; exit 1; \
+libCEGUITinyXMLParser_la-tinystr.o: ceguitinyxml/tinystr.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-tinystr.o -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-tinystr.o `test -f 'ceguitinyxml/tinystr.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinystr.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Tpo"; exit 1; \
 @am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxmlerror.cpp' object='tinyxmlerror.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/tinyxmlerror.Po' tmpdepfile='$(DEPDIR)/tinyxmlerror.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinystr.cpp' object='libCEGUITinyXMLParser_la-tinystr.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Po' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tinyxmlerror.o `test -f 'ceguitinyxml/tinyxmlerror.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlerror.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-tinystr.o `test -f 'ceguitinyxml/tinystr.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinystr.cpp
 
-tinyxmlerror.obj: ceguitinyxml/tinyxmlerror.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tinyxmlerror.obj -MD -MP -MF "$(DEPDIR)/tinyxmlerror.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o tinyxmlerror.obj `if test -f 'ceguitinyxml/tinyxmlerror.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinyxmlerror.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinyxmlerror.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/tinyxmlerror.Tpo" "$(DEPDIR)/tinyxmlerror.Po"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/tinyxmlerror.Tpo"; exit 1; \
+libCEGUITinyXMLParser_la-tinystr.obj: ceguitinyxml/tinystr.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-tinystr.obj -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-tinystr.obj `if test -f 'ceguitinyxml/tinystr.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinystr.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinystr.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Tpo"; exit 1; \
 @am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxmlerror.cpp' object='tinyxmlerror.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/tinyxmlerror.Po' tmpdepfile='$(DEPDIR)/tinyxmlerror.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinystr.cpp' object='libCEGUITinyXMLParser_la-tinystr.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Po' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tinyxmlerror.obj `if test -f 'ceguitinyxml/tinyxmlerror.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinyxmlerror.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinyxmlerror.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-tinystr.obj `if test -f 'ceguitinyxml/tinystr.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinystr.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinystr.cpp'; fi`
 
-tinyxmlerror.lo: ceguitinyxml/tinyxmlerror.cpp
-@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tinyxmlerror.lo -MD -MP -MF "$(DEPDIR)/tinyxmlerror.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o tinyxmlerror.lo `test -f 'ceguitinyxml/tinyxmlerror.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlerror.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/tinyxmlerror.Tpo" "$(DEPDIR)/tinyxmlerror.Plo"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/tinyxmlerror.Tpo"; exit 1; \
+libCEGUITinyXMLParser_la-tinystr.lo: ceguitinyxml/tinystr.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-tinystr.lo -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-tinystr.lo `test -f 'ceguitinyxml/tinystr.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinystr.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Tpo"; exit 1; \
 @am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxmlerror.cpp' object='tinyxmlerror.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/tinyxmlerror.Plo' tmpdepfile='$(DEPDIR)/tinyxmlerror.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinystr.cpp' object='libCEGUITinyXMLParser_la-tinystr.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.Plo' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinystr.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tinyxmlerror.lo `test -f 'ceguitinyxml/tinyxmlerror.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlerror.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-tinystr.lo `test -f 'ceguitinyxml/tinystr.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinystr.cpp
 
-tinyxmlparser.o: ceguitinyxml/tinyxmlparser.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tinyxmlparser.o -MD -MP -MF "$(DEPDIR)/tinyxmlparser.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o tinyxmlparser.o `test -f 'ceguitinyxml/tinyxmlparser.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlparser.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/tinyxmlparser.Tpo" "$(DEPDIR)/tinyxmlparser.Po"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/tinyxmlparser.Tpo"; exit 1; \
+libCEGUITinyXMLParser_la-tinyxml.o: ceguitinyxml/tinyxml.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-tinyxml.o -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-tinyxml.o `test -f 'ceguitinyxml/tinyxml.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxml.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Tpo"; exit 1; \
 @am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxmlparser.cpp' object='tinyxmlparser.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/tinyxmlparser.Po' tmpdepfile='$(DEPDIR)/tinyxmlparser.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxml.cpp' object='libCEGUITinyXMLParser_la-tinyxml.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Po' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tinyxmlparser.o `test -f 'ceguitinyxml/tinyxmlparser.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlparser.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-tinyxml.o `test -f 'ceguitinyxml/tinyxml.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxml.cpp
 
-tinyxmlparser.obj: ceguitinyxml/tinyxmlparser.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tinyxmlparser.obj -MD -MP -MF "$(DEPDIR)/tinyxmlparser.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o tinyxmlparser.obj `if test -f 'ceguitinyxml/tinyxmlparser.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinyxmlparser.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinyxmlparser.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/tinyxmlparser.Tpo" "$(DEPDIR)/tinyxmlparser.Po"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/tinyxmlparser.Tpo"; exit 1; \
+libCEGUITinyXMLParser_la-tinyxml.obj: ceguitinyxml/tinyxml.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-tinyxml.obj -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-tinyxml.obj `if test -f 'ceguitinyxml/tinyxml.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinyxml.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinyxml.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Tpo"; exit 1; \
 @am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxmlparser.cpp' object='tinyxmlparser.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/tinyxmlparser.Po' tmpdepfile='$(DEPDIR)/tinyxmlparser.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxml.cpp' object='libCEGUITinyXMLParser_la-tinyxml.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Po' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tinyxmlparser.obj `if test -f 'ceguitinyxml/tinyxmlparser.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinyxmlparser.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinyxmlparser.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-tinyxml.obj `if test -f 'ceguitinyxml/tinyxml.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinyxml.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinyxml.cpp'; fi`
 
-tinyxmlparser.lo: ceguitinyxml/tinyxmlparser.cpp
-@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tinyxmlparser.lo -MD -MP -MF "$(DEPDIR)/tinyxmlparser.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o tinyxmlparser.lo `test -f 'ceguitinyxml/tinyxmlparser.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlparser.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/tinyxmlparser.Tpo" "$(DEPDIR)/tinyxmlparser.Plo"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/tinyxmlparser.Tpo"; exit 1; \
+libCEGUITinyXMLParser_la-tinyxml.lo: ceguitinyxml/tinyxml.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-tinyxml.lo -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-tinyxml.lo `test -f 'ceguitinyxml/tinyxml.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxml.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Tpo"; exit 1; \
 @am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxmlparser.cpp' object='tinyxmlparser.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/tinyxmlparser.Plo' tmpdepfile='$(DEPDIR)/tinyxmlparser.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxml.cpp' object='libCEGUITinyXMLParser_la-tinyxml.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.Plo' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxml.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tinyxmlparser.lo `test -f 'ceguitinyxml/tinyxmlparser.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlparser.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-tinyxml.lo `test -f 'ceguitinyxml/tinyxml.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxml.cpp
+
+libCEGUITinyXMLParser_la-tinyxmlerror.o: ceguitinyxml/tinyxmlerror.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-tinyxmlerror.o -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-tinyxmlerror.o `test -f 'ceguitinyxml/tinyxmlerror.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlerror.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxmlerror.cpp' object='libCEGUITinyXMLParser_la-tinyxmlerror.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Po' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-tinyxmlerror.o `test -f 'ceguitinyxml/tinyxmlerror.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlerror.cpp
+
+libCEGUITinyXMLParser_la-tinyxmlerror.obj: ceguitinyxml/tinyxmlerror.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-tinyxmlerror.obj -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-tinyxmlerror.obj `if test -f 'ceguitinyxml/tinyxmlerror.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinyxmlerror.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinyxmlerror.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxmlerror.cpp' object='libCEGUITinyXMLParser_la-tinyxmlerror.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Po' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-tinyxmlerror.obj `if test -f 'ceguitinyxml/tinyxmlerror.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinyxmlerror.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinyxmlerror.cpp'; fi`
+
+libCEGUITinyXMLParser_la-tinyxmlerror.lo: ceguitinyxml/tinyxmlerror.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-tinyxmlerror.lo -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-tinyxmlerror.lo `test -f 'ceguitinyxml/tinyxmlerror.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlerror.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxmlerror.cpp' object='libCEGUITinyXMLParser_la-tinyxmlerror.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.Plo' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlerror.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-tinyxmlerror.lo `test -f 'ceguitinyxml/tinyxmlerror.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlerror.cpp
+
+libCEGUITinyXMLParser_la-tinyxmlparser.o: ceguitinyxml/tinyxmlparser.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-tinyxmlparser.o -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-tinyxmlparser.o `test -f 'ceguitinyxml/tinyxmlparser.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlparser.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxmlparser.cpp' object='libCEGUITinyXMLParser_la-tinyxmlparser.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Po' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-tinyxmlparser.o `test -f 'ceguitinyxml/tinyxmlparser.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlparser.cpp
+
+libCEGUITinyXMLParser_la-tinyxmlparser.obj: ceguitinyxml/tinyxmlparser.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-tinyxmlparser.obj -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-tinyxmlparser.obj `if test -f 'ceguitinyxml/tinyxmlparser.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinyxmlparser.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinyxmlparser.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxmlparser.cpp' object='libCEGUITinyXMLParser_la-tinyxmlparser.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Po' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-tinyxmlparser.obj `if test -f 'ceguitinyxml/tinyxmlparser.cpp'; then $(CYGPATH_W) 'ceguitinyxml/tinyxmlparser.cpp'; else $(CYGPATH_W) '$(srcdir)/ceguitinyxml/tinyxmlparser.cpp'; fi`
+
+libCEGUITinyXMLParser_la-tinyxmlparser.lo: ceguitinyxml/tinyxmlparser.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUITinyXMLParser_la-tinyxmlparser.lo -MD -MP -MF "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUITinyXMLParser_la-tinyxmlparser.lo `test -f 'ceguitinyxml/tinyxmlparser.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlparser.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Tpo" "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ceguitinyxml/tinyxmlparser.cpp' object='libCEGUITinyXMLParser_la-tinyxmlparser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.Plo' tmpdepfile='$(DEPDIR)/libCEGUITinyXMLParser_la-tinyxmlparser.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUITinyXMLParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUITinyXMLParser_la-tinyxmlparser.lo `test -f 'ceguitinyxml/tinyxmlparser.cpp' || echo '$(srcdir)/'`ceguitinyxml/tinyxmlparser.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

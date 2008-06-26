@@ -36,11 +36,13 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
+@MINGW32_BUILD_TRUE@am__append_1 = -no-undefined
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -81,6 +83,7 @@ CEGUI_IRRLICHT_VERSION_INFO = @CEGUI_IRRLICHT_VERSION_INFO@
 CEGUI_NULL_CFLAGS = @CEGUI_NULL_CFLAGS@
 CEGUI_NULL_LIBS = @CEGUI_NULL_LIBS@
 CEGUI_OPENGL_VERSION_INFO = @CEGUI_OPENGL_VERSION_INFO@
+CEGUI_SAMPLES_CFLAGS = @CEGUI_SAMPLES_CFLAGS@
 CEGUI_SAMPLES_USE_IRRLICHT_FALSE = @CEGUI_SAMPLES_USE_IRRLICHT_FALSE@
 CEGUI_SAMPLES_USE_IRRLICHT_TRUE = @CEGUI_SAMPLES_USE_IRRLICHT_TRUE@
 CEGUI_SAMPLES_USE_OGRE_FALSE = @CEGUI_SAMPLES_USE_OGRE_FALSE@
@@ -102,6 +105,8 @@ Corona_CFLAGS = @Corona_CFLAGS@
 Corona_LIBS = @Corona_LIBS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+DSYMUTIL = @DSYMUTIL@
 DevIL_CFLAGS = @DevIL_CFLAGS@
 DevIL_LIBS = @DevIL_LIBS@
 ECHO = @ECHO@
@@ -132,7 +137,13 @@ LTLIBOBJS = @LTLIBOBJS@
 Lua_CFLAGS = @Lua_CFLAGS@
 Lua_LIBS = @Lua_LIBS@
 MAKEINFO = @MAKEINFO@
+MINGW32_BUILD_FALSE = @MINGW32_BUILD_FALSE@
+MINGW32_BUILD_TRUE = @MINGW32_BUILD_TRUE@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OIS_CFLAGS = @OIS_CFLAGS@
+OIS_LIBS = @OIS_LIBS@
 OpenGL_CFLAGS = @OpenGL_CFLAGS@
 OpenGL_LIBS = @OpenGL_LIBS@
 PACKAGE = @PACKAGE@
@@ -144,6 +155,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SILLY_CFLAGS = @SILLY_CFLAGS@
@@ -211,9 +223,12 @@ target_alias = @target_alias@
 xerces_CFLAGS = @xerces_CFLAGS@
 xerces_LIBS = @xerces_LIBS@
 INCLUDES = $(Lua_CFLAGS) -I$(top_srcdir)/ScriptingModules/CEGUILua/tolua++
-lib_LTLIBRARIES = libCEGUItoluapp.la
 
-libCEGUItoluapp_la_LDFLAGS = -version-info @CEGUI_VERSION_INFO@
+libCEGUItoluapp_la_LDFLAGS = $(am__append_1) -version-info @CEGUI_VERSION_INFO@
+
+@MINGW32_BUILD_TRUE@libCEGUItoluapp_la_CPPFLAGS = -DTOLUA_EXPORTS
+
+lib_LTLIBRARIES = libCEGUItoluapp.la
 
 libCEGUItoluapp_la_SOURCES = tolua_event.c \
                              tolua_is.c \
@@ -226,6 +241,8 @@ libCEGUItoluapp_la_LIBADD = $(Lua_LIBS)
 
 noinst_HEADERS = tolua_event.h
 pkginclude_HEADERS = tolua++.h
+
+EXTRA_DIST = INFO
 subdir = ScriptingModules/CEGUILua/tolua++
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -234,16 +251,19 @@ CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
 libCEGUItoluapp_la_DEPENDENCIES =
-am_libCEGUItoluapp_la_OBJECTS = tolua_event.lo tolua_is.lo tolua_map.lo \
-	tolua_push.lo tolua_to.lo
+am_libCEGUItoluapp_la_OBJECTS = libCEGUItoluapp_la-tolua_event.lo \
+	libCEGUItoluapp_la-tolua_is.lo libCEGUItoluapp_la-tolua_map.lo \
+	libCEGUItoluapp_la-tolua_push.lo libCEGUItoluapp_la-tolua_to.lo
 libCEGUItoluapp_la_OBJECTS = $(am_libCEGUItoluapp_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/tolua_event.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/tolua_is.Plo ./$(DEPDIR)/tolua_map.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/tolua_push.Plo ./$(DEPDIR)/tolua_to.Plo
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Plo
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
@@ -304,11 +324,11 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tolua_event.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tolua_is.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tolua_map.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tolua_push.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tolua_to.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
@@ -342,6 +362,171 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
+
+libCEGUItoluapp_la-tolua_event.o: tolua_event.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_event.o -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_event.o `test -f 'tolua_event.c' || echo '$(srcdir)/'`tolua_event.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_event.c' object='libCEGUItoluapp_la-tolua_event.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Po' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_event.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_event.o `test -f 'tolua_event.c' || echo '$(srcdir)/'`tolua_event.c
+
+libCEGUItoluapp_la-tolua_event.obj: tolua_event.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_event.obj -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_event.obj `if test -f 'tolua_event.c'; then $(CYGPATH_W) 'tolua_event.c'; else $(CYGPATH_W) '$(srcdir)/tolua_event.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_event.c' object='libCEGUItoluapp_la-tolua_event.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Po' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_event.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_event.obj `if test -f 'tolua_event.c'; then $(CYGPATH_W) 'tolua_event.c'; else $(CYGPATH_W) '$(srcdir)/tolua_event.c'; fi`
+
+libCEGUItoluapp_la-tolua_event.lo: tolua_event.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_event.lo -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_event.lo `test -f 'tolua_event.c' || echo '$(srcdir)/'`tolua_event.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Plo"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_event.c' object='libCEGUItoluapp_la-tolua_event.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_event.Plo' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_event.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_event.lo `test -f 'tolua_event.c' || echo '$(srcdir)/'`tolua_event.c
+
+libCEGUItoluapp_la-tolua_is.o: tolua_is.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_is.o -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_is.o `test -f 'tolua_is.c' || echo '$(srcdir)/'`tolua_is.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_is.c' object='libCEGUItoluapp_la-tolua_is.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Po' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_is.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_is.o `test -f 'tolua_is.c' || echo '$(srcdir)/'`tolua_is.c
+
+libCEGUItoluapp_la-tolua_is.obj: tolua_is.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_is.obj -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_is.obj `if test -f 'tolua_is.c'; then $(CYGPATH_W) 'tolua_is.c'; else $(CYGPATH_W) '$(srcdir)/tolua_is.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_is.c' object='libCEGUItoluapp_la-tolua_is.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Po' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_is.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_is.obj `if test -f 'tolua_is.c'; then $(CYGPATH_W) 'tolua_is.c'; else $(CYGPATH_W) '$(srcdir)/tolua_is.c'; fi`
+
+libCEGUItoluapp_la-tolua_is.lo: tolua_is.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_is.lo -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_is.lo `test -f 'tolua_is.c' || echo '$(srcdir)/'`tolua_is.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Plo"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_is.c' object='libCEGUItoluapp_la-tolua_is.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_is.Plo' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_is.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_is.lo `test -f 'tolua_is.c' || echo '$(srcdir)/'`tolua_is.c
+
+libCEGUItoluapp_la-tolua_map.o: tolua_map.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_map.o -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_map.o `test -f 'tolua_map.c' || echo '$(srcdir)/'`tolua_map.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_map.c' object='libCEGUItoluapp_la-tolua_map.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Po' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_map.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_map.o `test -f 'tolua_map.c' || echo '$(srcdir)/'`tolua_map.c
+
+libCEGUItoluapp_la-tolua_map.obj: tolua_map.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_map.obj -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_map.obj `if test -f 'tolua_map.c'; then $(CYGPATH_W) 'tolua_map.c'; else $(CYGPATH_W) '$(srcdir)/tolua_map.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_map.c' object='libCEGUItoluapp_la-tolua_map.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Po' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_map.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_map.obj `if test -f 'tolua_map.c'; then $(CYGPATH_W) 'tolua_map.c'; else $(CYGPATH_W) '$(srcdir)/tolua_map.c'; fi`
+
+libCEGUItoluapp_la-tolua_map.lo: tolua_map.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_map.lo -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_map.lo `test -f 'tolua_map.c' || echo '$(srcdir)/'`tolua_map.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Plo"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_map.c' object='libCEGUItoluapp_la-tolua_map.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_map.Plo' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_map.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_map.lo `test -f 'tolua_map.c' || echo '$(srcdir)/'`tolua_map.c
+
+libCEGUItoluapp_la-tolua_push.o: tolua_push.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_push.o -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_push.o `test -f 'tolua_push.c' || echo '$(srcdir)/'`tolua_push.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_push.c' object='libCEGUItoluapp_la-tolua_push.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Po' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_push.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_push.o `test -f 'tolua_push.c' || echo '$(srcdir)/'`tolua_push.c
+
+libCEGUItoluapp_la-tolua_push.obj: tolua_push.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_push.obj -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_push.obj `if test -f 'tolua_push.c'; then $(CYGPATH_W) 'tolua_push.c'; else $(CYGPATH_W) '$(srcdir)/tolua_push.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_push.c' object='libCEGUItoluapp_la-tolua_push.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Po' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_push.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_push.obj `if test -f 'tolua_push.c'; then $(CYGPATH_W) 'tolua_push.c'; else $(CYGPATH_W) '$(srcdir)/tolua_push.c'; fi`
+
+libCEGUItoluapp_la-tolua_push.lo: tolua_push.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_push.lo -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_push.lo `test -f 'tolua_push.c' || echo '$(srcdir)/'`tolua_push.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Plo"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_push.c' object='libCEGUItoluapp_la-tolua_push.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_push.Plo' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_push.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_push.lo `test -f 'tolua_push.c' || echo '$(srcdir)/'`tolua_push.c
+
+libCEGUItoluapp_la-tolua_to.o: tolua_to.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_to.o -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_to.o `test -f 'tolua_to.c' || echo '$(srcdir)/'`tolua_to.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_to.c' object='libCEGUItoluapp_la-tolua_to.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Po' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_to.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_to.o `test -f 'tolua_to.c' || echo '$(srcdir)/'`tolua_to.c
+
+libCEGUItoluapp_la-tolua_to.obj: tolua_to.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_to.obj -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_to.obj `if test -f 'tolua_to.c'; then $(CYGPATH_W) 'tolua_to.c'; else $(CYGPATH_W) '$(srcdir)/tolua_to.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_to.c' object='libCEGUItoluapp_la-tolua_to.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Po' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_to.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_to.obj `if test -f 'tolua_to.c'; then $(CYGPATH_W) 'tolua_to.c'; else $(CYGPATH_W) '$(srcdir)/tolua_to.c'; fi`
+
+libCEGUItoluapp_la-tolua_to.lo: tolua_to.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libCEGUItoluapp_la-tolua_to.lo -MD -MP -MF "$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o libCEGUItoluapp_la-tolua_to.lo `test -f 'tolua_to.c' || echo '$(srcdir)/'`tolua_to.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Tpo" "$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Plo"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tolua_to.c' object='libCEGUItoluapp_la-tolua_to.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_to.Plo' tmpdepfile='$(DEPDIR)/libCEGUItoluapp_la-tolua_to.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUItoluapp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libCEGUItoluapp_la-tolua_to.lo `test -f 'tolua_to.c' || echo '$(srcdir)/'`tolua_to.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

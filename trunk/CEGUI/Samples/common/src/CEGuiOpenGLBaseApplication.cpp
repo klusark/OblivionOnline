@@ -4,7 +4,7 @@
     author:     Paul D Turner
 *************************************************************************/
 /***************************************************************************
- *   Copyright (C) 2004 - 2006 Paul D Turner & The CEGUI Development Team
+ *   Copyright (C) 2004 - 2008 Paul D Turner & The CEGUI Development Team
  *
  *   Permission is hereby granted, free of charge, to any person obtaining
  *   a copy of this software and associated documentation files (the
@@ -27,6 +27,10 @@
  ***************************************************************************/
 #ifdef HAVE_CONFIG_H
 #   include "config.h"
+#endif
+
+#ifdef __linux__
+# include <unistd.h>
 #endif
 
 // this controls conditional compile of file for Apple
@@ -53,7 +57,6 @@
 #endif
 
 #include <stdexcept>
-#include <stdlib.h>
 
 #ifdef _MSC_VER
 # if defined(DEBUG) || defined (_DEBUG)
@@ -126,10 +129,10 @@ CEGuiOpenGLBaseApplication::CEGuiOpenGLBaseApplication()
 {
     // fake args for glutInit
     int argc = 1;
-    char* argv = "SampleApp";
+    const char* argv = "SampleApp";
 
     // Do GLUT init
-    glutInit(&argc, &argv);
+    glutInit(&argc, (char**)&argv);
     glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
     glutInitWindowSize(800, 600);
     glutInitWindowPosition(100, 100);
@@ -159,15 +162,26 @@ CEGuiOpenGLBaseApplication::CEGuiOpenGLBaseApplication()
         (CEGUI::System::getSingleton().getResourceProvider());
 
 #ifndef __APPLE__
-    rp->setResourceGroupDirectory("schemes", "../datafiles/schemes/");
-    rp->setResourceGroupDirectory("imagesets", "../datafiles/imagesets/");
-    rp->setResourceGroupDirectory("fonts", "../datafiles/fonts/");
-    rp->setResourceGroupDirectory("layouts", "../datafiles/layouts/");
-    rp->setResourceGroupDirectory("looknfeels", "../datafiles/looknfeel/");
-    rp->setResourceGroupDirectory("lua_scripts", "../datafiles/lua_scripts/");
-#if defined(CEGUI_WITH_XERCES) && (CEGUI_DEFAULT_XMLPARSER == XercesParser)
-    rp->setResourceGroupDirectory("schemas", "../../XMLRefSchema/");
-#endif
+    const char* dataPathPrefix = getDataPathPrefix();
+    char resourcePath[PATH_MAX];
+
+    // for each resource type, set a resource group directory
+    sprintf(resourcePath, "%s/%s", dataPathPrefix, "schemes/");
+    rp->setResourceGroupDirectory("schemes", resourcePath);
+    sprintf(resourcePath, "%s/%s", dataPathPrefix, "imagesets/");
+    rp->setResourceGroupDirectory("imagesets", resourcePath);
+    sprintf(resourcePath, "%s/%s", dataPathPrefix, "fonts/");
+    rp->setResourceGroupDirectory("fonts", resourcePath);
+    sprintf(resourcePath, "%s/%s", dataPathPrefix, "layouts/");
+    rp->setResourceGroupDirectory("layouts", resourcePath);
+    sprintf(resourcePath, "%s/%s", dataPathPrefix, "looknfeel/");
+    rp->setResourceGroupDirectory("looknfeels", resourcePath);
+    sprintf(resourcePath, "%s/%s", dataPathPrefix, "lua_scripts/");
+    rp->setResourceGroupDirectory("lua_scripts", resourcePath);
+    #if defined(CEGUI_WITH_XERCES) && (CEGUI_DEFAULT_XMLPARSER == XercesParser)
+        sprintf(resourcePath, "%s/%s", dataPathPrefix, "XMLRefSchema/");
+        rp->setResourceGroupDirectory("schemas", resourcePath);
+    #endif
 #else
     rp->setResourceGroupDirectory("schemes", "datafiles/schemes/");
     rp->setResourceGroupDirectory("imagesets", "datafiles/imagesets/");
@@ -175,9 +189,9 @@ CEGuiOpenGLBaseApplication::CEGuiOpenGLBaseApplication()
     rp->setResourceGroupDirectory("layouts", "datafiles/layouts/");
     rp->setResourceGroupDirectory("looknfeels", "datafiles/looknfeel/");
     rp->setResourceGroupDirectory("lua_scripts", "datafiles/lua_scripts/");
-#if defined(CEGUI_WITH_XERCES) && (CEGUI_DEFAULT_XMLPARSER == XercesParser)
-    rp->setResourceGroupDirectory("schemas", "XMLRefSchema/");
-#endif
+    #if defined(CEGUI_WITH_XERCES) && (CEGUI_DEFAULT_XMLPARSER == XercesParser)
+        rp->setResourceGroupDirectory("schemas", "XMLRefSchema/");
+    #endif
 #endif
 }
 

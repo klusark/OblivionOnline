@@ -35,12 +35,14 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
+@MINGW32_BUILD_TRUE@am__append_1 = -L$(top_builddir)/src -lCEGUIBase
 pkgincludedir = $(prefix)/include/CEGUI/ImageCodecModules/FreeImageImageCodec
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -81,6 +83,7 @@ CEGUI_IRRLICHT_VERSION_INFO = @CEGUI_IRRLICHT_VERSION_INFO@
 CEGUI_NULL_CFLAGS = @CEGUI_NULL_CFLAGS@
 CEGUI_NULL_LIBS = @CEGUI_NULL_LIBS@
 CEGUI_OPENGL_VERSION_INFO = @CEGUI_OPENGL_VERSION_INFO@
+CEGUI_SAMPLES_CFLAGS = @CEGUI_SAMPLES_CFLAGS@
 CEGUI_SAMPLES_USE_IRRLICHT_FALSE = @CEGUI_SAMPLES_USE_IRRLICHT_FALSE@
 CEGUI_SAMPLES_USE_IRRLICHT_TRUE = @CEGUI_SAMPLES_USE_IRRLICHT_TRUE@
 CEGUI_SAMPLES_USE_OGRE_FALSE = @CEGUI_SAMPLES_USE_OGRE_FALSE@
@@ -102,6 +105,8 @@ Corona_CFLAGS = @Corona_CFLAGS@
 Corona_LIBS = @Corona_LIBS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+DSYMUTIL = @DSYMUTIL@
 DevIL_CFLAGS = @DevIL_CFLAGS@
 DevIL_LIBS = @DevIL_LIBS@
 ECHO = @ECHO@
@@ -132,7 +137,13 @@ LTLIBOBJS = @LTLIBOBJS@
 Lua_CFLAGS = @Lua_CFLAGS@
 Lua_LIBS = @Lua_LIBS@
 MAKEINFO = @MAKEINFO@
+MINGW32_BUILD_FALSE = @MINGW32_BUILD_FALSE@
+MINGW32_BUILD_TRUE = @MINGW32_BUILD_TRUE@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OIS_CFLAGS = @OIS_CFLAGS@
+OIS_LIBS = @OIS_LIBS@
 OpenGL_CFLAGS = @OpenGL_CFLAGS@
 OpenGL_LIBS = @OpenGL_LIBS@
 PACKAGE = @PACKAGE@
@@ -144,6 +155,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SILLY_CFLAGS = @SILLY_CFLAGS@
@@ -212,9 +224,15 @@ xerces_CFLAGS = @xerces_CFLAGS@
 xerces_LIBS = @xerces_LIBS@
 INCLUDES = -I$(top_srcdir)/include $(FreeImage_CFLAGS)
 
+libCEGUIFreeImageImageCodec_la_LIBADD = $(am__append_1) $(FreeImage_LIBS)
+
+@MINGW32_BUILD_TRUE@libCEGUIFreeImageImageCodec_la_CPPFLAGS = -DCEGUIFREEIMAGEIMAGECODEC_EXPORTS
+@MINGW32_BUILD_TRUE@libCEGUIFreeImageImageCodec_la_LDFLAGS = -no-undefined -avoid-version
+
 lib_LTLIBRARIES = libCEGUIFreeImageImageCodec.la
+
 libCEGUIFreeImageImageCodec_la_SOURCES = CEGUIFreeImageImageCodec.cpp CEGUIFreeImageImageCodecModule.cpp
-libCEGUIFreeImageImageCodec_la_LIBADD = $(FreeImage_LIBS)
+
 pkginclude_HEADERS = CEGUIFreeImageImageCodec.h CEGUIFreeImageImageCodecModule.h
 subdir = ImageCodecModules/FreeImageImageCodec
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -223,18 +241,20 @@ CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-libCEGUIFreeImageImageCodec_la_LDFLAGS =
-libCEGUIFreeImageImageCodec_la_DEPENDENCIES =
-am_libCEGUIFreeImageImageCodec_la_OBJECTS = CEGUIFreeImageImageCodec.lo \
-	CEGUIFreeImageImageCodecModule.lo
+@MINGW32_BUILD_TRUE@libCEGUIFreeImageImageCodec_la_DEPENDENCIES =
+@MINGW32_BUILD_FALSE@libCEGUIFreeImageImageCodec_la_DEPENDENCIES =
+am_libCEGUIFreeImageImageCodec_la_OBJECTS = \
+	libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.lo \
+	libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.lo
 libCEGUIFreeImageImageCodec_la_OBJECTS = \
 	$(am_libCEGUIFreeImageImageCodec_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CEGUIFreeImageImageCodec.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CEGUIFreeImageImageCodecModule.Plo
+@AMDEP_TRUE@DEP_FILES = \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Plo
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -295,8 +315,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGUIFreeImageImageCodec.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGUIFreeImageImageCodecModule.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
@@ -330,6 +350,72 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
+
+libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.o: CEGUIFreeImageImageCodec.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIFreeImageImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.o -MD -MP -MF "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.o `test -f 'CEGUIFreeImageImageCodec.cpp' || echo '$(srcdir)/'`CEGUIFreeImageImageCodec.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Tpo" "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIFreeImageImageCodec.cpp' object='libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Po' tmpdepfile='$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIFreeImageImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.o `test -f 'CEGUIFreeImageImageCodec.cpp' || echo '$(srcdir)/'`CEGUIFreeImageImageCodec.cpp
+
+libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.obj: CEGUIFreeImageImageCodec.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIFreeImageImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.obj -MD -MP -MF "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.obj `if test -f 'CEGUIFreeImageImageCodec.cpp'; then $(CYGPATH_W) 'CEGUIFreeImageImageCodec.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIFreeImageImageCodec.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Tpo" "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIFreeImageImageCodec.cpp' object='libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Po' tmpdepfile='$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIFreeImageImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.obj `if test -f 'CEGUIFreeImageImageCodec.cpp'; then $(CYGPATH_W) 'CEGUIFreeImageImageCodec.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIFreeImageImageCodec.cpp'; fi`
+
+libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.lo: CEGUIFreeImageImageCodec.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIFreeImageImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.lo -MD -MP -MF "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.lo `test -f 'CEGUIFreeImageImageCodec.cpp' || echo '$(srcdir)/'`CEGUIFreeImageImageCodec.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Tpo" "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIFreeImageImageCodec.cpp' object='libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.Plo' tmpdepfile='$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIFreeImageImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodec.lo `test -f 'CEGUIFreeImageImageCodec.cpp' || echo '$(srcdir)/'`CEGUIFreeImageImageCodec.cpp
+
+libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.o: CEGUIFreeImageImageCodecModule.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIFreeImageImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.o -MD -MP -MF "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.o `test -f 'CEGUIFreeImageImageCodecModule.cpp' || echo '$(srcdir)/'`CEGUIFreeImageImageCodecModule.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Tpo" "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIFreeImageImageCodecModule.cpp' object='libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Po' tmpdepfile='$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIFreeImageImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.o `test -f 'CEGUIFreeImageImageCodecModule.cpp' || echo '$(srcdir)/'`CEGUIFreeImageImageCodecModule.cpp
+
+libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.obj: CEGUIFreeImageImageCodecModule.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIFreeImageImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.obj -MD -MP -MF "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.obj `if test -f 'CEGUIFreeImageImageCodecModule.cpp'; then $(CYGPATH_W) 'CEGUIFreeImageImageCodecModule.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIFreeImageImageCodecModule.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Tpo" "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIFreeImageImageCodecModule.cpp' object='libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Po' tmpdepfile='$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIFreeImageImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.obj `if test -f 'CEGUIFreeImageImageCodecModule.cpp'; then $(CYGPATH_W) 'CEGUIFreeImageImageCodecModule.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIFreeImageImageCodecModule.cpp'; fi`
+
+libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.lo: CEGUIFreeImageImageCodecModule.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIFreeImageImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.lo -MD -MP -MF "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.lo `test -f 'CEGUIFreeImageImageCodecModule.cpp' || echo '$(srcdir)/'`CEGUIFreeImageImageCodecModule.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Tpo" "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIFreeImageImageCodecModule.cpp' object='libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.Plo' tmpdepfile='$(DEPDIR)/libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIFreeImageImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIFreeImageImageCodec_la-CEGUIFreeImageImageCodecModule.lo `test -f 'CEGUIFreeImageImageCodecModule.cpp' || echo '$(srcdir)/'`CEGUIFreeImageImageCodecModule.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

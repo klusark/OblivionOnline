@@ -8,6 +8,10 @@
    LibxmlParser or TinyXMLParser). */
 #undef CEGUI_DEFAULT_XMLPARSER
 
+/* Defines irrlicht SDK version. 12 is 1.2 or below. 13 is 1.3.x and 14 is 1.4
+   or later. */
+#undef CEGUI_IRR_SDK_VERSION
+
 /* Define to have a GTK2 based dialog used for renderer selection in the
    samples */
 #undef CEGUI_SAMPLES_USE_GTK2

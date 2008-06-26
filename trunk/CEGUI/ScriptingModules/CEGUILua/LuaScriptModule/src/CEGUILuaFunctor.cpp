@@ -111,9 +111,9 @@ bool LuaFunctor::operator()(const EventArgs& args) const
         function_name.clear();
     } // if (needs_lookup)
 
-	ScriptWindowHelper* helper = NULL;
+	ScriptWindowHelper* helper = 0;
 	//Set a global for this window
-	if(args.m_hasWindow)
+	if(args.d_hasWindow)
 	{
 		WindowEventArgs& we = (WindowEventArgs&)args;
 		helper = new ScriptWindowHelper(we.window);
@@ -146,15 +146,15 @@ bool LuaFunctor::operator()(const EventArgs& args) const
 		if(helper)
 		{
 			delete helper;
-			helper = NULL;
+			helper = 0;
 		}
         throw ScriptException("Unable to call Lua event handler:\n\n"+errStr+"\n");
     } // if (error)
-	
+
 	if(helper)
 	{
 		delete helper;
-		helper = NULL;
+		helper = 0;
 	}
 
     return true;

@@ -35,12 +35,14 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
+@MINGW32_BUILD_TRUE@am__append_1 = -L$(top_builddir)/src -lCEGUIBase
 pkgincludedir = $(prefix)/include/CEGUI/XMLParserModules/XercesParser
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -81,6 +83,7 @@ CEGUI_IRRLICHT_VERSION_INFO = @CEGUI_IRRLICHT_VERSION_INFO@
 CEGUI_NULL_CFLAGS = @CEGUI_NULL_CFLAGS@
 CEGUI_NULL_LIBS = @CEGUI_NULL_LIBS@
 CEGUI_OPENGL_VERSION_INFO = @CEGUI_OPENGL_VERSION_INFO@
+CEGUI_SAMPLES_CFLAGS = @CEGUI_SAMPLES_CFLAGS@
 CEGUI_SAMPLES_USE_IRRLICHT_FALSE = @CEGUI_SAMPLES_USE_IRRLICHT_FALSE@
 CEGUI_SAMPLES_USE_IRRLICHT_TRUE = @CEGUI_SAMPLES_USE_IRRLICHT_TRUE@
 CEGUI_SAMPLES_USE_OGRE_FALSE = @CEGUI_SAMPLES_USE_OGRE_FALSE@
@@ -102,6 +105,8 @@ Corona_CFLAGS = @Corona_CFLAGS@
 Corona_LIBS = @Corona_LIBS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+DSYMUTIL = @DSYMUTIL@
 DevIL_CFLAGS = @DevIL_CFLAGS@
 DevIL_LIBS = @DevIL_LIBS@
 ECHO = @ECHO@
@@ -132,7 +137,13 @@ LTLIBOBJS = @LTLIBOBJS@
 Lua_CFLAGS = @Lua_CFLAGS@
 Lua_LIBS = @Lua_LIBS@
 MAKEINFO = @MAKEINFO@
+MINGW32_BUILD_FALSE = @MINGW32_BUILD_FALSE@
+MINGW32_BUILD_TRUE = @MINGW32_BUILD_TRUE@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OIS_CFLAGS = @OIS_CFLAGS@
+OIS_LIBS = @OIS_LIBS@
 OpenGL_CFLAGS = @OpenGL_CFLAGS@
 OpenGL_LIBS = @OpenGL_LIBS@
 PACKAGE = @PACKAGE@
@@ -144,6 +155,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SILLY_CFLAGS = @SILLY_CFLAGS@
@@ -211,14 +223,18 @@ target_alias = @target_alias@
 xerces_CFLAGS = @xerces_CFLAGS@
 xerces_LIBS = @xerces_LIBS@
 INCLUDES = -I$(top_srcdir)/include $(xerces_CFLAGS)
+
+libCEGUIXercesParser_la_LIBADD = $(am__append_1) $(xerces_LIBS)
+
+@MINGW32_BUILD_TRUE@libCEGUIXercesParser_la_CPPFLAGS = -DCEGUIXERCESPARSER_EXPORTS
+@MINGW32_BUILD_TRUE@libCEGUIXercesParser_la_LDFLAGS = -no-undefined -avoid-version
+
 lib_LTLIBRARIES = libCEGUIXercesParser.la
 
 libCEGUIXercesParser_la_SOURCES = CEGUIXercesParser.cpp \
                                   CEGUIXercesParserModule.cpp
 
 pkginclude_HEADERS = CEGUIXercesParser.h CEGUIXercesParserModule.h
-
-libCEGUIXercesParser_la_LIBADD = $(xerces_LIBS)
 subdir = XMLParserModules/XercesParser
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -226,17 +242,19 @@ CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-libCEGUIXercesParser_la_LDFLAGS =
-libCEGUIXercesParser_la_DEPENDENCIES =
-am_libCEGUIXercesParser_la_OBJECTS = CEGUIXercesParser.lo \
-	CEGUIXercesParserModule.lo
+@MINGW32_BUILD_TRUE@libCEGUIXercesParser_la_DEPENDENCIES =
+@MINGW32_BUILD_FALSE@libCEGUIXercesParser_la_DEPENDENCIES =
+am_libCEGUIXercesParser_la_OBJECTS = \
+	libCEGUIXercesParser_la-CEGUIXercesParser.lo \
+	libCEGUIXercesParser_la-CEGUIXercesParserModule.lo
 libCEGUIXercesParser_la_OBJECTS = $(am_libCEGUIXercesParser_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CEGUIXercesParser.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CEGUIXercesParserModule.Plo
+@AMDEP_TRUE@DEP_FILES = \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Plo
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -297,8 +315,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGUIXercesParser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGUIXercesParserModule.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
@@ -332,6 +350,72 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
+
+libCEGUIXercesParser_la-CEGUIXercesParser.o: CEGUIXercesParser.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIXercesParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIXercesParser_la-CEGUIXercesParser.o -MD -MP -MF "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIXercesParser_la-CEGUIXercesParser.o `test -f 'CEGUIXercesParser.cpp' || echo '$(srcdir)/'`CEGUIXercesParser.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Tpo" "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIXercesParser.cpp' object='libCEGUIXercesParser_la-CEGUIXercesParser.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Po' tmpdepfile='$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIXercesParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIXercesParser_la-CEGUIXercesParser.o `test -f 'CEGUIXercesParser.cpp' || echo '$(srcdir)/'`CEGUIXercesParser.cpp
+
+libCEGUIXercesParser_la-CEGUIXercesParser.obj: CEGUIXercesParser.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIXercesParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIXercesParser_la-CEGUIXercesParser.obj -MD -MP -MF "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIXercesParser_la-CEGUIXercesParser.obj `if test -f 'CEGUIXercesParser.cpp'; then $(CYGPATH_W) 'CEGUIXercesParser.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIXercesParser.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Tpo" "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIXercesParser.cpp' object='libCEGUIXercesParser_la-CEGUIXercesParser.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Po' tmpdepfile='$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIXercesParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIXercesParser_la-CEGUIXercesParser.obj `if test -f 'CEGUIXercesParser.cpp'; then $(CYGPATH_W) 'CEGUIXercesParser.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIXercesParser.cpp'; fi`
+
+libCEGUIXercesParser_la-CEGUIXercesParser.lo: CEGUIXercesParser.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIXercesParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIXercesParser_la-CEGUIXercesParser.lo -MD -MP -MF "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIXercesParser_la-CEGUIXercesParser.lo `test -f 'CEGUIXercesParser.cpp' || echo '$(srcdir)/'`CEGUIXercesParser.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Tpo" "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIXercesParser.cpp' object='libCEGUIXercesParser_la-CEGUIXercesParser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.Plo' tmpdepfile='$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParser.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIXercesParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIXercesParser_la-CEGUIXercesParser.lo `test -f 'CEGUIXercesParser.cpp' || echo '$(srcdir)/'`CEGUIXercesParser.cpp
+
+libCEGUIXercesParser_la-CEGUIXercesParserModule.o: CEGUIXercesParserModule.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIXercesParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIXercesParser_la-CEGUIXercesParserModule.o -MD -MP -MF "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIXercesParser_la-CEGUIXercesParserModule.o `test -f 'CEGUIXercesParserModule.cpp' || echo '$(srcdir)/'`CEGUIXercesParserModule.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Tpo" "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIXercesParserModule.cpp' object='libCEGUIXercesParser_la-CEGUIXercesParserModule.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Po' tmpdepfile='$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIXercesParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIXercesParser_la-CEGUIXercesParserModule.o `test -f 'CEGUIXercesParserModule.cpp' || echo '$(srcdir)/'`CEGUIXercesParserModule.cpp
+
+libCEGUIXercesParser_la-CEGUIXercesParserModule.obj: CEGUIXercesParserModule.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIXercesParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIXercesParser_la-CEGUIXercesParserModule.obj -MD -MP -MF "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIXercesParser_la-CEGUIXercesParserModule.obj `if test -f 'CEGUIXercesParserModule.cpp'; then $(CYGPATH_W) 'CEGUIXercesParserModule.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIXercesParserModule.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Tpo" "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIXercesParserModule.cpp' object='libCEGUIXercesParser_la-CEGUIXercesParserModule.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Po' tmpdepfile='$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIXercesParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIXercesParser_la-CEGUIXercesParserModule.obj `if test -f 'CEGUIXercesParserModule.cpp'; then $(CYGPATH_W) 'CEGUIXercesParserModule.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIXercesParserModule.cpp'; fi`
+
+libCEGUIXercesParser_la-CEGUIXercesParserModule.lo: CEGUIXercesParserModule.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIXercesParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIXercesParser_la-CEGUIXercesParserModule.lo -MD -MP -MF "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIXercesParser_la-CEGUIXercesParserModule.lo `test -f 'CEGUIXercesParserModule.cpp' || echo '$(srcdir)/'`CEGUIXercesParserModule.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Tpo" "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIXercesParserModule.cpp' object='libCEGUIXercesParser_la-CEGUIXercesParserModule.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.Plo' tmpdepfile='$(DEPDIR)/libCEGUIXercesParser_la-CEGUIXercesParserModule.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIXercesParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIXercesParser_la-CEGUIXercesParserModule.lo `test -f 'CEGUIXercesParserModule.cpp' || echo '$(srcdir)/'`CEGUIXercesParserModule.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

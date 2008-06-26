@@ -35,12 +35,14 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
+@MINGW32_BUILD_TRUE@am__append_1 = -L$(top_builddir)/src -lCEGUIBase
 pkgincludedir = $(prefix)/include/CEGUI/XMLParserModules/ExpatParser
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -81,6 +83,7 @@ CEGUI_IRRLICHT_VERSION_INFO = @CEGUI_IRRLICHT_VERSION_INFO@
 CEGUI_NULL_CFLAGS = @CEGUI_NULL_CFLAGS@
 CEGUI_NULL_LIBS = @CEGUI_NULL_LIBS@
 CEGUI_OPENGL_VERSION_INFO = @CEGUI_OPENGL_VERSION_INFO@
+CEGUI_SAMPLES_CFLAGS = @CEGUI_SAMPLES_CFLAGS@
 CEGUI_SAMPLES_USE_IRRLICHT_FALSE = @CEGUI_SAMPLES_USE_IRRLICHT_FALSE@
 CEGUI_SAMPLES_USE_IRRLICHT_TRUE = @CEGUI_SAMPLES_USE_IRRLICHT_TRUE@
 CEGUI_SAMPLES_USE_OGRE_FALSE = @CEGUI_SAMPLES_USE_OGRE_FALSE@
@@ -102,6 +105,8 @@ Corona_CFLAGS = @Corona_CFLAGS@
 Corona_LIBS = @Corona_LIBS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+DSYMUTIL = @DSYMUTIL@
 DevIL_CFLAGS = @DevIL_CFLAGS@
 DevIL_LIBS = @DevIL_LIBS@
 ECHO = @ECHO@
@@ -132,7 +137,13 @@ LTLIBOBJS = @LTLIBOBJS@
 Lua_CFLAGS = @Lua_CFLAGS@
 Lua_LIBS = @Lua_LIBS@
 MAKEINFO = @MAKEINFO@
+MINGW32_BUILD_FALSE = @MINGW32_BUILD_FALSE@
+MINGW32_BUILD_TRUE = @MINGW32_BUILD_TRUE@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OIS_CFLAGS = @OIS_CFLAGS@
+OIS_LIBS = @OIS_LIBS@
 OpenGL_CFLAGS = @OpenGL_CFLAGS@
 OpenGL_LIBS = @OpenGL_LIBS@
 PACKAGE = @PACKAGE@
@@ -144,6 +155,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SILLY_CFLAGS = @SILLY_CFLAGS@
@@ -211,14 +223,18 @@ target_alias = @target_alias@
 xerces_CFLAGS = @xerces_CFLAGS@
 xerces_LIBS = @xerces_LIBS@
 INCLUDES = -I$(top_srcdir)/include $(expat_CFLAGS)
+
+libCEGUIExpatParser_la_LIBADD = $(am__append_1) $(expat_LIBS)
+
+@MINGW32_BUILD_TRUE@libCEGUIExpatParser_la_CPPFLAGS = -DCEGUIEXPATPARSER_EXPORTS
+@MINGW32_BUILD_TRUE@libCEGUIExpatParser_la_LDFLAGS = -no-undefined -avoid-version
+
 lib_LTLIBRARIES = libCEGUIExpatParser.la
 
 libCEGUIExpatParser_la_SOURCES = CEGUIExpatParser.cpp \
                                  CEGUIExpatParserModule.cpp
 
 pkginclude_HEADERS = CEGUIExpatParser.h CEGUIExpatParserModule.h
-
-libCEGUIExpatParser_la_LIBADD = $(expat_LIBS)
 subdir = XMLParserModules/expatParser
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -226,17 +242,19 @@ CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-libCEGUIExpatParser_la_LDFLAGS =
-libCEGUIExpatParser_la_DEPENDENCIES =
-am_libCEGUIExpatParser_la_OBJECTS = CEGUIExpatParser.lo \
-	CEGUIExpatParserModule.lo
+@MINGW32_BUILD_TRUE@libCEGUIExpatParser_la_DEPENDENCIES =
+@MINGW32_BUILD_FALSE@libCEGUIExpatParser_la_DEPENDENCIES =
+am_libCEGUIExpatParser_la_OBJECTS = \
+	libCEGUIExpatParser_la-CEGUIExpatParser.lo \
+	libCEGUIExpatParser_la-CEGUIExpatParserModule.lo
 libCEGUIExpatParser_la_OBJECTS = $(am_libCEGUIExpatParser_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CEGUIExpatParser.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CEGUIExpatParserModule.Plo
+@AMDEP_TRUE@DEP_FILES = \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Plo
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -297,8 +315,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGUIExpatParser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGUIExpatParserModule.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
@@ -332,6 +350,72 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
+
+libCEGUIExpatParser_la-CEGUIExpatParser.o: CEGUIExpatParser.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIExpatParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIExpatParser_la-CEGUIExpatParser.o -MD -MP -MF "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIExpatParser_la-CEGUIExpatParser.o `test -f 'CEGUIExpatParser.cpp' || echo '$(srcdir)/'`CEGUIExpatParser.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Tpo" "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIExpatParser.cpp' object='libCEGUIExpatParser_la-CEGUIExpatParser.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Po' tmpdepfile='$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIExpatParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIExpatParser_la-CEGUIExpatParser.o `test -f 'CEGUIExpatParser.cpp' || echo '$(srcdir)/'`CEGUIExpatParser.cpp
+
+libCEGUIExpatParser_la-CEGUIExpatParser.obj: CEGUIExpatParser.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIExpatParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIExpatParser_la-CEGUIExpatParser.obj -MD -MP -MF "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIExpatParser_la-CEGUIExpatParser.obj `if test -f 'CEGUIExpatParser.cpp'; then $(CYGPATH_W) 'CEGUIExpatParser.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIExpatParser.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Tpo" "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIExpatParser.cpp' object='libCEGUIExpatParser_la-CEGUIExpatParser.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Po' tmpdepfile='$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIExpatParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIExpatParser_la-CEGUIExpatParser.obj `if test -f 'CEGUIExpatParser.cpp'; then $(CYGPATH_W) 'CEGUIExpatParser.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIExpatParser.cpp'; fi`
+
+libCEGUIExpatParser_la-CEGUIExpatParser.lo: CEGUIExpatParser.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIExpatParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIExpatParser_la-CEGUIExpatParser.lo -MD -MP -MF "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIExpatParser_la-CEGUIExpatParser.lo `test -f 'CEGUIExpatParser.cpp' || echo '$(srcdir)/'`CEGUIExpatParser.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Tpo" "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIExpatParser.cpp' object='libCEGUIExpatParser_la-CEGUIExpatParser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.Plo' tmpdepfile='$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParser.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIExpatParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIExpatParser_la-CEGUIExpatParser.lo `test -f 'CEGUIExpatParser.cpp' || echo '$(srcdir)/'`CEGUIExpatParser.cpp
+
+libCEGUIExpatParser_la-CEGUIExpatParserModule.o: CEGUIExpatParserModule.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIExpatParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIExpatParser_la-CEGUIExpatParserModule.o -MD -MP -MF "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIExpatParser_la-CEGUIExpatParserModule.o `test -f 'CEGUIExpatParserModule.cpp' || echo '$(srcdir)/'`CEGUIExpatParserModule.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Tpo" "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIExpatParserModule.cpp' object='libCEGUIExpatParser_la-CEGUIExpatParserModule.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Po' tmpdepfile='$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIExpatParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIExpatParser_la-CEGUIExpatParserModule.o `test -f 'CEGUIExpatParserModule.cpp' || echo '$(srcdir)/'`CEGUIExpatParserModule.cpp
+
+libCEGUIExpatParser_la-CEGUIExpatParserModule.obj: CEGUIExpatParserModule.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIExpatParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIExpatParser_la-CEGUIExpatParserModule.obj -MD -MP -MF "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIExpatParser_la-CEGUIExpatParserModule.obj `if test -f 'CEGUIExpatParserModule.cpp'; then $(CYGPATH_W) 'CEGUIExpatParserModule.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIExpatParserModule.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Tpo" "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIExpatParserModule.cpp' object='libCEGUIExpatParser_la-CEGUIExpatParserModule.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Po' tmpdepfile='$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIExpatParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIExpatParser_la-CEGUIExpatParserModule.obj `if test -f 'CEGUIExpatParserModule.cpp'; then $(CYGPATH_W) 'CEGUIExpatParserModule.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIExpatParserModule.cpp'; fi`
+
+libCEGUIExpatParser_la-CEGUIExpatParserModule.lo: CEGUIExpatParserModule.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIExpatParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIExpatParser_la-CEGUIExpatParserModule.lo -MD -MP -MF "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIExpatParser_la-CEGUIExpatParserModule.lo `test -f 'CEGUIExpatParserModule.cpp' || echo '$(srcdir)/'`CEGUIExpatParserModule.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Tpo" "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIExpatParserModule.cpp' object='libCEGUIExpatParser_la-CEGUIExpatParserModule.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.Plo' tmpdepfile='$(DEPDIR)/libCEGUIExpatParser_la-CEGUIExpatParserModule.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIExpatParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIExpatParser_la-CEGUIExpatParserModule.lo `test -f 'CEGUIExpatParserModule.cpp' || echo '$(srcdir)/'`CEGUIExpatParserModule.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

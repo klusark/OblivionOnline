@@ -35,12 +35,15 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
+@MINGW32_BUILD_TRUE@am__append_1 = -no-undefined
+@MINGW32_BUILD_TRUE@am__append_2 = -L$(top_builddir)/src -lCEGUIBase
 pkgincludedir = $(prefix)/include/CEGUI/RendererModules/OpenGLGUIRenderer
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -81,6 +84,7 @@ CEGUI_IRRLICHT_VERSION_INFO = @CEGUI_IRRLICHT_VERSION_INFO@
 CEGUI_NULL_CFLAGS = @CEGUI_NULL_CFLAGS@
 CEGUI_NULL_LIBS = @CEGUI_NULL_LIBS@
 CEGUI_OPENGL_VERSION_INFO = @CEGUI_OPENGL_VERSION_INFO@
+CEGUI_SAMPLES_CFLAGS = @CEGUI_SAMPLES_CFLAGS@
 CEGUI_SAMPLES_USE_IRRLICHT_FALSE = @CEGUI_SAMPLES_USE_IRRLICHT_FALSE@
 CEGUI_SAMPLES_USE_IRRLICHT_TRUE = @CEGUI_SAMPLES_USE_IRRLICHT_TRUE@
 CEGUI_SAMPLES_USE_OGRE_FALSE = @CEGUI_SAMPLES_USE_OGRE_FALSE@
@@ -102,6 +106,8 @@ Corona_CFLAGS = @Corona_CFLAGS@
 Corona_LIBS = @Corona_LIBS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+DSYMUTIL = @DSYMUTIL@
 DevIL_CFLAGS = @DevIL_CFLAGS@
 DevIL_LIBS = @DevIL_LIBS@
 ECHO = @ECHO@
@@ -132,7 +138,13 @@ LTLIBOBJS = @LTLIBOBJS@
 Lua_CFLAGS = @Lua_CFLAGS@
 Lua_LIBS = @Lua_LIBS@
 MAKEINFO = @MAKEINFO@
+MINGW32_BUILD_FALSE = @MINGW32_BUILD_FALSE@
+MINGW32_BUILD_TRUE = @MINGW32_BUILD_TRUE@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OIS_CFLAGS = @OIS_CFLAGS@
+OIS_LIBS = @OIS_LIBS@
 OpenGL_CFLAGS = @OpenGL_CFLAGS@
 OpenGL_LIBS = @OpenGL_LIBS@
 PACKAGE = @PACKAGE@
@@ -144,6 +156,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SILLY_CFLAGS = @SILLY_CFLAGS@
@@ -212,8 +225,14 @@ xerces_CFLAGS = @xerces_CFLAGS@
 xerces_LIBS = @xerces_LIBS@
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir) $(OpenGL_CFLAGS) 
 pkginclude_HEADERS = openglrenderer.h opengltexture.h
+
+libCEGUIOpenGLRenderer_la_LDFLAGS = $(am__append_1) -version-info @CEGUI_OPENGL_VERSION_INFO@
+
+libCEGUIOpenGLRenderer_la_LIBADD = $(am__append_2) $(OpenGL_LIBS)
+
+@MINGW32_BUILD_TRUE@libCEGUIOpenGLRenderer_la_CPPFLAGS = -DOPENGL_GUIRENDERER_EXPORTS
+
 lib_LTLIBRARIES = libCEGUIOpenGLRenderer.la
-libCEGUIOpenGLRenderer_la_LDFLAGS = -version-info @CEGUI_OPENGL_VERSION_INFO@
 libCEGUIOpenGLRenderer_la_SOURCES = openglrenderer.cpp opengltexture.cpp
 subdir = RendererModules/OpenGLGUIRenderer
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -222,17 +241,20 @@ CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-libCEGUIOpenGLRenderer_la_LIBADD =
-am_libCEGUIOpenGLRenderer_la_OBJECTS = openglrenderer.lo \
-	opengltexture.lo
+@MINGW32_BUILD_TRUE@libCEGUIOpenGLRenderer_la_DEPENDENCIES =
+@MINGW32_BUILD_FALSE@libCEGUIOpenGLRenderer_la_DEPENDENCIES =
+am_libCEGUIOpenGLRenderer_la_OBJECTS = \
+	libCEGUIOpenGLRenderer_la-openglrenderer.lo \
+	libCEGUIOpenGLRenderer_la-opengltexture.lo
 libCEGUIOpenGLRenderer_la_OBJECTS = \
 	$(am_libCEGUIOpenGLRenderer_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/openglrenderer.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/opengltexture.Plo
+@AMDEP_TRUE@DEP_FILES = \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Plo
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -293,8 +315,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openglrenderer.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opengltexture.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
@@ -328,6 +350,72 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
+
+libCEGUIOpenGLRenderer_la-openglrenderer.o: openglrenderer.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIOpenGLRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIOpenGLRenderer_la-openglrenderer.o -MD -MP -MF "$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIOpenGLRenderer_la-openglrenderer.o `test -f 'openglrenderer.cpp' || echo '$(srcdir)/'`openglrenderer.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Tpo" "$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='openglrenderer.cpp' object='libCEGUIOpenGLRenderer_la-openglrenderer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Po' tmpdepfile='$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIOpenGLRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIOpenGLRenderer_la-openglrenderer.o `test -f 'openglrenderer.cpp' || echo '$(srcdir)/'`openglrenderer.cpp
+
+libCEGUIOpenGLRenderer_la-openglrenderer.obj: openglrenderer.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIOpenGLRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIOpenGLRenderer_la-openglrenderer.obj -MD -MP -MF "$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIOpenGLRenderer_la-openglrenderer.obj `if test -f 'openglrenderer.cpp'; then $(CYGPATH_W) 'openglrenderer.cpp'; else $(CYGPATH_W) '$(srcdir)/openglrenderer.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Tpo" "$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='openglrenderer.cpp' object='libCEGUIOpenGLRenderer_la-openglrenderer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Po' tmpdepfile='$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIOpenGLRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIOpenGLRenderer_la-openglrenderer.obj `if test -f 'openglrenderer.cpp'; then $(CYGPATH_W) 'openglrenderer.cpp'; else $(CYGPATH_W) '$(srcdir)/openglrenderer.cpp'; fi`
+
+libCEGUIOpenGLRenderer_la-openglrenderer.lo: openglrenderer.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIOpenGLRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIOpenGLRenderer_la-openglrenderer.lo -MD -MP -MF "$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIOpenGLRenderer_la-openglrenderer.lo `test -f 'openglrenderer.cpp' || echo '$(srcdir)/'`openglrenderer.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Tpo" "$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='openglrenderer.cpp' object='libCEGUIOpenGLRenderer_la-openglrenderer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.Plo' tmpdepfile='$(DEPDIR)/libCEGUIOpenGLRenderer_la-openglrenderer.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIOpenGLRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIOpenGLRenderer_la-openglrenderer.lo `test -f 'openglrenderer.cpp' || echo '$(srcdir)/'`openglrenderer.cpp
+
+libCEGUIOpenGLRenderer_la-opengltexture.o: opengltexture.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIOpenGLRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIOpenGLRenderer_la-opengltexture.o -MD -MP -MF "$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIOpenGLRenderer_la-opengltexture.o `test -f 'opengltexture.cpp' || echo '$(srcdir)/'`opengltexture.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Tpo" "$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='opengltexture.cpp' object='libCEGUIOpenGLRenderer_la-opengltexture.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Po' tmpdepfile='$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIOpenGLRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIOpenGLRenderer_la-opengltexture.o `test -f 'opengltexture.cpp' || echo '$(srcdir)/'`opengltexture.cpp
+
+libCEGUIOpenGLRenderer_la-opengltexture.obj: opengltexture.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIOpenGLRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIOpenGLRenderer_la-opengltexture.obj -MD -MP -MF "$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIOpenGLRenderer_la-opengltexture.obj `if test -f 'opengltexture.cpp'; then $(CYGPATH_W) 'opengltexture.cpp'; else $(CYGPATH_W) '$(srcdir)/opengltexture.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Tpo" "$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='opengltexture.cpp' object='libCEGUIOpenGLRenderer_la-opengltexture.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Po' tmpdepfile='$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIOpenGLRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIOpenGLRenderer_la-opengltexture.obj `if test -f 'opengltexture.cpp'; then $(CYGPATH_W) 'opengltexture.cpp'; else $(CYGPATH_W) '$(srcdir)/opengltexture.cpp'; fi`
+
+libCEGUIOpenGLRenderer_la-opengltexture.lo: opengltexture.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIOpenGLRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIOpenGLRenderer_la-opengltexture.lo -MD -MP -MF "$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIOpenGLRenderer_la-opengltexture.lo `test -f 'opengltexture.cpp' || echo '$(srcdir)/'`opengltexture.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Tpo" "$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='opengltexture.cpp' object='libCEGUIOpenGLRenderer_la-opengltexture.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.Plo' tmpdepfile='$(DEPDIR)/libCEGUIOpenGLRenderer_la-opengltexture.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIOpenGLRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIOpenGLRenderer_la-opengltexture.lo `test -f 'opengltexture.cpp' || echo '$(srcdir)/'`opengltexture.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -164,12 +164,13 @@ do
     --if SAMPLES_OGRE then
     --    config_h.CEGUI_SAMPLES_USE_OGRE = ""
     --end
-    if IRRLICHT_RENDERER and SAMPLES_IRRLICHT then
-        config_h.CEGUI_SAMPLES_USE_IRRLICHT = ""
+    if IRRLICHT_RENDERER then
+          -- This only used to happen when samples were to build as well
+          config_h.CEGUI_IRR_SDK_VERSION = CEGUI_IRR_SDK_VERSION
+          if SAMPLES_IRRLICHT then
+                config_h.CEGUI_SAMPLES_USE_IRRLICHT = ""
+          end
     end
-    if IRRLICHT_VERSION >= 1.3 then
-        config_h.CEGUI_IRRLICHT_ABOVE_1_3 = "1"
-	end
 
     if DEFAULT_XML_PARSER == "xerces" then
         config_h.CEGUI_WITH_XERCES = "1"
@@ -195,7 +196,8 @@ do
 		config_h.CEGUI_CODEC_FREEIMAGE = "1"
 	end
 	
-	config_h.USE_FREETYPE2_STATIC = ""
+	-- Lua library version
+	config_h.CEGUI_LUA_VER = CEGUI_LUA_VER
 	
 	-- It is important that if this changes you re run premake inorder to
 	-- get the correct window renderer with a static build.

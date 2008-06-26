@@ -36,24 +36,28 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
-@CEGUI_USING_GTK2_TRUE@am__append_1 = $(GTK_CFLAGS)
-@CEGUI_USING_GTK2_TRUE@am__append_2 = $(GTK_LIBS)
-@CEGUI_USING_GTK2_TRUE@am__append_3 = GTK2CEGuiRendererSelector.cpp
-@CEGUI_SAMPLES_USE_OGRE_TRUE@am__append_4 = $(CEGUIOGRE_CFLAGS)
-@CEGUI_SAMPLES_USE_OGRE_TRUE@am__append_5 = CEGuiOgreBaseApplication.cpp
-@CEGUI_SAMPLES_USE_OGRE_TRUE@am__append_6 = $(CEGUIOGRE_LIBS)
-@CEGUI_SAMPLES_USE_OPENGL_TRUE@am__append_7 = CEGuiOpenGLBaseApplication.cpp
-@CEGUI_SAMPLES_USE_OPENGL_TRUE@am__append_8 = -L$(top_builddir)/RendererModules/OpenGLGUIRenderer
-@CEGUI_SAMPLES_USE_OPENGL_TRUE@am__append_9 = -lCEGUIOpenGLRenderer $(OpenGL_LIBS)
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@am__append_10 = $(Irrlicht_CFLAGS)
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@am__append_11 = CEGuiIrrlichtBaseApplication.cpp
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@am__append_12 = -L$(top_builddir)/RendererModules/IrrlichtRenderer
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@am__append_13 = -lCEGUIIrrlichtRenderer $(Irrlicht_LIBS)
+@MINGW32_BUILD_TRUE@am__append_1 = -shared -no-undefined
+@MINGW32_BUILD_TRUE@am__append_2 = -L$(top_builddir)/src -lCEGUIBase
+@MINGW32_BUILD_TRUE@am__append_3 = Win32AppHelper.cpp Win32CEGuiRendererSelector.cpp
+@CEGUI_USING_GTK2_TRUE@am__append_4 = $(GTK_CFLAGS)
+@CEGUI_USING_GTK2_TRUE@am__append_5 = $(GTK_LIBS)
+@CEGUI_USING_GTK2_TRUE@am__append_6 = GTK2CEGuiRendererSelector.cpp
+@CEGUI_SAMPLES_USE_OGRE_TRUE@am__append_7 = $(CEGUIOGRE_CFLAGS) $(OIS_CFLAGS)
+@CEGUI_SAMPLES_USE_OGRE_TRUE@am__append_8 = CEGuiOgreBaseApplication.cpp
+@CEGUI_SAMPLES_USE_OGRE_TRUE@am__append_9 = $(CEGUIOGRE_LIBS) $(OIS_LIBS)
+@CEGUI_SAMPLES_USE_OPENGL_TRUE@am__append_10 = CEGuiOpenGLBaseApplication.cpp
+@CEGUI_SAMPLES_USE_OPENGL_TRUE@am__append_11 = -L$(top_builddir)/RendererModules/OpenGLGUIRenderer
+@CEGUI_SAMPLES_USE_OPENGL_TRUE@am__append_12 = -lCEGUIOpenGLRenderer $(OpenGL_LIBS)
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@am__append_13 = $(Irrlicht_CFLAGS)
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@am__append_14 = CEGuiIrrlichtBaseApplication.cpp
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@am__append_15 = -L$(top_builddir)/RendererModules/IrrlichtRenderer
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@am__append_16 = -lCEGUIIrrlichtRenderer $(Irrlicht_LIBS)
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -94,6 +98,7 @@ CEGUI_IRRLICHT_VERSION_INFO = @CEGUI_IRRLICHT_VERSION_INFO@
 CEGUI_NULL_CFLAGS = @CEGUI_NULL_CFLAGS@
 CEGUI_NULL_LIBS = @CEGUI_NULL_LIBS@
 CEGUI_OPENGL_VERSION_INFO = @CEGUI_OPENGL_VERSION_INFO@
+CEGUI_SAMPLES_CFLAGS = @CEGUI_SAMPLES_CFLAGS@
 CEGUI_SAMPLES_USE_IRRLICHT_FALSE = @CEGUI_SAMPLES_USE_IRRLICHT_FALSE@
 CEGUI_SAMPLES_USE_IRRLICHT_TRUE = @CEGUI_SAMPLES_USE_IRRLICHT_TRUE@
 CEGUI_SAMPLES_USE_OGRE_FALSE = @CEGUI_SAMPLES_USE_OGRE_FALSE@
@@ -115,6 +120,8 @@ Corona_CFLAGS = @Corona_CFLAGS@
 Corona_LIBS = @Corona_LIBS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+DSYMUTIL = @DSYMUTIL@
 DevIL_CFLAGS = @DevIL_CFLAGS@
 DevIL_LIBS = @DevIL_LIBS@
 ECHO = @ECHO@
@@ -145,7 +152,13 @@ LTLIBOBJS = @LTLIBOBJS@
 Lua_CFLAGS = @Lua_CFLAGS@
 Lua_LIBS = @Lua_LIBS@
 MAKEINFO = @MAKEINFO@
+MINGW32_BUILD_FALSE = @MINGW32_BUILD_FALSE@
+MINGW32_BUILD_TRUE = @MINGW32_BUILD_TRUE@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OIS_CFLAGS = @OIS_CFLAGS@
+OIS_LIBS = @OIS_LIBS@
 OpenGL_CFLAGS = @OpenGL_CFLAGS@
 OpenGL_LIBS = @OpenGL_LIBS@
 PACKAGE = @PACKAGE@
@@ -157,6 +170,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SILLY_CFLAGS = @SILLY_CFLAGS@
@@ -223,18 +237,20 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 xerces_CFLAGS = @xerces_CFLAGS@
 xerces_LIBS = @xerces_LIBS@
-INCLUDES = -I$(top_srcdir)/Samples/common/include -I$(top_srcdir)/include -I$(top_srcdir) $(am__append_1) $(am__append_4) $(am__append_10)
-
+INCLUDES = -I$(top_srcdir)/Samples/common/include -I$(top_srcdir)/include -I$(top_srcdir) $(CEGUI_SAMPLES_CFLAGS) $(am__append_4) $(am__append_7) $(am__append_13)
 lib_LTLIBRARIES = libCEGUISampleHelper.la
 
-libCEGUISampleHelper_la_LDFLAGS = -version-info @CEGUI_VERSION_INFO@ $(am__append_8) $(am__append_12)
+libCEGUISampleHelper_la_LDFLAGS = -version-info @CEGUI_VERSION_INFO@ $(am__append_1) $(am__append_11) $(am__append_15)
 
-libCEGUISampleHelper_la_SOURCES = CEGuiRendererSelector.cpp \
+libCEGUISampleHelper_la_SOURCES = CEGuiBaseApplication.cpp \
+                                  CEGuiRendererSelector.cpp \
                                   CEGuiSample.cpp \
                                   CLICEGuiRendererSelector.cpp\
-$(am__append_3) $(am__append_5) $(am__append_7) $(am__append_11)
+$(am__append_3) $(am__append_6) $(am__append_8) $(am__append_10) $(am__append_14)
 
-libCEGUISampleHelper_la_LIBADD = $(am__append_2) $(am__append_6) $(am__append_9) $(am__append_13)
+libCEGUISampleHelper_la_LIBADD = $(am__append_2) $(am__append_5) $(am__append_9) $(am__append_12) $(am__append_16)
+
+@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_CPPFLAGS = -DCEGUISAMPLE_EXPORTS
 
 EXTRA_DIST = CEGuiD3D81BaseApplication.cpp \
              CEGuiD3D9BaseApplication.cpp \
@@ -249,47 +265,78 @@ CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
-am__libCEGUISampleHelper_la_SOURCES_DIST = CEGuiRendererSelector.cpp \
-	CEGuiSample.cpp CLICEGuiRendererSelector.cpp \
-	GTK2CEGuiRendererSelector.cpp CEGuiOgreBaseApplication.cpp \
-	CEGuiOpenGLBaseApplication.cpp CEGuiIrrlichtBaseApplication.cpp
-@CEGUI_USING_GTK2_TRUE@am__objects_1 = GTK2CEGuiRendererSelector.lo
-@CEGUI_SAMPLES_USE_OGRE_TRUE@am__objects_2 = CEGuiOgreBaseApplication.lo
-@CEGUI_SAMPLES_USE_OPENGL_TRUE@am__objects_3 = \
-@CEGUI_SAMPLES_USE_OPENGL_TRUE@	CEGuiOpenGLBaseApplication.lo
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@am__objects_4 = \
-@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@	CEGuiIrrlichtBaseApplication.lo
-am_libCEGUISampleHelper_la_OBJECTS = CEGuiRendererSelector.lo \
-	CEGuiSample.lo CLICEGuiRendererSelector.lo $(am__objects_1) \
-	$(am__objects_2) $(am__objects_3) $(am__objects_4)
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_FALSE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_FALSE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_FALSE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_FALSE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_TRUE@libCEGUISampleHelper_la_DEPENDENCIES =
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@@CEGUI_SAMPLES_USE_OGRE_TRUE@@CEGUI_SAMPLES_USE_OPENGL_TRUE@@CEGUI_USING_GTK2_TRUE@@MINGW32_BUILD_FALSE@libCEGUISampleHelper_la_DEPENDENCIES =
+am__libCEGUISampleHelper_la_SOURCES_DIST = CEGuiBaseApplication.cpp \
+	CEGuiRendererSelector.cpp CEGuiSample.cpp \
+	CLICEGuiRendererSelector.cpp Win32AppHelper.cpp \
+	Win32CEGuiRendererSelector.cpp GTK2CEGuiRendererSelector.cpp \
+	CEGuiOgreBaseApplication.cpp CEGuiOpenGLBaseApplication.cpp \
+	CEGuiIrrlichtBaseApplication.cpp
+@MINGW32_BUILD_TRUE@am__objects_1 = \
+@MINGW32_BUILD_TRUE@	libCEGUISampleHelper_la-Win32AppHelper.lo \
+@MINGW32_BUILD_TRUE@	libCEGUISampleHelper_la-Win32CEGuiRendererSelector.lo
+@CEGUI_USING_GTK2_TRUE@am__objects_2 = \
+@CEGUI_USING_GTK2_TRUE@	libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.lo
+@CEGUI_SAMPLES_USE_OGRE_TRUE@am__objects_3 = \
+@CEGUI_SAMPLES_USE_OGRE_TRUE@	libCEGUISampleHelper_la-CEGuiOgreBaseApplication.lo
+@CEGUI_SAMPLES_USE_OPENGL_TRUE@am__objects_4 = \
+@CEGUI_SAMPLES_USE_OPENGL_TRUE@	libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.lo
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@am__objects_5 = \
+@CEGUI_SAMPLES_USE_IRRLICHT_TRUE@	libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.lo
+am_libCEGUISampleHelper_la_OBJECTS = \
+	libCEGUISampleHelper_la-CEGuiBaseApplication.lo \
+	libCEGUISampleHelper_la-CEGuiRendererSelector.lo \
+	libCEGUISampleHelper_la-CEGuiSample.lo \
+	libCEGUISampleHelper_la-CLICEGuiRendererSelector.lo \
+	$(am__objects_1) $(am__objects_2) $(am__objects_3) \
+	$(am__objects_4) $(am__objects_5)
 libCEGUISampleHelper_la_OBJECTS = $(am_libCEGUISampleHelper_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CEGuiIrrlichtBaseApplication.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CEGuiOgreBaseApplication.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CEGuiOpenGLBaseApplication.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CEGuiRendererSelector.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CEGuiSample.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CLICEGuiRendererSelector.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/GTK2CEGuiRendererSelector.Plo
+@AMDEP_TRUE@DEP_FILES = \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Plo
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -348,13 +395,16 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGuiIrrlichtBaseApplication.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGuiOgreBaseApplication.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGuiOpenGLBaseApplication.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGuiRendererSelector.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGuiSample.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CLICEGuiRendererSelector.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GTK2CEGuiRendererSelector.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
@@ -388,6 +438,336 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
+
+libCEGUISampleHelper_la-CEGuiBaseApplication.o: CEGuiBaseApplication.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiBaseApplication.o -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiBaseApplication.o `test -f 'CEGuiBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiBaseApplication.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiBaseApplication.cpp' object='libCEGUISampleHelper_la-CEGuiBaseApplication.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiBaseApplication.o `test -f 'CEGuiBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiBaseApplication.cpp
+
+libCEGUISampleHelper_la-CEGuiBaseApplication.obj: CEGuiBaseApplication.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiBaseApplication.obj -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiBaseApplication.obj `if test -f 'CEGuiBaseApplication.cpp'; then $(CYGPATH_W) 'CEGuiBaseApplication.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGuiBaseApplication.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiBaseApplication.cpp' object='libCEGUISampleHelper_la-CEGuiBaseApplication.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiBaseApplication.obj `if test -f 'CEGuiBaseApplication.cpp'; then $(CYGPATH_W) 'CEGuiBaseApplication.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGuiBaseApplication.cpp'; fi`
+
+libCEGUISampleHelper_la-CEGuiBaseApplication.lo: CEGuiBaseApplication.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiBaseApplication.lo -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiBaseApplication.lo `test -f 'CEGuiBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiBaseApplication.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiBaseApplication.cpp' object='libCEGUISampleHelper_la-CEGuiBaseApplication.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.Plo' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiBaseApplication.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiBaseApplication.lo `test -f 'CEGuiBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiBaseApplication.cpp
+
+libCEGUISampleHelper_la-CEGuiRendererSelector.o: CEGuiRendererSelector.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiRendererSelector.o -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiRendererSelector.o `test -f 'CEGuiRendererSelector.cpp' || echo '$(srcdir)/'`CEGuiRendererSelector.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiRendererSelector.cpp' object='libCEGUISampleHelper_la-CEGuiRendererSelector.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiRendererSelector.o `test -f 'CEGuiRendererSelector.cpp' || echo '$(srcdir)/'`CEGuiRendererSelector.cpp
+
+libCEGUISampleHelper_la-CEGuiRendererSelector.obj: CEGuiRendererSelector.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiRendererSelector.obj -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiRendererSelector.obj `if test -f 'CEGuiRendererSelector.cpp'; then $(CYGPATH_W) 'CEGuiRendererSelector.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGuiRendererSelector.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiRendererSelector.cpp' object='libCEGUISampleHelper_la-CEGuiRendererSelector.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiRendererSelector.obj `if test -f 'CEGuiRendererSelector.cpp'; then $(CYGPATH_W) 'CEGuiRendererSelector.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGuiRendererSelector.cpp'; fi`
+
+libCEGUISampleHelper_la-CEGuiRendererSelector.lo: CEGuiRendererSelector.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiRendererSelector.lo -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiRendererSelector.lo `test -f 'CEGuiRendererSelector.cpp' || echo '$(srcdir)/'`CEGuiRendererSelector.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiRendererSelector.cpp' object='libCEGUISampleHelper_la-CEGuiRendererSelector.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.Plo' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiRendererSelector.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiRendererSelector.lo `test -f 'CEGuiRendererSelector.cpp' || echo '$(srcdir)/'`CEGuiRendererSelector.cpp
+
+libCEGUISampleHelper_la-CEGuiSample.o: CEGuiSample.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiSample.o -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiSample.o `test -f 'CEGuiSample.cpp' || echo '$(srcdir)/'`CEGuiSample.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiSample.cpp' object='libCEGUISampleHelper_la-CEGuiSample.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiSample.o `test -f 'CEGuiSample.cpp' || echo '$(srcdir)/'`CEGuiSample.cpp
+
+libCEGUISampleHelper_la-CEGuiSample.obj: CEGuiSample.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiSample.obj -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiSample.obj `if test -f 'CEGuiSample.cpp'; then $(CYGPATH_W) 'CEGuiSample.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGuiSample.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiSample.cpp' object='libCEGUISampleHelper_la-CEGuiSample.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiSample.obj `if test -f 'CEGuiSample.cpp'; then $(CYGPATH_W) 'CEGuiSample.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGuiSample.cpp'; fi`
+
+libCEGUISampleHelper_la-CEGuiSample.lo: CEGuiSample.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiSample.lo -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiSample.lo `test -f 'CEGuiSample.cpp' || echo '$(srcdir)/'`CEGuiSample.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiSample.cpp' object='libCEGUISampleHelper_la-CEGuiSample.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.Plo' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiSample.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiSample.lo `test -f 'CEGuiSample.cpp' || echo '$(srcdir)/'`CEGuiSample.cpp
+
+libCEGUISampleHelper_la-CLICEGuiRendererSelector.o: CLICEGuiRendererSelector.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CLICEGuiRendererSelector.o -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CLICEGuiRendererSelector.o `test -f 'CLICEGuiRendererSelector.cpp' || echo '$(srcdir)/'`CLICEGuiRendererSelector.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CLICEGuiRendererSelector.cpp' object='libCEGUISampleHelper_la-CLICEGuiRendererSelector.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CLICEGuiRendererSelector.o `test -f 'CLICEGuiRendererSelector.cpp' || echo '$(srcdir)/'`CLICEGuiRendererSelector.cpp
+
+libCEGUISampleHelper_la-CLICEGuiRendererSelector.obj: CLICEGuiRendererSelector.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CLICEGuiRendererSelector.obj -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CLICEGuiRendererSelector.obj `if test -f 'CLICEGuiRendererSelector.cpp'; then $(CYGPATH_W) 'CLICEGuiRendererSelector.cpp'; else $(CYGPATH_W) '$(srcdir)/CLICEGuiRendererSelector.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CLICEGuiRendererSelector.cpp' object='libCEGUISampleHelper_la-CLICEGuiRendererSelector.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CLICEGuiRendererSelector.obj `if test -f 'CLICEGuiRendererSelector.cpp'; then $(CYGPATH_W) 'CLICEGuiRendererSelector.cpp'; else $(CYGPATH_W) '$(srcdir)/CLICEGuiRendererSelector.cpp'; fi`
+
+libCEGUISampleHelper_la-CLICEGuiRendererSelector.lo: CLICEGuiRendererSelector.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CLICEGuiRendererSelector.lo -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CLICEGuiRendererSelector.lo `test -f 'CLICEGuiRendererSelector.cpp' || echo '$(srcdir)/'`CLICEGuiRendererSelector.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CLICEGuiRendererSelector.cpp' object='libCEGUISampleHelper_la-CLICEGuiRendererSelector.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.Plo' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CLICEGuiRendererSelector.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CLICEGuiRendererSelector.lo `test -f 'CLICEGuiRendererSelector.cpp' || echo '$(srcdir)/'`CLICEGuiRendererSelector.cpp
+
+libCEGUISampleHelper_la-Win32AppHelper.o: Win32AppHelper.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-Win32AppHelper.o -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-Win32AppHelper.o `test -f 'Win32AppHelper.cpp' || echo '$(srcdir)/'`Win32AppHelper.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Win32AppHelper.cpp' object='libCEGUISampleHelper_la-Win32AppHelper.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-Win32AppHelper.o `test -f 'Win32AppHelper.cpp' || echo '$(srcdir)/'`Win32AppHelper.cpp
+
+libCEGUISampleHelper_la-Win32AppHelper.obj: Win32AppHelper.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-Win32AppHelper.obj -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-Win32AppHelper.obj `if test -f 'Win32AppHelper.cpp'; then $(CYGPATH_W) 'Win32AppHelper.cpp'; else $(CYGPATH_W) '$(srcdir)/Win32AppHelper.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Win32AppHelper.cpp' object='libCEGUISampleHelper_la-Win32AppHelper.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-Win32AppHelper.obj `if test -f 'Win32AppHelper.cpp'; then $(CYGPATH_W) 'Win32AppHelper.cpp'; else $(CYGPATH_W) '$(srcdir)/Win32AppHelper.cpp'; fi`
+
+libCEGUISampleHelper_la-Win32AppHelper.lo: Win32AppHelper.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-Win32AppHelper.lo -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-Win32AppHelper.lo `test -f 'Win32AppHelper.cpp' || echo '$(srcdir)/'`Win32AppHelper.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Win32AppHelper.cpp' object='libCEGUISampleHelper_la-Win32AppHelper.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.Plo' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-Win32AppHelper.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-Win32AppHelper.lo `test -f 'Win32AppHelper.cpp' || echo '$(srcdir)/'`Win32AppHelper.cpp
+
+libCEGUISampleHelper_la-Win32CEGuiRendererSelector.o: Win32CEGuiRendererSelector.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-Win32CEGuiRendererSelector.o -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-Win32CEGuiRendererSelector.o `test -f 'Win32CEGuiRendererSelector.cpp' || echo '$(srcdir)/'`Win32CEGuiRendererSelector.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Win32CEGuiRendererSelector.cpp' object='libCEGUISampleHelper_la-Win32CEGuiRendererSelector.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-Win32CEGuiRendererSelector.o `test -f 'Win32CEGuiRendererSelector.cpp' || echo '$(srcdir)/'`Win32CEGuiRendererSelector.cpp
+
+libCEGUISampleHelper_la-Win32CEGuiRendererSelector.obj: Win32CEGuiRendererSelector.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-Win32CEGuiRendererSelector.obj -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-Win32CEGuiRendererSelector.obj `if test -f 'Win32CEGuiRendererSelector.cpp'; then $(CYGPATH_W) 'Win32CEGuiRendererSelector.cpp'; else $(CYGPATH_W) '$(srcdir)/Win32CEGuiRendererSelector.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Win32CEGuiRendererSelector.cpp' object='libCEGUISampleHelper_la-Win32CEGuiRendererSelector.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-Win32CEGuiRendererSelector.obj `if test -f 'Win32CEGuiRendererSelector.cpp'; then $(CYGPATH_W) 'Win32CEGuiRendererSelector.cpp'; else $(CYGPATH_W) '$(srcdir)/Win32CEGuiRendererSelector.cpp'; fi`
+
+libCEGUISampleHelper_la-Win32CEGuiRendererSelector.lo: Win32CEGuiRendererSelector.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-Win32CEGuiRendererSelector.lo -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-Win32CEGuiRendererSelector.lo `test -f 'Win32CEGuiRendererSelector.cpp' || echo '$(srcdir)/'`Win32CEGuiRendererSelector.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Win32CEGuiRendererSelector.cpp' object='libCEGUISampleHelper_la-Win32CEGuiRendererSelector.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.Plo' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-Win32CEGuiRendererSelector.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-Win32CEGuiRendererSelector.lo `test -f 'Win32CEGuiRendererSelector.cpp' || echo '$(srcdir)/'`Win32CEGuiRendererSelector.cpp
+
+libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.o: GTK2CEGuiRendererSelector.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.o -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.o `test -f 'GTK2CEGuiRendererSelector.cpp' || echo '$(srcdir)/'`GTK2CEGuiRendererSelector.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='GTK2CEGuiRendererSelector.cpp' object='libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.o `test -f 'GTK2CEGuiRendererSelector.cpp' || echo '$(srcdir)/'`GTK2CEGuiRendererSelector.cpp
+
+libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.obj: GTK2CEGuiRendererSelector.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.obj -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.obj `if test -f 'GTK2CEGuiRendererSelector.cpp'; then $(CYGPATH_W) 'GTK2CEGuiRendererSelector.cpp'; else $(CYGPATH_W) '$(srcdir)/GTK2CEGuiRendererSelector.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='GTK2CEGuiRendererSelector.cpp' object='libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.obj `if test -f 'GTK2CEGuiRendererSelector.cpp'; then $(CYGPATH_W) 'GTK2CEGuiRendererSelector.cpp'; else $(CYGPATH_W) '$(srcdir)/GTK2CEGuiRendererSelector.cpp'; fi`
+
+libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.lo: GTK2CEGuiRendererSelector.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.lo -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.lo `test -f 'GTK2CEGuiRendererSelector.cpp' || echo '$(srcdir)/'`GTK2CEGuiRendererSelector.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='GTK2CEGuiRendererSelector.cpp' object='libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.Plo' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-GTK2CEGuiRendererSelector.lo `test -f 'GTK2CEGuiRendererSelector.cpp' || echo '$(srcdir)/'`GTK2CEGuiRendererSelector.cpp
+
+libCEGUISampleHelper_la-CEGuiOgreBaseApplication.o: CEGuiOgreBaseApplication.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiOgreBaseApplication.o -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiOgreBaseApplication.o `test -f 'CEGuiOgreBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiOgreBaseApplication.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiOgreBaseApplication.cpp' object='libCEGUISampleHelper_la-CEGuiOgreBaseApplication.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiOgreBaseApplication.o `test -f 'CEGuiOgreBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiOgreBaseApplication.cpp
+
+libCEGUISampleHelper_la-CEGuiOgreBaseApplication.obj: CEGuiOgreBaseApplication.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiOgreBaseApplication.obj -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiOgreBaseApplication.obj `if test -f 'CEGuiOgreBaseApplication.cpp'; then $(CYGPATH_W) 'CEGuiOgreBaseApplication.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGuiOgreBaseApplication.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiOgreBaseApplication.cpp' object='libCEGUISampleHelper_la-CEGuiOgreBaseApplication.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiOgreBaseApplication.obj `if test -f 'CEGuiOgreBaseApplication.cpp'; then $(CYGPATH_W) 'CEGuiOgreBaseApplication.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGuiOgreBaseApplication.cpp'; fi`
+
+libCEGUISampleHelper_la-CEGuiOgreBaseApplication.lo: CEGuiOgreBaseApplication.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiOgreBaseApplication.lo -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiOgreBaseApplication.lo `test -f 'CEGuiOgreBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiOgreBaseApplication.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiOgreBaseApplication.cpp' object='libCEGUISampleHelper_la-CEGuiOgreBaseApplication.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.Plo' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOgreBaseApplication.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiOgreBaseApplication.lo `test -f 'CEGuiOgreBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiOgreBaseApplication.cpp
+
+libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.o: CEGuiOpenGLBaseApplication.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.o -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.o `test -f 'CEGuiOpenGLBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiOpenGLBaseApplication.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiOpenGLBaseApplication.cpp' object='libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.o `test -f 'CEGuiOpenGLBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiOpenGLBaseApplication.cpp
+
+libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.obj: CEGuiOpenGLBaseApplication.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.obj -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.obj `if test -f 'CEGuiOpenGLBaseApplication.cpp'; then $(CYGPATH_W) 'CEGuiOpenGLBaseApplication.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGuiOpenGLBaseApplication.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiOpenGLBaseApplication.cpp' object='libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.obj `if test -f 'CEGuiOpenGLBaseApplication.cpp'; then $(CYGPATH_W) 'CEGuiOpenGLBaseApplication.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGuiOpenGLBaseApplication.cpp'; fi`
+
+libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.lo: CEGuiOpenGLBaseApplication.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.lo -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.lo `test -f 'CEGuiOpenGLBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiOpenGLBaseApplication.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiOpenGLBaseApplication.cpp' object='libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.Plo' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiOpenGLBaseApplication.lo `test -f 'CEGuiOpenGLBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiOpenGLBaseApplication.cpp
+
+libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.o: CEGuiIrrlichtBaseApplication.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.o -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.o `test -f 'CEGuiIrrlichtBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiIrrlichtBaseApplication.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiIrrlichtBaseApplication.cpp' object='libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.o `test -f 'CEGuiIrrlichtBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiIrrlichtBaseApplication.cpp
+
+libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.obj: CEGuiIrrlichtBaseApplication.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.obj -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.obj `if test -f 'CEGuiIrrlichtBaseApplication.cpp'; then $(CYGPATH_W) 'CEGuiIrrlichtBaseApplication.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGuiIrrlichtBaseApplication.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiIrrlichtBaseApplication.cpp' object='libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Po' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.obj `if test -f 'CEGuiIrrlichtBaseApplication.cpp'; then $(CYGPATH_W) 'CEGuiIrrlichtBaseApplication.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGuiIrrlichtBaseApplication.cpp'; fi`
+
+libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.lo: CEGuiIrrlichtBaseApplication.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.lo -MD -MP -MF "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.lo `test -f 'CEGuiIrrlichtBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiIrrlichtBaseApplication.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Tpo" "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGuiIrrlichtBaseApplication.cpp' object='libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.Plo' tmpdepfile='$(DEPDIR)/libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUISampleHelper_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUISampleHelper_la-CEGuiIrrlichtBaseApplication.lo `test -f 'CEGuiIrrlichtBaseApplication.cpp' || echo '$(srcdir)/'`CEGuiIrrlichtBaseApplication.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

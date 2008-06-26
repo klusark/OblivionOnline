@@ -30,7 +30,7 @@
 
 #ifndef __FT2_BUILD_GENERIC_H__
 #define __FT2_BUILD_GENERIC_H__
-
+#define FREETYPE2_STATIC
 #include <freetype/config/ftheader.h>
 
 #endif /* __FT2_BUILD_GENERIC_H__ */

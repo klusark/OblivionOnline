@@ -35,6 +35,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
+@MINGW32_BUILD_TRUE@am__append_1 = -L$(top_builddir)/src -lCEGUIBase
 
 pkgincludedir = $(prefix)/include/CEGUI/ImageCodecModules/DevILImageCodec
 ACLOCAL = @ACLOCAL@
@@ -42,6 +43,7 @@ AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -82,6 +84,7 @@ CEGUI_IRRLICHT_VERSION_INFO = @CEGUI_IRRLICHT_VERSION_INFO@
 CEGUI_NULL_CFLAGS = @CEGUI_NULL_CFLAGS@
 CEGUI_NULL_LIBS = @CEGUI_NULL_LIBS@
 CEGUI_OPENGL_VERSION_INFO = @CEGUI_OPENGL_VERSION_INFO@
+CEGUI_SAMPLES_CFLAGS = @CEGUI_SAMPLES_CFLAGS@
 CEGUI_SAMPLES_USE_IRRLICHT_FALSE = @CEGUI_SAMPLES_USE_IRRLICHT_FALSE@
 CEGUI_SAMPLES_USE_IRRLICHT_TRUE = @CEGUI_SAMPLES_USE_IRRLICHT_TRUE@
 CEGUI_SAMPLES_USE_OGRE_FALSE = @CEGUI_SAMPLES_USE_OGRE_FALSE@
@@ -103,6 +106,8 @@ Corona_CFLAGS = @Corona_CFLAGS@
 Corona_LIBS = @Corona_LIBS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+DSYMUTIL = @DSYMUTIL@
 DevIL_CFLAGS = @DevIL_CFLAGS@
 DevIL_LIBS = @DevIL_LIBS@
 ECHO = @ECHO@
@@ -133,7 +138,13 @@ LTLIBOBJS = @LTLIBOBJS@
 Lua_CFLAGS = @Lua_CFLAGS@
 Lua_LIBS = @Lua_LIBS@
 MAKEINFO = @MAKEINFO@
+MINGW32_BUILD_FALSE = @MINGW32_BUILD_FALSE@
+MINGW32_BUILD_TRUE = @MINGW32_BUILD_TRUE@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OIS_CFLAGS = @OIS_CFLAGS@
+OIS_LIBS = @OIS_LIBS@
 OpenGL_CFLAGS = @OpenGL_CFLAGS@
 OpenGL_LIBS = @OpenGL_LIBS@
 PACKAGE = @PACKAGE@
@@ -145,6 +156,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SILLY_CFLAGS = @SILLY_CFLAGS@
@@ -213,9 +225,15 @@ xerces_CFLAGS = @xerces_CFLAGS@
 xerces_LIBS = @xerces_LIBS@
 INCLUDES = -I$(top_srcdir)/include $(DevIL_CFLAGS)
 
+libCEGUIDevILImageCodec_la_LIBADD = $(am__append_1) $(DevIL_LIBS) 
+
+@MINGW32_BUILD_TRUE@libCEGUIDevILImageCodec_la_CPPFLAGS = -DCEGUIDEVILIMAGECODEC_EXPORTS
+@MINGW32_BUILD_TRUE@libCEGUIDevILImageCodec_la_LDFLAGS = -no-undefined -avoid-version
+
 lib_LTLIBRARIES = libCEGUIDevILImageCodec.la
+
 libCEGUIDevILImageCodec_la_SOURCES = CEGUIDevILImageCodec.cpp CEGUIDevILImageCodecModule.cpp
-libCEGUIDevILImageCodec_la_LIBADD = $(DevIL_LIBS) 
+
 pkginclude_HEADERS = CEGUIDevILImageCodec.h CEGUIDevILImageCodecModule.h
 subdir = ImageCodecModules/DevILImageCodec
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -224,18 +242,20 @@ CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-libCEGUIDevILImageCodec_la_LDFLAGS =
-libCEGUIDevILImageCodec_la_DEPENDENCIES =
-am_libCEGUIDevILImageCodec_la_OBJECTS = CEGUIDevILImageCodec.lo \
-	CEGUIDevILImageCodecModule.lo
+@MINGW32_BUILD_TRUE@libCEGUIDevILImageCodec_la_DEPENDENCIES =
+@MINGW32_BUILD_FALSE@libCEGUIDevILImageCodec_la_DEPENDENCIES =
+am_libCEGUIDevILImageCodec_la_OBJECTS = \
+	libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.lo \
+	libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.lo
 libCEGUIDevILImageCodec_la_OBJECTS = \
 	$(am_libCEGUIDevILImageCodec_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CEGUIDevILImageCodec.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CEGUIDevILImageCodecModule.Plo
+@AMDEP_TRUE@DEP_FILES = \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Plo
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -296,8 +316,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGUIDevILImageCodec.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGUIDevILImageCodecModule.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
@@ -331,6 +351,72 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
+
+libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.o: CEGUIDevILImageCodec.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIDevILImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.o -MD -MP -MF "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.o `test -f 'CEGUIDevILImageCodec.cpp' || echo '$(srcdir)/'`CEGUIDevILImageCodec.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Tpo" "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIDevILImageCodec.cpp' object='libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Po' tmpdepfile='$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIDevILImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.o `test -f 'CEGUIDevILImageCodec.cpp' || echo '$(srcdir)/'`CEGUIDevILImageCodec.cpp
+
+libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.obj: CEGUIDevILImageCodec.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIDevILImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.obj -MD -MP -MF "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.obj `if test -f 'CEGUIDevILImageCodec.cpp'; then $(CYGPATH_W) 'CEGUIDevILImageCodec.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIDevILImageCodec.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Tpo" "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIDevILImageCodec.cpp' object='libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Po' tmpdepfile='$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIDevILImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.obj `if test -f 'CEGUIDevILImageCodec.cpp'; then $(CYGPATH_W) 'CEGUIDevILImageCodec.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIDevILImageCodec.cpp'; fi`
+
+libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.lo: CEGUIDevILImageCodec.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIDevILImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.lo -MD -MP -MF "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.lo `test -f 'CEGUIDevILImageCodec.cpp' || echo '$(srcdir)/'`CEGUIDevILImageCodec.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Tpo" "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIDevILImageCodec.cpp' object='libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.Plo' tmpdepfile='$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIDevILImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIDevILImageCodec_la-CEGUIDevILImageCodec.lo `test -f 'CEGUIDevILImageCodec.cpp' || echo '$(srcdir)/'`CEGUIDevILImageCodec.cpp
+
+libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.o: CEGUIDevILImageCodecModule.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIDevILImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.o -MD -MP -MF "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.o `test -f 'CEGUIDevILImageCodecModule.cpp' || echo '$(srcdir)/'`CEGUIDevILImageCodecModule.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Tpo" "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIDevILImageCodecModule.cpp' object='libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Po' tmpdepfile='$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIDevILImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.o `test -f 'CEGUIDevILImageCodecModule.cpp' || echo '$(srcdir)/'`CEGUIDevILImageCodecModule.cpp
+
+libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.obj: CEGUIDevILImageCodecModule.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIDevILImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.obj -MD -MP -MF "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.obj `if test -f 'CEGUIDevILImageCodecModule.cpp'; then $(CYGPATH_W) 'CEGUIDevILImageCodecModule.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIDevILImageCodecModule.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Tpo" "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIDevILImageCodecModule.cpp' object='libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Po' tmpdepfile='$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIDevILImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.obj `if test -f 'CEGUIDevILImageCodecModule.cpp'; then $(CYGPATH_W) 'CEGUIDevILImageCodecModule.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUIDevILImageCodecModule.cpp'; fi`
+
+libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.lo: CEGUIDevILImageCodecModule.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIDevILImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.lo -MD -MP -MF "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.lo `test -f 'CEGUIDevILImageCodecModule.cpp' || echo '$(srcdir)/'`CEGUIDevILImageCodecModule.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Tpo" "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUIDevILImageCodecModule.cpp' object='libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.Plo' tmpdepfile='$(DEPDIR)/libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIDevILImageCodec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIDevILImageCodec_la-CEGUIDevILImageCodecModule.lo `test -f 'CEGUIDevILImageCodecModule.cpp' || echo '$(srcdir)/'`CEGUIDevILImageCodecModule.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

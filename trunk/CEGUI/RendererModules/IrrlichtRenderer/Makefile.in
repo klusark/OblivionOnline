@@ -35,6 +35,8 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
+@MINGW32_BUILD_TRUE@am__append_1 = -no-undefined
+@MINGW32_BUILD_TRUE@am__append_2 = -L$(top_builddir)/src -lCEGUIBase
 
 pkgincludedir = $(prefix)/include/CEGUI/RendererModules/IrrlichtRenderer
 ACLOCAL = @ACLOCAL@
@@ -42,6 +44,7 @@ AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -82,6 +85,7 @@ CEGUI_IRRLICHT_VERSION_INFO = @CEGUI_IRRLICHT_VERSION_INFO@
 CEGUI_NULL_CFLAGS = @CEGUI_NULL_CFLAGS@
 CEGUI_NULL_LIBS = @CEGUI_NULL_LIBS@
 CEGUI_OPENGL_VERSION_INFO = @CEGUI_OPENGL_VERSION_INFO@
+CEGUI_SAMPLES_CFLAGS = @CEGUI_SAMPLES_CFLAGS@
 CEGUI_SAMPLES_USE_IRRLICHT_FALSE = @CEGUI_SAMPLES_USE_IRRLICHT_FALSE@
 CEGUI_SAMPLES_USE_IRRLICHT_TRUE = @CEGUI_SAMPLES_USE_IRRLICHT_TRUE@
 CEGUI_SAMPLES_USE_OGRE_FALSE = @CEGUI_SAMPLES_USE_OGRE_FALSE@
@@ -103,6 +107,8 @@ Corona_CFLAGS = @Corona_CFLAGS@
 Corona_LIBS = @Corona_LIBS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+DSYMUTIL = @DSYMUTIL@
 DevIL_CFLAGS = @DevIL_CFLAGS@
 DevIL_LIBS = @DevIL_LIBS@
 ECHO = @ECHO@
@@ -133,7 +139,13 @@ LTLIBOBJS = @LTLIBOBJS@
 Lua_CFLAGS = @Lua_CFLAGS@
 Lua_LIBS = @Lua_LIBS@
 MAKEINFO = @MAKEINFO@
+MINGW32_BUILD_FALSE = @MINGW32_BUILD_FALSE@
+MINGW32_BUILD_TRUE = @MINGW32_BUILD_TRUE@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OIS_CFLAGS = @OIS_CFLAGS@
+OIS_LIBS = @OIS_LIBS@
 OpenGL_CFLAGS = @OpenGL_CFLAGS@
 OpenGL_LIBS = @OpenGL_LIBS@
 PACKAGE = @PACKAGE@
@@ -145,6 +157,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SILLY_CFLAGS = @SILLY_CFLAGS@
@@ -220,9 +233,12 @@ pkginclude_HEADERS = irrlichtrenderer.h \
 					 IrrlichtMemoryFile.h
 
 
-lib_LTLIBRARIES = libCEGUIIrrlichtRenderer.la
+libCEGUIIrrlichtRenderer_la_LDFLAGS = $(am__append_1) -version-info @CEGUI_IRRLICHT_VERSION_INFO@
+libCEGUIIrrlichtRenderer_la_LIBADD = $(am__append_2) $(Irrlicht_LIBS)
 
-libCEGUIIrrlichtRenderer_la_LDFLAGS = -version-info @CEGUI_IRRLICHT_VERSION_INFO@
+@MINGW32_BUILD_TRUE@libCEGUIIrrlichtRenderer_la_CPPFLAGS = -DIRRRENDERER_EXPORTS
+
+lib_LTLIBRARIES = libCEGUIIrrlichtRenderer.la
 
 libCEGUIIrrlichtRenderer_la_SOURCES = irrlichtrenderer.cpp \
                                       IrrlichtResourceProvider.cpp \
@@ -230,7 +246,7 @@ libCEGUIIrrlichtRenderer_la_SOURCES = irrlichtrenderer.cpp \
                                       IrrlichtMemoryFile.cpp
 
 
-libCEGUIIrrlichtRenderer_la_LIBADD = $(Irrlicht_LIBS)
+EXTRA_DIST = Readme.txt
 subdir = RendererModules/IrrlichtRenderer
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -238,20 +254,24 @@ CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-libCEGUIIrrlichtRenderer_la_DEPENDENCIES =
-am_libCEGUIIrrlichtRenderer_la_OBJECTS = irrlichtrenderer.lo \
-	IrrlichtResourceProvider.lo irrlichttexture.lo \
-	IrrlichtMemoryFile.lo
+@MINGW32_BUILD_TRUE@libCEGUIIrrlichtRenderer_la_DEPENDENCIES =
+@MINGW32_BUILD_FALSE@libCEGUIIrrlichtRenderer_la_DEPENDENCIES =
+am_libCEGUIIrrlichtRenderer_la_OBJECTS = \
+	libCEGUIIrrlichtRenderer_la-irrlichtrenderer.lo \
+	libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.lo \
+	libCEGUIIrrlichtRenderer_la-irrlichttexture.lo \
+	libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.lo
 libCEGUIIrrlichtRenderer_la_OBJECTS = \
 	$(am_libCEGUIIrrlichtRenderer_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/IrrlichtMemoryFile.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/IrrlichtResourceProvider.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/irrlichtrenderer.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/irrlichttexture.Plo
+@AMDEP_TRUE@DEP_FILES = \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Plo
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -312,10 +332,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IrrlichtMemoryFile.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IrrlichtResourceProvider.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/irrlichtrenderer.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/irrlichttexture.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
@@ -349,6 +369,138 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
+
+libCEGUIIrrlichtRenderer_la-irrlichtrenderer.o: irrlichtrenderer.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIIrrlichtRenderer_la-irrlichtrenderer.o -MD -MP -MF "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIIrrlichtRenderer_la-irrlichtrenderer.o `test -f 'irrlichtrenderer.cpp' || echo '$(srcdir)/'`irrlichtrenderer.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Tpo" "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='irrlichtrenderer.cpp' object='libCEGUIIrrlichtRenderer_la-irrlichtrenderer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Po' tmpdepfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIIrrlichtRenderer_la-irrlichtrenderer.o `test -f 'irrlichtrenderer.cpp' || echo '$(srcdir)/'`irrlichtrenderer.cpp
+
+libCEGUIIrrlichtRenderer_la-irrlichtrenderer.obj: irrlichtrenderer.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIIrrlichtRenderer_la-irrlichtrenderer.obj -MD -MP -MF "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIIrrlichtRenderer_la-irrlichtrenderer.obj `if test -f 'irrlichtrenderer.cpp'; then $(CYGPATH_W) 'irrlichtrenderer.cpp'; else $(CYGPATH_W) '$(srcdir)/irrlichtrenderer.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Tpo" "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='irrlichtrenderer.cpp' object='libCEGUIIrrlichtRenderer_la-irrlichtrenderer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Po' tmpdepfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIIrrlichtRenderer_la-irrlichtrenderer.obj `if test -f 'irrlichtrenderer.cpp'; then $(CYGPATH_W) 'irrlichtrenderer.cpp'; else $(CYGPATH_W) '$(srcdir)/irrlichtrenderer.cpp'; fi`
+
+libCEGUIIrrlichtRenderer_la-irrlichtrenderer.lo: irrlichtrenderer.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIIrrlichtRenderer_la-irrlichtrenderer.lo -MD -MP -MF "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIIrrlichtRenderer_la-irrlichtrenderer.lo `test -f 'irrlichtrenderer.cpp' || echo '$(srcdir)/'`irrlichtrenderer.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Tpo" "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='irrlichtrenderer.cpp' object='libCEGUIIrrlichtRenderer_la-irrlichtrenderer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.Plo' tmpdepfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichtrenderer.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIIrrlichtRenderer_la-irrlichtrenderer.lo `test -f 'irrlichtrenderer.cpp' || echo '$(srcdir)/'`irrlichtrenderer.cpp
+
+libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.o: IrrlichtResourceProvider.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.o -MD -MP -MF "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.o `test -f 'IrrlichtResourceProvider.cpp' || echo '$(srcdir)/'`IrrlichtResourceProvider.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Tpo" "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IrrlichtResourceProvider.cpp' object='libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Po' tmpdepfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.o `test -f 'IrrlichtResourceProvider.cpp' || echo '$(srcdir)/'`IrrlichtResourceProvider.cpp
+
+libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.obj: IrrlichtResourceProvider.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.obj -MD -MP -MF "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.obj `if test -f 'IrrlichtResourceProvider.cpp'; then $(CYGPATH_W) 'IrrlichtResourceProvider.cpp'; else $(CYGPATH_W) '$(srcdir)/IrrlichtResourceProvider.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Tpo" "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IrrlichtResourceProvider.cpp' object='libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Po' tmpdepfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.obj `if test -f 'IrrlichtResourceProvider.cpp'; then $(CYGPATH_W) 'IrrlichtResourceProvider.cpp'; else $(CYGPATH_W) '$(srcdir)/IrrlichtResourceProvider.cpp'; fi`
+
+libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.lo: IrrlichtResourceProvider.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.lo -MD -MP -MF "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.lo `test -f 'IrrlichtResourceProvider.cpp' || echo '$(srcdir)/'`IrrlichtResourceProvider.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Tpo" "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IrrlichtResourceProvider.cpp' object='libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.Plo' tmpdepfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIIrrlichtRenderer_la-IrrlichtResourceProvider.lo `test -f 'IrrlichtResourceProvider.cpp' || echo '$(srcdir)/'`IrrlichtResourceProvider.cpp
+
+libCEGUIIrrlichtRenderer_la-irrlichttexture.o: irrlichttexture.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIIrrlichtRenderer_la-irrlichttexture.o -MD -MP -MF "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIIrrlichtRenderer_la-irrlichttexture.o `test -f 'irrlichttexture.cpp' || echo '$(srcdir)/'`irrlichttexture.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Tpo" "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='irrlichttexture.cpp' object='libCEGUIIrrlichtRenderer_la-irrlichttexture.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Po' tmpdepfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIIrrlichtRenderer_la-irrlichttexture.o `test -f 'irrlichttexture.cpp' || echo '$(srcdir)/'`irrlichttexture.cpp
+
+libCEGUIIrrlichtRenderer_la-irrlichttexture.obj: irrlichttexture.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIIrrlichtRenderer_la-irrlichttexture.obj -MD -MP -MF "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIIrrlichtRenderer_la-irrlichttexture.obj `if test -f 'irrlichttexture.cpp'; then $(CYGPATH_W) 'irrlichttexture.cpp'; else $(CYGPATH_W) '$(srcdir)/irrlichttexture.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Tpo" "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='irrlichttexture.cpp' object='libCEGUIIrrlichtRenderer_la-irrlichttexture.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Po' tmpdepfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIIrrlichtRenderer_la-irrlichttexture.obj `if test -f 'irrlichttexture.cpp'; then $(CYGPATH_W) 'irrlichttexture.cpp'; else $(CYGPATH_W) '$(srcdir)/irrlichttexture.cpp'; fi`
+
+libCEGUIIrrlichtRenderer_la-irrlichttexture.lo: irrlichttexture.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIIrrlichtRenderer_la-irrlichttexture.lo -MD -MP -MF "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIIrrlichtRenderer_la-irrlichttexture.lo `test -f 'irrlichttexture.cpp' || echo '$(srcdir)/'`irrlichttexture.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Tpo" "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='irrlichttexture.cpp' object='libCEGUIIrrlichtRenderer_la-irrlichttexture.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.Plo' tmpdepfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-irrlichttexture.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIIrrlichtRenderer_la-irrlichttexture.lo `test -f 'irrlichttexture.cpp' || echo '$(srcdir)/'`irrlichttexture.cpp
+
+libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.o: IrrlichtMemoryFile.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.o -MD -MP -MF "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.o `test -f 'IrrlichtMemoryFile.cpp' || echo '$(srcdir)/'`IrrlichtMemoryFile.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Tpo" "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IrrlichtMemoryFile.cpp' object='libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Po' tmpdepfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.o `test -f 'IrrlichtMemoryFile.cpp' || echo '$(srcdir)/'`IrrlichtMemoryFile.cpp
+
+libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.obj: IrrlichtMemoryFile.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.obj -MD -MP -MF "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.obj `if test -f 'IrrlichtMemoryFile.cpp'; then $(CYGPATH_W) 'IrrlichtMemoryFile.cpp'; else $(CYGPATH_W) '$(srcdir)/IrrlichtMemoryFile.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Tpo" "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IrrlichtMemoryFile.cpp' object='libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Po' tmpdepfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.obj `if test -f 'IrrlichtMemoryFile.cpp'; then $(CYGPATH_W) 'IrrlichtMemoryFile.cpp'; else $(CYGPATH_W) '$(srcdir)/IrrlichtMemoryFile.cpp'; fi`
+
+libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.lo: IrrlichtMemoryFile.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.lo -MD -MP -MF "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.lo `test -f 'IrrlichtMemoryFile.cpp' || echo '$(srcdir)/'`IrrlichtMemoryFile.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Tpo" "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='IrrlichtMemoryFile.cpp' object='libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.Plo' tmpdepfile='$(DEPDIR)/libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUIIrrlichtRenderer_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUIIrrlichtRenderer_la-IrrlichtMemoryFile.lo `test -f 'IrrlichtMemoryFile.cpp' || echo '$(srcdir)/'`IrrlichtMemoryFile.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

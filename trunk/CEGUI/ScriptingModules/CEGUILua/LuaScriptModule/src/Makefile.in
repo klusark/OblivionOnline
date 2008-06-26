@@ -36,11 +36,14 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
+@MINGW32_BUILD_TRUE@am__append_1 = -DCEGUILUA_EXPORTS
+@MINGW32_BUILD_TRUE@am__append_2 = -no-undefined -avoid-version
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -81,6 +84,7 @@ CEGUI_IRRLICHT_VERSION_INFO = @CEGUI_IRRLICHT_VERSION_INFO@
 CEGUI_NULL_CFLAGS = @CEGUI_NULL_CFLAGS@
 CEGUI_NULL_LIBS = @CEGUI_NULL_LIBS@
 CEGUI_OPENGL_VERSION_INFO = @CEGUI_OPENGL_VERSION_INFO@
+CEGUI_SAMPLES_CFLAGS = @CEGUI_SAMPLES_CFLAGS@
 CEGUI_SAMPLES_USE_IRRLICHT_FALSE = @CEGUI_SAMPLES_USE_IRRLICHT_FALSE@
 CEGUI_SAMPLES_USE_IRRLICHT_TRUE = @CEGUI_SAMPLES_USE_IRRLICHT_TRUE@
 CEGUI_SAMPLES_USE_OGRE_FALSE = @CEGUI_SAMPLES_USE_OGRE_FALSE@
@@ -102,6 +106,8 @@ Corona_CFLAGS = @Corona_CFLAGS@
 Corona_LIBS = @Corona_LIBS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+DSYMUTIL = @DSYMUTIL@
 DevIL_CFLAGS = @DevIL_CFLAGS@
 DevIL_LIBS = @DevIL_LIBS@
 ECHO = @ECHO@
@@ -132,7 +138,13 @@ LTLIBOBJS = @LTLIBOBJS@
 Lua_CFLAGS = @Lua_CFLAGS@
 Lua_LIBS = @Lua_LIBS@
 MAKEINFO = @MAKEINFO@
+MINGW32_BUILD_FALSE = @MINGW32_BUILD_FALSE@
+MINGW32_BUILD_TRUE = @MINGW32_BUILD_TRUE@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OIS_CFLAGS = @OIS_CFLAGS@
+OIS_LIBS = @OIS_LIBS@
 OpenGL_CFLAGS = @OpenGL_CFLAGS@
 OpenGL_LIBS = @OpenGL_LIBS@
 PACKAGE = @PACKAGE@
@@ -144,6 +156,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SILLY_CFLAGS = @SILLY_CFLAGS@
@@ -214,9 +227,15 @@ INCLUDES = -I$(top_srcdir)/include \
            -I$(top_srcdir)/ScriptingModules/CEGUILua/tolua++ \
            -I$(top_srcdir)/ScriptingModules/CEGUILua/LuaScriptModule/include
 
-lib_LTLIBRARIES = libCEGUILuaScriptModule.la
 
-libCEGUILuaScriptModule_la_LDFLAGS = -version-info @CEGUI_VERSION_INFO@
+libCEGUILuaScriptModule_la_LDFLAGS = $(am__append_2) -version-info @CEGUI_VERSION_INFO@
+libCEGUILuaScriptModule_la_CPPFLAGS = $(Lua_CFLAGS) $(am__append_1)
+@MINGW32_BUILD_TRUE@libCEGUILuaScriptModule_la_LIBADD = -L$(top_builddir)/src/ \
+@MINGW32_BUILD_TRUE@                                    -L$(top_builddir)/ScriptingModules/CEGUILua/tolua++ \
+@MINGW32_BUILD_TRUE@                                    -lCEGUIBase -lCEGUItoluapp $(Lua_LIBS)
+
+
+lib_LTLIBRARIES = libCEGUILuaScriptModule.la
 
 libCEGUILuaScriptModule_la_SOURCES = lua_CEGUI.cpp \
                                      CEGUILua.cpp \
@@ -232,18 +251,24 @@ CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-libCEGUILuaScriptModule_la_LIBADD =
-am_libCEGUILuaScriptModule_la_OBJECTS = lua_CEGUI.lo CEGUILua.lo \
-	CEGUILuaFunctor.lo required.lo
+@MINGW32_BUILD_TRUE@libCEGUILuaScriptModule_la_DEPENDENCIES =
+@MINGW32_BUILD_FALSE@libCEGUILuaScriptModule_la_DEPENDENCIES =
+am_libCEGUILuaScriptModule_la_OBJECTS = \
+	libCEGUILuaScriptModule_la-lua_CEGUI.lo \
+	libCEGUILuaScriptModule_la-CEGUILua.lo \
+	libCEGUILuaScriptModule_la-CEGUILuaFunctor.lo \
+	libCEGUILuaScriptModule_la-required.lo
 libCEGUILuaScriptModule_la_OBJECTS = \
 	$(am_libCEGUILuaScriptModule_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CEGUILua.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CEGUILuaFunctor.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/lua_CEGUI.Plo ./$(DEPDIR)/required.Plo
+@AMDEP_TRUE@DEP_FILES = \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/libCEGUILuaScriptModule_la-required.Plo
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -304,10 +329,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGUILua.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CEGUILuaFunctor.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lua_CEGUI.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/required.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCEGUILuaScriptModule_la-required.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
@@ -341,6 +366,138 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
+
+libCEGUILuaScriptModule_la-lua_CEGUI.o: lua_CEGUI.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUILuaScriptModule_la-lua_CEGUI.o -MD -MP -MF "$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUILuaScriptModule_la-lua_CEGUI.o `test -f 'lua_CEGUI.cpp' || echo '$(srcdir)/'`lua_CEGUI.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Tpo" "$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='lua_CEGUI.cpp' object='libCEGUILuaScriptModule_la-lua_CEGUI.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Po' tmpdepfile='$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUILuaScriptModule_la-lua_CEGUI.o `test -f 'lua_CEGUI.cpp' || echo '$(srcdir)/'`lua_CEGUI.cpp
+
+libCEGUILuaScriptModule_la-lua_CEGUI.obj: lua_CEGUI.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUILuaScriptModule_la-lua_CEGUI.obj -MD -MP -MF "$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUILuaScriptModule_la-lua_CEGUI.obj `if test -f 'lua_CEGUI.cpp'; then $(CYGPATH_W) 'lua_CEGUI.cpp'; else $(CYGPATH_W) '$(srcdir)/lua_CEGUI.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Tpo" "$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='lua_CEGUI.cpp' object='libCEGUILuaScriptModule_la-lua_CEGUI.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Po' tmpdepfile='$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUILuaScriptModule_la-lua_CEGUI.obj `if test -f 'lua_CEGUI.cpp'; then $(CYGPATH_W) 'lua_CEGUI.cpp'; else $(CYGPATH_W) '$(srcdir)/lua_CEGUI.cpp'; fi`
+
+libCEGUILuaScriptModule_la-lua_CEGUI.lo: lua_CEGUI.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUILuaScriptModule_la-lua_CEGUI.lo -MD -MP -MF "$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUILuaScriptModule_la-lua_CEGUI.lo `test -f 'lua_CEGUI.cpp' || echo '$(srcdir)/'`lua_CEGUI.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Tpo" "$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='lua_CEGUI.cpp' object='libCEGUILuaScriptModule_la-lua_CEGUI.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.Plo' tmpdepfile='$(DEPDIR)/libCEGUILuaScriptModule_la-lua_CEGUI.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUILuaScriptModule_la-lua_CEGUI.lo `test -f 'lua_CEGUI.cpp' || echo '$(srcdir)/'`lua_CEGUI.cpp
+
+libCEGUILuaScriptModule_la-CEGUILua.o: CEGUILua.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUILuaScriptModule_la-CEGUILua.o -MD -MP -MF "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUILuaScriptModule_la-CEGUILua.o `test -f 'CEGUILua.cpp' || echo '$(srcdir)/'`CEGUILua.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Tpo" "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUILua.cpp' object='libCEGUILuaScriptModule_la-CEGUILua.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Po' tmpdepfile='$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUILuaScriptModule_la-CEGUILua.o `test -f 'CEGUILua.cpp' || echo '$(srcdir)/'`CEGUILua.cpp
+
+libCEGUILuaScriptModule_la-CEGUILua.obj: CEGUILua.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUILuaScriptModule_la-CEGUILua.obj -MD -MP -MF "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUILuaScriptModule_la-CEGUILua.obj `if test -f 'CEGUILua.cpp'; then $(CYGPATH_W) 'CEGUILua.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUILua.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Tpo" "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUILua.cpp' object='libCEGUILuaScriptModule_la-CEGUILua.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Po' tmpdepfile='$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUILuaScriptModule_la-CEGUILua.obj `if test -f 'CEGUILua.cpp'; then $(CYGPATH_W) 'CEGUILua.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUILua.cpp'; fi`
+
+libCEGUILuaScriptModule_la-CEGUILua.lo: CEGUILua.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUILuaScriptModule_la-CEGUILua.lo -MD -MP -MF "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUILuaScriptModule_la-CEGUILua.lo `test -f 'CEGUILua.cpp' || echo '$(srcdir)/'`CEGUILua.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Tpo" "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUILua.cpp' object='libCEGUILuaScriptModule_la-CEGUILua.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.Plo' tmpdepfile='$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILua.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUILuaScriptModule_la-CEGUILua.lo `test -f 'CEGUILua.cpp' || echo '$(srcdir)/'`CEGUILua.cpp
+
+libCEGUILuaScriptModule_la-CEGUILuaFunctor.o: CEGUILuaFunctor.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUILuaScriptModule_la-CEGUILuaFunctor.o -MD -MP -MF "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUILuaScriptModule_la-CEGUILuaFunctor.o `test -f 'CEGUILuaFunctor.cpp' || echo '$(srcdir)/'`CEGUILuaFunctor.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Tpo" "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUILuaFunctor.cpp' object='libCEGUILuaScriptModule_la-CEGUILuaFunctor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Po' tmpdepfile='$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUILuaScriptModule_la-CEGUILuaFunctor.o `test -f 'CEGUILuaFunctor.cpp' || echo '$(srcdir)/'`CEGUILuaFunctor.cpp
+
+libCEGUILuaScriptModule_la-CEGUILuaFunctor.obj: CEGUILuaFunctor.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUILuaScriptModule_la-CEGUILuaFunctor.obj -MD -MP -MF "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUILuaScriptModule_la-CEGUILuaFunctor.obj `if test -f 'CEGUILuaFunctor.cpp'; then $(CYGPATH_W) 'CEGUILuaFunctor.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUILuaFunctor.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Tpo" "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUILuaFunctor.cpp' object='libCEGUILuaScriptModule_la-CEGUILuaFunctor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Po' tmpdepfile='$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUILuaScriptModule_la-CEGUILuaFunctor.obj `if test -f 'CEGUILuaFunctor.cpp'; then $(CYGPATH_W) 'CEGUILuaFunctor.cpp'; else $(CYGPATH_W) '$(srcdir)/CEGUILuaFunctor.cpp'; fi`
+
+libCEGUILuaScriptModule_la-CEGUILuaFunctor.lo: CEGUILuaFunctor.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUILuaScriptModule_la-CEGUILuaFunctor.lo -MD -MP -MF "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUILuaScriptModule_la-CEGUILuaFunctor.lo `test -f 'CEGUILuaFunctor.cpp' || echo '$(srcdir)/'`CEGUILuaFunctor.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Tpo" "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CEGUILuaFunctor.cpp' object='libCEGUILuaScriptModule_la-CEGUILuaFunctor.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.Plo' tmpdepfile='$(DEPDIR)/libCEGUILuaScriptModule_la-CEGUILuaFunctor.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUILuaScriptModule_la-CEGUILuaFunctor.lo `test -f 'CEGUILuaFunctor.cpp' || echo '$(srcdir)/'`CEGUILuaFunctor.cpp
+
+libCEGUILuaScriptModule_la-required.o: required.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUILuaScriptModule_la-required.o -MD -MP -MF "$(DEPDIR)/libCEGUILuaScriptModule_la-required.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUILuaScriptModule_la-required.o `test -f 'required.cpp' || echo '$(srcdir)/'`required.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUILuaScriptModule_la-required.Tpo" "$(DEPDIR)/libCEGUILuaScriptModule_la-required.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUILuaScriptModule_la-required.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='required.cpp' object='libCEGUILuaScriptModule_la-required.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUILuaScriptModule_la-required.Po' tmpdepfile='$(DEPDIR)/libCEGUILuaScriptModule_la-required.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUILuaScriptModule_la-required.o `test -f 'required.cpp' || echo '$(srcdir)/'`required.cpp
+
+libCEGUILuaScriptModule_la-required.obj: required.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUILuaScriptModule_la-required.obj -MD -MP -MF "$(DEPDIR)/libCEGUILuaScriptModule_la-required.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUILuaScriptModule_la-required.obj `if test -f 'required.cpp'; then $(CYGPATH_W) 'required.cpp'; else $(CYGPATH_W) '$(srcdir)/required.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUILuaScriptModule_la-required.Tpo" "$(DEPDIR)/libCEGUILuaScriptModule_la-required.Po"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUILuaScriptModule_la-required.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='required.cpp' object='libCEGUILuaScriptModule_la-required.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUILuaScriptModule_la-required.Po' tmpdepfile='$(DEPDIR)/libCEGUILuaScriptModule_la-required.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUILuaScriptModule_la-required.obj `if test -f 'required.cpp'; then $(CYGPATH_W) 'required.cpp'; else $(CYGPATH_W) '$(srcdir)/required.cpp'; fi`
+
+libCEGUILuaScriptModule_la-required.lo: required.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libCEGUILuaScriptModule_la-required.lo -MD -MP -MF "$(DEPDIR)/libCEGUILuaScriptModule_la-required.Tpo" \
+@am__fastdepCXX_TRUE@	  -c -o libCEGUILuaScriptModule_la-required.lo `test -f 'required.cpp' || echo '$(srcdir)/'`required.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libCEGUILuaScriptModule_la-required.Tpo" "$(DEPDIR)/libCEGUILuaScriptModule_la-required.Plo"; \
+@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/libCEGUILuaScriptModule_la-required.Tpo"; exit 1; \
+@am__fastdepCXX_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='required.cpp' object='libCEGUILuaScriptModule_la-required.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libCEGUILuaScriptModule_la-required.Plo' tmpdepfile='$(DEPDIR)/libCEGUILuaScriptModule_la-required.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libCEGUILuaScriptModule_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libCEGUILuaScriptModule_la-required.lo `test -f 'required.cpp' || echo '$(srcdir)/'`required.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -40,6 +40,9 @@ namespace CEGUI
 GroupBox::GroupBox(const String& type, const String& name) :
 	Window(type, name)
 {
+    // When clicked, don't rise. Required because a Groupbox does not have an actual parent child
+    // relation with the widgets which appear inside it.
+    d_riseOnClick = false;
 }
 
 GroupBox::~GroupBox()
@@ -68,7 +71,7 @@ void GroupBox::addChild_impl(Window* wnd)
 		}
 	}
 }
-	
+
 void GroupBox::removeChild_impl(Window* wnd)
 {
 	if (wnd)
@@ -101,7 +104,7 @@ Window * GroupBox::getContentPane() const
     {
         return winMgr->getWindow(paneName);
     }
-    return NULL;
+    return 0;
 }
 
 bool GroupBox::drawAroundWidget(const CEGUI::Window * wnd)
@@ -123,7 +126,7 @@ bool GroupBox::drawAroundWidget(const CEGUI::Window * wnd)
 
 	this->setSize(newSize);
 	this->setPosition(newPos);
-		
+
 	return true;*/
 }
 
@@ -132,5 +135,5 @@ bool GroupBox::drawAroundWidget(const String& name)
 	return drawAroundWidget(WindowManager::getSingletonPtr()->getWindow(name));
 }
 
-	
+
 } // End of  CEGUI namespace section

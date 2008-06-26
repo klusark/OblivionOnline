@@ -33,10 +33,13 @@
 #include "CEGUIFont.h"
 #include "CEGUIImage.h"
 #include "CEGUIDataContainer.h"
+extern "c"
+{
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+};
 // Start of CEGUI namespace section
 namespace CEGUI
 {

@@ -15,6 +15,7 @@ AC_DEFUN([CEGUI_CHECK_WANTS_SAMPLES],[
         if test x$cegui_samples_use_ogre = xyes || test x$cegui_samples_use_irrlicht = xyes || test x$cegui_samples_use_opengl = xyes; then
             cegui_build_samples=yes
             AC_MSG_NOTICE([Samples framework and applications are enabled.])
+            CEGUI_SAMPLES_CFLAGS='-DCEGUI_SAMPLE_DATAPATH="\"$(datadir)/$(PACKAGE)"\"'
         else
             cegui_build_samples=no
             AC_MSG_NOTICE([No renderers available.  Building of samples framework and applications has been disabled.])
@@ -25,6 +26,7 @@ AC_DEFUN([CEGUI_CHECK_WANTS_SAMPLES],[
     fi
 
     AM_CONDITIONAL([CEGUI_BUILD_SAMPLES], [test x$cegui_build_samples = xyes])
+    AC_SUBST(CEGUI_SAMPLES_CFLAGS)
 ])
 
 AC_DEFUN([CEGUI_CHECK_GTK_FOR_SAMPLES],[
@@ -221,6 +223,7 @@ AC_DEFUN([CEGUI_ENABLE_IRRLICHT_RENDERER], [
 # CEGUI_CHECK_IRRLICHT(variable, [action-if-found], [action-if-not-found])
 # checks for Irrlicht headers and libs in some common places.
 AC_DEFUN([CEGUI_CHECK_IRRLICHT],[
+    AC_LANG_PUSH([C++])
     AC_ARG_WITH([irrlicht-incdir], AC_HELP_STRING([--with-irrlicht-incdir=DIR], [Optionally specifies location of the Irrlicht includes]),
         [cegui_irr_incdir=$withval],[cegui_irr_incdir=[.]])
     AC_ARG_WITH([irrlicht-libdir], AC_HELP_STRING([--with-irrlicht-libdir=DIR], [Optionally specifies location of the Irrlicht libraries]),
@@ -244,10 +247,74 @@ AC_DEFUN([CEGUI_CHECK_IRRLICHT],[
         AC_CHECK_LIB(Irrlicht, main, [cegui_irr_l_found=yes; cegui_irr_libs="$cegui_path"; break],[cegui_irr_l_found=no; unset ac_cv_lib_Irrlicht_main])
     done
 
+    dnl The following is all to set a 'usable' macro for the Irrlicht version, as opposed
+    dnl to the IRRLICHT_SDK_VERSION macro in irrlicht which is limited for our purpose.
+    dnl if anyone knows a better way - let us know :)
+    gotirrsdkver=no
+    if test x$cegui_irr_h_found = xyes && test x$cegui_irr_l_found = xyes; then
+        AC_MSG_NOTICE([Trying to determine Irrlicht SDK version])
+        AC_COMPILE_IFELSE(
+        [
+            #include <irrlicht.h>
+            class test : public irr::io::IReadFile
+            {
+            public:
+                bool seek(irr::s32 finalPos, bool relativeMovement = false) {return false; }
+                irr::s32 read(void* buffer, irr::s32 sizeToRead) {return 0;}
+                irr::s32 getSize() {return 0;}
+                irr::s32 getPos() {return 0;}
+                const irr::c8* getFileName() {return 0;}
+            };
+            int main(int argc, char** argv) { test x; return 0; }
+        ],
+        [AC_DEFINE([CEGUI_IRR_SDK_VERSION],[12],[Defines irrlicht SDK version.  12 is 1.2 or below. 13 is 1.3.x and 14 is 1.4 or later.])
+        gotirrsdkver=yes])
+    
+        if test $gotirrsdkver = no; then
+        AC_COMPILE_IFELSE(
+        [
+            #include <irrlicht.h>
+            class test : public irr::io::IReadFile
+            {
+            public:
+                bool seek(irr::s32 finalPos, bool relativeMovement = false) {return false; }
+                irr::s32 read(void* buffer, irr::u32 sizeToRead) {return 0;}
+                irr::s32 getSize() {return 0;}
+                irr::s32 getPos() {return 0;}
+                const irr::c8* getFileName() {return 0;}
+            };
+            int main(int argc, char** argv) { test x; return 0; }
+        ],
+        [AC_DEFINE([CEGUI_IRR_SDK_VERSION],[13],[Defines irrlicht SDK version.  12 is 1.2 or below. 13 is 1.3.x and 14 is 1.4 or later.])
+        gotirrsdkver=yes])
+        fi
+    
+        if test $gotirrsdkver = no; then
+        AC_COMPILE_IFELSE(
+        [
+            #include <irrlicht.h>
+            class test : public irr::io::IReadFile
+            {
+            public:
+                bool seek(long finalPos, bool relativeMovement = false) {return false; }
+                irr::s32 read(void* buffer, irr::u32 sizeToRead) {return 0;}
+                long getSize() const {return 0;}
+                long getPos() const {return 0;}
+                const irr::c8* getFileName() const {return 0;}
+            };
+            int main(int argc, char** argv) { test x; return 0; }
+        ],
+        [AC_DEFINE([CEGUI_IRR_SDK_VERSION],[14],[Defines irrlicht SDK version.  12 is 1.2 or below. 13 is 1.3.x and 14 is 1.4 or later.])
+        gotirrsdkver=yes],
+        [AC_MSG_NOTICE([Unable to determine Irrlicht sdk version.])
+        ])
+        fi
+    fi
+
     CPPFLAGS="$cegui_saved_CFLAGS"
     LIBS="$cegui_saved_LIBS"
 
-    if test x$cegui_irr_h_found = xyes && test x$cegui_irr_l_found = xyes; then
+    if test x$cegui_irr_h_found = xyes && test x$cegui_irr_l_found = xyes && test x$gotirrsdkver = xyes; then
         if test x$cegui_irr_flags != x.; then
             $1_CFLAGS="-I$cegui_irr_flags"
         fi
@@ -261,6 +328,7 @@ AC_DEFUN([CEGUI_CHECK_IRRLICHT],[
     else
         ifelse([$3], [], :, [$3])
     fi    
+    AC_LANG_POP([C++])
 ])
 
 AC_DEFUN([CEGUI_ENABLE_OPENGL_RENDERER], [
@@ -278,20 +346,48 @@ AC_DEFUN([CEGUI_ENABLE_OPENGL_RENDERER], [
         [cegui_with_silly=$enableval], [cegui_with_silly=yes])
     AC_ARG_ENABLE([tga], AC_HELP_STRING([--enable-tga], [Enable image loading via TGA image codec by OpenGL renderer (auto)]), 
         [cegui_with_tga=$enableval], [cegui_with_tga=yes])
-    AC_ARG_WITH([default-image-codec], AC_HELP_STRING([--with-default-image-codec[=PARSER]], [Sets the default image codec used by the OpenGL renderer. 
-Tipically this will be one of TGAImageCodec, SILLYImageCodec, CoronaImageCodec, FreeImageImageCodec, DevILImageCodec, though you can set it to anything 
+    AC_ARG_WITH([default-image-codec], AC_HELP_STRING([--with-default-image-codec[=CODEC]], [Sets the default image codec used by the OpenGL renderer. 
+Typically this will be one of TGAImageCodec, SILLYImageCodec, CoronaImageCodec, FreeImageImageCodec, DevILImageCodec, though you can set it to anything 
 to load a custom made image codec module as the default.]), 
     [cegui_default_image_codec=$withval], [cegui_default_image_codec=none])
-    AC_PATH_XTRA
-    cegui_saved_LIBS="$LIBS"
-    LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
 
-    AC_SEARCH_LIBS(glInterleavedArrays, MesaGL GL, cegui_found_lib_GL=yes, cegui_found_lib_GL=no)
-    AC_SEARCH_LIBS(gluOrtho2D, MesaGLU GLU, cegui_found_lib_GLU=yes,  cegui_found_lib_GLU=no)
-    AC_SEARCH_LIBS(glutInit, glut, cegui_found_lib_glut=yes, cegui_found_lib_glut=no)
-    OpenGL_CFLAGS="$X_CFLAGS"
-    OpenGL_LIBS=$LIBS
+    cegui_saved_LIBS="$LIBS"
+    cegui_saved_CFLAGS="$CFLAGS"
+
+    dnl detect OpenGL libs (done differently on mingw32 than on other systems)
+    dnl -- On mingw32, checking for functions does not seem to work so well, so we just check for existance and hope for the best :-/
+    case $host_os in
+    *mingw32* )
+        AC_CHECK_LIB([opengl32], [main], [cegui_found_lib_GL=yes; LIBS="-lopengl32 $LIBS"], [cegui_found_lib_GL=no])
+        AC_CHECK_LIB([glu32], [main], [cegui_found_lib_GLU=yes; LIBS="-lglu32 $LIBS"], [cegui_found_lib_GLU=no])
+
+        dnl Check for some glut variants.  Done like this because AC_SEARCH_LIBS did not work at all here
+        AC_CHECK_LIB([freeglut], [main], [cegui_found_lib_glut=yes; LIBS="-lfreeglut $LIBS"], [cegui_found_lib_glut=no])
+        if test x$cegui_found_lib_glut = xno; then
+            AC_CHECK_LIB([glut32], [main], [cegui_found_lib_glut=yes; LIBS="-lglut32 $LIBS"], [cegui_found_lib_glut=no])
+            if test x$cegui_found_lib_glut = xno; then
+                AC_CHECK_LIB([glut], [main], [cegui_found_lib_glut=yes; LIBS="-lglut $LIBS"], [cegui_found_lib_glut=no])
+            fi
+        fi
+
+        OpenGL_CFLAGS=""
+        OpenGL_LIBS=$LIBS
+        echo $LIBS
+        ;;
+    * )
+        AC_PATH_XTRA
+        LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
+
+        AC_SEARCH_LIBS(glInterleavedArrays, MesaGL GL, cegui_found_lib_GL=yes, cegui_found_lib_GL=no)
+        AC_SEARCH_LIBS(gluOrtho2D, MesaGLU GLU, cegui_found_lib_GLU=yes,  cegui_found_lib_GLU=no)
+        AC_SEARCH_LIBS(glutInit, glut, cegui_found_lib_glut=yes, cegui_found_lib_glut=no)
+        OpenGL_CFLAGS="$X_CFLAGS"
+        OpenGL_LIBS=$LIBS
+        ;;
+    esac
+
     LIBS="$cegui_saved_LIBS"
+    CFLAGS="$cegui_saved_CFLAGS"
 
     dnl decide whether to really build the OpenGL renderer
     if test x$cegui_enable_opengl = xyes && test x$cegui_found_lib_GL = xyes && test x$cegui_found_lib_GLU = xyes; then
@@ -310,7 +406,7 @@ to load a custom made image codec module as the default.]),
             if test x$cegui_with_il_lib = xyes -a x$cegui_with_ilu_lib = xyes ; then 
                 AC_MSG_NOTICE([Image loading via DevIL by OpenGL renderer enabled])
                 DevIL_CFLAGS="-DUSE_DEVIL_LIBRARY"
-                DevIL_LIBS="-LIL -lILU"
+                DevIL_LIBS="-lIL -lILU"
                 AC_SUBST(DevIL_CFLAGS)
                 AC_SUBST(DevIL_LIBS)
                 cegui_with_devil=yes
@@ -554,7 +650,22 @@ AC_DEFUN([CEGUI_CHECK_EXPAT],[
 ])
 
 AC_DEFUN([CEGUI_CHECK_LUA],[
-    PKG_CHECK_MODULES(Lua, lua >= 5.0 lua < 5.1, [cegui_found_lua=yes], [cegui_found_lua=no])
+    PKG_CHECK_MODULES(Lua, lua >= 5.1,
+                      [cegui_found_lua=yes; Lua_CFLAGS="$Lua_CFLAGS -DCEGUI_LUA_VER=51"],
+                      [PKG_CHECK_MODULES(Lua, lua >= 5.0,
+                                         [cegui_found_lua=yes; Lua_CFLAGS="$Lua_CFLAGS -DCEGUI_LUA_VER=50"],
+                                         [cegui_found_lua=no])
+                      ])
+
+    dnl If that did not work, try again with an alternate name for the packages (as used on (K)Ubuntu etc)
+    if test x$cegui_found_lua = xno; then
+        PKG_CHECK_MODULES(Lua, lua5.1,
+                        [cegui_found_lua=yes; Lua_CFLAGS="$Lua_CFLAGS -DCEGUI_LUA_VER=51"],
+                        [PKG_CHECK_MODULES(Lua, lua50,
+                                            [cegui_found_lua=yes; Lua_CFLAGS="$Lua_CFLAGS -DCEGUI_LUA_VER=50"],
+                                            [cegui_found_lua=no])
+                        ])
+    fi
 
     AC_ARG_ENABLE([lua-module], AC_HELP_STRING([--disable-lua-module], [Disables building of the Lua scripting module.]),
                 [cegui_with_lua=$enableval], [cegui_with_lua=yes])

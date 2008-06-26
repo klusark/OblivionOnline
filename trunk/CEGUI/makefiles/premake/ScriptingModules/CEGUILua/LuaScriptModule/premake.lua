@@ -17,7 +17,8 @@ include(pkgdir.."../tolua++")
 dependency("CEGUIBase")
 dependency("tolua++")
 
-library("lua50", "_d")
+library("lua", "_d")
+-- library_static("lua","","_d")
 
 define("CEGUILUA_EXPORTS")
 

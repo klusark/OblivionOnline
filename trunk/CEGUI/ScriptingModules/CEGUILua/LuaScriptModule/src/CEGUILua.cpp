@@ -2,7 +2,7 @@
 	filename: CEGUILua.cpp
 	created:  16/3/2005
 	author:   Tomas Lindquist Olsen
-	
+
 	purpose:  Implementation for LuaScriptModule class
 *************************************************************************/
 /***************************************************************************
@@ -27,6 +27,10 @@
  *   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *   OTHER DEALINGS IN THE SOFTWARE.
  ***************************************************************************/
+#ifdef HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
 #include "CEGUI.h"
 #include "CEGUIPropertyHelper.h"
 #include "CEGUILua.h"
@@ -55,21 +59,47 @@ namespace CEGUI
 *************************************************************************/
 LuaScriptModule::LuaScriptModule()
 {
-	// create a lua state
-	d_ownsState = true;
-	d_state = lua_open();
+    #if CEGUI_LUA_VER >= 51
+        static const luaL_Reg lualibs[] = {
+            {"", luaopen_base},
+            {LUA_LOADLIBNAME, luaopen_package},
+            {LUA_TABLIBNAME, luaopen_table},
+            {LUA_IOLIBNAME, luaopen_io},
+            {LUA_OSLIBNAME, luaopen_os},
+            {LUA_STRLIBNAME, luaopen_string},
+            {LUA_MATHLIBNAME, luaopen_math},
+        #if defined(DEBUG) || defined (_DEBUG)
+                {LUA_DBLIBNAME, luaopen_debug},
+        #endif
+            {0, 0}
+        };
+    #endif /* CEGUI_LUA_VER >= 51 */
 
-	// init all standard libraries
-	luaopen_base(d_state);
-	luaopen_io(d_state);
-	luaopen_string(d_state);
-	luaopen_table(d_state);
-	luaopen_math(d_state);
-#if defined(DEBUG) || defined (_DEBUG)
-	luaopen_debug(d_state);
-#endif
+    // create a lua state
+    d_ownsState = true;
+    d_state = lua_open();
 
-	setModuleIdentifierString();
+    // init all standard libraries
+    #if CEGUI_LUA_VER >= 51
+            const luaL_Reg *lib = lualibs;
+            for (; lib->func; lib++)
+            {
+                lua_pushcfunction(d_state, lib->func);
+                lua_pushstring(d_state, lib->name);
+                lua_call(d_state, 1, 0);
+            }
+    #else /* CEGUI_LUA_VER >= 51 */
+        luaopen_base(d_state);
+        luaopen_io(d_state);
+        luaopen_string(d_state);
+        luaopen_table(d_state);
+        luaopen_math(d_state);
+        #if defined(DEBUG) || defined (_DEBUG)
+            luaopen_debug(d_state);
+        #endif
+    #endif /* CEGUI_LUA_VER >= 51 */
+
+    setModuleIdentifierString();
 }
 
 
@@ -118,7 +148,7 @@ void LuaScriptModule::executeScriptFile(const String& filename, const String& re
 		lua_settop(d_state,top);
 		throw ScriptException("Unable to execute Lua script file: '"+filename+"'\n\n"+errMsg+"\n");
 	}
-    
+
     // call it
 	if (lua_pcall(d_state,0,0,0))
 	{
@@ -149,7 +179,7 @@ int	LuaScriptModule::executeScriptGlobal(const String& function_name)
     }
 
     // call it
-    int error = lua_pcall(d_state,0,1,0);		
+    int error = lua_pcall(d_state,0,1,0);
 
     // handle errors
     if (error)
@@ -184,15 +214,15 @@ bool LuaScriptModule::executeScriptedEventHandler(const String& handler_name, co
 
 	LuaFunctor::pushNamedFunction(d_state, handler_name);
 
-	ScriptWindowHelper* helper = NULL;
+	ScriptWindowHelper* helper = 0;
 	//If this is an event that was triggered by a window then make a "this" pointer to the window for the script.
-	if(e.m_hasWindow)
+	if(e.d_hasWindow)
 	{
 		WindowEventArgs& we = (WindowEventArgs&)e;
 		helper = new ScriptWindowHelper(we.window);
 		lua_pushlightuserdata(d_state,(void*)helper);
 		lua_setglobal(d_state,"this");
-	} // if(e.m_hasWindow)
+	} // if(e.d_hasWindow)
 
     // push EventArgs as the first parameter
     tolua_pushusertype(d_state,(void*)&e,"const CEGUI::EventArgs");
@@ -209,7 +239,7 @@ bool LuaScriptModule::executeScriptedEventHandler(const String& handler_name, co
 		if(helper)
 		{
 			delete helper;
-			helper = NULL;
+			helper = 0;
 		}
         throw ScriptException("Unable to evaluate the Lua event handler: '"+handler_name+"'\n\n"+errStr+"\n");
     } // if (error)
@@ -217,7 +247,7 @@ bool LuaScriptModule::executeScriptedEventHandler(const String& handler_name, co
 	if(helper)
 	{
 		delete helper;
-		helper = NULL;
+		helper = 0;
 	}
 
     return true;
@@ -242,7 +272,7 @@ void LuaScriptModule::executeString(const String& str)
         throw ScriptException("Unable to execute Lua script string: '"+str+"'\n\n"+errMsg+"\n");
     }
 }
-	
+
 
 /*************************************************************************
 	Create Lua bindings

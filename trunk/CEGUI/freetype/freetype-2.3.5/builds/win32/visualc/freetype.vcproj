@@ -2127,7 +2127,31 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath="..\..\..\include\freetype\freetype.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\ft2build.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftbbox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftbdf.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftbitmap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftcache.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftchapters.h"
 				>
 			</File>
 			<File
@@ -2135,7 +2159,67 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\freetype\fterrdef.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\fterrors.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftgasp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftglyph.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftgxval.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftgzip.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\freetype\config\ftheader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftimage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftincrem.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftlcdfil.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftlist.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftlzw.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftmac.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftmm.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftmodapi.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftmoderr.h"
 				>
 			</File>
 			<File
@@ -2147,7 +2231,79 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\freetype\ftotval.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftoutln.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftpfr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftrender.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftsizes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftsnames.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\freetype\config\ftstdlib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftstroke.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftsynth.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftsystem.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\fttrigon.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\fttypes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftwinfnt.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ftxf86.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\t1tables.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ttnameid.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\tttables.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\tttags.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\freetype\ttunpat.h"
 				>
 			</File>
 		</Filter>

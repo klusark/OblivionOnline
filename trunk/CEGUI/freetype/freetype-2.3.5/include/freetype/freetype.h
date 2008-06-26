@@ -2222,7 +2222,7 @@ FT_BEGIN_HEADER
   /*    This function simply calls @FT_Get_Char_Index and @FT_Load_Glyph.  */
   /*                                                                       */
   FT_EXPORT( FT_Error )
-  FT_Load_Char( FT_Face   face,
+    FT_Load_Char( FT_Face   face,
                 FT_ULong  char_code,
                 FT_Int32  load_flags );
 

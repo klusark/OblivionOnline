@@ -1,4 +1,15 @@
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir) $(freetype2_CFLAGS) $(pcre_CFLAGS)
+
+libCEGUIBase_la_LDFLAGS =
+
+if MINGW32_BUILD
+libCEGUIBase_la_CPPFLAGS = -DCEGUIBASE_EXPORTS
+libCEGUIBase_la_LDFLAGS += -shared -no-undefined
+endif
+
+libCEGUIBase_la_LDFLAGS += -version-info @CEGUI_VERSION_INFO@
+libCEGUIBase_la_LIBADD = $(freetype2_LIBS) $(pcre_LIBS)
+
 lib_LTLIBRARIES=libCEGUIBase.la
 
 libCEGUIBase_la_SOURCES = CEGUIBase.cpp \
@@ -75,6 +86,7 @@ libCEGUIBase_la_SOURCES = CEGUIBase.cpp \
                       elements/CEGUIEditboxProperties.cpp \
                       elements/CEGUIFrameWindow.cpp \
                       elements/CEGUIFrameWindowProperties.cpp \
+                      elements/CEGUIGroupBox.cpp \
                       elements/CEGUIGUISheet.cpp \
                       elements/CEGUIItemEntry.cpp \
                       elements/CEGUIItemEntryProperties.cpp \
@@ -148,10 +160,6 @@ libCEGUIBase_la_SOURCES = CEGUIBase.cpp \
                       falagard/CEGUIFalWidgetLookManager.cpp \
                       falagard/CEGUIFalXMLEnumHelper.cpp \
                       falagard/CEGUIFalagard_xmlHandler.cpp
-
-libCEGUIBase_la_LDFLAGS = -version-info @CEGUI_VERSION_INFO@
-
-libCEGUIBase_la_LIBADD = $(freetype2_LIBS) $(pcre_LIBS)
 
 EXTRA_DIST = implementations/mac/macPlugins.cpp \
              implementations/mac/macPlugins.h

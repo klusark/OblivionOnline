@@ -38,6 +38,7 @@ This file is part of OblivionOnline.
 */
 #include <dinput.h>
 #include "InputHook.h"
+CEGUI::utf32 keycodeToUTF32( unsigned int scanCode);
 //based on a tutorial by Muhammad Hajag , his fingers are in pain for writing all the methods - thank you ;)
 #define min(a,b)            (((a) < (b)) ? (a) : (b))
 static const GUID GUID_SysMouse    = { 0x6F1D2B60, 0xD5A0, 0x11CF, { 0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00} };
@@ -124,6 +125,7 @@ public:
 						if(KEYDOWN(keys,i)) // Btn pressed
 						{
 							CEGUI::System::getSingleton().injectKeyDown(i);
+							CEGUI::System::getSingleton().injectChar(keycodeToUTF32(i));
 						}
 						else
 						{

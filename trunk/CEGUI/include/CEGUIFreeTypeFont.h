@@ -33,7 +33,7 @@
 #include "CEGUIFont.h"
 #include "CEGUIImage.h"
 #include "CEGUIDataContainer.h"
-#define USE_FREETYPE2_STATIC
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 

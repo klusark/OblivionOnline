@@ -64,9 +64,6 @@ namespace CEGUI
         }
     }
 
-    //------------------------------------------------------------------------
-    Exception::~Exception(void)
-    {
-    }
+
 
 } // End of  CEGUI namespace section

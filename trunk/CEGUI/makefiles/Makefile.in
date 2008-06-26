@@ -41,6 +41,7 @@ AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -81,6 +82,7 @@ CEGUI_IRRLICHT_VERSION_INFO = @CEGUI_IRRLICHT_VERSION_INFO@
 CEGUI_NULL_CFLAGS = @CEGUI_NULL_CFLAGS@
 CEGUI_NULL_LIBS = @CEGUI_NULL_LIBS@
 CEGUI_OPENGL_VERSION_INFO = @CEGUI_OPENGL_VERSION_INFO@
+CEGUI_SAMPLES_CFLAGS = @CEGUI_SAMPLES_CFLAGS@
 CEGUI_SAMPLES_USE_IRRLICHT_FALSE = @CEGUI_SAMPLES_USE_IRRLICHT_FALSE@
 CEGUI_SAMPLES_USE_IRRLICHT_TRUE = @CEGUI_SAMPLES_USE_IRRLICHT_TRUE@
 CEGUI_SAMPLES_USE_OGRE_FALSE = @CEGUI_SAMPLES_USE_OGRE_FALSE@
@@ -102,6 +104,8 @@ Corona_CFLAGS = @Corona_CFLAGS@
 Corona_LIBS = @Corona_LIBS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+DSYMUTIL = @DSYMUTIL@
 DevIL_CFLAGS = @DevIL_CFLAGS@
 DevIL_LIBS = @DevIL_LIBS@
 ECHO = @ECHO@
@@ -132,7 +136,13 @@ LTLIBOBJS = @LTLIBOBJS@
 Lua_CFLAGS = @Lua_CFLAGS@
 Lua_LIBS = @Lua_LIBS@
 MAKEINFO = @MAKEINFO@
+MINGW32_BUILD_FALSE = @MINGW32_BUILD_FALSE@
+MINGW32_BUILD_TRUE = @MINGW32_BUILD_TRUE@
+NMEDIT = @NMEDIT@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OIS_CFLAGS = @OIS_CFLAGS@
+OIS_LIBS = @OIS_LIBS@
 OpenGL_CFLAGS = @OpenGL_CFLAGS@
 OpenGL_LIBS = @OpenGL_LIBS@
 PACKAGE = @PACKAGE@
@@ -144,6 +154,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SILLY_CFLAGS = @SILLY_CFLAGS@
@@ -225,6 +236,9 @@ EXTRA_DIST = mac/Xcode2/CrazyEddiesGUI/CEGUI-Info.plist \
              mac/Xcode2/CrazyEddiesGUI/CEGUIWindowsLook-Info.plist \
              mac/Xcode2/CrazyEddiesGUI/CEGUIXercesParser-Info.plist \
              mac/Xcode2/CrazyEddiesGUI/CrazyEddiesGUI_Prefix.pch \
+             mac/Xcode2/CrazyEddiesGUI/FalagardDemo1-Info.plist \
+             mac/Xcode2/CrazyEddiesGUI/FirstWindow-Info.plist \
+             mac/Xcode2/CrazyEddiesGUI/FontDemo-Info.plist \
              mac/Xcode2/CrazyEddiesGUI/Info.plist \
              mac/Xcode2/CrazyEddiesGUI/LuaScriptModule-Info.plist \
              mac/Xcode2/CrazyEddiesGUI/Minesweeper-Info.plist \
@@ -256,17 +270,19 @@ EXTRA_DIST = mac/Xcode2/CrazyEddiesGUI/CEGUI-Info.plist \
              premake/RendererModules/DirectX9GUIRenderer/premake.lua \
              premake/RendererModules/IrrlichtRenderer/premake.lua \
              premake/RendererModules/OpenGLGUIRenderer/premake.lua \
-             premake/Samples/Demo4/premake.lua \
+             premake/Samples/TextDemo/premake.lua \
              premake/Samples/Demo6/premake.lua \
              premake/Samples/Demo7/premake.lua \
              premake/Samples/Demo8/premake.lua \
              premake/Samples/FalagardDemo1/premake.lua \
              premake/Samples/FirstWindow/premake.lua \
              premake/Samples/FontDemo/premake.lua \
+             premake/Samples/InstancedWindows/premake.lua \
              premake/Samples/Medieval/premake.lua \
              premake/Samples/Minesweeper/premake.lua \
              premake/Samples/ScrollablePaneDemo/premake.lua \
              premake/Samples/TabControlDemo/premake.lua \
+             premake/Samples/TreeDemo/premake.lua \
              premake/Samples/common/premake.lua \
              premake/ScriptingModules/CEGUILua/LuaScriptModule/premake.lua \
              premake/ScriptingModules/CEGUILua/tolua++/premake.lua \
@@ -314,7 +330,7 @@ top_distdir = ..
 distdir = $(top_distdir)/$(PACKAGE)-$(VERSION)
 
 distdir: $(DISTFILES)
-	$(mkinstalldirs) $(distdir)/mac/Xcode2/CrazyEddiesGUI $(distdir)/mac/Xcode2/CrazyEddiesGUI/CrazyEddiesGUI.xcodeproj $(distdir)/mac/Xcode2/CrazyEddiesGUI/English.lproj $(distdir)/premake $(distdir)/premake/BaseSystem $(distdir)/premake/ImageCodecModules/CoronaImageCodec $(distdir)/premake/ImageCodecModules/DevILImageCodec $(distdir)/premake/ImageCodecModules/FreeImageImageCodec $(distdir)/premake/ImageCodecModules/SILLYImageCodec $(distdir)/premake/ImageCodecModules/TGAImageCodec $(distdir)/premake/RendererModules/DirectX81GUIRenderer $(distdir)/premake/RendererModules/DirectX9GUIRenderer $(distdir)/premake/RendererModules/IrrlichtRenderer $(distdir)/premake/RendererModules/OpenGLGUIRenderer $(distdir)/premake/Samples/Demo4 $(distdir)/premake/Samples/Demo6 $(distdir)/premake/Samples/Demo7 $(distdir)/premake/Samples/Demo8 $(distdir)/premake/Samples/FalagardDemo1 $(distdir)/premake/Samples/FirstWindow $(distdir)/premake/Samples/FontDemo $(distdir)/premake/Samples/Medieval $(distdir)/premake/Samples/Minesweeper $(distdir)/premake/Samples/ScrollablePaneDemo $(distdir)/premake/Samples/TabControlDemo $(distdir)/premake/Samples/common $(distdir)/premake/ScriptingModules/CEGUILua/LuaScriptModule $(distdir)/premake/ScriptingModules/CEGUILua/tolua++ $(distdir)/premake/ScriptingModules/CEGUILua/tolua++bin $(distdir)/premake/WindowRendererSets/Falagard $(distdir)/premake/XMLParserModules/TinyXMLParser $(distdir)/premake/XMLParserModules/XercesParser $(distdir)/premake/XMLParserModules/expatParser $(distdir)/premake/XMLParserModules/libxmlParser
+	$(mkinstalldirs) $(distdir)/mac/Xcode2/CrazyEddiesGUI $(distdir)/mac/Xcode2/CrazyEddiesGUI/CrazyEddiesGUI.xcodeproj $(distdir)/mac/Xcode2/CrazyEddiesGUI/English.lproj $(distdir)/premake $(distdir)/premake/BaseSystem $(distdir)/premake/ImageCodecModules/CoronaImageCodec $(distdir)/premake/ImageCodecModules/DevILImageCodec $(distdir)/premake/ImageCodecModules/FreeImageImageCodec $(distdir)/premake/ImageCodecModules/SILLYImageCodec $(distdir)/premake/ImageCodecModules/TGAImageCodec $(distdir)/premake/RendererModules/DirectX81GUIRenderer $(distdir)/premake/RendererModules/DirectX9GUIRenderer $(distdir)/premake/RendererModules/IrrlichtRenderer $(distdir)/premake/RendererModules/OpenGLGUIRenderer $(distdir)/premake/Samples/Demo6 $(distdir)/premake/Samples/Demo7 $(distdir)/premake/Samples/Demo8 $(distdir)/premake/Samples/FalagardDemo1 $(distdir)/premake/Samples/FirstWindow $(distdir)/premake/Samples/FontDemo $(distdir)/premake/Samples/InstancedWindows $(distdir)/premake/Samples/Medieval $(distdir)/premake/Samples/Minesweeper $(distdir)/premake/Samples/ScrollablePaneDemo $(distdir)/premake/Samples/TabControlDemo $(distdir)/premake/Samples/TextDemo $(distdir)/premake/Samples/TreeDemo $(distdir)/premake/Samples/common $(distdir)/premake/ScriptingModules/CEGUILua/LuaScriptModule $(distdir)/premake/ScriptingModules/CEGUILua/tolua++ $(distdir)/premake/ScriptingModules/CEGUILua/tolua++bin $(distdir)/premake/WindowRendererSets/Falagard $(distdir)/premake/XMLParserModules/TinyXMLParser $(distdir)/premake/XMLParserModules/XercesParser $(distdir)/premake/XMLParserModules/expatParser $(distdir)/premake/XMLParserModules/libxmlParser
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \

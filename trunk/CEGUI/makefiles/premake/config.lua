@@ -10,25 +10,28 @@ DEBUG_DLL_SUFFIX = "_d"
 -- SDK / dependency paths
 -- { base, include_suffix, library_suffix }
 -- base can be absolute or relative to the root cegui_mk2 dir
-IRRLICHT_PATHS = { "irrlicht-1.3", "include", "lib/Win32-visualstudio" }
+IRRLICHT_PATHS = { "irrlicht-1.4", "include", "lib/Win32-visualstudio" }
 
---- SDK Version
-IRRLICHT_VERSION = 1.3
+--- Irrlicht SDK Version
+--- 12 is 1.2 (or before?).  13 is 1.3 or 1.3.x, and 14 is 1.4 (and above?)
+CEGUI_IRR_SDK_VERSION = 14
 
+--- Lua version
+--- 50 is 5.0.x series.  51 is 5.1 (and above?)
+CEGUI_LUA_VER = 50
 
 -------------
 -- Renderers
 -- this controls which renderer modules are built
-OPENGL_RENDERER = true
+OPENGL_RENDERER = false
 DIRECTX81_RENDERER = false
 DIRECTX9_RENDERER = true
 IRRLICHT_RENDERER = false
 
-
 ----------------
 -- Image Codecs
 -- this controls which image codecs are built
-TGA_IMAGE_CODEC = true
+TGA_IMAGE_CODEC = false
 SILLY_IMAGE_CODEC = true
 DEVIL_IMAGE_CODEC = false
 FREEIMAGE_IMAGE_CODEC = false
@@ -54,7 +57,7 @@ DEFAULT_WINDOW_RENDERER = "falagard"
 ---------------
 -- XML parsers
 -- this controls which xml parser modules are built
-EXPAT_PARSER = true
+EXPAT_PARSER = false
 XERCES_PARSER = false
 TINYXML_PARSER = true
 LIBXML_PARSER = false
@@ -75,16 +78,16 @@ LUA_SCRIPT_MODULE = true
 LUA_SCRIPT_MODULE_SAFE = false
 
 -- enable this to build the bundled tolua++ as a static library
-TOLUA_STATIC = false
+TOLUA_STATIC = true
 
 
 -----------
 -- Samples
 -- remember you have to edit CEGUISamplesConfig.h as well this just controls
 -- dependencies etc. if the renderer is disabled this has no effect
-SAMPLES_GL = true
-SAMPLES_DX81 = true
-SAMPLES_DX9 = true
+SAMPLES_GL = false
+SAMPLES_DX81 = false
+SAMPLES_DX9 = false
 SAMPLES_IRRLICHT = false
 
 -- this setting controls if the samples should be included in the same
