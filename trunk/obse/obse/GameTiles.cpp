@@ -1,4 +1,5 @@
 #include "GameTiles.h"
+#include "GameAPI.h"
 
 const char * Tile::StrIDToStr(UInt32 id)
 {
@@ -223,7 +224,7 @@ void Tile::DebugDump()
 		unk06,
 		pad07,
 		unk08.m_data ? unk08.m_data : "<null>",
-		unk10,
+		parent,
 		unk24,
 		unk28,
 		unk2C,
@@ -270,4 +271,88 @@ void Tile::DebugDump()
 	}
 
 	gLog.Outdent();
+}
+
+Tile * Tile::ReadXML(const char * xmlPath)
+{
+#if OBLIVION_VERSION == OBLIVION_VERSION_1_1
+	return (Tile *)ThisStdCall(0x00583410, this, xmlPath);
+#elif OBLIVION_VERSION == OBLIVION_VERSION_1_2_416
+	return (Tile *)ThisStdCall(0x00590420, this, xmlPath);
+#elif OBLIVION_VERSION == OBLIVION_VERSION_1_2
+	return (Tile *)ThisStdCall(0x00590380, this, xmlPath);
+#else
+#error unsupported Oblivion version
+#endif
+}
+
+Tile * Tile::GetRoot(void)
+{
+	Tile	* traverse = this;
+
+	while(traverse->parent && traverse->parent->parent)
+	{
+		traverse = traverse->parent;
+	}
+
+	return traverse;
+}
+
+Tile::Value* Tile::GetValueByType(eTileValue valueType)
+{
+	for (ValueList::Node* node = valueList.start; node; node = node->next)
+	{
+		if (node->data && node->data->id == valueType)
+			return node->data;
+	}
+
+	return NULL;
+}
+
+bool Tile::GetFloatValue(eTileValue valueType, float* out)
+{
+	Value* val = GetValueByType(valueType);
+	if (val)
+	{
+		*out = val->num;
+		return true;
+	}
+	
+	return false;
+}
+
+bool Tile::SetFloatValue(eTileValue valueType, float newValue)
+{
+	Value* val = GetValueByType(valueType);
+	if (val)
+	{
+		val->num = newValue;
+		return true;
+	}
+	
+	return false;
+}
+
+bool Tile::GetStringValue(eTileValue valueType, const char** out)
+{
+	Value* val = GetValueByType(valueType);
+	if (val)
+	{
+		*out = val->str.m_data;
+		return true;
+	}
+
+	return false;
+}
+
+bool Tile::SetStringValue(eTileValue valueType, const char* newValue)
+{
+	Value* val = GetValueByType(valueType);
+	if (val)
+	{
+		val->str.Set(newValue);
+		return true;
+	}
+
+	return false;
 }

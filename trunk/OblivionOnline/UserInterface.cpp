@@ -80,6 +80,7 @@ DWORD WINAPI InitialiseUI()
 			CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
 			myRoot = CEGUI::WindowManager::getSingleton().loadWindowLayout("OOChat.layout");
 			CEGUI::System::getSingleton().setGUISheet(myRoot);
+			CEGUI::System::getSingleton().injectMousePosition(320,320);
 
 		}
 		bUIInitialized = true;

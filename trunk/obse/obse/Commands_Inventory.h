@@ -170,11 +170,6 @@ extern CommandInfo kCommandInfo_IsDoor;
 extern CommandInfo kCommandInfo_IsActivator;
 extern CommandInfo kCommandInfo_IsLight;
 extern CommandInfo kCommandInfo_IsFurniture;
-extern CommandInfo kCommandInfo_IsScripted;
-
-extern CommandInfo kCommandInfo_GetScript;
-extern CommandInfo kCommandInfo_RemoveScript;
-extern CommandInfo kCommandInfo_SetScript;
 
 extern CommandInfo kCommandInfo_IsClonedForm;
 extern CommandInfo kCommandInfo_CloneForm;
@@ -186,3 +181,22 @@ extern CommandInfo kCommandInfo_GetLightRadius;
 extern CommandInfo kCommandInfo_SetLightRadius;
 
 extern CommandInfo kCommandInfo_HasName;
+
+extern CommandInfo kCommandInfo_AddItemNS;
+extern CommandInfo kCommandInfo_RemoveItemNS;
+extern CommandInfo kCommandInfo_EquipItemNS;
+extern CommandInfo kCommandInfo_UnequipItemNS;
+extern CommandInfo kCommandInfo_IsPlayable2;
+
+extern CommandInfo kCommandInfo_GetFullGoldValue;
+extern CommandInfo kCommandInfo_GetHotKeyItem;
+extern CommandInfo kCommandInfo_ClearHotKey;
+extern CommandInfo kCommandInfo_SetHotKeyItem;
+
+extern CommandInfo kCommandInfo_IsModelPathValid;
+extern CommandInfo kCommandInfo_IsIconPathValid;
+extern CommandInfo kCommandInfo_IsBipedModelPathValid;
+extern CommandInfo kCommandInfo_IsBipedIconPathValid;
+extern CommandInfo kCommandInfo_FileExists;
+
+extern CommandInfo kCommandInfo_SetNameEx;

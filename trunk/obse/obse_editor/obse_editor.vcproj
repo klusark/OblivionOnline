@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="shift_jis"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="obse_editor"
 	ProjectGUID="{AE98B269-67B4-4B3E-B4C8-6274F48282E8}"
 	RootNamespace="obse_editor"
+	SccProjectName="Perforce Project"
+	SccLocalPath="..\.."
+	SccProvider="MSSCCI:Perforce SCM"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -367,11 +370,27 @@
 				>
 			</File>
 			<File
+				RelativePath="..\obse\Commands_AI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_AI.h"
+				>
+			</File>
+			<File
 				RelativePath="..\obse\Commands_Console.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\obse\Commands_Console.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_Creature.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_Creature.h"
 				>
 			</File>
 			<File
@@ -415,6 +434,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\obse\Commands_LeveledList.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_LeveledList.h"
+				>
+			</File>
+			<File
 				RelativePath="..\obse\Commands_Magic.cpp"
 				>
 			</File>
@@ -439,6 +466,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\obse\Commands_Menu.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_Menu.h"
+				>
+			</File>
+			<File
 				RelativePath="..\obse\Commands_MiscReference.cpp"
 				>
 			</File>
@@ -455,6 +490,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\obse\Commands_Script.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_Script.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_String.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Commands_String.h"
+				>
+			</File>
+			<File
 				RelativePath="..\obse\Commands_Weather.cpp"
 				>
 			</File>
@@ -463,14 +514,62 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\obse\CommandTable.cpp"
+		<Filter
+			Name="internals"
 			>
-		</File>
-		<File
-			RelativePath="..\obse\CommandTable.h"
+			<File
+				RelativePath="..\obse\CommandTable.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\CommandTable.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse_common\SafeWrite.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse_common\SafeWrite.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Utilities.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\Utilities.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="hooks"
 			>
-		</File>
+			<File
+				RelativePath=".\EditorHookWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\EditorHookWindow.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="plugin_api"
+			>
+			<File
+				RelativePath="..\obse\PluginAPI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\PluginManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\obse\PluginManager.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\obse\dllmain.c"
 			>
@@ -508,14 +607,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\EditorHookWindow.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\EditorHookWindow.h"
-			>
-		</File>
-		<File
 			RelativePath="..\obse\obse.h"
 			>
 		</File>
@@ -529,22 +620,6 @@
 		</File>
 		<File
 			RelativePath="..\obse_common\obse_version.rc"
-			>
-		</File>
-		<File
-			RelativePath="..\obse\PluginManager.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\obse\PluginManager.h"
-			>
-		</File>
-		<File
-			RelativePath="..\obse_common\SafeWrite.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\obse_common\SafeWrite.h"
 			>
 		</File>
 	</Files>

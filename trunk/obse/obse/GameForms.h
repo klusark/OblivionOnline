@@ -4,7 +4,7 @@
 #include "obse/GameTypes.h"
 #include "obse/GameAPI.h"
 #include "obse/NiNodes.h"
-#include "Utilities.h"
+#include "obse/Utilities.h"
 
 /****
  *	id	name	size	class
@@ -246,6 +246,7 @@ class TESNPC;
 class TESRace;
 class Character;
 class FaceGenUndo;
+struct ModEntry;
 
 /**** bases ****/
 
@@ -284,21 +285,21 @@ public:
 	};
 
 	// TODO: determine which of these are in BaseFormComponent
-	virtual void	Unk_03(void);
+	virtual bool	Unk_03(BaseFormComponent * arg);	// return false if equal - compares names, typeID, flags
 	virtual void	Destroy(bool noDealloc);	// delete form? pass false to free the object's memory
-	virtual void	Unk_05(void);
-	virtual void	Unk_06(void);
-	virtual void	Unk_07(void);	// load form?
-	virtual void	Unk_08(void);
-	virtual void	Unk_09(void);	// save form?
-	virtual void	Unk_0A(void);
+	virtual void	Unk_05(void);	// destroy form components
+	virtual void	Unk_06(void);	// call unk01 on form components
+	virtual void	Unk_07(void);	// load form
+	virtual void	Unk_08(void);	// calls load form
+	virtual void	Unk_09(void);	// save form
+	virtual void	Unk_0A(void);	// calls save form
 	virtual void	Unk_0B(void);
 	virtual void	Unk_0C(void);
 	virtual void	Unk_0D(void);
 	virtual void	Unk_0E(void);
 	virtual void	Unk_0F(void);
 	virtual void	MarkAsModified(UInt32 mask);	// 10
-	virtual void	Unk_11(void);
+	virtual void	ClearModified(UInt32 mask);
 	virtual void	Unk_12(void);
 	virtual UInt32	GetSaveSize(UInt32 modifiedMask);
 	virtual void	SaveGame(UInt32 modifiedMask);	// output buffer not passed as param, accessed indirectly via g_createdBaseObjList
@@ -308,16 +309,16 @@ public:
 	virtual void	Unk_18(void);
 	virtual void	Unk_19(void);
 	virtual void	Unk_1A(void);
-	virtual void	Unk_1B(void);	// initialize form after other forms loaded?
+	virtual void	DoPostFixup(void);	// initialize form after other forms loaded
 	virtual void	Unk_1C(void);
-	virtual void	Unk_1D(void);
+	virtual void	GetDescription(String * dst);
 	virtual void	Unk_1E(void);
 	virtual void	Unk_1F(void);
 	virtual void	Unk_20(void);	// 20
 	virtual void	Unk_21(void);
 	virtual void	Unk_22(void);
 	virtual void	Unk_23(void);
-	virtual void	Unk_24(void);
+	virtual void	Unk_24(UInt8 arg);
 	virtual void	SetQuestItem(bool isQuestItem);
 	virtual void	Unk_26(void);
 	virtual void	Unk_27(void);
@@ -343,13 +344,13 @@ public:
 		kFormFlags_IgnoresFriendlyHits =	0x00100000
 	};
 
-	struct TESFormList
+	struct ModReferenceList
 	{
-		TESForm		* data;
-		TESFormList	* next;
+		ModEntry			* data;
+		ModReferenceList	* next;
 
-		TESForm* Info() const { return data; }
-		TESFormList* Next() const { return next; }
+		ModEntry			* Info() const	{ return data; }
+		ModReferenceList	* Next() const	{ return next; }
 	};
 
 	UInt8	typeID;					// 004
@@ -363,17 +364,19 @@ public:
 										// 00080000 - something (sub_464A60)
 										// 00100000 - something (sub_464A30)
 	UInt32	refID;					// 00C
-	TESFormList	formList;			// 010 - ### investigate this - current loaded or active objects?
+	ModReferenceList	modRefList;	// 010
 	// 018
 
 	bool	IsQuestItem() const;
 	bool	IsCloned() const;
 	bool	SupportsSimpleModel() const;
-
+	UInt8	GetModIndex();
 	void	MarkAsTemporary(void);
+
+	TESForm *	TryGetREFRParent(void);
 };
 
-typedef Visitor<TESForm::TESFormList, TESForm> FormListVisitor;
+typedef Visitor<TESForm::ModReferenceList, TESForm> ModRefListVisitor;
 
 class TESObject : public TESForm
 {
@@ -439,7 +442,8 @@ public:
 	TESSoundFile();
 	~TESSoundFile();
 
-	// 004
+	String	fileName;	// 004
+	String	editorID;	// 00C
 };
 
 /**** components ****/
@@ -738,9 +742,9 @@ public:
 
 	UInt32	flags;	// 004 - has flags
 						// 00000002 - is essential
-	UInt16	unk1;	// 008
+	UInt16	baseSpellPts;	// 008
 	UInt16	fatigue;	// 00A
-	UInt16	unk3;	// 00C
+	UInt16	barterGold;	// 00C
 	UInt16	level;	// 00E
 	UInt16	minLevel;	// 010	if PCLevelOffset
 	UInt16	maxLevel;	// 012
@@ -748,11 +752,13 @@ public:
 	FactionListEntry	factionList;	//018
 
 	bool IsFlagSet(UInt32 flag) const {
-		return (flags & flag) != 0;
+		return (flags & flag) == flag;
 	}
 
 	void SetFlag(UInt32 flag, bool bMod) {
 		flags = bMod ? (flags | flag) : (flags & ~flag);
+		TESForm* baseForm = (TESForm*)Oblivion_DynamicCast(this, 0, RTTI_BaseFormComponent, RTTI_TESForm, 0);
+		baseForm->MarkAsModified(kModified_ActorBaseFlags);
 	}
 
 	bool IsEssential() const
@@ -856,22 +862,66 @@ public:
 	TESAIForm();
 	~TESAIForm();
 
-	struct Unk
+	struct PackageEntry
 	{
-		UInt32	unk0;
-		UInt32	unk1;
-		UInt32	unk2;
+		TESPackage		* package;
+		PackageEntry	* next;
+
+		TESPackage * Info() const	{ return package; }
+		PackageEntry * Next() const	{ return next; }
 	};
 
-	struct Unk2
-	{
-		UInt32	unk0;
-		UInt32	unk1;
+	enum{
+		kAISetting_Aggression = 0,
+		kAISetting_Confidence,
+		kAISetting_Energy,
+		kAISetting_Responsibility,
+	
+		kAISetting_Max,
 	};
 
-	Unk		unk0;	// 004
-	Unk2	unk1;	// 010
+	enum{
+		kService_Weapons	= 1 << 0,
+		kService_Armor		= 1 << 1,
+		kService_Clothing	= 1 << 2,
+		kService_Books		= 1 << 3,
+		kService_Ingredients= 1 << 4,
+
+		kService_Lights		= 1 << 7,
+		kService_Apparatus	= 1 << 8,
+
+		kService_Misc		= 1 << 10,
+		kService_Spells		= 1 << 11,
+		kService_MagicItems = 1 << 12,
+		kService_Potions	= 1 << 13,
+		kService_Training	= 1 << 14,
+
+		kService_Recharge	= 1 << 16,
+		kService_Repair		= 1 << 17,
+	};
+
+	UInt8	AISettings[4];			//004
+	UInt32	serviceFlags;			//008
+	UInt8	trainingSkill;			//00C .. = kActorVal_XXX - kActorVal_Armorer
+	UInt8	trainingLevel;			//00D
+	UInt16	unk00E;					//00E
+	PackageEntry	packageList;	// 010
+
+	bool OffersServices(UInt32 serviceMask)
+		{	return (serviceFlags & serviceMask) == serviceMask;	}
+	void SetOffersServices(UInt32 serviceMask, bool bOffersService, bool bClearServices = false)
+	{			//changes aren't saved
+		if (bClearServices)
+			serviceFlags = 0;
+		if (bOffersService)
+			serviceFlags |= serviceMask;
+		else
+			serviceFlags &= ~serviceMask;
+	}
+
 };
+
+typedef Visitor<TESAIForm::PackageEntry, TESPackage> PackageListVisitor;
 
 // C
 class TESAnimation : public BaseFormComponent
@@ -918,6 +968,8 @@ public:
 #endif
 
 	const Entry* FindNifPath(char* path);
+	bool RemoveEntry(char* nifToRemove);
+	bool AddEntry(char* nifToAdd);
 };
 
 typedef Visitor<TESModelList::Entry, char*> ModelListVisitor;
@@ -975,15 +1027,19 @@ public:
 
 	enum
 	{
-		kFlags_CalcEachInCount=1,
-		kFlags_CalcAllLevels
+		kFlags_CalcAllLevels=1,
+		kFlags_CalcEachInCount
 	};
 
 	struct ListData
 	{
 		UInt16		level;
 		UInt16		pad;
-		TESForm*	form;
+		union
+		{
+			TESForm*	form;
+			UInt32		formID;	// only valid during load
+		};
 		UInt16		count;
 	};
 
@@ -994,6 +1050,9 @@ public:
 
 		ListData* Info() const { return data; }
         ListEntry* Next() const { return next; }
+		void Delete();
+		void DeleteHead(ListEntry* replaceWith);
+		void SetNext(ListEntry* nextEntry) { next = nextEntry; }
 	};
 
 	ListEntry	list;		//004
@@ -1009,8 +1068,12 @@ public:
 		//returns num elements removed
 	void		Dump();
 		//output contents to console
-	TESForm*	CalcElement(UInt32 cLevel, bool useChanceNone, UInt32 levelDiff);
+	TESForm*	CalcElement(UInt32 cLevel, bool useChanceNone, UInt32 levelDiff, bool noRecurse = false);
 		//returns a random element from the list
+	TESForm*	GetElementByLevel(UInt32 whichLevel);
+		//returns first form matching whichLevel
+	UInt32		RemoveByLevel(UInt32 whichLevel);
+		//returns num removed
 };
 
 typedef Visitor<TESLeveledList::ListEntry, TESLeveledList::ListData> LeveledListVisitor;
@@ -1665,7 +1728,7 @@ public:
 	UInt32 GetNthBonusSkill(UInt32 n) const;
 };
 
-// 8
+// 44
 class TESSound : public TESBoundAnimObject
 {
 public:
@@ -1674,23 +1737,26 @@ public:
 	TESSound();
 	~TESSound();
 
+	enum {
+		kFlags_RandomFrequencyShift = 1,
+		//...
+		kFlags_Loop					= 1 << 4,
+		kFlags_MenuSound			= 1 << 5,
+		kFlags_2D					= 1 << 6,
+		//...
+	};
+
 	// bases
 	TESSoundFile	soundFile;	// 024
 
-	// members - may be part of TESSoundFile
-	UInt32	unk0;	// 028
-	UInt16	unk1;	// 02C
-	UInt16	unk2;	// 02E
-	UInt32	unk3;	// 030
-	UInt16	unk4;	// 034
-	UInt16	unk5;	// 036
-	UInt8	unk6;	// 038
-	UInt8	unk7;	// 039
-	UInt8	unk8;	// 03A
-	UInt8	unk9;	// 03B
-	UInt32	unk10;	// 03C
-	UInt16	unk11;	// 040
-	UInt16	unk12;	// 042
+	// members
+	UInt8	minAttenuation;		// 038 not taken directly from CS
+	UInt8	maxAttenuation;		// 039 likewise. Different ratios for each
+	UInt8	frequencyAdjust;	// 03A
+	UInt8	unk9;				// 03B
+	UInt32	flags;				// 03C
+	UInt16	staticAttenuation;	// 040 - CS value * -100
+	UInt16	unk12;				// 042 related to start/end times
 };
 
 // 60
@@ -1774,6 +1840,11 @@ public:
 
 	typedef Visitor<RefListEntry, RefVariable> RefListVisitor;
 
+	enum {
+		eVarType_Float = 0,			//ref is also zero
+		eVarType_Integer,
+	};
+
 	struct VariableInfo
 	{
 		UInt32			idx;		// 00
@@ -1840,6 +1911,7 @@ public:
 	bool			IsObjectScript() const {return info.type == eType_Object; }
 	bool			IsQuestScript() const { return info.type == eType_Quest; }
 	bool			IsMagicScript() const { return info.type == eType_Magic; }
+	VariableInfo* GetVariableByName(const char* varName);
 };
 
 STATIC_ASSERT(sizeof(Script) == 0x50);
@@ -1932,7 +2004,7 @@ public:
 	};
 
 	// members
-	UInt32	unk0;			// 034
+	UInt32	hostileEffectCount;	// 034 
 	UInt32	spellType;		// 038 - init'd to FFFFFFFF
 	UInt32	magickaCost;	// 03C
 	UInt32	masteryLevel;	// 040
@@ -1945,6 +2017,8 @@ public:
 	UInt32 GetMasteryLevel() const;
 	bool TouchExplodesWithNoTarget() const;
 	void SetTouchExplodes(bool bExplodesWithNoTarget);
+	bool IsHostile();
+	void SetHostile(bool bHostile);
 };
 
 // 4C
@@ -1978,7 +2052,7 @@ public:
 	TESScriptableForm	scriptable;	// 048
 
 	// members
-	UInt32	unk0;	// 054
+	TESSound*			loopSound;	// 054
 };
 
 // 7C
@@ -2125,8 +2199,7 @@ public:
 	TESScriptableForm	scriptable;	// 058
 	TESWeightForm		weight;		// 064
 	UInt32				unk0;		// 06C
-	TESSound*			sound070;	// 070
-	TESSound*			sound074;	// 074
+	TESSound*			animSounds[2];	// 070 0=open, 1=close
 	UInt8				flags078;	// 078
 	UInt8				pad[3];		// 079
 
@@ -2153,6 +2226,12 @@ public:
 	TESObjectDOOR();
 	~TESObjectDOOR();
 
+	struct RandomTeleportEntry
+	{
+		TESWorldSpace*		destination; //can also be TESObjectCELL
+		RandomTeleportEntry	* next;
+	};
+
 	// bases
 	TESFullName			fullName;	// 024
 	TESModel			model;		// 030
@@ -2162,13 +2241,10 @@ public:
 	UInt32				basePad;
 
 	// members
-	UInt32	unk0;	// 058
-	UInt32	unk1;	// 05C
-	UInt32	unk2;	// 060
-	UInt8	unk3;	// 064
-	UInt8	pad[3];	// 065
-	UInt32	unk4;	// 068
-	UInt32	unk5;	// 06C
+	TESSound*			animSounds[3];// 058 0=open, 1=close, 2=loop
+	UInt8				unk3;	// 064
+	UInt8				pad[3];	// 065
+	RandomTeleportEntry randomTeleport;	// 068
 };
 
 // 80
@@ -2245,7 +2321,7 @@ public:
 	float	fallOff;	// 080
 	float	FOV;		// 084
 	float	fade;		// 088
-	UInt32	unk7;		// 08C
+	TESSound * loopSound;	// 08C
 
 	UInt32 GetRadius()
 		{	return radius;	}
@@ -2491,10 +2567,10 @@ public:
 	BSFaceGenNiNode* face1;			// 1D8
 	UInt32		unk6;				// 1DC
 	UInt32		unk7[2];			// 1E0
-	UInt32		hairColorRGB;		// 1E8
+	UInt8		hairColorRGB[4];	//1E8
+
 	UInt32		unk8;				// 1EC
 	NiTArray <FaceGenUndo *>	faceGenUndo;	// 1F0
-
 };
 
 // 138 (1.1)
@@ -2530,12 +2606,38 @@ public:
 		eCreatureType_Giant,
 	};
 
+	struct CreatureSound {
+		TESSound	* sound;
+		UInt8		chance;
+		UInt8		pad[3];
+	};
+
+	struct CreatureSoundEntry {
+		CreatureSound	* data;
+		UInt32			unk01;	//only seen zero - perhaps used to be next* in linked list?
+	};
+
+	enum {
+		eCreatureSound_LeftFoot = 0,
+		eCreatureSound_RightFoot,
+		eCreatureSound_LeftBack,
+		eCreatureSound_RightBack,
+		eCreatureSound_Idle,
+		eCreatureSound_Aware,
+		eCreatureSound_Attack,
+		eCreatureSound_Hit,
+		eCreatureSound_Death,
+		eCreatureSound_Weapon,
+		eCreatureSound_MAX,
+	};
+
 	// base classes
 	TESAttackDamageForm	attackDamage;	// 0E4
 	TESModelList		modelList;		// 0EC - changed size in 1.2
 
 	// members
-	TESCreature * soundBase;			// 0F8 / 100
+	CreatureSoundEntry	** soundBase;	// 0F8 / 100 pointer to array of 10 CreatureSoundEntries for non-inherited sounds
+												//   TESCreature* for inherited sounds
 	UInt8		type;					// 0FC / 104
 	UInt8		combatSkill;			// 0FD / 105
 	UInt8		magicSkill;				// 0FE / 106
@@ -2551,6 +2653,10 @@ public:
 
 	TESModel	bloodSpray;				// 114 / 11C
 	TESTexture	bloodDecal;				// 12C / 134
+
+	TESCreature* GetSoundBase();
+	TESSound* GetSound(UInt32 whichSound);
+	UInt32 GetSoundChance(UInt32 whichSound);
 };
 
 // 44
@@ -2676,6 +2782,17 @@ public:
 };
 STATIC_ASSERT(sizeof(TESSigilStone) == 0x88);
 
+
+// 34
+class TESLevItem : public TESBoundObject
+{
+public:
+	TESLevItem();
+	~TESLevItem();
+
+	// bases
+	TESLeveledList	leveledList;	// 24
+};
 
 // TESLevItem
 // SNDG
@@ -3238,20 +3355,62 @@ public:
 		UInt32	duration;
 	};
 
-	// 018
-	UInt32	packageFlags;	// 01C
-	UInt8	type;			// 020
-	UInt8	pad021[3];		// 021
-	void	* unk024;		// 024 - target
-	void	* unk028;		// 028 - location
-	Time	time;			// 02C
-	UInt32	unk034;			// 034
-	UInt32	unk038;			// 038
+	struct PackageData{
+
+		enum{
+			kPackLocation_NearReference		= 0,
+			kPackLocation_InCell			= 1,
+
+			kPackLocation_EditorLocation	= 3,
+
+			kPackLocation_Max,
+		};
+
+		enum{	//order not related to kFormType_XXX enums
+			kObject_Flora =		0xB,
+			kObject_NPC =		0xF,
+		};
+
+		union ObjectType{
+			TESForm	* form;
+			UInt32	objectCode;
+		};
+
+		UInt8		location;	
+		UInt8		pad[3];
+		UInt32		radius;
+		ObjectType  object;	
+	};
+
+	struct Unk034
+	{
+		UInt32	* unk01; //condition data; probably used by TESTopic, quest stages, idle anims as well
+		Unk034	* next;
+	};
+
+	UInt32		unk018;			// 018 - seen mostly -1, one 0x1A
+	UInt32		packageFlags;	// 01C
+	UInt8		type;			// 020
+	UInt8		pad021[3];		// 021
+	PackageData	* location;		// 024
+	PackageData	* target;		// 028
+	Time		time;			// 02C
+	Unk034		unk034;			// 034
 };
 
 // TESCombatStyle
 // TESLoadScreen
-// TESLevSpell
+
+// 34
+class TESLevSpell : public TESBoundObject
+{
+public:
+	TESLevSpell();
+	~TESLevSpell();
+
+	TESLeveledList	leveledList;	// 24
+};
+
 // TESObjectANIO
 // TESWaterForm
 // TESEffectShader

@@ -305,6 +305,7 @@ class ActiveEffect;
 class DialoguePackage;
 class Creature;
 class BoltShaderProperty;
+class TESTopic;
 
 // 00C
 class MagicCaster
@@ -358,6 +359,20 @@ public:
 
 //	void	** _vtbl;	// 000
 	UInt32	unk0;		// 004
+};
+
+class NonActorMagicCaster : public BSExtraData
+{
+public:
+	NonActorMagicCaster();
+	~NonActorMagicCaster();
+
+	//base class
+	MagicCaster magicCaster;	//00C
+
+	UInt32			unk01;			//018
+	UInt32			unk02;			//01C
+	TESObjectREFR	* caster;		//020
 };
 
 /*
@@ -434,6 +449,7 @@ public:
 	enum
 	{
 		kFlags_Persistent	= 0x00000400,		//shared bit with kFormFlags_QuestItem
+		kFlags_Disabled =	  0x00000800,
 		kFlags_Taken		= 0x00000022,		//2 bits, both set when picked up by NPC/PC - need to figure out what each means
 	};
 
@@ -505,6 +521,14 @@ public:
 	ScriptEventList* GetEventList() const;
 	bool IsTaken() const
 		{	return ((flags & kFlags_Taken) == kFlags_Taken) ? true : false;	}
+	void SetTaken(bool bTaken) {
+		flags = (bTaken) ? (flags | kFlags_Taken) : (flags & ~kFlags_Taken);
+	}
+	bool	IsDisabled() { return flags & kFlags_Disabled ? true : false; }
+	void	SetDisabled(bool bDisabled) {
+		flags = bDisabled ? (flags | kFlags_Disabled) : (flags & ~kFlags_Disabled);
+	}
+	TESForm * GetInventoryItem(UInt32 itemIndex, bool bGetWares);
 };
 
 // 05C+
@@ -773,6 +797,11 @@ public:
 		kMiscStat_Max			// 34
 	};
 
+	struct TopicList {
+		TESTopic	* topic;
+		TopicList	* next;
+	};
+
 	PlayerCharacter();
 	~PlayerCharacter();
 
@@ -814,14 +843,19 @@ public:
 	DialoguePackage	* dialoguePackage;			// 118
 	UInt32		unk11C[(0x130 - 0x11C) >> 2];	// 11C
 	float		skillAdv[21];					// 130
-	UInt32		unk184[(0x1E0 - 0x184) >> 2];	// 184
+	UInt32		majorSkillAdvances;				// 184
+	UInt32		unk188[(0x1E0 - 0x188) >> 2];	// 188
 	Creature	* lastRiddenHorse;				// 1E0
 	UInt32		unk1E4[(0x570 - 0x1E4) >> 2];	// 1E4
 	TESObjectREFR	* lastActivatedLoadDoor;	// 570	-most recently activated load door
 	UInt32		unk574[(0x588 - 0x574) >> 2];	// 574
 	UInt8		isThirdPerson;					// 588
 	UInt8		pad589[3];						// 589
-	UInt32		unk58C[(0x610 - 0x58C) >> 2];	// 58C
+	UInt32		unk58C[(0x5B4 - 0x58C) >> 2];	// 58C
+	UInt8		** attributeBonuses;			// 5B4
+	UInt32		unk5B8[(0x5CC - 0x5B8) >> 2];	// 5B8
+	ActorAnimData	* firstPersonAnimData;		// 5CC
+	UInt32		unk5D0[(0x610 - 0x5D0) >> 2];	// 5D0
 	UInt8		unk610;							// 610
 	UInt8		isAMurderer;					// 611
 	UInt8		pad612[2];						// 612
@@ -836,9 +870,13 @@ public:
 	UInt32		miscStats[kMiscStat_Max];		// 658
 	AlchemyItem	* alchemyItem;					// 6E0
 	UInt32		unk6E4[(0x800 - 0x6E4) >> 2];	// 6E4
+
 	// 800
 
 	bool	SetActiveSpell(MagicItem * item);
+	UInt8	GetAttributeBonus(UInt32 whichAttribute) {
+		return whichAttribute < kActorVal_Luck ? (*attributeBonuses)[whichAttribute] : -1;
+	}
 };
 
 STATIC_ASSERT(sizeof(PlayerCharacter) == 0x800);

@@ -26,9 +26,9 @@
 bool Cmd_PrintToConsole_Execute(COMMAND_ARGS)
 {
 	*result = 0;
-	char buffer[512];
+	char buffer[kMaxMessageLength];
 
-	if (ExtractFormattedString(buffer, arg1, scriptObj, eventList, opcodeOffsetPtr))
+	if (ExtractFormatStringArgs(0, buffer, paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, kCommandInfo_PrintToConsole.numParams))
 	{
 		*result = 1;
 		Console_Print(buffer);

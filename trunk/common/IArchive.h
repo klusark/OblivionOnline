@@ -3,6 +3,8 @@
 #include "common/IDataStream.h"
 #include "common/IDynamicCreate.h"
 
+#if ENABLE_IDYNAMICCREATE
+
 /**
  *	An object archive
  *	
@@ -89,3 +91,5 @@ class IArchive
 				IArchive	* owner;
 		};
 };
+
+#endif

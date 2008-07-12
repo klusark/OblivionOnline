@@ -232,6 +232,78 @@
  *	
  ******************************************************************************/
 
+enum eTileValue {
+	//...
+
+	kTileValue_visible		= 0x00000FA1,
+	kTileValue_class,
+	kTileValue_listclip,
+	kTileValue_clipwindow,
+	kTileValue_stackingtype,
+	kTileValue_locus,
+	kTileValue_alpha,
+	kTileValue_id,
+	kTileValue_disablefade,
+	kTileValue_listindex	= 0x00000FAA,
+	kTileValue_y,
+	kTileValue_x,
+	kTileValue_depth,
+	kTileValue_user0,
+	kTileValue_user1,
+	kTileValue_user2,
+	kTileValue_user3,
+	kTileValue_user4,
+	kTileValue_user5,
+	kTileValue_user6,
+	kTileValue_user7,
+	kTileValue_user8,
+	kTileValue_user9,
+	kTileValue_user10,
+	kTileValue_user11,
+	kTileValue_user12,
+	kTileValue_user13,
+	kTileValue_user14,
+	kTileValue_user15,
+	kTileValue_user16,
+	kTileValue_user17,
+	kTileValue_user18,
+	kTileValue_user19,
+	kTileValue_user20,
+	kTileValue_user21,
+	kTileValue_user22,
+	kTileValue_user23,
+	kTileValue_user24,
+	kTileValue_user25,
+	kTileValue_clips,
+	kTileValue_target,
+	kTileValue_height,
+	kTileValue_width,
+	kTileValue_red,
+	kTileValue_green,
+	kTileValue_blue,
+	kTileValue_tile,
+	kTileValue_childcount,
+	kTileValue_child_count	= kTileValue_childcount,
+	kTileValue_justify,
+	kTileValue_zoom,
+	kTileValue_font,
+	kTileValue_wrapwidth,
+	kTileValue_wraplimit,
+	kTileValue_wraplines,
+	kTileValue_pagenum,
+	kTileValue_ishtml,
+	kTileValue_cropoffsety,
+	kTileValue_cropy		= kTileValue_cropoffsety,
+	kTileValue_cropoffsetx,
+	kTileValue_cropx		= kTileValue_cropoffsetx,
+	kTileValue_menufade,
+	kTileValue_explorefade,
+	kTileValue_mouseover,
+	kTileValue_string,
+
+	//...
+};
+
 class Menu;
 
 // 40
@@ -250,23 +322,37 @@ public:
 	virtual UInt32			Unk_02(void);	// create render objects?
 	virtual UInt32			GetTypeID(void);
 	virtual const char *	GetType(void);
-	virtual UInt32			Unk_05(UInt32 valueID, UInt32 unk1, UInt32 unk2);	// update field?
-	virtual void			Unk_06(void);
+	virtual UInt32			UpdateField(UInt32 valueID, float floatValue, const char* strValue);
+	virtual void			Unk_06(void);	// does something with tile's NiNode
 
 	// 1C
 	struct Value
 	{
+
+		bool IsNum() { return unk1A == 1; }
+		bool IsString() { return unk1A == 0; }
+
 		UInt32	unk00;		// 00 - Tile * back to owning tile
 		float	num;		// 04
 		String	str;		// 08
 		UInt32	unk10[2];	// 10
-		UInt16	id;			// 18
-		UInt8	unk1A;		// 1A
+		UInt16	id;			// 18 
+		UInt8	unk1A;		// 1A 0 = string, 1 = number
 		UInt8	pad1B;		// 1B
 	};
 
 	typedef NiTListBase <Tile>	RefList;
 	typedef NiTListBase <Value>	ValueList;
+
+
+	Tile *	ReadXML(const char * xmlPath);
+	Tile *	GetRoot(void);
+	
+	Value* GetValueByType(eTileValue valueType);
+	bool GetFloatValue(eTileValue valueType, float* out);
+	bool SetFloatValue(eTileValue valueType, float newValue);
+	bool GetStringValue(eTileValue valueType, const char** out);
+	bool SetStringValue(eTileValue valueType, const char* newValue);
 
 //	void	** _ctor;		// 00
 	UInt8	unk04;			// 04 - 0 = base tile
@@ -274,9 +360,9 @@ public:
 	UInt8	unk06;			// 06
 	UInt8	pad07;			// 07
 	String	unk08;			// 08
-	UInt32	unk10;			// 10
+	Tile	* parent;		// 10
 	ValueList	valueList;	// 14
-	UInt32	unk24;			// 24
+	UInt32	unk24;			// 24	// NiNode *
 	void	* unk28;		// 28
 	UInt32	unk2C;			// 2C
 	RefList	childList;		// 30
@@ -289,6 +375,11 @@ public:
 	TileRect();
 	~TileRect();
 
+	enum
+	{
+		kID =	0x0385
+	};
+
 	UInt32	unk40;	// 40
 };
 
@@ -298,6 +389,11 @@ class TileImage : public Tile
 public:
 	TileImage();
 	~TileImage();
+
+	enum
+	{
+		kID =	0x0386
+	};
 
 	float	unk40;		// 40
 	NiNode	* unk44;	// 44
@@ -311,6 +407,11 @@ class Tile3D : public Tile
 public:
 	Tile3D();
 	~Tile3D();
+
+	enum
+	{
+		kID =	0x0388
+	};
 
 	UInt32	unk40;	// 40
 	UInt32	unk44;	// 44
@@ -330,6 +431,11 @@ public:
 	TileText();
 	~TileText();
 
+	enum
+	{
+		kID =	0x0387
+	};
+
 	UInt32	pad40[4];	// 40
 	UInt8	unk50;		// 50
 	UInt8	pad51[3];	// 51
@@ -342,6 +448,11 @@ public:
 	TileMenu();
 	~TileMenu();
 
+	enum
+	{
+		kID =	0x0389
+	};
+
 	Menu	* menu;	// 44
 };
 
@@ -351,4 +462,21 @@ class TileWindow : public Tile
 public:
 	TileWindow();
 	~TileWindow();
+
+	enum
+	{
+		kID =	0x038B
+	};
 };
+
+// doesn't work for getting TileRect from TileMenu
+template <class T>
+T * tile_cast(Tile * src)
+{
+	T	* result = NULL;
+
+	if(src && (src->GetTypeID() == T::kID))
+		result = static_cast <T *>(src);
+
+	return result;
+}

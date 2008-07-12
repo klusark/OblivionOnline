@@ -33,28 +33,28 @@ void Bitstring::Clear(void)
 
 void Bitstring::Clear(UInt32 idx)
 {
-	ASSERT_STR(idx < (length << 3), "Bistring::Clear: out of range");
+	ASSERT_STR(idx < (length << 3), "Bitstring::Clear: out of range");
 
 	data[idx >> 3] &= ~(1 << (idx & 7));
 }
 
 void Bitstring::Set(UInt32 idx)
 {
-	ASSERT_STR(idx < (length << 3), "Bistring::Set: out of range");
+	ASSERT_STR(idx < (length << 3), "Bitstring::Set: out of range");
 
 	data[idx >> 3] |= (1 << (idx & 7));
 }
 
 bool Bitstring::IsSet(UInt32 idx)
 {
-	ASSERT_STR(idx < (length << 3), "Bistring::IsSet: out of range");
+	ASSERT_STR(idx < (length << 3), "Bitstring::IsSet: out of range");
 
 	return (data[idx >> 3] & (1 << (idx & 7))) ? true : false;
 }
 
 bool Bitstring::IsClear(UInt32 idx)
 {
-	ASSERT_STR(idx < (length << 3), "Bistring::IsClear: out of range");
+	ASSERT_STR(idx < (length << 3), "Bitstring::IsClear: out of range");
 
 	return (data[idx >> 3] & (1 << (idx & 7))) ? false : true;
 }

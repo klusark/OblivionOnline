@@ -4,11 +4,42 @@
 #include "GameAPI.h"
 #include "ParamInfos.h"
 #include "GameForms.h"
+#include "Hooks_Gameplay.h"
 #include <string>
 #include <set>
 #include <map>
 
 #if OBLIVION
+
+#include "GameData.h"
+#include "InternalSerialization.h"
+
+#if OBLIVION_VERSION == OBLIVION_VERSION_1_1
+
+static const _Cmd_Execute Cmd_AddItem_Execute = (_Cmd_Execute)0x004F6600;
+static const _Cmd_Execute Cmd_RemoveItem_Execute = (_Cmd_Execute)0x00508DF0;
+static const _Cmd_Execute Cmd_EquipItem_Execute = (_Cmd_Execute)0x0050B6B0;
+static const _Cmd_Execute Cmd_UnequipItem_Execute = (_Cmd_Execute)0x0050B8C0;
+
+#elif OBLIVION_VERSION == OBLIVION_VERSION_1_2
+
+static const _Cmd_Execute Cmd_AddItem_Execute = (_Cmd_Execute)0x00507470;
+static const _Cmd_Execute Cmd_RemoveItem_Execute = (_Cmd_Execute)0x00513A70;
+static const _Cmd_Execute Cmd_EquipItem_Execute = (_Cmd_Execute)0x00516510;
+static const _Cmd_Execute Cmd_UnequipItem_Execute = (_Cmd_Execute)0x00516720;
+
+#elif OBLIVION_VERSION == OBLIVION_VERSION_1_2_416
+
+static const _Cmd_Execute Cmd_AddItem_Execute = (_Cmd_Execute)0x00507320;
+static const _Cmd_Execute Cmd_RemoveItem_Execute = (_Cmd_Execute)0x00513810;
+static const _Cmd_Execute Cmd_EquipItem_Execute = (_Cmd_Execute)0x005162B0;
+static const _Cmd_Execute Cmd_UnequipItem_Execute = (_Cmd_Execute)0x005164C0;
+
+#else
+
+#error unsupported version of oblivion
+
+#endif
 
 static void PrintItemType(TESForm * form)
 {
@@ -273,10 +304,10 @@ static bool Cmd_GetInventoryItemType_Execute(COMMAND_ARGS)
 	TESForm	* type = GetItemByIdx(thisObj, objIdx, NULL);
 	if(type)
 	{
-		//PrintItemType(type);
-
 		UInt32	id = type->refID;
-		//Console_Print("refID = %08X", id);
+		if (*g_bConsoleMode)
+			Console_Print("GetInvObj %d >> %s %08x (%s)", objIdx, GetFullName(type), id, GetObjectClassName(type));
+
 		*((UInt32 *)result) = id;
 	}
 	else
@@ -469,8 +500,16 @@ static bool Cmd_GetEquipmentSlotType_Execute(COMMAND_ARGS)
 	feGetObject getObject;
 	
 	bool bFound = FindEquipped(thisObj, slotIdx, &getObject, result);
-	if (!bFound) {
-		//Console_Print("nothing is equipped in that slot");
+	if (IsConsoleMode())
+	{
+		if (!bFound)
+			Console_Print("Nothing equipped in that slot.");
+		else
+		{
+			TESForm* eqObj = LookupFormByID(*refResult);
+			if (eqObj)
+				Console_Print("GetEquippedObject %d >> %s (%08x)", slotIdx, GetFullName(eqObj), eqObj->refID);
+		}
 	}
 	return true;
 }
@@ -864,6 +903,7 @@ static bool GetObjectValue(COMMAND_ARGS, UInt32 valueType)
 	TESForm* form = 0;
 
 	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
+	form = form->TryGetREFRParent();
 	if (!form) {
 		if (!thisObj) return true;
 		form = thisObj->baseForm;
@@ -908,7 +948,8 @@ static bool Cmd_GetType_Execute(COMMAND_ARGS)
 	*result= 0;
 	TESForm* form = 0;
 
-	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
+	if(!ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form)) return true;
+	form = form->TryGetREFRParent();
 	if (!form) {
 		if (!thisObj) return true;
 		form = thisObj->baseForm;
@@ -1520,6 +1561,7 @@ bool ChangeObjectBaseValue(TESForm* form, ChangeValueState& state, double* resul
 			
 			if (enchantForm) {
 				EnchantmentItem* oldItem = enchantForm->enchantItem;
+
 				if (state.ForMod()) {
 					// the bForMod is a remove call
 					enchantForm->enchantItem = 0;
@@ -1938,6 +1980,7 @@ static bool ChangeObjectValue_Execute(COMMAND_ARGS, ChangeValueState& state)
 			return true;
 	}
 
+	form = form->TryGetREFRParent();
 	if (!form) {
 		if (!thisObj) return true;
 		form = thisObj->baseForm;
@@ -2117,6 +2160,7 @@ static bool Cmd_RemoveEnchantment_Execute(COMMAND_ARGS)
 
 static bool Cmd_SetEnchantment_Execute(COMMAND_ARGS)
 {
+
 	ChangeValueState state(kVal_Enchantment, bModF);
 	return ChangeObjectValue_Execute(PASS_COMMAND_ARGS, state);
 }
@@ -2287,6 +2331,28 @@ static bool Cmd_IsPlayable_Execute(COMMAND_ARGS)
 	return GetObjectValue(PASS_COMMAND_ARGS, kVal_Playable);
 }
 
+static bool Cmd_IsPlayable2_Execute(COMMAND_ARGS)
+{
+	//version which only returns false if "unplayable" flag is present and set
+	*result = 1;
+	TESForm* form = NULL;
+
+	if (ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form))
+	{
+		form = form->TryGetREFRParent(); 
+		if (!form)
+			if (thisObj)
+				form = thisObj->baseForm;
+	}
+	if (form)
+	{
+		TESBipedModelForm* biped = (TESBipedModelForm*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESBipedModelForm, 0);
+		if (biped)
+			*result = biped->IsPlayable() ? 1 : 0;
+	}
+	return true;
+}
+
 // SetIsFood
 static bool Cmd_SetIsPlayable_Execute(COMMAND_ARGS)
 {
@@ -2304,12 +2370,22 @@ static bool Cmd_SetName_Execute(COMMAND_ARGS)
 	char	string[256];
 
 	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &string, &form);
+	form = form->TryGetREFRParent();
 	if (!form) {
 		if (!thisObj) return true;
 		form = thisObj->baseForm;
 	}
 
-	TESFullName* name = (TESFullName*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESFullName, 0);
+	TESFullName* name = NULL;
+	if (form->typeID == kFormType_Stat)		//handle mapmarkers
+	{
+		ExtraMapMarker* mapMarker = (ExtraMapMarker*)thisObj->baseExtraList.GetByType(kExtraData_MapMarker);
+		if (mapMarker)
+			name = mapMarker->fullName;
+	}
+	else
+		name = (TESFullName*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESFullName, 0);
+
 	if (name) {
 		name->name.Set(string);
 		return true;
@@ -2325,6 +2401,7 @@ static bool Cmd_CompareName_Execute(COMMAND_ARGS)
 	char	textArg[256];
 
 	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &textArg, &form);
+	form = form->TryGetREFRParent();
 	if (!form) {
 		if (!thisObj) return true;
 		form = thisObj->baseForm;
@@ -2345,6 +2422,9 @@ static bool Cmd_CopyName_Execute(COMMAND_ARGS)
 	TESForm* srcForm = NULL;
 	TESForm* targetForm = NULL;
 	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &srcForm, &targetForm);
+	srcForm = srcForm->TryGetREFRParent();
+	targetForm = targetForm->TryGetREFRParent();
+
 	if (!srcForm) return true;
 	if (!targetForm) {
 		if (!thisObj) return true;
@@ -2367,6 +2447,7 @@ static bool Cmd_ModName_Execute(COMMAND_ARGS)
 	char	string[256];
 
 	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &string, &form);
+	form = form->TryGetREFRParent();
 	if (!form) {
 		if (!thisObj) return true;
 		form = thisObj->baseForm;
@@ -2397,6 +2478,7 @@ static bool Cmd_AppendToName_Execute(COMMAND_ARGS)
 	char	string[256];
 
 	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &string, &form);
+	form = form->TryGetREFRParent();
 	if (!form) {
 		if (!thisObj) return true;
 		form = thisObj->baseForm;
@@ -2479,11 +2561,16 @@ static bool PathFunc_Execute(COMMAND_ARGS, UInt32 whichValue, EMode mode)
 	if (mode == kCopy) {
 		bExtracted = ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &srcForm, &targetForm);
 		if (!srcForm) return true;
-	} else {
+	} else if (mode == kGet) {
+		bExtracted = ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &targetForm);
+	}
+	else {
 		bExtracted = ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &textArg, &targetForm);
 		if (textArg[0] == '\0') return true;
 	}
 
+	srcForm = srcForm->TryGetREFRParent();
+	targetForm = targetForm->TryGetREFRParent(); 
 	if (!targetForm) {
 		if (!thisObj) return true;
 		targetForm = thisObj->baseForm;
@@ -2528,6 +2615,20 @@ static bool PathFunc_Execute(COMMAND_ARGS, UInt32 whichValue, EMode mode)
 				}
 
 			case kGet:
+				{
+					String* filePath = PathStringFromForm(targetForm, whichValue, mode);
+					if (filePath)
+					{
+						std::string sFilePath;
+						if (whichValue == kVal_Icon)
+							sFilePath = std::string("data\\textures\\menus\\icons\\") + std::string(filePath->m_data);
+						else
+							sFilePath = std::string("data\\meshes\\") + std::string(filePath->m_data);
+						*result = (*g_FileFinder)->FindFile(sFilePath.c_str(), 0, 0, -1) ? 1 : 0;
+					}
+					break;
+				}
+
 			default:
 				break;
 		}
@@ -2870,6 +2971,7 @@ static bool IsType_Execute(COMMAND_ARGS, UInt8 typeID)
 	TESForm* form = 0;
 
 	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
+	form = form->TryGetREFRParent();
 	if (!form) {
 		if (!thisObj) return true;
 		form = thisObj->baseForm;
@@ -2962,102 +3064,13 @@ static bool Cmd_IsFurniture_Execute(COMMAND_ARGS)
 	return IsType_Execute(PASS_COMMAND_ARGS, kFormType_Furniture);
 }
 
-
-enum EScriptMode {
-	eScript_HasScript,
-	eScript_Get,
-	eScript_Remove,
-};
-
-
-static bool GetScript_Execute(COMMAND_ARGS, EScriptMode eMode)
-{
-	*result = 0;
-	TESForm* form = 0;
-
-	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
-	if (!form) {
-		if (!thisObj) return true;
-		form = thisObj->baseForm;
-	}
-
-	TESScriptableForm* scriptForm = (TESScriptableForm*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESScriptableForm, 0);
-	Script* script = (scriptForm) ? scriptForm->script : NULL;
-
-	if (eMode == eScript_HasScript) {
-		*result = (script != NULL) ? 1 : 0;
-	} else {
-		if (script) {
-			UInt32* refResult = (UInt32*)result;
-			*refResult = script->refID;		
-		}
-		if (eMode == eScript_Remove) {
-			scriptForm->script = NULL;
-		}
-	}
-
-	return true;
-}
-
-static bool Cmd_IsScripted_Execute(COMMAND_ARGS)
-{
-	return GetScript_Execute(PASS_COMMAND_ARGS, eScript_HasScript);
-}
-
-static bool Cmd_GetScript_Execute(COMMAND_ARGS)
-{
-	return GetScript_Execute(PASS_COMMAND_ARGS, eScript_Get);
-}
-
-static bool Cmd_RemoveScript_Execute(COMMAND_ARGS)
-{
-	return GetScript_Execute(PASS_COMMAND_ARGS, eScript_Remove);
-}
-
-
-static bool Cmd_SetScript_Execute(COMMAND_ARGS)
-{
-	*result = 0;
-	UInt32* refResult = (UInt32*)result;
-
-	TESForm* form = NULL;
-	TESForm* scriptArg = NULL;
-
-	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &scriptArg, &form);
-	if (!form) {
-		if (!thisObj) return true;
-		form = thisObj->baseForm;
-	}
-
-	TESScriptableForm* scriptForm = (TESScriptableForm*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESScriptableForm, 0);
-	if (!scriptForm) return true;
-
-	Script* script = (Script*)Oblivion_DynamicCast(scriptArg, 0, RTTI_TESForm, RTTI_Script, 0);
-	if (!script) return true;
-
-	// we can't get a magic script here
-	if (script->IsMagicScript()) return true;
-
-	if (script->IsQuestScript() && form->typeID == kFormType_Quest) {
-		*refResult = scriptForm->script->refID;
-		scriptForm->script = script;
-	} else if (script->IsObjectScript()) {
-		if (scriptForm->script) {
-			*refResult = scriptForm->script->refID;
-		}
-		scriptForm->script = script;
-	}
-	return true;
-}
-
-
-
 static bool Cmd_IsClonedForm_Execute(COMMAND_ARGS)
 {
 	*result = 0;
 	TESForm* form = NULL;
 
 	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
+	form = form->TryGetREFRParent(); 
 	if (!form) {
 		if (!thisObj) return true;
 		form = thisObj->baseForm;
@@ -3092,6 +3105,9 @@ static bool Cmd_CompareNames_Execute(COMMAND_ARGS)
 	TESForm* form = NULL;
 	TESForm* base = NULL;
 	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form, &base);
+	form = form->TryGetREFRParent();
+	base = base->TryGetREFRParent();
+
 	if (!form)
 		return true;
 	if (!base)
@@ -3147,6 +3163,7 @@ static bool Cmd_IsLightCarriable_Execute(COMMAND_ARGS)
 
 	if (ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form))
 	{
+		form = form->TryGetREFRParent(); 
 		if (!form)
 			if (thisObj)
 				form = thisObj->baseForm;
@@ -3168,6 +3185,7 @@ static bool Cmd_GetLightRadius_Execute(COMMAND_ARGS)
 
 	if (ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form))
 	{
+		form = form->TryGetREFRParent(); 
 		if (!form)
 			if (thisObj)
 				form = thisObj->baseForm;
@@ -3190,6 +3208,7 @@ static bool Cmd_SetLightRadius_Execute(COMMAND_ARGS)
 
 	if (ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &newRadius, &form))
 	{
+		form = form->TryGetREFRParent(); 
 		if (!form)
 			if (thisObj)
 				form = thisObj->baseForm;
@@ -3213,6 +3232,7 @@ static bool Cmd_HasName_Execute(COMMAND_ARGS)
 	*result = 0;
 
 	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
+	form = form->TryGetREFRParent(); 
 	if (!form)
 		if (thisObj)
 			form = thisObj->baseForm;
@@ -3226,6 +3246,497 @@ static bool Cmd_HasName_Execute(COMMAND_ARGS)
 
 	return true;
 }
+
+static bool Cmd_AddItemNS_Execute(COMMAND_ARGS)
+{
+	ToggleUIMessages(false);
+	Cmd_AddItem_Execute(PASS_COMMAND_ARGS);
+	ToggleUIMessages(true);
+	return true;
+}
+
+static bool Cmd_RemoveItemNS_Execute(COMMAND_ARGS)
+{
+	ToggleUIMessages(false);
+	Cmd_RemoveItem_Execute(PASS_COMMAND_ARGS);
+	ToggleUIMessages(true);
+	return true;
+}
+
+static bool Cmd_EquipItemNS_Execute(COMMAND_ARGS)
+{
+	ToggleUIMessages(false);
+	Cmd_EquipItem_Execute(PASS_COMMAND_ARGS);
+	ToggleUIMessages(true);
+	return true;
+}
+
+static bool Cmd_UnequipItemNS_Execute(COMMAND_ARGS)
+{
+	ToggleUIMessages(false);
+	Cmd_UnequipItem_Execute(PASS_COMMAND_ARGS);
+	ToggleUIMessages(true);
+	return true;
+}
+
+class EffectItemValueCounter
+{
+public:
+	UInt32 m_value;
+	enum {
+		kEffectCode_WAWA = 0x41574157,
+		kEffectCode_NEYE = 0x4559454E,
+		kEffectCode_WABR = 0x52424157,
+	};
+
+	EffectItemValueCounter() : m_value(0)
+		{ }
+
+	bool Accept(EffectItem* eff)
+	{
+		switch (eff->effectCode)
+		{
+		case kEffectCode_WAWA:
+		case kEffectCode_WABR:
+		case kEffectCode_NEYE:
+			m_value += eff->setting->barterFactor * 5;
+			break;
+		default:
+			m_value += eff->setting->barterFactor * eff->magnitude;
+		}
+		return true;
+	}
+};
+
+
+static bool Cmd_GetFullGoldValue_Execute(COMMAND_ARGS)
+//includes enchantment value in calculation
+{
+	TESForm* form = NULL;
+	*result = 0;
+	UInt32 baseVal = 0;
+
+	ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);
+	form = form->TryGetREFRParent(); 
+	if (!form)
+		if (thisObj)
+			form = thisObj->baseForm;
+
+	if (!form)
+		return true;
+
+	switch (form->typeID)
+	{
+	case kFormType_Ingredient:
+	{
+		IngredientItem* ingredient = (IngredientItem*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_IngredientItem, 0);
+		if (ingredient) 
+			baseVal = ingredient->value;
+		break;
+	}
+	case kFormType_AlchemyItem:
+	{
+		AlchemyItem* alchItem = (AlchemyItem*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_AlchemyItem, 0);
+		if (alchItem)
+			baseVal = alchItem->goldValue;
+		break;
+	}
+	default:
+		TESValueForm* valueForm = (TESValueForm*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESValueForm, 0);
+		if (valueForm) 
+			baseVal = valueForm->value;
+	}
+
+	*result = baseVal;
+	EnchantmentItem* enchItem = NULL;
+	TESEnchantableForm* enchantForm = (TESEnchantableForm*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESEnchantableForm, 0);
+	if (enchantForm)
+		enchItem = enchantForm->enchantItem;
+	if (!enchItem)		//not enchanted, so we're done
+		return true;
+
+	UInt32 enchCost = 0;
+	if (!enchItem->IsAutoCalc()) {
+		enchCost = enchItem->cost;
+	} else {
+		enchCost = enchItem->magicItem.list.GetMagickaCost();
+	}
+
+	switch (form->typeID)
+	{
+	case kFormType_Weapon:
+	case kFormType_Ammo:
+		enchCost = 0.4 * (enchCost + enchantForm->enchantment);
+		break;
+	case kFormType_Book:
+		enchCost /= 2;
+		break;
+	case kFormType_Clothing:
+	case kFormType_Armor:
+		{
+			MagicItem* magicItem = (MagicItem*)Oblivion_DynamicCast(enchItem, 0, RTTI_TESForm, RTTI_MagicItem, 0);
+			if (!magicItem)		//not enchanted (how'd we get here then?)
+				return true;
+			EffectItemValueCounter vCounter;
+			EffectItemVisitor(&(magicItem->list.effectList)).Visit(vCounter);
+			enchCost = vCounter.m_value;
+		}
+		break;
+	default:		//what?
+		break;
+	}
+
+	*result = baseVal + enchCost;
+	return true;
+}
+
+static bool Cmd_GetHotKeyItem_Execute(COMMAND_ARGS)
+{
+	UInt32 whichKey = 0;
+	UInt32 * refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &whichKey))
+		return true;
+
+	if (whichKey && whichKey <= 8)
+	{
+		NiTPointerList <TESForm> * quickKey = &g_quickKeyList[--whichKey];
+		if (quickKey->start && quickKey->start->data)
+		{
+			*refResult = quickKey->start->data->refID;
+			if (IsConsoleMode())
+				Console_Print("GetHotKeyItem %d >> %s (%08x)", ++whichKey, GetFullName(quickKey->start->data), *refResult);
+		}
+	}
+
+	return true;
+}
+
+class ExtraQuickKeyFinder
+{
+public:
+	UInt32 m_whichKey;
+	TESForm* m_whichForm;
+
+	ExtraQuickKeyFinder(UInt32 whichKey, TESForm* whichForm = NULL) : m_whichKey(whichKey), m_whichForm(whichForm)
+		{ }
+
+	bool Accept(ExtraContainerChanges::EntryData* entryData)
+	{
+		//match by TESForm
+		if (m_whichForm)
+		{
+			if (entryData->type == m_whichForm)
+				return true;
+			else
+				return false;
+		}
+	
+		//match by hotkey #
+		if (entryData->extendData && entryData->extendData->data)
+		{
+			if (m_whichKey && entryData->extendData->data->HasType(kExtraData_QuickKey))
+			{
+				ExtraQuickKey* qKey = (ExtraQuickKey*)entryData->extendData->data->GetByType(kExtraData_QuickKey);
+				if (qKey->keyID == m_whichKey)
+					return true;
+			}
+		}
+
+		return false;
+	}
+};
+
+static bool Cmd_ClearHotKey_Execute(COMMAND_ARGS)
+{
+	UInt32 whichKey = 0;
+	*result = 0;
+
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &whichKey))
+		return true;
+	
+	if (whichKey && whichKey <= 8)
+	{
+		NiTPointerList <TESForm> * quickKey = &g_quickKeyList[--whichKey];
+		if (quickKey->start && quickKey->start->data)
+		{
+			if (quickKey->start->data->typeID != kFormType_Spell)	//remove ExtraQuickKey from container changes
+			{
+				ExtraContainerChanges* xChanges = static_cast <ExtraContainerChanges *>((*g_thePlayer)->baseExtraList.GetByType(kExtraData_ContainerChanges));
+				if (xChanges)
+				{
+					ExtraQuickKeyFinder finder(whichKey);
+					ExtraEntryVisitor visitor(xChanges->data->objList);
+					const ExtraContainerChanges::Entry* xEntry = visitor.Find(finder);
+					if (xEntry)
+					{
+						BSExtraData* toRemove = xEntry->data->extendData->data->GetByType(kExtraData_QuickKey);
+						if (toRemove)
+						{
+							xEntry->data->extendData->data->Remove(toRemove);
+							FormHeap_Free(toRemove);
+						}
+					}
+				}
+			}
+			quickKey->FreeNode(quickKey->start);
+			quickKey->numItems = 0;
+			quickKey->start = NULL;
+			quickKey->end = NULL;
+		}
+	}
+
+	return true;
+}
+
+class InvDumper
+{
+public:
+	bool Accept(ExtraContainerChanges::EntryData* entryData)
+	{
+		_MESSAGE("%08x -> %s", entryData->type, GetFullName(entryData->type));
+		return true;
+	}
+};
+
+static bool Cmd_SetHotKeyItem_Execute(COMMAND_ARGS)
+{
+	TESForm* qkForm = NULL;
+	UInt32 whichKey = 0;
+	*result = 0;
+
+	if(!ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &whichKey, &qkForm))
+		return true;
+	else if (!whichKey || whichKey > 8 || !qkForm)
+		return true;
+
+	//if qkForm already mapped to a quickKey, remove it from list
+/*	for (UInt32 i = 0; i < 8; i++)
+	{
+		NiTPointerList <TESForm> * curQK = &g_quickKeyList[i];
+		if (curQK->numItems && curQK->start && curQK->start->data == qkForm)
+		{
+			Console_Print("Form exists at index %d (num: %d start: %08x end: %08x", i, curQK->numItems, curQK->start, curQK->end);
+			curQK->numItems = 0;
+			curQK->FreeNode(curQK->start);
+			curQK->start = NULL;
+			curQK->end = NULL;
+		}
+	}
+*/
+	NiTPointerList <TESForm> * quickKey = &g_quickKeyList[--whichKey];
+	NiTPointerList <TESForm>::Node * qkNode = quickKey->start;
+	TESForm* oldQKItem = NULL;
+	if (!quickKey->numItems || !qkNode)	// quick key not yet assigned
+	{
+		qkNode = quickKey->AllocateNode();
+		quickKey->start = qkNode;
+		quickKey->end = qkNode;
+		quickKey->numItems = 1;
+	}
+	else
+		oldQKItem = quickKey->start->data;
+
+	qkNode->next = NULL;
+	qkNode->prev = NULL;
+	qkNode->data = qkForm;
+
+	ExtraQuickKey* xQKey = NULL;
+	if (oldQKItem && oldQKItem->typeID != kFormType_Spell)	//get ExtraQuickKey attached to previous hotkeyed item
+	{
+		ExtraContainerChanges* xChanges = static_cast <ExtraContainerChanges *>((*g_thePlayer)->baseExtraList.GetByType(kExtraData_ContainerChanges));
+		if (xChanges)
+		{
+			ExtraQuickKeyFinder finder(whichKey);
+			ExtraEntryVisitor visitor(xChanges->data->objList);
+			const ExtraContainerChanges::Entry* xEntry = visitor.Find(finder);
+			if (xEntry)
+			{
+				xQKey = (ExtraQuickKey*)(xEntry->data->extendData->data->GetByType(kExtraData_QuickKey));
+				if (xQKey)	//remove from prev item's extra data list
+					xEntry->data->extendData->data->Remove(xQKey);
+			}
+		}
+	}
+
+	if (qkForm->typeID != kFormType_Spell)	//add ExtraQuickKey to new item's extra data list
+	{
+		if (!xQKey)
+			xQKey = ExtraQuickKey::Create();
+		
+		xQKey->keyID = whichKey;
+		ExtraContainerChanges* xChanges = static_cast <ExtraContainerChanges *>((*g_thePlayer)->baseExtraList.GetByType(kExtraData_ContainerChanges));
+		if (xChanges)		//look up form in player's inventory
+		{
+			ExtraQuickKeyFinder finder(0, qkForm);
+			ExtraEntryVisitor visitor(xChanges->data->objList);
+			const ExtraContainerChanges::Entry* xEntry = visitor.Find(finder);
+			if (xEntry)
+			{
+				if (!xEntry->data->extendData)
+				{
+					xEntry->data->extendData = 
+						(ExtraContainerChanges::EntryExtendData*)(FormHeap_Allocate(sizeof(ExtraContainerChanges::EntryExtendData)));
+					xEntry->data->extendData->next = NULL;
+					xEntry->data->extendData->data = NULL;
+				}
+				if (!xEntry->data->extendData->data)
+					xEntry->data->extendData->data = ExtraDataList::Create();
+				
+				xEntry->data->extendData->data->Add(xQKey);
+			}
+			else
+				Console_Print("SetHotKeyItem >> Item not found in inventory");
+		}
+	}
+	else if (xQKey)		//new item is spell, so free old ExtraQuickKey
+		FormHeap_Free(xQKey);
+
+	return true;
+}		
+
+static bool Cmd_IsModelPathValid_Execute(COMMAND_ARGS)
+{
+	return PathFunc_Execute(PASS_COMMAND_ARGS, kVal_Model, kGet);
+}
+
+static bool Cmd_IsIconPathValid_Execute(COMMAND_ARGS)
+{
+	return PathFunc_Execute(PASS_COMMAND_ARGS, kVal_Icon, kGet);
+}
+
+static bool IsBipedPathValid_Execute(COMMAND_ARGS, bool checkIcon)
+{
+	enum {
+		kPath_Male,
+		kPath_Female,
+		kPath_MaleGround,
+		kPath_FemaleGround
+	};
+
+	*result = 0;
+	UInt32 whichPath = 0;
+	TESForm* form = NULL;
+	String* filePath = NULL;
+	*result = 0;
+
+	if (!ExtractArgs(EXTRACT_ARGS, &whichPath, &form))
+		return true;
+
+	if (!form)
+	{
+		if (thisObj)
+			form = thisObj->baseForm;
+		else
+			return true;
+	}
+
+	TESBipedModelForm* bip = (TESBipedModelForm *)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESBipedModelForm, 0);
+	if (bip)
+	{
+		switch(whichPath)
+		{
+		case kPath_MaleGround:
+			if (!checkIcon)
+				filePath = PathStringFromForm(form, kVal_GroundMale, kGet);
+			break;
+		case kPath_FemaleGround:
+			if (!checkIcon)
+				filePath = PathStringFromForm(form, kVal_GroundFemale, kGet);
+			break;
+		case kPath_Male:
+			if (checkIcon)
+				filePath = PathStringFromForm(form, kVal_IconMale, kGet);
+			else
+				filePath = PathStringFromForm(form, kVal_BipedMale, kGet);
+			break;
+		case kPath_Female:
+			if (checkIcon)
+				filePath = PathStringFromForm(form, kVal_IconFemale, kGet);
+			else
+				filePath = PathStringFromForm(form, kVal_BipedFemale, kGet);
+			break;
+		default:
+			break;
+		}
+
+		if (filePath)
+		{
+			std::string sFilePath;
+			if (checkIcon)
+				sFilePath = std::string("data\\textures\\menus\\icons\\") + std::string(filePath->m_data);
+			else
+				sFilePath = std::string("data\\meshes\\") + std::string(filePath->m_data);
+
+			*result = (*g_FileFinder)->FindFile(sFilePath.c_str(), 0, 0, -1) ? 1 : 0;
+		}
+	}
+
+	return true;
+}
+
+static bool Cmd_IsBipedModelPathValid_Execute(COMMAND_ARGS)
+{
+	return IsBipedPathValid_Execute(PASS_COMMAND_ARGS, false);
+}
+
+static bool Cmd_IsBipedIconPathValid_Execute(COMMAND_ARGS)
+{
+	return IsBipedPathValid_Execute(PASS_COMMAND_ARGS, true);
+}
+
+static bool Cmd_FileExists_Execute(COMMAND_ARGS)
+{
+	char filePath[512] = { 0 };
+	*result = 0;
+
+	if (ExtractArgs(EXTRACT_ARGS, &filePath))
+		*result = (*g_FileFinder)->FindFile(filePath, 0, 0, -1) ? 1 : 0;
+
+	return true;
+}
+
+static bool Cmd_SetNameEx_Execute(COMMAND_ARGS)
+{
+	if (!result) return true;
+	
+	TESForm* form = NULL;
+	char	newName[kMaxMessageLength];
+
+	if(!ExtractFormatStringArgs(0, newName, paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, kCommandInfo_SetNameEx.numParams, &form))
+		return true;
+
+	if (form)
+		form = form->TryGetREFRParent(); 
+	else if (thisObj)
+		form = thisObj->baseForm;
+
+	if (!form)
+		return true;
+
+	TESFullName* name = NULL;
+	if (form->typeID == kFormType_Stat)		//handle mapmarkers
+	{
+		ExtraMapMarker* mapMarker = (ExtraMapMarker*)thisObj->baseExtraList.GetByType(kExtraData_MapMarker);
+		if (mapMarker)
+		{
+			name = mapMarker->fullName;
+			form = thisObj;
+		}
+	}
+	else
+		name = (TESFullName*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESFullName, 0);
+
+	if (name) {
+		FormChangeInfo info(kChangeForm_Name, form, scriptObj);
+		g_FormChangesMap.Add(info);
+		name->name.Set(newName);
+		return true;
+	}
+	return true;
+}
+
 
 #endif
 
@@ -4523,6 +5034,21 @@ CommandInfo kCommandInfo_IsPlayable =
 	0
 };
 
+CommandInfo kCommandInfo_IsPlayable2 =
+{
+	"IsPlayable2",
+	"",
+	0,
+	"returns 1 unless the object is clothing marked as unplayable",
+	0,
+	1,
+	kParams_OneOptionalInventoryObject,
+	HANDLER(Cmd_IsPlayable2_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
 // Set is Food
 CommandInfo kCommandInfo_SetPlayable =
 {
@@ -5555,73 +6081,6 @@ CommandInfo kCommandInfo_ModQuality =
 	0
 };
 
-CommandInfo kCommandInfo_IsScripted =
-{
-	"IsScripted",
-	"",
-	0,
-	"returns 1 if the object or reference has a script attached to it",
-	0,
-	1,
-	kParams_OneOptionalInventoryObject,
-	HANDLER(Cmd_IsScripted_Execute),
-	Cmd_Default_Parse,
-	NULL,
-	0
-};
-
-CommandInfo kCommandInfo_GetScript =
-{
-	"GetScript",
-	"",
-	0,
-	"returns the script of the referenced or passed object",
-	0,
-	1,
-	kParams_OneOptionalInventoryObject,
-	HANDLER(Cmd_GetScript_Execute),
-	Cmd_Default_Parse,
-	NULL,
-	0
-};
-
-CommandInfo kCommandInfo_RemoveScript =
-{
-	"RemoveScript",
-	"",
-	0,
-	"removes the script of the referenced or passed object",
-	0,
-	1,
-	kParams_OneOptionalInventoryObject,
-	HANDLER(Cmd_RemoveScript_Execute),
-	Cmd_Default_Parse,
-	NULL,
-	0
-};
-
-
-ParamInfo kParamInfo_SetScript[2] = 
-{
-	{	"script", kParamType_MagicItem, 0 },
-	{	"object", kParamType_InventoryObject, 1},
-};
-
-CommandInfo kCommandInfo_SetScript =
-{
-	"SetScript",
-	"",
-	0,
-	"returns the script of the referenced or passed object",
-	0,
-	2,
-	kParamInfo_SetScript,
-	HANDLER(Cmd_SetScript_Execute),
-	Cmd_Default_Parse,
-	NULL,
-	0
-};
-
 static ParamInfo kParams_CompareNames[2] =
 {
 	{	"compare to",	kParamType_InventoryObject,	0	},
@@ -5752,3 +6211,181 @@ CommandInfo kCommandInfo_HasName =
 	NULL,
 	0
 };
+
+static ParamInfo kParams_AddItem[2] =
+{
+	{	"item",		kParamType_InventoryObject,	0	},
+	{	"quantity",	kParamType_Integer,			0	},
+};
+
+CommandInfo kCommandInfo_AddItemNS =
+{
+	"AddItemNS",
+	"",
+	0,
+	"version of AddItem which doesn't generate UI messages",
+	1,
+	2,
+	kParams_AddItem,
+	HANDLER(Cmd_AddItemNS_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_RemoveItemNS =
+{
+	"RemoveItemNS",
+	"",
+	0,
+	"version of RemoveItem which doesn't generate UI messages",
+	1,
+	2,
+	kParams_AddItem,
+	HANDLER(Cmd_RemoveItemNS_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+static ParamInfo kParams_EquipItem[2] =
+{
+	{	"item",		kParamType_InventoryObject,	0	},
+	{	"lockEquip",kParamType_Integer,			1	},
+};
+
+CommandInfo kCommandInfo_EquipItemNS =
+{
+	"EquipItemNS",
+	"",
+	0,
+	"version of EquipItem which doesn't generate UI messages",
+	1,
+	2,
+	kParams_EquipItem,
+	HANDLER(Cmd_EquipItemNS_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_UnequipItemNS =
+{
+	"UnequipItemNS",
+	"",
+	0,
+	"version of UnequipItem which doesn't generate UI messages",
+	1,
+	2,
+	kParams_EquipItem,
+	HANDLER(Cmd_UnequipItemNS_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetFullGoldValue =
+{
+	"GetFullGoldValue",
+	"",
+	0,
+	"returns gold value of item including enchantment value",
+	0,
+	1,
+	kParams_OneOptionalInventoryObject,
+	HANDLER(Cmd_GetFullGoldValue_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetHotKeyItem =
+{
+	"GetHotKeyItem", "",
+	0,
+	"returns the item or spell bound to the specified hotkey",
+	0,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_GetHotKeyItem_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_ClearHotKey =
+{
+	"ClearHotKey", "",
+	0,
+	"clears the item or spell associated with the specified hotkey",
+	0,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_ClearHotKey_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+static ParamInfo kParams_SetHotKeyItem[2] =
+{
+	{	"hotkey",	kParamType_Integer,			0	},
+	{	"item",		kParamType_InventoryObject,	0	},
+};
+
+CommandInfo kCommandInfo_SetHotKeyItem =
+{
+	"SetHotKeyItem", "",
+	0,
+	"sets the spell or item associated with a hotkey",
+	0,
+	2,
+	kParams_SetHotKeyItem,
+	HANDLER(Cmd_SetHotKeyItem_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+DEFINE_COMMAND(IsModelPathValid,
+			   "returns true if the object's model path is valid",
+			   0,
+			   1,
+			   kParams_OneOptionalInventoryObject);
+
+DEFINE_COMMAND(IsIconPathValid,
+			   "returns true if the object's icon path is valid",
+			   0,
+			   1,
+			   kParams_OneOptionalInventoryObject);
+
+DEFINE_COMMAND(IsBipedModelPathValid,
+			   "returns true if the biped model path is valid",
+			   0,
+			   2,
+			   kParams_GetObjectValue);
+
+DEFINE_COMMAND(IsBipedIconPathValid,
+			   "returns true if the biped icon path is valid",
+			   0,
+			   2,
+			   kParams_GetObjectValue);
+
+DEFINE_COMMAND(FileExists,
+			   "returns true if the specified file exists",
+			   0,
+			   1,
+			   kParams_OneString);
+
+
+static ParamInfo kParams_SetNameEx[22] =
+{
+	FORMAT_STRING_PARAMS,
+	{"inventory object", kParamType_InventoryObject,	1	},
+};
+
+DEFINE_COMMAND(SetNameEx,
+			   "sets the name of the object based on the format string",
+			   0,
+			   22,
+			   kParams_SetNameEx);

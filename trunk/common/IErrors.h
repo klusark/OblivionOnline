@@ -9,15 +9,15 @@ void _AssertionFailed_ErrCode(const char * file, UInt32 line, const char * desc,
 //! Exit the program if the condition is not true
 #define ASSERT(a)					do { if(!(a)) _AssertionFailed(__FILE__, __LINE__, #a); } while(0)
 //! Exit the program if the condition is not true, with an error message
-#define ASSERT_STR(a, b)			do { if(!(a)) _AssertionFailed(__FILE__, __LINE__, #b); } while(0)
+#define ASSERT_STR(a, b)			do { if(!(a)) _AssertionFailed(__FILE__, __LINE__, b); } while(0)
 //! Exit the program if the condition is not true, reporting an error code
 #define ASSERT_CODE(a, b)			do { if(!(a)) _AssertionFailed_ErrCode(__FILE__, __LINE__, #a, b); } while(0)
 //! Exit the program if the condition is not true, reporting an error code and message
-#define ASSERT_STR_CODE(a, b, c)	do { if(!(a)) _AssertionFailed_ErrCode(__FILE__, __LINE__, #b, c); } while(0)
+#define ASSERT_STR_CODE(a, b, c)	do { if(!(a)) _AssertionFailed_ErrCode(__FILE__, __LINE__, b, c); } while(0)
 //! Exit the program with an error message
-#define HALT(a)						do { _AssertionFailed(__FILE__, __LINE__, #a); } while(0)
+#define HALT(a)						do { _AssertionFailed(__FILE__, __LINE__, a); } while(0)
 //! Exit the program with and error code and message
-#define HALT_CODE(a, b)				do { _AssertionFailed_ErrCode(__FILE__, __LINE__, #a, b); } while(0)
+#define HALT_CODE(a, b)				do { _AssertionFailed_ErrCode(__FILE__, __LINE__, a, b); } while(0)
 
 #define THROW_EXCEPTION(type, desc)		do { throw type##(__FILE__, __LINE__, desc); } while(0)
 #define EXCEPTION_DEF_CONSTRUCTOR(type)	type##(char * inFile, int inLine, char * inError) : IException(inFile, inLine, inError) { }
@@ -28,11 +28,14 @@ template <bool x> struct StaticAssertFailure;
 template <> struct StaticAssertFailure <true> { enum { a = 1 }; };
 template <int x> struct static_assert_test { };
 
-#define MACRO_JOIN(a, b)	MACRO_JOIN_2(a, b)
-#define MACRO_JOIN_2(a, b)	MACRO_JOIN_3(a, b)
-#define MACRO_JOIN_3(a, b)	a##b
+#define __MACRO_JOIN__(a, b)		__MACRO_JOIN_2__(a, b)
+#define __MACRO_JOIN_2__(a, b)		__MACRO_JOIN_3__(a, b)
+#define __MACRO_JOIN_3__(a, b)		a##b
+#define __PREPRO_TOKEN_STR2__(a)	#a
+#define __PREPRO_TOKEN_STR__(a)		__PREPRO_TOKEN_STR2__(a)
+#define __LOC__						__FILE__ "("__PREPRO_TOKEN_STR__(__LINE__)") : "
 
-#define STATIC_ASSERT(a)	typedef static_assert_test <sizeof(StaticAssertFailure<(bool)(a)>)> MACRO_JOIN_3(static_assert_typedef_, __COUNTER__)
+#define STATIC_ASSERT(a)	typedef static_assert_test <sizeof(StaticAssertFailure<(bool)(a)>)> __MACRO_JOIN__(static_assert_typedef_, __COUNTER__)
 
 /**
  *	The base exception class

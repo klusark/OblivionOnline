@@ -18,6 +18,9 @@ public:
 	DWORD	m_priority;
 
 	bool	m_crcOnly;
+	bool	m_noSync;
+	bool	m_optionsOnly;
+	bool	m_waitForClose;
 
 	std::string	m_altEXE;
 	std::string	m_altDLL;

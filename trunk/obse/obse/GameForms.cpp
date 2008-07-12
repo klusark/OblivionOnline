@@ -3,8 +3,19 @@
 #include <map>
 #include <functional>
 #include <ctime>			//for time()
+#include <string>			//for strcpy_s()
+#include "InternalSerialization.h"
 
-#include <cstdlib>			//for rand(), srand()
+#if OBLIVION_VERSION == OBLIVION_VERSION_1_1
+static const UInt32 TESCreature_vtbl = 0x00A1FFEC;
+#elif OBLIVION_VERSION == OBLIVION_VERSION_1_2
+static const UInt32 TESCreature_vtbl = 0x00A5340C;
+#elif OBLIVION_VERSION == OBLIVION_VERSION_1_2_416
+static const UInt32 TESCreature_vtbl = 0x00A5324C;
+#else
+#error unsupported Oblivion version
+#endif
+
 
 static const UInt32 kSEFF = Swap32('SEFF');
 
@@ -115,6 +126,11 @@ bool TESForm::IsCloned() const
 	return IsClonedForm(refID);
 }
 
+UInt8 TESForm::GetModIndex()
+{
+	return (refID >> 24);
+}
+
 bool TESForm::SupportsSimpleModel() const
 {
 	switch (typeID) {
@@ -145,6 +161,7 @@ bool TESForm::SupportsSimpleModel() const
 		case kFormType_AlchemyItem:
 		case kFormType_SigilStone:
 		case kFormType_LeveledItem:
+		case kFormType_ANIO:
 			return true;
 		default:
 			return false;
@@ -165,6 +182,21 @@ void TESForm::MarkAsTemporary(void)
 #else
 #error unsupported oblivion version
 #endif
+}
+
+TESForm * TESForm::TryGetREFRParent(void)
+{
+	TESForm			* result = this;
+
+	if(result)
+	{
+		TESObjectREFR	* refr = (TESObjectREFR *)Oblivion_DynamicCast(this, 0, RTTI_TESForm, RTTI_TESObjectREFR, 0);
+
+		if(refr && refr->baseForm)
+			result = refr->baseForm;
+	}
+
+	return result;
 }
 
 bool TESObjectARMO::IsHeavyArmor() const
@@ -231,6 +263,9 @@ bool EnchantmentItem::MatchesType(TESForm* form)
 			{
 				TESObjectWEAP* weapon = (TESObjectWEAP*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESObjectWEAP, 0);
 				if (weapon && weapon->type != TESObjectWEAP::kType_Staff) return true;
+				TESAmmo* ammo = (TESAmmo*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESAmmo, 0);
+				if (ammo)
+					return true;
 			}
 			break;
 		case kEnchant_Apparel:
@@ -1568,7 +1603,7 @@ UInt8 TESClimate::GetPhaseLength() const
 
 void TESClimate::SetPhaseLength(UInt8 nuVal) 
 {
-	moonInfo |= (nuVal & kClimate_PhaseLengthMask);
+	moonInfo = (moonInfo & ~kClimate_PhaseLengthMask) | (nuVal & kClimate_PhaseLengthMask);
 }
 
 void TESClimate::SetHasMasser(bool bHasMasser)
@@ -1768,25 +1803,18 @@ void TESLeveledList::Dump()
 	visitor.Visit(dumper);
 }
 
-TESForm* TESLeveledList::CalcElement(UInt32 cLevel, bool useChanceNone, UInt32 levelDiff)
+TESForm* TESLeveledList::CalcElement(UInt32 cLevel, bool useChanceNone, UInt32 levelDiff, bool noRecurse)
 {
-	static bool seeded = false;
 	ListEntry* curEntry = &list;
 	UInt32 minLevel = 0;
 	UInt32 maxLevel = 0;
 	TESForm* item = NULL;
 
-	if (!seeded)
-	{
-		std::srand(std::time(0));
-		seeded = true;
-	}
-
-	if (useChanceNone && rand() % 100 < chanceNone)
+	if (useChanceNone && MersenneTwister::genrand_int32() % 100 < chanceNone)
 		return NULL;
 
 	//find max/min for level range
-	if (!(flags & kFlags_CalcAllLevels))
+	if (!(flags & kFlags_CalcAllLevels) && !noRecurse)
 	{
 		while (curEntry && curEntry->data && curEntry->data->level <= cLevel)
 		{
@@ -1801,24 +1829,83 @@ TESForm* TESLeveledList::CalcElement(UInt32 cLevel, bool useChanceNone, UInt32 l
 
 	//skip entries below minLevel
 	curEntry = &list;
-	while (curEntry && curEntry->data->level < minLevel)
+	while (curEntry && curEntry->data && curEntry->data->level < minLevel)
 		curEntry = curEntry->next;
 
 	//pick an item with 1/numMatches probability
 	UInt32 numMatches = 0;
-	while (curEntry && curEntry->data->level <= maxLevel)
+	UInt32 curIndex = 0;
+	while (curEntry && curEntry->data && curEntry->data->level <= maxLevel)
 	{
-		if (rand() % ++numMatches == 0)
+		if (MersenneTwister::genrand_int32() % ++numMatches == 0)
+		{
 			item = curEntry->data->form;
+			curIndex = numMatches - 1;
+		}
 		curEntry = curEntry->next;
 	}
 
-	//Recurse if a nested leveled item was chosen
-	TESLeveledList* nestedList = (TESLeveledList*)Oblivion_DynamicCast(item, 0, RTTI_TESForm, RTTI_TESLeveledList, 0);
-	if (nestedList)
-		item = nestedList->CalcElement(cLevel, useChanceNone, levelDiff);
+	//Recurse if a nested leveled item was chosen, unless otherwise specified
+	if (!noRecurse)	
+	{
+		TESLeveledList* nestedList = (TESLeveledList*)Oblivion_DynamicCast(item, 0, RTTI_TESForm, RTTI_TESLeveledList, 0);
+		if (nestedList)
+			item = nestedList->CalcElement(cLevel, useChanceNone, levelDiff);
+	}
 
 	return item;
+}
+
+class LevListFinderByLevel
+{
+	UInt32 m_whichLevel;
+
+public:
+	LevListFinderByLevel(UInt32 whichLevel) : m_whichLevel(whichLevel)
+		{	}
+	bool Accept(TESLeveledList::ListData* data)
+	{
+		if (data->level == m_whichLevel)
+			return true;
+		else
+			return false;
+	}
+};
+
+UInt32 TESLeveledList::RemoveByLevel(UInt32 whichLevel)
+{
+	UInt32 numRemoved = 0;
+	if (list.data)
+		numRemoved = LeveledListVisitor(&list).RemoveIf(LevListFinderByLevel(whichLevel));
+
+	return numRemoved;
+}
+
+void TESLeveledList::ListEntry::Delete() {
+	FormHeap_Free(data);
+	FormHeap_Free(this);
+}
+void TESLeveledList::ListEntry::DeleteHead(TESLeveledList::ListEntry* replaceWith) {
+	FormHeap_Free(data);
+	if (replaceWith)
+	{
+		data = replaceWith->data;
+		next = replaceWith->next;
+		FormHeap_Free(replaceWith);
+	}
+	else
+		memset(this, 0, sizeof(ListEntry));
+}
+
+TESForm* TESLeveledList::GetElementByLevel(UInt32 whichLevel)
+{
+	TESForm* foundForm = NULL;
+	LeveledListVisitor visitor(&list);
+	const TESLeveledList::ListEntry* foundEntry = visitor.Find(LevListFinderByLevel(whichLevel));
+	if (foundEntry && foundEntry->data)
+		foundForm = foundEntry->data->form;
+
+	return foundForm;
 }
 
 TESWeather::RGBA& TESWeather::GetColor(UInt32 whichColor, UInt8 time)
@@ -1876,3 +1963,136 @@ const TESModelList::Entry* TESModelList::FindNifPath(char* path)
 {
 	return ModelListVisitor(&modelList).FindString(path);
 }
+
+TESCreature* TESCreature::GetSoundBase()
+{
+	TESCreature* base = NULL;
+	if (soundBase && (*((UInt32*)soundBase) == TESCreature_vtbl))
+	{
+		TESForm* form = (TESForm*)Oblivion_DynamicCast((TESCreature*)soundBase, 0, RTTI_TESCreature, RTTI_TESForm, 0);
+		base = (TESCreature*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESCreature, 0);
+	}
+	else
+		base = this;
+
+	return base;
+}
+
+TESSound* TESCreature::GetSound(UInt32 whichSound)
+{
+	TESSound* sound = NULL;
+	if (whichSound < eCreatureSound_MAX && soundBase)
+	{
+		CreatureSoundEntry** sndTbl = GetSoundBase()->soundBase;
+		if (sndTbl[whichSound] && sndTbl[whichSound]->data)
+			sound = sndTbl[whichSound]->data->sound;
+	}
+	return sound;
+}
+
+UInt32 TESCreature::GetSoundChance(UInt32 whichSound)
+{
+	UInt32 chance = -1;
+	if (whichSound < eCreatureSound_MAX && soundBase)
+	{
+		CreatureSoundEntry** sndTbl = GetSoundBase()->soundBase;
+		if (sndTbl[whichSound] && sndTbl[whichSound]->data)
+			chance = sndTbl[whichSound]->data->chance;
+	}
+	return chance;
+}
+
+bool TESModelList::RemoveEntry(char* nifToRemove)
+{
+	Entry* toRemove = const_cast<Entry*>(ModelListVisitor(&modelList).FindString(nifToRemove));
+	if (!toRemove)
+		return false;
+
+	if (&modelList == toRemove)	//remove from head, shift elements down
+	{
+		FormHeap_Free(modelList.nifPath);
+		if (modelList.next)
+		{
+			toRemove = modelList.next;
+			modelList.nifPath = modelList.next->nifPath;
+			modelList.next = modelList.next->next;
+			FormHeap_Free(toRemove);
+		}
+		else
+			modelList.nifPath = NULL;
+
+		return true;
+	}
+	//otherwise, find within list and remove
+	Entry* curEntry = &modelList;
+	while (curEntry)
+	{
+		if (curEntry->next == toRemove)
+		{
+			toRemove = curEntry->next;
+			curEntry->next = toRemove->next;
+			FormHeap_Free(toRemove->nifPath);
+			FormHeap_Free(toRemove);
+			return true;
+		}
+		curEntry = curEntry->next;
+	}
+	return false;
+}
+
+bool TESModelList::AddEntry(char* nifToAdd)
+{
+	if (ModelListVisitor(&modelList).FindString(nifToAdd))	//already present
+		return false;
+
+	UInt32 newLen = strlen(nifToAdd);
+	char* newStr = (char*)FormHeap_Allocate(newLen);
+	strcpy_s(newStr, newLen + 1, nifToAdd);
+	if (!modelList.nifPath)
+		modelList.nifPath = newStr;
+	else
+	{
+		Entry* lastEntry = const_cast<Entry*>(ModelListVisitor(&modelList).GetLastNode());
+		Entry* newEntry = (Entry*)FormHeap_Allocate(sizeof(Entry));
+		lastEntry->next = newEntry;
+		newEntry->nifPath = newStr;
+		newEntry->next = NULL;
+	}
+	return true;
+}
+
+class ScriptVarFinder
+{
+public:
+	const char* m_varName;
+	ScriptVarFinder(const char* varName) : m_varName(varName)
+		{	}
+	bool Accept(Script::VariableInfo* varInfo)
+	{
+		if (!_stricmp(m_varName, varInfo->name))
+			return true;
+		else
+			return false;
+	}
+};
+
+Script::VariableInfo* Script::GetVariableByName(const char* varName)
+{
+	VarListVisitor visitor(&varList);
+	const VarInfoEntry* varEntry = visitor.Find(ScriptVarFinder(varName));
+	if (varEntry)
+		return varEntry->data;
+	else
+		return NULL;
+}
+
+bool SpellItem::IsHostile()
+{
+	return hostileEffectCount ? true : false;
+}
+
+void SpellItem::SetHostile(bool bHostile)
+{
+	hostileEffectCount = bHostile ? 1 : 0;
+}
+

@@ -170,6 +170,10 @@ void IFileStream::WriteBuf(const void * buf, UInt32 inLength)
 {
 	UInt32	bytesWritten;
 
+	// check for file expansion
+	if(streamOffset > streamLength)
+		SetEndOfFile(theFile);
+
 	WriteFile(theFile, buf, inLength, &bytesWritten, NULL);
 
 	if(bytesWritten != inLength)

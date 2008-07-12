@@ -10,6 +10,8 @@
 
 #if OBLIVION
 
+#include "InternalSerialization.h"
+
 static bool Cmd_GetTravelHorse_Execute(COMMAND_ARGS)
 {
 	*result = 0;
@@ -35,9 +37,10 @@ static bool Cmd_SetTravelHorse_Execute(COMMAND_ARGS)
 	TESObjectREFR* objectRef = NULL;
 	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &objectRef))
 		return true;
-	if (!thisObj) return true;
+	if (!thisObj || thisObj->typeID != kFormType_ACHR) return true;	//only NPCs may have travel horses
 
 	BSExtraData* xData = thisObj->baseExtraList.GetByType(kExtraData_TravelHorse);
+
 	if (xData) {
 		ExtraTravelHorse* xHorse = (ExtraTravelHorse*)Oblivion_DynamicCast(xData, 0, RTTI_BSExtraData, RTTI_ExtraTravelHorse, 0);
 		if (xHorse) {
@@ -49,11 +52,7 @@ static bool Cmd_SetTravelHorse_Execute(COMMAND_ARGS)
 	{
 		ExtraTravelHorse* xHorse = ExtraTravelHorse::Create();
 		xHorse->horseRef = objectRef;
-		if (!thisObj->baseExtraList.Add(xHorse))
-		{
-			FormHeap_Free(xHorse);
-			xHorse = NULL;
-		}
+		thisObj->baseExtraList.Add(xHorse);
 	}
 
 	return true;
@@ -228,17 +227,21 @@ static SInt8 IsOffLimits(BaseExtraList* xDataList, TESNPC* actor)
 		}
 		else if (owner->typeID == kFormType_Faction)
 		{
-			xData = xDataList->GetByType(kExtraData_Rank);
-			SInt8 reqRank = 0;
-			if (xData)					// ExtraRank only present if required rank > 0
+			TESFaction* owningFaction = (TESFaction*)Oblivion_DynamicCast(owner, 0, RTTI_TESForm, RTTI_TESFaction, 0);
+			if (owningFaction && !(owningFaction->IsEvil()))		//no crime to steal from evil factions
 			{
-				ExtraRank* rank = (ExtraRank*)Oblivion_DynamicCast(xData, 0, RTTI_BSExtraData, RTTI_ExtraRank, 0);
-				reqRank = rank->rank;
+				xData = xDataList->GetByType(kExtraData_Rank);
+				SInt8 reqRank = 0;
+				if (xData)					// ExtraRank only present if required rank > 0
+				{
+					ExtraRank* rank = (ExtraRank*)Oblivion_DynamicCast(xData, 0, RTTI_BSExtraData, RTTI_ExtraRank, 0);
+					reqRank = rank->rank;
+				}
+				if (actor->actorBaseData.GetFactionRank((TESFaction*)owner) >= reqRank)
+					offLimits = 0;
+				else
+					offLimits = 1;
 			}
-			if (actor->actorBaseData.GetFactionRank((TESFaction*)owner) >= reqRank)
-				offLimits = 0;
-			else
-				offLimits = 1;
 		}
 	}
 	return offLimits;
@@ -789,6 +792,20 @@ static bool Cmd_HasBeenPickedUp_Execute(COMMAND_ARGS)
 	return true;
 }
 
+static bool Cmd_SetHasBeenPickedUp_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	UInt32 bPickedUp = 0;
+
+	if (!thisObj)
+		return true;
+	else if (!ExtractArgs(EXTRACT_ARGS, &bPickedUp))
+		return true;
+
+	thisObj->SetTaken(bPickedUp ? true : false);
+	return true;
+}
+
 UInt32 GetProjectileData(MobileObject* mob, bool getMagicData = false, MagicProjectileData** dataOut = NULL)
 {
 	//is there a better way to do this?
@@ -920,7 +937,6 @@ static bool Cmd_GetArrowProjectilePoison_Execute(COMMAND_ARGS)
 	return true;
 }
 
-//Need to handle NonActorMagicCaster
 static bool Cmd_GetProjectileSource_Execute(COMMAND_ARGS)
 {
 	UInt32* refResult = (UInt32*)result;
@@ -945,7 +961,12 @@ static bool Cmd_GetProjectileSource_Execute(COMMAND_ARGS)
 					Actor* caster = (Actor*)Oblivion_DynamicCast(data->caster, 0, RTTI_MagicCaster, RTTI_Actor, 0);
 					if (caster)
 						*refResult = caster->refID;
-					//else handle NonActorMagicCaster
+					else
+					{
+						NonActorMagicCaster* caster = (NonActorMagicCaster*)Oblivion_DynamicCast(data->caster, 0, RTTI_MagicCaster, RTTI_NonActorMagicCaster, 0);
+						if (caster && caster->caster)
+							*refResult = caster->caster->refID;
+					}
 				}
 		}
 	}
@@ -953,7 +974,6 @@ static bool Cmd_GetProjectileSource_Execute(COMMAND_ARGS)
 	return true;
 }
 
-//Works.
 static bool Cmd_SetMagicProjectileSpell_Execute(COMMAND_ARGS)
 {
 	if (!thisObj)
@@ -976,15 +996,9 @@ static bool Cmd_SetMagicProjectileSpell_Execute(COMMAND_ARGS)
 	return true;
 }
 
-//Sets correctly but target doesn't react.
-static bool Cmd_SetProjectileSource_Execute(COMMAND_ARGS)
+static bool Cmd_SetPlayerProjectile_Execute(COMMAND_ARGS)
 {
 	if (!thisObj)
-		return true;
-
-	Actor* actor = NULL;
-
-	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &actor))
 		return true;
 
 	MobileObject* mob = (MobileObject*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MobileObject, 0);
@@ -996,13 +1010,13 @@ static bool Cmd_SetProjectileSource_Execute(COMMAND_ARGS)
 		{
 			ArrowProjectile* arrow = (ArrowProjectile*)Oblivion_DynamicCast(mob, 0, RTTI_MobileObject, RTTI_ArrowProjectile, 0);
 			if (arrow)
-				arrow->shooter = actor;
+				arrow->shooter = *g_thePlayer;
 		}
 		else if (projType != -1)
 		{
 			if (data)
 			{
-				MagicCaster* caster = (MagicCaster*)Oblivion_DynamicCast(actor, 0, RTTI_Actor, RTTI_MagicCaster, 0);
+				MagicCaster* caster = (MagicCaster*)Oblivion_DynamicCast(*g_thePlayer, 0, RTTI_Actor, RTTI_MagicCaster, 0);
 				if (caster)
 					data->caster = caster;
 			}
@@ -1038,7 +1052,217 @@ static bool Cmd_ClearProjectileSource_Execute(COMMAND_ARGS)
 
 	return true;
 }
-			
+
+static bool Cmd_GetRefCount_Execute(COMMAND_ARGS)
+{
+	*result = 1;
+	if (!thisObj)
+		return true;
+
+	BSExtraData* xData = thisObj->baseExtraList.GetByType(kExtraData_Count);
+	if (xData)
+	{
+		ExtraCount* xCount = (ExtraCount*)Oblivion_DynamicCast(xData, 0, RTTI_BSExtraData, RTTI_ExtraCount, 0);
+		if (xCount)
+			*result = xCount->count;
+	}
+	return true;
+}
+
+static bool Cmd_SetRefCount_Execute(COMMAND_ARGS)
+{
+	UInt32 newCount = 0;
+	if (!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &newCount))
+		return true;
+	else if (!thisObj)
+		return true;
+
+	ExtraCount* xCount = NULL;
+	BSExtraData* xData = thisObj->baseExtraList.GetByType(kExtraData_Count);
+	if (xData)
+		xCount = (ExtraCount*)Oblivion_DynamicCast(xData, 0, RTTI_BSExtraData, RTTI_ExtraCount, 0);
+	else
+	{
+		xCount = ExtraCount::Create();
+		xCount->count = newCount;
+		thisObj->baseExtraList.Add(xCount);
+	}
+
+	if (xCount)
+		xCount->count = newCount;
+
+	return true;
+}
+
+static bool GetSound_Execute(COMMAND_ARGS, UInt32 whichSound)
+{
+	TESForm* form = NULL;
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (whichSound > 2)
+		return false;
+
+	if (!ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form))
+		return false;
+
+	form = form->TryGetREFRParent(); 
+	if (!form)
+	{
+		if (thisObj)
+			form = thisObj->baseForm;
+		else
+			return false;
+	}
+
+	switch (form->typeID)
+	{
+	case kFormType_Door:
+		{
+			TESObjectDOOR* door = (TESObjectDOOR*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESObjectDOOR, 0);
+			if (door->animSounds[whichSound])
+				*refResult = door->animSounds[whichSound]->refID;
+		}
+		break;
+	case kFormType_Container:
+		{
+			if (whichSound == 2)
+				return false;
+			TESObjectCONT* cont = (TESObjectCONT*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESObjectCONT, 0);
+			if (cont->animSounds[whichSound])
+				*refResult = cont->animSounds[whichSound]->refID;
+		}
+		break;
+	case kFormType_Activator:
+		{
+			if (whichSound != 2)
+				return false;
+			TESObjectACTI* acti = (TESObjectACTI*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESObjectACTI, 0);
+
+			if (acti->loopSound)
+				*refResult = acti->loopSound->refID;
+		}
+		break;
+	case kFormType_Light:
+		{
+			if (whichSound != 2)
+				return false;
+			TESObjectLIGH* light = (TESObjectLIGH*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESObjectLIGH, 0);
+
+			if (light->loopSound)
+				*refResult = light->loopSound->refID;
+		}
+		break;
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+static bool Cmd_GetOpenSound_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	GetSound_Execute(PASS_COMMAND_ARGS, 0);
+	return true;
+}
+
+static bool Cmd_GetCloseSound_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	GetSound_Execute(PASS_COMMAND_ARGS, 1);
+	return true;
+}
+
+static bool Cmd_GetLoopSound_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	GetSound_Execute(PASS_COMMAND_ARGS, 2);
+	return true;
+}
+
+static bool SetSound_Execute(COMMAND_ARGS, UInt32 whichSound)
+{
+	TESForm* form = NULL;
+	TESSound* sound = NULL;
+	UInt32* refResult = (UInt32*)result;
+	*refResult = 0;
+
+	if (whichSound > 2)
+		return false;
+
+	if (!ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &sound, &form))
+		return false;
+
+	form = form->TryGetREFRParent(); 
+	if (!form)
+	{
+		if (thisObj)
+			form = thisObj->baseForm;
+		else
+			return false;
+	}
+
+	switch (form->typeID)
+	{
+	case kFormType_Door:
+		{
+			TESObjectDOOR* door = (TESObjectDOOR*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESObjectDOOR, 0);
+			door->animSounds[whichSound] = sound;
+		}
+		break;
+	case kFormType_Container:
+		{
+			if (whichSound == 2)
+				return false;
+			TESObjectCONT* cont = (TESObjectCONT*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESObjectCONT, 0);
+			cont->animSounds[whichSound] = sound;
+		}
+		break;
+	case kFormType_Activator:
+		{
+			if (whichSound != 2)
+				return false;
+			TESObjectACTI* acti = (TESObjectACTI*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESObjectACTI, 0);
+			acti->loopSound = sound;
+		}
+		break;
+	case kFormType_Light:
+		{
+			if (whichSound != 2)
+				return false;
+			TESObjectLIGH* light = (TESObjectLIGH*)Oblivion_DynamicCast(form, 0, RTTI_TESForm, RTTI_TESObjectLIGH, 0);
+			light->loopSound = sound;
+		}
+		break;
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+static bool Cmd_SetOpenSound_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	SetSound_Execute(PASS_COMMAND_ARGS, 0);
+	return true;
+}
+
+static bool Cmd_SetCloseSound_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	SetSound_Execute(PASS_COMMAND_ARGS, 1);
+	return true;
+}
+
+static bool Cmd_SetLoopSound_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	SetSound_Execute(PASS_COMMAND_ARGS, 2);
+	return true;
+}
+
 #endif
 
 CommandInfo kCommandInfo_GetTravelHorse =
@@ -1505,6 +1729,7 @@ CommandInfo kCommandInfo_SetMagicProjectileSpell =
 	0
 };
 
+/*
 CommandInfo kCommandInfo_SetProjectileSource =
 {
 	"SetProjectileSource",
@@ -1519,6 +1744,7 @@ CommandInfo kCommandInfo_SetProjectileSource =
 	NULL,
 	0
 };
+*/
 
 CommandInfo kCommandInfo_ClearProjectileSource =
 {
@@ -1530,6 +1756,153 @@ CommandInfo kCommandInfo_ClearProjectileSource =
 	0,
 	NULL,
 	HANDLER(Cmd_ClearProjectileSource_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetRefCount =
+{
+	"GetRefCount",
+	"",
+	0,
+	"returns the count in a stacked reference",
+	1,
+	0,
+	NULL,
+	HANDLER(Cmd_GetRefCount_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetRefCount =
+{
+	"SetRefCount",
+	"",
+	0,
+	"sets the count on a stacked reference",
+	1,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_SetRefCount_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+static ParamInfo kParams_SetSound[2] =
+{
+	{	"sound",	kParamType_Sound,			0	},
+	{	"object",	kParamType_InventoryObject,	1	},
+};
+
+CommandInfo kCommandInfo_GetOpenSound =
+{
+	"GetOpenSound",
+	"",
+	0,
+	"returns the open sound for a container or door",
+	0,
+	1,
+	kParams_OneOptionalInventoryObject,
+	HANDLER(Cmd_GetOpenSound_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetCloseSound =
+{
+	"GetCloseSound",
+	"",
+	0,
+	"returns the close sound for a container or door",
+	0,
+	1,
+	kParams_OneOptionalInventoryObject,
+	HANDLER(Cmd_GetCloseSound_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_GetLoopSound =
+{
+	"GetLoopSound",
+	"",
+	0,
+	"returns the loop sound for an object",
+	0,
+	1,
+	kParams_OneOptionalInventoryObject,
+	HANDLER(Cmd_GetLoopSound_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetOpenSound =
+{
+	"SetOpenSound",
+	"",
+	0,
+	"sets the open sound for a container or door",
+	0,
+	2,
+	kParams_SetSound,
+	HANDLER(Cmd_SetOpenSound_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetCloseSound =
+{
+	"SetCloseSound",
+	"",
+	0,
+	"sets the close sound for a container or door",
+	0,
+	2,
+	kParams_SetSound,
+	HANDLER(Cmd_SetCloseSound_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+CommandInfo kCommandInfo_SetLoopSound =
+{
+	"SetLoopSound",
+	"",
+	0,
+	"sets the looping sound for an object",
+	0,
+	2,
+	kParams_SetSound,
+	HANDLER(Cmd_SetLoopSound_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	0
+};
+
+DEFINE_COMMAND(SetPlayerProjectile,
+			   sets the player as the source of the projectile,
+			   1,
+			   0,
+			   NULL);
+
+CommandInfo kCommandInfo_SetHasBeenPickedUp =
+{
+	"SetHasBeenPickedUp",
+	"SetTaken",
+	0,
+	"toggles the 'taken' flag on a reference",
+	1,
+	1,
+	kParams_OneInt,
+	HANDLER(Cmd_SetHasBeenPickedUp_Execute),
 	Cmd_Default_Parse,
 	NULL,
 	0

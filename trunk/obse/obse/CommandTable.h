@@ -42,6 +42,9 @@ enum ParamType
 	kParamType_NPC =				0x23,	// Say						TESForm *, kFormType_NPC
 	kParamType_Owner =				0x24,	// IsOwner					TESForm *, kFormType_NPC or kFormType_Faction
 	kParamType_EffectShader =		0x25,	// haven't seen used		TESForm *, kFormType_EffectShader
+
+	// custom OBSE types
+	kParamType_StringVar =			0x01,
 };
 
 /*** IsInventoryObjectType types
@@ -51,6 +54,55 @@ enum ParamType
  *	SLGM KEYM ALCH
  *	SGST
  ***/
+
+/*** kParamType_AnimationGroup is converted to a UInt16 code when compiled
+Doc'ed here for future ref
+AnimGroup		  Code (0x)
+---------		  ---------
+Idle 				00
+DynamicIdle			01
+SpecialIdle			02
+Forward				03
+Backward			04
+Left				05
+Right				06
+FastForward 		07
+FastBackward 		08
+FastLeft 			09
+FastRight 			0A
+DodgeForward		0B
+DodgeBack 			0C
+DodgeLeft 			0D
+DodgeRight			0E
+TurnLeft			0F
+TurnRight			10
+Equip 				11
+Unequip				12
+AttackBow 			13
+AttackLeft 			14
+AttackRight			15
+AttackPower 		16
+AttackForwardPower	17
+AttackBackPower		18
+AttackLeftPower		19
+AttackRightPower	1A
+BlockIdle 			1B
+BlockHit 			1C
+BlockAttack			1D
+Recoil				1E
+Stagger				1F
+Death				20
+TorchIdle			21
+CastSelf 			22
+CastTouch 			23
+CastTarget			24
+CastSelfAlt 		25
+CastTouchAlt		26
+CastTargetAlt 		27
+JumpStart 			28
+JumpLoop			29
+JumpLand 			2A
+*/
 
 struct ParamInfo
 {
@@ -65,6 +117,38 @@ class Script;
 
 #define COMMAND_ARGS	ParamInfo * paramInfo, void * arg1, TESObjectREFR * thisObj, UInt32 arg3, Script * scriptObj, ScriptEventList * eventList, double * result, UInt32 * opcodeOffsetPtr
 #define PASS_COMMAND_ARGS paramInfo, arg1, thisObj, arg3, scriptObj, eventList, result, opcodeOffsetPtr
+#define EXTRACT_ARGS	paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList
+
+//Macro to make CommandInfo definitions a bit less tedious
+#define DEFINE_COMMAND(name, description, refRequired, numParams, paramInfo) \
+	CommandInfo (kCommandInfo_ ## name) = { \
+	#name, \
+	"", \
+	0, \
+	#description, \
+	refRequired, \
+	numParams, \
+	paramInfo, \
+	HANDLER(Cmd_ ## name ## _Execute), \
+	Cmd_Default_Parse, \
+	NULL, \
+	0 \
+	};
+
+#define DEFINE_COMMAND_PLUGIN(name, description, refRequired, numParams, paramInfo) \
+	CommandInfo (kCommandInfo_ ## name) = { \
+	#name, \
+	"", \
+	0, \
+	#description, \
+	refRequired, \
+	numParams, \
+	paramInfo, \
+	HANDLER(Cmd_ ## name ## _Execute), \
+	NULL, \
+	NULL, \
+	0 \
+	};
 
 typedef bool (* Cmd_Execute)(COMMAND_ARGS);
 bool Cmd_Default_Execute(COMMAND_ARGS);
@@ -137,3 +221,5 @@ private:
 
 extern CommandTable	g_consoleCommands;
 extern CommandTable	g_scriptCommands;
+
+typedef bool (* _Cmd_Execute)(COMMAND_ARGS);

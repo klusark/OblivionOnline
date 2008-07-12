@@ -99,7 +99,7 @@ extern "C" int SetInputHooks()
 	_MESSAGE("Setting up Input hooks");
 	UINT HookedFunctions;
 	HookImportedFunctionsByNameA(GetModuleHandle(0),"DINPUT8.DLL",1,DirectInput8CreateHook,(PROC *)old_DirectInput8Create,&HookedFunctions);
-	hook = SetWindowsHookEx(WH_KEYBOARD,kbdhook,hDll,0);
+	//hook = SetWindowsHookEx(WH_KEYBOARD,kbdhook,hDll,0);
 	return false;
 }
 int UnSetInputHooks()

@@ -4,6 +4,11 @@
 #include "common/IDataStream.h"
 #include "common/IErrors.h"
 
+// this screws with edit-and-continue and we don't use it
+#define ENABLE_IDYNAMICCREATE 0
+
+#if ENABLE_IDYNAMICCREATE
+
 //! Get a pointer to the IDynamicType for a class.
 //! @note This is not a function; the parameter must be constant.
 #define GetDynType(name)	(&(##name##::__DYN_DynamicType))
@@ -109,3 +114,5 @@ class IClassRegistry
 		typedef std::map <UInt32, IDynamicType *>	ClassRegistryType;
 		static ClassRegistryType	theClassRegistry;
 };
+
+#endif

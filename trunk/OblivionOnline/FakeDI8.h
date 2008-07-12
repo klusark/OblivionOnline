@@ -122,7 +122,7 @@ public:
 							continue;
 						//we detected a change
 						LastKeyState[i] = keys[i];
-						if(KEYDOWN(keys,i)) // Btn pressed
+						if(KEYDOWN(keys,i)) // Button pressed
 						{
 							CEGUI::System::getSingleton().injectKeyDown(i);
 							CEGUI::System::getSingleton().injectChar(keycodeToUTF32(i));

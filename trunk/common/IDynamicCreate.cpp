@@ -1,5 +1,7 @@
 #include "IDynamicCreate.h"
 
+#if ENABLE_IDYNAMICCREATE
+
 IClassRegistry	_gClassRegistry;
 
 IClassRegistry::IClassRegistry()
@@ -32,3 +34,5 @@ IDynamicType * IClassRegistry::LookupClassInfo(char * name)
 
 	return NULL;
 }
+
+#endif

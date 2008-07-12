@@ -3,7 +3,10 @@
 class TESForm;
 
 void DumpClass(void * theClassPtr, UInt32 nIntsToDump = 512);
+
+#ifdef OBLIVION
 void PrintItemType(TESForm * form);
+#endif
 
 class StringFinder_CI
 {
@@ -25,6 +28,49 @@ template <class Node, class Info>
 class Visitor
 {
 	const Node* m_pHead;
+
+	template <class Op>
+	UInt32 FreeNodes(Node* node, Op &compareOp) const
+	{
+		static UInt32 nodeCount = 0;
+		static UInt32 numFreed = 0;
+		static Node* lastNode = NULL;
+		static bool bRemovedNext = false;
+
+		if (node->Next())
+		{
+			nodeCount++;
+			FreeNodes(node->Next(), compareOp);
+			nodeCount--;
+		}
+
+		if (compareOp.Accept(node->data))
+		{
+			if (nodeCount)
+				node->Delete();
+			else
+				node->DeleteHead(lastNode);
+			numFreed++;
+			bRemovedNext = true;
+		}
+		else
+		{
+			if (bRemovedNext)
+				node->SetNext(lastNode);
+			bRemovedNext = false;
+			lastNode = node;
+		}
+
+		if (!nodeCount)	//reset vars after recursing back to head
+		{
+			numFreed = 0;
+			lastNode = NULL;
+			bRemovedNext = false;
+		}
+
+		return numFreed;
+	}
+
 public:
 	Visitor(const Node* pHead) : m_pHead(pHead) { }
 	
@@ -102,4 +148,69 @@ public:
 		}
 		return count;
 	}
+
+	const Node* GetLastNode() const
+	{
+		const Node* pCur = m_pHead;
+		while (pCur && pCur->Next())
+			pCur = pCur->Next();
+		return pCur;
+	}
+
+	class AcceptAll {
+	public:
+		bool Accept(Info* info) {
+			return true;
+		}
+	};
+
+	void RemoveAll() const
+	{
+		FreeNodes(const_cast<Node*>(m_pHead), AcceptAll());
+	}
+
+	template <class Op>
+	UInt32 RemoveIf(Op& op)
+	{
+		return FreeNodes(const_cast<Node*>(m_pHead), op);
+	}
+
+	void Append(Node* newNode)
+	{
+		const Node* lastNode = GetLastNode();
+		lastNode->SetNext(newNode);
+	}
+};
+
+std::string GetOblivionDirectory(void);
+
+const char * GetDXDescription(UInt32 keycode);
+
+namespace MersenneTwister
+{
+
+/* initializes mt[N] with a seed */
+void init_genrand(unsigned long s);
+
+/* initialize by an array with array-length */
+void init_by_array(unsigned long init_key[], int key_length);
+
+/* generates a random number on [0,0xffffffff]-interval */
+unsigned long genrand_int32(void);
+
+/* generates a random number on [0,0x7fffffff]-interval */
+long genrand_int31(void);
+
+/* generates a random number on [0,1]-real-interval */
+double genrand_real1(void);
+
+/* generates a random number on [0,1)-real-interval */
+double genrand_real2(void);
+
+/* generates a random number on (0,1)-real-interval */
+double genrand_real3(void);
+
+/* generates a random number on [0,1) with 53-bit resolution*/
+double genrand_res53(void);
+
 };

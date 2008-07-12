@@ -35,5 +35,12 @@ extern CommandInfo kCommandInfo_OnKeyDown;
 extern CommandInfo kCommandInfo_OnControlDown;
 extern CommandInfo kCommandInfo_TapControl;
 extern CommandInfo kCommandInfo_RefreshControlMap;
+extern CommandInfo kCommandInfo_GetAltControl2;
+extern CommandInfo kCommandInfo_SetControl;
+extern CommandInfo kCommandInfo_SetAltControl;
 
-const char* GetDXDescription(UInt32 keycode);
+extern CommandInfo kCommandInfo_ShowTextInputBox;
+extern CommandInfo kCommandInfo_GetInputText;
+extern CommandInfo kCommandInfo_CloseTextInputBox;
+extern CommandInfo kCommandInfo_UpdateTextInputBox;
+extern CommandInfo kCommandInfo_IsTextInputBoxInUse;

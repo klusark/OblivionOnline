@@ -3,6 +3,11 @@
 #include "Options.h"
 #include <string>
 
+// requires recent platform sdk
+#ifndef ERROR_ELEVATION_REQUIRED
+#define ERROR_ELEVATION_REQUIRED 740
+#endif
+
 IDebugLog	gLog("obse_loader.log");
 
 static bool InjectDLL(PROCESS_INFORMATION * info, const char * dllPath, bool sync = true);
@@ -22,6 +27,12 @@ int main(int argc, char ** argv)
 		g_options.PrintUsage();
 
 		return -1;
+	}
+
+	if(g_options.m_optionsOnly)
+	{
+		g_options.PrintUsage();
+		return 0;
 	}
 
 	if(g_options.m_launchCS)
@@ -103,7 +114,15 @@ int main(int argc, char ** argv)
 		NULL,	// no new cwd
 		&startupInfo, &procInfo) != 0;
 
-	ASSERT(result);
+	// check for Vista failing to create the process due to elevation requirements
+	if(!result && (GetLastError() == ERROR_ELEVATION_REQUIRED))
+	{
+		// in theory we could figure out how to UAC-prompt for this process and then run CreateProcess again, but I have no way to test code for that
+		PrintError("Vista has decided that launching Oblivion requires UAC privilege elevation. There is no good reason for this to happen, but to fix it, right-click on obse_loader.exe, go to Properties, pick the Compatibility tab, then turn on \"Run this program as an administrator\".");
+		return -1;
+	}
+	
+	ASSERT_STR_CODE(result, "Launching Oblivion failed", GetLastError());
 
 	if(g_options.m_setPriority)
 	{
@@ -125,13 +144,13 @@ int main(int argc, char ** argv)
 		WaitForInputIdle(procInfo.hProcess, 1000 * 10);
 
 		// too late if this fails
-		result = InjectDLL(&procInfo, dllPath.c_str());
+		result = InjectDLL(&procInfo, dllPath.c_str(), !g_options.m_noSync);
 		if(!result)
 			PrintError("Couldn't inject dll.");
 	}
 	else
 	{
-		result = InjectDLL(&procInfo, dllPath.c_str());
+		result = InjectDLL(&procInfo, dllPath.c_str(), !g_options.m_noSync);
 		if(result)
 		{
 			// try to load oldblivion if requested
@@ -158,7 +177,15 @@ int main(int argc, char ** argv)
 
 			// kill the partially-created process
 			TerminateProcess(procInfo.hProcess, 0);
+
+			g_options.m_waitForClose = false;
 		}
+	}
+
+	// wait for the process to close if requested
+	if(g_options.m_waitForClose)
+	{
+		WaitForSingleObject(procInfo.hProcess, INFINITE);
 	}
 
 	// clean up
@@ -372,6 +399,12 @@ static bool TestChecksum(const char * procName, std::string * dllSuffix)
 				case 0x292A8DA6:	// 1.1.0.511 japanese unofficial v9a
 				case 0x0ACF90F4:	// 1.1.0.511 japanese unofficial v9b
 				case 0x344D33A1:	// 1.1.0.511 japanese unofficial v10
+				case 0x14379736:	// 1.1.0.511 japanese unofficial v11
+				case 0x3E5322AD:	// 1.1.0.511 japanese unofficial v12, v12a
+				case 0x14A722A7:	// 1.1.0.511 japanese unofficial v12b
+				case 0xD43DCD39:	// 1.1.0.511 japanese unofficial v13, v13a
+				case 0xE82804EE:	// 1.1.0.511 japanese unofficial v14
+				case 0xEDBE0C74:	// 1.1.0.511 japanese unofficial v14a
 					*dllSuffix = "1_1";
 					result = true;
 					break;
@@ -390,6 +423,10 @@ static bool TestChecksum(const char * procName, std::string * dllSuffix)
 				case 0x608CA512:	// 1.1.0.511 english direct2drive
 				case 0xAE9944C0:	// 1.2.something english direct2drive
 					PrintError("Direct2drive versions of Oblivion are not supported due to copy protection applied to the executable.");
+					break;
+
+				case 0x619C941B:	// 1.2.0.416 shivering isles direct2drive
+					PrintError("Direct2drive versions of Oblivion are not supported due to copy protection applied to the executable. If you have a retail version of Oblivion (the original game), go to http://obse.silverlock.org and use the autopatcher to update your retail copy.");
 					break;
 
 				case 0xACB74E24:	// 1.2.0.214 english official - installed by the 1.2 patch
@@ -433,8 +470,23 @@ static bool TestChecksum(const char * procName, std::string * dllSuffix)
 				case 0xABD5C927:	// 1.2.0.416 german unofficial
 				case 0x97D6D510:	// 1.2.0.416 russian official? http://games.1c.ru/oblivion_gold/
 				case 0xAD9CD911:	// 1.2.0.416 russian official + no-CD
+				case 0xFB9FC7DF:	// 1.2.0.416 w/ no-CD patch by firstwave
+				case 0x345A515B:	// 1.2.0.416 japanese unofficial v11
+				case 0xA83413FD:	// 1.2.0.416 japanese unofficial v12, v12a
+				case 0x7EE813F7:	// 1.2.0.416 japanese unofficial v12b
+				case 0x9B20B8E1:	// 1.2.0.416 japanese unofficial v13
+				case 0x175EB699:	// 1.2.0.416 japanese unofficial v13a
+				case 0x8DFFDD6C:	// 1.2.0.416 japanese unofficial v14
+				case 0xCF5AE53E:	// 1.2.0.416 japanese unofficial v14a
+				case 0x2908CA36:	// 1.2.0.416 w/ no-CD patch by dockery
 					*dllSuffix = "1_2_416";
 					result = true;
+					break;
+
+				case 0x86005CC4:	// 1.2.0.416 polish reprotected/packed no-CD patch by urbi
+					// this might actually work, but I'm not going anywhere near the EXE
+					// why bother packing it again?! it's probably a FIVE BYTE PATCH
+					PrintError("You are using a very strange packed version of Oblivion. Please check the readme for instructions on using the autopatcher to replace your EXE with a clean version of 1.2.0.416.");
 					break;
 
 				default:	// unknown checksum

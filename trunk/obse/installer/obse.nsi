@@ -4,12 +4,15 @@
 OutFile "obse_installer.exe"
 InstallDirRegKey HKLM "SOFTWARE\Bethesda Softworks\Oblivion" "Installed Path"
 DirText "OBSE Installer" "Oblivion install directory" "" ""
+SetCompressor /SOLID /FINAL lzma
+Name "OBSE"
 
 ; main section
 Section
 	SetOutPath $INSTDIR
 	!insertmacro InstallLib DLL NOTSHARED NOREBOOT_NOTPROTECTED obse_1_1.dll $INSTDIR\obse_1_1.dll $INSTDIR
 	!insertmacro InstallLib DLL NOTSHARED NOREBOOT_NOTPROTECTED obse_1_2.dll $INSTDIR\obse_1_2.dll $INSTDIR
+	!insertmacro InstallLib DLL NOTSHARED NOREBOOT_NOTPROTECTED obse_1_2_416.dll $INSTDIR\obse_1_2_416.dll $INSTDIR
 	!insertmacro InstallLib DLL NOTSHARED NOREBOOT_NOTPROTECTED obse_editor_1_0.dll $INSTDIR\obse_editor_1_0.dll $INSTDIR
 	!insertmacro InstallLib DLL NOTSHARED NOREBOOT_NOTPROTECTED obse_editor_1_2.dll $INSTDIR\obse_editor_1_2.dll $INSTDIR
 	!insertmacro InstallLib DLL NOTSHARED NOREBOOT_NOTPROTECTED obse_loader.exe $INSTDIR\obse_loader.exe $INSTDIR
@@ -24,7 +27,7 @@ FunctionEnd
 
 Function DirectoryPage_Leave
 	IfFileExists "$INSTDIR\oblivion.exe" done
-	MessageBox MB_YESNO "The oblivion EXE file was not found in the install directory. Installation will likely fail. Continue?" /SD IDYES IDYES done
+	MessageBox MB_YESNO "The oblivion EXE file was not found in the install directory. You have probably not selected the correct folder. Continue?" /SD IDYES IDYES done
 	Abort
 done:
 FunctionEnd

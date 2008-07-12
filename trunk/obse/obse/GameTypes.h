@@ -201,3 +201,13 @@ public:
 	NiTPointerListBase();
 	~NiTPointerListBase();
 };
+
+template <typename T>
+class NiTPointerList : public NiTPointerListBase <T>
+{
+public:
+	NiTPointerList();
+	~NiTPointerList();
+};
+
+extern NiTPointerList <TESForm>	* g_quickKeyList;	//array of 8 NiTPointerLists of size 0-1 with pointers to hotkeyed items/spells

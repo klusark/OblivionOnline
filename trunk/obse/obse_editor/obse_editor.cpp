@@ -136,16 +136,86 @@ static void FixEditorFont(void)
 	SafeWrite8(basePatchAddr + 6,	0x90);
 }
 
+static void FixErrorReportBug(void)
+{
+	// bethesda passes strings containing user input to printf-like functions
+	// this causes crashes when the user input contains tokens printf is interested in
+	// so we fix it
+
+	// move the entire block of code before the call to printf down, add a new argument pointing to "%s"
+
+	const UInt32	kBlockMoveDelta =	5;
+
+#if CS_VERSION == CS_VERSION_1_0
+	const UInt32	kBlockMoveSrc =		0x004F5A32;
+	const UInt32	kBlockMoveDst =		kBlockMoveSrc + kBlockMoveDelta;
+	const UInt32	kBlockMoveSize =	0x004F5A63 - kBlockMoveSrc;
+	const UInt32	kFormatStrPos =		0x0091C6A4;	// "%s"
+	const UInt32	kStackFixupPos =	0x12 + 2;
+	const UInt32	kPCRelFixups[] =	{ 0x00 + 1, 0x06 + 1, 0x25 + 1 };
+#elif CS_VERSION == CS_VERSION_1_2
+	const UInt32	kBlockMoveSrc =		0x00500001;
+	const UInt32	kBlockMoveDst =		kBlockMoveSrc + kBlockMoveDelta;
+	const UInt32	kBlockMoveSize =	0x00500035 - kBlockMoveSrc;
+	const UInt32	kFormatStrPos =		0x0092BBE4;	// "%s"
+	const UInt32	kStackFixupPos =	0x0B + 2;
+	const UInt32	kPCRelFixups[] =	{ 0x00 + 1, 0x06 + 1, 0x28 + 1 };
+#else
+#error unhandled cs version
+#endif
+
+	UInt8	tempBuf[kBlockMoveSize];
+
+	memcpy(tempBuf, (void *)kBlockMoveSrc, kBlockMoveSize);
+
+	// jumps/calls are pc-relative, we're moving code so fix them up
+	*((UInt32 *)&tempBuf[kPCRelFixups[0]]) -= kBlockMoveDelta;
+	*((UInt32 *)&tempBuf[kPCRelFixups[1]]) -= kBlockMoveDelta;
+	*((UInt32 *)&tempBuf[kPCRelFixups[2]]) -= kBlockMoveDelta;
+
+	// added a new arg, so we need to clean it off the stack
+	tempBuf[kStackFixupPos] += 4;
+
+	SafeWriteBuf(kBlockMoveDst, tempBuf, kBlockMoveSize);
+
+	SafeWrite8(kBlockMoveSrc + 0, 0x68);	// push "%s"
+	SafeWrite32(kBlockMoveSrc + 1, kFormatStrPos);
+}
+
+static void CreateTokenTypedefs(void)
+{
+	//Just provides aliases for "float" and "long" to emulate string datatypes
+
+#if CS_VERSION == CS_VERSION_1_2
+	char** tokenAlias_Float = (char**)0x009F10AC;
+	char** tokenAlias_Long	= (char**)0x009F1084;
+#else
+#pragma message(__LOC__"todo: CS version 1.0 - CreateTokenTypedefs() not implemented (unused)")
+#endif
+
+// only implemented for 1.2
+#if CS_VERSION == CS_VERSION_1_2
+	*tokenAlias_Float = "temp_string";
+	*tokenAlias_Long = "persistent_string";
+#endif
+}
+
 extern "C" {
 
 void OBSE_Initialize(void)
 {
 	__try {
-		_MESSAGE("OBSE editor: initialize (version = %d %08X)", OBSE_VERSION_INTEGER, CS_VERSION);
+		_MESSAGE("OBSE editor: initialize (version = %d.%d %08X)", OBSE_VERSION_INTEGER, OBSE_VERSION_INTEGER_MINOR, CS_VERSION);
 
 		FixEditorFont();
+		FixErrorReportBug();
 
 		CommandTable::Init();
+
+		//Don't need this yet
+#if 0
+		CreateTokenTypedefs();
+#endif
 
 		// this is very very helpful for debugging and analyzing data formats
 		// but completely useless for end users, so it's #if 0'd out

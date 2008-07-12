@@ -24,76 +24,54 @@
 #include "GameAPI.h"
 #include "Hooks_DirectInput8Create.h"
 #include <shlobj.h>
+#include "GameOSDepend.h"
+#include "StringVar.h"
+#include "GameMenus.h"
+#include "GameTiles.h"
+#include "GameObjects.h"
+#include <string>
 
 #define CONTROLSMAPPED 29
 static bool IsKeycodeValid(UInt32 id)		{ return id < kMaxMacros - 2; }
 
-UINT*  InputControls=0;
-UINT*  AltInputControls=0;
+//Roundabout way of getting a pointer to the array containing control map
+//Not sure what CtrlMapBaseAddr points to (no RTTI) so use brute pointer arithmetic
+#if OBLIVION_VERSION == OBLIVION_VERSION_1_1
+static const UInt32* CtrlMapBaseAddr = (UInt32*)0x00AEAAB8;
+static const UInt32	 CtrlMapOffset   = 0x00000020;
+static const UInt32  CtrlMapOffset2  = 0x00001B7E;
+#elif OBLIVION_VERSION == OBLIVION_VERSION_1_2
+static const UInt32* CtrlMapBaseAddr = (UInt32*)0x00B33398;
+static const UInt32	 CtrlMapOffset   = 0x00000020;
+static const UInt32  CtrlMapOffset2  = 0x00001B7E;
+#elif OBLIVION_VERSION == OBLIVION_VERSION_1_2_416
+static const UInt32* CtrlMapBaseAddr = (UInt32*)0x00B33398;
+static const UInt32	 CtrlMapOffset   = 0x00000020;
+static const UInt32  CtrlMapOffset2  = 0x00001B7E;
+#endif
 
-static int _httoi(const char *value)
-{
-	unsigned int result = 0;
-	sscanf_s(value, "%x", &result);
-	return result;
-}
-
-
-static void ParseKey(char* iniPath, char* key,UINT ctrl)
-{
-	const char* section="Controls";
-	char Ret[9];
-	char In[5];
-	DWORD size;
-	size=GetPrivateProfileStringA(section,key,0,Ret,9,iniPath);
-	if(size>=8) {
-		strcpy_s(In, sizeof(In), &Ret[4]);
-		AltInputControls[ctrl]=_httoi(In);
-	} else AltInputControls[ctrl]=0xFFFF;
-	if(size>=4) {
-		Ret[4]=0;
-		InputControls[ctrl]=_httoi(Ret);
-	} else InputControls[ctrl]=0xFFFF;
-}
+UInt8*  InputControls=0;
+UInt8*  AltInputControls=0;
 
 static void GetControlMap()
 {
-	char iniPath[MAX_PATH];
-	HRESULT hr=SHGetFolderPathA(0,CSIDL_PERSONAL,0,SHGFP_TYPE_CURRENT,iniPath);
-	strcat_s(iniPath, sizeof(iniPath), "\\My Games\\Oblivion\\oblivion.ini");
+	UInt32 addr = *CtrlMapBaseAddr + CtrlMapOffset;
+	addr = *(UInt32*)addr + CtrlMapOffset2;
+	InputControls = (UInt8*)addr;
+	AltInputControls = InputControls + CONTROLSMAPPED;
+}
+static UInt32 GetCurrentControl(UInt32 keycode, bool bUseAlt)
+{	//return the control to which keycode is currently mapped
+	UInt8* controls = InputControls;
+	if (bUseAlt)
+		controls = AltInputControls;
 
-	InputControls=new UINT[CONTROLSMAPPED];
-	AltInputControls=new UINT[CONTROLSMAPPED];
-	
-	ParseKey(iniPath,"Forward",0);
-	ParseKey(iniPath,"Back",1);
-	ParseKey(iniPath,"SlideLeft",2);
-	ParseKey(iniPath,"SlideRight",3);
-	ParseKey(iniPath,"Use",4);
-	ParseKey(iniPath,"Activate",5);
-	ParseKey(iniPath,"Block",6);
-	ParseKey(iniPath,"Cast",7);
-	ParseKey(iniPath,"Ready Item",8);
-	ParseKey(iniPath,"Crouch/Sneak",9);
-	ParseKey(iniPath,"Run",10);
-	ParseKey(iniPath,"Always Run",11);
-	ParseKey(iniPath,"Auto Move",12);
-	ParseKey(iniPath,"Jump",13);
-	ParseKey(iniPath,"Toggle POV",14);
-	ParseKey(iniPath,"Menu Mode",15);
-	ParseKey(iniPath,"Rest",16);
-	ParseKey(iniPath,"Quick Menu",17);
-	ParseKey(iniPath,"Quick1",18);
-	ParseKey(iniPath,"Quick2",19);
-	ParseKey(iniPath,"Quick3",20);
-	ParseKey(iniPath,"Quick4",21);
-	ParseKey(iniPath,"Quick5",22);
-	ParseKey(iniPath,"Quick6",23);
-	ParseKey(iniPath,"Quick7",24);
-	ParseKey(iniPath,"Quick8",25);
-	ParseKey(iniPath,"QuickSave",26);
-	ParseKey(iniPath,"QuickLoad",27);
-	ParseKey(iniPath,"Grab",28);
+	for (UInt32 i = 0; i < CONTROLSMAPPED; i++)
+	{
+		if (controls[i] == keycode)
+			return i;
+	}
+	return -1;	//not mapped
 }
 
 static bool Cmd_GetControl_Execute(COMMAND_ARGS)
@@ -112,6 +90,63 @@ static bool Cmd_GetControl_Execute(COMMAND_ARGS)
 	return true;
 }
 
+static bool Cmd_GetAltControl2_Execute(COMMAND_ARGS)
+{
+	*result = 0xFFFF;
+	UInt32 keycode = 0;
+
+	if (ExtractArgs(EXTRACT_ARGS, &keycode) && keycode < CONTROLSMAPPED)
+	{
+		if (!InputControls)
+			GetControlMap();
+		if (AltInputControls[keycode] != 0xFF)	//0xFF = unassigned
+			*result = AltInputControls[keycode] + 256;
+	}
+
+	return true;
+}
+
+static bool Cmd_SetControl_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	UInt32 keycode = 0;
+	UInt32 whichControl = 0;
+
+	if (ExtractArgs(PASS_EXTRACT_ARGS, &whichControl, &keycode) && whichControl < CONTROLSMAPPED)
+	{
+		if (!InputControls)
+			GetControlMap();
+
+		UInt32 curControl = GetCurrentControl(keycode, false);
+		if (curControl != -1)
+			InputControls[curControl] = InputControls[whichControl];	//swap control mappings
+
+		InputControls[whichControl] = keycode;
+	}
+	return true;
+}
+
+static bool Cmd_SetAltControl_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	UInt32 keycode = 0;
+	UInt32 whichControl = 0;
+
+	if (ExtractArgs(PASS_EXTRACT_ARGS, &whichControl, &keycode) && whichControl < CONTROLSMAPPED && keycode > 255)
+	{
+		if (!InputControls)
+			GetControlMap();
+
+		UInt32 curControl = GetCurrentControl(keycode, true);
+		if (curControl != -1)
+			AltInputControls[curControl] = AltInputControls[whichControl];
+
+		AltInputControls[whichControl] = keycode - 256;
+	}
+	return true;
+}
+
+//deprecated
 static bool Cmd_GetAltControl_Execute(COMMAND_ARGS)
 {
 	*result=0xFFFF;
@@ -124,9 +159,10 @@ static bool Cmd_GetAltControl_Execute(COMMAND_ARGS)
 
 	if(!InputControls) GetControlMap();
 
-	*result = AltInputControls[keycode];
+	*result = ((AltInputControls[keycode] * 256) + 255);
 	return true;
 }
+
 static bool Cmd_IsKeyPressed_Execute(COMMAND_ARGS)
 {
 	*result = 0;
@@ -385,68 +421,46 @@ static bool Cmd_EnableMouse_Execute(COMMAND_ARGS)
 }
 
 #define VK_TABLE_SIZE 212
-#define NOKEY 0xFFFF
+#define NOKEY 0xFF
 
-static const UINT VKTable[VK_TABLE_SIZE] = {	NOKEY, 27, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 189, 187, 8, 9, 81, 87, 69, 
-								   		82, 84, 89, 85, 73, 79, 80, 219, 221, 13, 162, 65, 83, 68, 70, 71, 72, 74, 
-          								75, 76, 186, 222, 192, 160, 220, 90, 88, 67, 86, 66, 78, 77, 188, 190, 191, 
-            							161, 106, 164, 32, 20, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 144, 
-										145, 103, 104, 105, 109, 100, 101, 102, 107, 97, 98, 99, 96, 110, NOKEY, NOKEY,
-										NOKEY, 122, 123, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
-										NOKEY, NOKEY, 124, 125, 126, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, 
-										NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
-										NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
-										NOKEY, NOKEY, NOKEY, NOKEY,	NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
-										NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
-										NOKEY, NOKEY, 13, 163, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
-										NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY,
-										NOKEY, NOKEY, 108, NOKEY, 111, NOKEY, NOKEY, 165, NOKEY, NOKEY, NOKEY, NOKEY,
-										NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, NOKEY, 36, 38,
-										33, NOKEY, 37, NOKEY, 39, NOKEY, 35, 40, 34, 45, 46};
+//MapVirtualKey() doesn't map arrowpad keys/some numpad keys
+//macro isn't pretty but shortens a long switch block
+#define DX2VK(keyConstant) case DIK_ ## keyConstant: vkCode = VK_ ## keyConstant; break;
 
-const char* DXDescriptions[221] =
-{
-	0,		"ESC",	"1",	"2",	"3",	"4",	"5",	"6",	"7",	"8",	"9",	"0",
-	"-",	"=",	"BKSPC","TAB",	"Q",	"W",	"E",	"R",	"T",	"Y",	"U",	"I",
-	"O",	"P",	"[",	"]",	"ENTER","LCTRL","A",	"S",	"D",	"F",	"G",	"H",
-	"J",	"K",	"L",	";",	"'",	"~",	"LSHFT","\\",	"Z",	"X",	"C",	"V",
-	"B",	"N",	"M",	",",	".",	"/",	"RSHFT","NUM*",	"LALT",	"SPACE","CAPS",	"F1",
-	"F2",	"F3",	"F4",	"F5",	"F6",	"F7",	"F8",	"F9",	"F10",	"NUMLK","SCRLK","NUM7",
-	"NUM8",	"NUM9",	"NUM-",	"NUM4",	"NUM5",	"NUM6",	"NUM+",	"NUM1",	"NUM2",	"NUM3",	"NUM0",	"NUM.",
-	0,	0,	0,		
-	"F11",	"F12",	
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	"F13",	"F14",	"F15",	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0,	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	"NUMENTER", "RCTRL",	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	
-	"NUM/",	0, 0, "RALT",	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	"HOME", "UP",	"PGUP",	0,	"LEFT",	0,	"RIGHT",	0,	"END",	"DOWN",	"PGDN",	"INS",	"DEL",
-	0, 0, 0, 0, 0, 0, 0, 
-	"LWIN",	"RWIN"
-};
+static UInt8 _dx2vk(UINT dx){
+	if (dx >= VK_TABLE_SIZE) 
+		return NOKEY;
 
-const char* DXMouseDescriptions[9] = 
-{
-	"LMB",	"LMB",	"RMB",	"MMB",	"XMB1",	"XMB2",	"XMB3",	"XMB4",	"XMB5"
-};
+	UInt8 vkCode = NOKEY;
+	HKL kbLayout = GetKeyboardLayout(0);
+	vkCode = MapVirtualKeyEx(dx, 3, kbLayout);
+	if (!vkCode)
+	{
+		switch (dx)
+		{
+			DX2VK(DIVIDE);
+			DX2VK(RCONTROL);
+			DX2VK(RMENU);
+			DX2VK(HOME);
+			DX2VK(PRIOR);
+			DX2VK(UP);
+			DX2VK(DOWN);
+			DX2VK(LEFT);
+			DX2VK(RIGHT);
+			DX2VK(END);
+			DX2VK(NEXT);
+			DX2VK(INSERT);
+			DX2VK(DELETE);
 
-const char* GetDXDescription(UInt32 keycode)
-{
-	const char* ret = 0;
-	if (keycode <= 220)
-		ret =  DXDescriptions[keycode];
-	else if (255 <= keycode && keycode <= 263)
-		ret = DXMouseDescriptions[keycode - 255];
-	
-	if (!ret)
-		ret = "Nothing";
+			case DIK_NUMPADENTER:
+				vkCode = VK_SEPARATOR;
+				break;
+			default:
+				vkCode = NOKEY;
+		}
+	}
 
-	return ret;
-}
-
-static UINT _dx2vk(UINT dx){
-	if (dx >= VK_TABLE_SIZE) return NOKEY;
-	return VKTable[dx];
+	return vkCode;
 }
 
 static bool _isKeyPressed(UINT keyCode)
@@ -471,8 +485,10 @@ static bool _isControlPressed(UINT ctrl)
 	if (ctrl >= CONTROLSMAPPED)	return false;
 	if (!InputControls)		GetControlMap();
 	
-	if (_isKeyPressed(InputControls[ctrl]))	return true;
-	if (_isKeyPressed(AltInputControls[ctrl]))	return true;
+	if (_isKeyPressed(InputControls[ctrl]))	
+		return true;
+	if (AltInputControls[ctrl] != NOKEY && _isKeyPressed(AltInputControls[ctrl] + 256))	
+		return true;
 
 	return false;
 }
@@ -500,16 +516,18 @@ static bool Cmd_DisableControl_Execute(COMMAND_ARGS)
 	*result = 0;
 	UInt32	ctrl = 0;
 
-	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &ctrl)) return true;
-
+	if(!ExtractArgs(paramInfo, arg1, opcodeOffsetPtr, thisObj, arg3, scriptObj, eventList, &ctrl))
+		return true;
 	
 	if (!InputControls)
 		GetControlMap();
 
-	if (IsKeycodeValid(InputControls[ctrl]))	DI_data.DisallowStates[InputControls[ctrl]] = 0x00;
-	ctrl = AltInputControls[ctrl];
-	if (ctrl%256==255 && ctrl < 2048)	ctrl = 255 + (ctrl + 1) / 256;
-	if (IsKeycodeValid(ctrl))	DI_data.DisallowStates[ctrl] = 0x00;
+	if (IsKeycodeValid(InputControls[ctrl]))	
+		DI_data.DisallowStates[InputControls[ctrl]] = 0x00;
+
+	ctrl = AltInputControls[ctrl] + 256;
+	if (IsKeycodeValid(ctrl))	
+		DI_data.DisallowStates[ctrl] = 0x00;
 
 	return true;
 }
@@ -524,10 +542,12 @@ static bool Cmd_EnableControl_Execute(COMMAND_ARGS)
 	if (!InputControls)
 		GetControlMap();
 
-	if (IsKeycodeValid(InputControls[ctrl]))	DI_data.DisallowStates[InputControls[ctrl]] = 0x80;
-	ctrl = AltInputControls[ctrl];
-	if (ctrl%256==255 && ctrl < 2048)	ctrl = 255 + (ctrl + 1) / 256;
-	if (IsKeycodeValid(ctrl))	DI_data.DisallowStates[ctrl] = 0x80;
+	if (IsKeycodeValid(InputControls[ctrl]))	
+		DI_data.DisallowStates[InputControls[ctrl]] = 0x80;
+
+	ctrl = AltInputControls[ctrl] + 256;
+	if (IsKeycodeValid(ctrl))	
+		DI_data.DisallowStates[ctrl] = 0x80;
 
 	return true;
 }
@@ -612,8 +632,7 @@ static bool Cmd_TapControl_Execute(COMMAND_ARGS)
 	}
 	else
 	{
-		keyCode = AltInputControls[ctrl];
-		if (keyCode % 256 == 255 && keyCode < 2048) keyCode = 255 + (keyCode + 1) / 256;
+		keyCode = AltInputControls[ctrl] + 256;
 		if (IsKeycodeValid(keyCode))
 		{
 			DI_data.TapStates[keyCode] = 0x80;
@@ -626,20 +645,412 @@ static bool Cmd_TapControl_Execute(COMMAND_ARGS)
 
 static bool Cmd_RefreshControlMap_Execute(COMMAND_ARGS)
 {
-	//This is a MAJOR hack. Need to find control map in memory to do it properly
+	//DEPRECATED now that we're looking up control map directly
+	return true;
+}
 
-	static const UInt32 timeOut = 90;		//time-out between function calls, in seconds
-	static clock_t lastCallTime = 0;
+class TextInputBox
+{
+	TextInputBox(char* fmtString, UInt16 maxLen, Script* callingScript, TESObjectREFR* callingObj);
 
-	if(!lastCallTime || (clock() - lastCallTime) / CLOCKS_PER_SEC > timeOut || clock() < lastCallTime)
+	static TextInputBox		* s_singleton;
+	UInt16					m_maxInputLen;
+	UInt16					m_cursorPos;
+	DWORD					m_cursorTimer;
+	DWORD					m_cursorDelay;
+	char					m_cursorChar;
+	std::string				m_promptText;
+	std::string				m_inputText;
+	BYTE					m_prevKeyboardState[256];
+	bool					bBackgroundKeyboardInitialState;
+
+	bool	BlinkCursor();		//returns true if cursor char changed
+	bool	IsValidInputKey(UInt32 keyCode);
+
+public:
+	static UInt32	s_MAX_LEN;
+
+	static TextInputBox * GetTextBox()	
+		{	return s_singleton;	}
+	static bool Create(char * fmtString, UInt16 maxLen, Script* callingScript, TESObjectREFR* callingObj);
+	void GetInputString(char* outString);	
+	void Update();
+	void Close();
+};
+
+TextInputBox* TextInputBox::s_singleton = NULL;
+UInt32 TextInputBox::s_MAX_LEN = 4096;			//TODO: prevent text from running off bottom of screen (check menu height?)
+
+void TextInputBox::Close()
+{
+	delete s_singleton;
+	s_singleton = NULL;
+
+	//Reset adjusted ini setting bBackgroundKeyboard
+}
+
+bool TextInputBox::BlinkCursor()
+{
+	if (!m_cursorTimer)
 	{
-		lastCallTime = clock();
-		RunScriptLine("con_SaveIni");
-		GetControlMap();
+		m_cursorTimer = GetTickCount();
+		m_cursorChar = '|';
+	}
+
+	DWORD elapsedTime = GetTickCount();
+	if (elapsedTime - m_cursorTimer > m_cursorDelay)
+	{
+		m_cursorTimer = elapsedTime;
+		m_cursorChar = (m_cursorChar == '|') ? 127 : '|';
+		m_inputText.replace(m_cursorPos, 1, 1, m_cursorChar);
+
+		return true;
+	}
+	else
+		return false;
+}
+
+bool TextInputBox::Create(char* fmtString, UInt16 maxLen, Script* callingScript, TESObjectREFR* callingObj)
+{
+	if (s_singleton)		//already initialized
+		return false;
+	else
+	{
+		s_singleton = new TextInputBox(fmtString, maxLen, callingScript, callingObj);
+		return true;
+	}
+
+	//Adjust some settings for text input
+	//TODO: SetIniSetting bBackgroundKeyboard 1
+
+	//Disable menu navigation via arrow keys
+		//well bleh, DI_data.DisallowStates doesn't work...edit the settings in MessageText's ValueList?
+}
+
+TextInputBox::TextInputBox(char* fmtString, UInt16 maxLen, Script* callingScript, TESObjectREFR* callingObj)
+	: m_maxInputLen(maxLen), m_cursorPos(0), m_promptText(""), m_inputText(""), m_cursorTimer(0), m_cursorDelay(500)
+{
+	//initialize keyboard state array
+	for (UInt32 i = 0; i < 256; i++)
+		m_prevKeyboardState[i] = GetAsyncKeyState(i);
+
+	char separatorChar = '@';	// '|' doesn't work in console, substitute for testing
+	char* buttons[10] = { NULL };
+	UInt32 numButtons = 0;
+	UInt32 fmtStringLen = strlen(fmtString);
+
+	//separate prompt text and button text
+	for (UInt32 strPos = 0; strPos < fmtStringLen && numButtons < 10; strPos++)
+	{
+		if (fmtString[strPos] == separatorChar && (strPos + 1 < fmtStringLen))
+		{
+			fmtString[strPos] = '\0';
+			buttons[numButtons++] = fmtString + strPos + 1;
+		}
+	}
+
+	m_promptText = fmtString;
+	if (!buttons[0])		//supply default button
+		buttons[0] = "Finished";
+
+	UInt32 scriptRefID = callingScript->refID;
+	if (callingObj && (callingObj->flags & 0x00004000))	//not a temporary script
+		scriptRefID = callingObj->refID;
+
+	ShowMessageBox(fmtString, ShowMessageBox_Callback, 0, buttons[0], buttons[1], buttons[2], buttons[3], buttons[4],
+		buttons[5], buttons[6], buttons[7], buttons[8], buttons[9]);
+
+	*ShowMessageBox_pScriptRefID = scriptRefID;
+	*ShowMessageBox_button = -1;
+}
+
+void TextInputBox::GetInputString(char* outString)	
+{ 
+	std::string str = m_inputText;
+	str.erase(m_cursorPos, 1);
+	strcpy_s(outString, str.length() + 1, str.c_str());
+}
+
+void TextInputBox::Update()
+{
+	//TODO: prevent this running while console is open
+
+	static bool bGotKeyboardLayout = false;
+	static HKL keyboardLayout = 0;
+
+	if (!bGotKeyboardLayout)
+	{
+		keyboardLayout = GetKeyboardLayout(0);
+		bGotKeyboardLayout = true;
+	}
+
+	bool bUpdateText = false;
+
+	//Synthesize lpKeyboardState param to pass to ToAsciiEx, and simultaneously check for keypresses
+	UInt32 keyPressed = 0;
+	BYTE keyboardState[256] = { 0 };
+	for (UInt32 keyCode = 0; keyCode < 256; keyCode++)
+	{
+		UInt32 keyState = GetAsyncKeyState(keyCode);
+		keyboardState[keyCode] = (keyState & 0x8000) ? 0x80 : 0x00;
+		if (!keyPressed && (keyState & 0x8000))		//key is pressed
+			if (!(m_prevKeyboardState[keyCode] & 0x80))	//and not previously pressed
+				if (IsValidInputKey(keyCode))
+					keyPressed = keyCode;
+	}
+
+	memcpy(m_prevKeyboardState, keyboardState, 256);
+
+	switch (keyPressed)
+	{
+	case 0:
+		break;
+	case VK_RETURN:
+		if (m_inputText.length() < m_maxInputLen)
+		{
+			m_inputText.insert(m_cursorPos++, 1, '\n');
+			bUpdateText = true;
+		}
+
+		break;
+	case VK_BACK:
+		if (m_cursorPos > 0)
+		{
+			m_inputText.erase(--m_cursorPos, 1);
+			bUpdateText = true;
+		}
+
+		break;
+	case VK_DELETE:
+		if (m_cursorPos < m_inputText.length())
+		{
+			m_inputText.erase(m_cursorPos + 1, 1);
+			bUpdateText = true;
+		}
+
+		break;
+	case VK_TAB:
+		if (m_cursorPos + 5 < m_maxInputLen)
+		{
+			m_inputText.insert(m_cursorPos, 5, ' ');
+			m_cursorPos += 5;
+			bUpdateText = true;
+		}
+
+		break;
+	case VK_LEFT:
+		if (m_cursorPos > 0)
+		{
+			m_inputText.replace(m_cursorPos, 1, 1, m_inputText[m_cursorPos - 1]);
+			m_inputText.replace(--m_cursorPos, 1, 1, m_cursorChar);
+			bUpdateText = true;
+		}
+		break;
+	case VK_RIGHT:
+		if (m_cursorPos < m_inputText.length() - 1)
+		{
+			m_inputText.replace(m_cursorPos, 1, 1, m_inputText[m_cursorPos + 1]);
+			m_inputText.replace(++m_cursorPos, 1, 1, m_cursorChar);
+			bUpdateText = true;
+		}
+		break;
+	default:		//map to ASCII if possible and insert char into input text
+		{
+			if (m_inputText.length() == m_maxInputLen)
+				break;
+
+			unsigned short asciiResult[2] = { 0 };
+			UInt32 toAscii = ToAsciiEx(keyPressed, MapVirtualKeyEx(keyPressed, 0, keyboardLayout), 
+				keyboardState, asciiResult, 0, keyboardLayout);
+
+			if (toAscii == 1 && isprint(asciiResult[0]))
+			{
+				m_inputText.insert(m_cursorPos++, 1, asciiResult[0]);
+				bUpdateText = true;
+			}
+		}
+	}
+
+	if (BlinkCursor())
+		bUpdateText = true;
+
+	if (bUpdateText)	//Update displayed text
+	{
+		std::string messageText = m_promptText + m_inputText;
+		MessageMenu* msgBox = (MessageMenu*)GetMenuByType(kMenuType_Message);
+		msgBox->messageText->SetStringValue(kTileValue_string, messageText.c_str());
+		msgBox->messageText->UpdateField(kTileValue_string, 0.0, messageText.c_str());
+	}
+}
+
+bool TextInputBox::IsValidInputKey(UInt32 keyCode)
+{
+	switch (keyCode)
+	{
+	case VK_SPACE:
+		return true;
+	case VK_RETURN:
+		return true;
+	case VK_BACK:
+		return true;
+	case VK_LEFT:
+		return true;
+	case VK_RIGHT:
+		return true;
+	case VK_TAB:
+		return true;
+	case VK_DELETE:
+		return true;
+	default:
+		if (keyCode >= 0x41 && keyCode <= 0x5A)		//A..Z
+			return true;
+		else if (keyCode >= 0x30 && keyCode <= 0x39)	//0..9
+			return true;
+		else if (keyCode >= VK_OEM_1 && keyCode <= VK_OEM_3)	//various punctuation
+			return true;
+		else if (keyCode >= VK_OEM_4 && keyCode <= VK_OEM_7)	//various punctuation
+			return true;
+	}
+
+	return false;
+}
+
+static bool Cmd_ShowTextInputBox_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+
+	if (TextInputBox::GetTextBox())
+		return true;					//already in use
+
+	char promptText[kMaxMessageLength] = { 0 };
+	UInt32 maxLen = TextInputBox::s_MAX_LEN;
+
+	if (ExtractFormatStringArgs(0, promptText, paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, 
+		kCommandInfo_ShowTextInputBox.numParams, &maxLen))
+	{
+		if (TextInputBox::Create(promptText, maxLen, scriptObj, thisObj))
+			*result = 1;
 	}
 
 	return true;
 }
+
+static bool Cmd_GetInputText_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	double strID = 0;
+	UInt8 strModIndex = 0;
+
+	if (ExtractSetStatementVar(scriptObj, eventList, arg1, &strID, &strModIndex))
+	{
+		char inputText[kMaxMessageLength] = { 0 };
+		TextInputBox* textBox = TextInputBox::GetTextBox();
+		if (textBox)
+			textBox->GetInputString(inputText);			
+
+		StringVar* strVar = g_StringMap.Get(strID);
+		if (strVar)
+			strVar->Set(inputText);
+		else
+			strID = g_StringMap.Add(strModIndex, inputText);
+	}
+
+	*result = strID;
+	return true;
+}
+
+static bool Cmd_UpdateTextInputBox_Execute(COMMAND_ARGS)
+{
+	TextInputBox* textBox = TextInputBox::GetTextBox();
+	if (textBox)
+		textBox->Update();
+
+	return true;
+}
+
+static bool Cmd_CloseTextInputBox_Execute(COMMAND_ARGS)
+{
+	TextInputBox* textBox = TextInputBox::GetTextBox();
+	if (textBox)
+		textBox->Close();
+
+	return true;
+}
+
+static bool Cmd_IsTextInputBoxInUse_Execute(COMMAND_ARGS)
+{
+	*result = TextInputBox::GetTextBox() ? 1 : 0;
+	return true;
+}
+
+/*  TextEdit menu works, but has some limitations which will require editing the .xml file (bad) or
+	hooking ReadXML to apply changes before rendering the menu (only slightly better); doesn't allow use of the Enter key or
+	multiple line input either.
+	Probably better to just to roll our own. Hooking ReadXML() will be useful later, though.
+
+static const UInt32 s_MaxLineInputPromptLength = 256;
+
+static bool Cmd_ShowLineInputBox_Execute(COMMAND_ARGS)
+{
+	if (GetMenuByType(kMenuType_TextEdit))
+		return true;
+
+	char promptText[s_MaxLineInputPromptLength] = { 0 };
+	if (ExtractArgs(PASS_EXTRACT_ARGS, promptText))
+	{
+		if (InterfaceManager::GetSingleton()->CreateTextEditMenu(promptText, "DEFAULT"))
+			Console_Print("Created text edit menu");
+		else
+			Console_Print("Creation failed");
+		TextEditMenu* menu = (TextEditMenu*)GetMenuByType(kMenuType_TextEdit);
+		const char* inputText = 0;
+		menu->text->GetStringValue(kTileValue_string, &inputText);
+		Console_Print("text = %08x %s InterfaceManager = %08x TileText = %08x", 
+			inputText, inputText, InterfaceManager::GetSingleton(), menu->text);
+
+	}
+
+	return true;
+}
+
+static bool Cmd_GetInputLine_Execute(COMMAND_ARGS)
+{
+	TextEditMenu* menu = (TextEditMenu*)GetMenuByType(kMenuType_TextEdit);
+	if (!menu)
+		return true;
+
+	*result = 0;
+	double strID = 0;
+	UInt8 strModIndex = 0;
+	if(ExtractSetStatementVar(scriptObj, eventList, arg1, &strID, &strModIndex))
+	{
+		const char* text = NULL;
+		menu->text->GetStringValue(kTileValue_string, &text);
+		std::string textStr(text);
+		UInt32 cursorPos = textStr.find('|');
+		if (cursorPos == -1)
+			cursorPos = textStr.find(127);
+		
+		if (cursorPos != -1)
+		{
+			textStr.erase(cursorPos, 1);
+			text = textStr.c_str();
+		}
+
+		Console_Print("Text = %s", text);
+
+		StringVar* strVar = g_StringMap.Get(strID);
+		if (strVar)
+			strVar->Set(text);
+		else
+			strID = g_StringMap.Add(strModIndex, text);
+
+		*result = strID;
+	}
+
+	return true;
+}
+*/
 
 #endif
 
@@ -658,6 +1069,12 @@ CommandInfo kCommandInfo_GetControl =
 	NULL,
 	0
 };
+
+DEFINE_COMMAND(GetAltControl2,
+			   returns the mouse button code assigned to the specified control,
+			   0,
+			   1,
+			   kParams_OneInt);
 
 CommandInfo kCommandInfo_GetAltControl =
 {
@@ -1141,3 +1558,65 @@ CommandInfo kCommandInfo_RefreshControlMap =
 	NULL,
 	0
 };
+
+DEFINE_COMMAND(SetControl,
+			   assigns a new keycode to the specified keyboard control,
+			   0,
+			   2,
+			   kParams_TwoInts);
+
+DEFINE_COMMAND(SetAltControl,
+			   assigns a new mouse button code to the specified mouse control,
+			   0,
+			   2,
+			   kParams_TwoInts);
+
+/*
+DEFINE_COMMAND(ShowLineInputBox,
+			   opens a text input box for a single line of input,
+			   0,
+			   1,
+			   kParams_OneString);
+
+DEFINE_COMMAND(GetInputLine,
+			   returns the users input,
+			   0,
+			   0,
+			   NULL);
+*/
+
+static ParamInfo kParams_ShowTextInputBox[22] = 
+{
+	FORMAT_STRING_PARAMS,
+	{	"maxLength",	kParamType_Integer,	1	},
+};
+
+DEFINE_COMMAND(ShowTextInputBox,
+			   displays a text box for user input,
+			   0,
+			   22,
+			   kParams_ShowTextInputBox);
+
+DEFINE_COMMAND(UpdateTextInputBox,
+			   updates text input box,
+			   0,
+			   0,
+			   NULL);
+
+DEFINE_COMMAND(GetInputText,
+			   returns the users text input,
+			   0,
+			   0,
+			   NULL);
+
+DEFINE_COMMAND(CloseTextInputBox,
+			   releases the text input box for other scripts to use,
+			   0,
+			   0,
+			   NULL);
+
+DEFINE_COMMAND(IsTextInputBoxInUse,
+			   returns true if another script is using the text input box,
+			   0,
+			   0,
+			   NULL);

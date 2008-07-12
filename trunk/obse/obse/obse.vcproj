@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="shift_jis"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="obse"
 	ProjectGUID="{01B76B21-F851-436E-ACEA-64FA03BE8C59}"
 	RootNamespace="obse"
+	SccProjectName="Perforce Project"
+	SccLocalPath="..\.."
+	SccProvider="MSSCCI:Perforce SCM"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -42,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)\.."
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010101FF"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010101FF;OBSE_CORE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -128,7 +131,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)\.."
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010101FF"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010101FF;OBSE_CORE"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -212,7 +215,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)\.."
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010200D6"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010200D6;OBSE_CORE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -298,7 +301,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)\.."
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010200D6"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010200D6;OBSE_CORE"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -382,7 +385,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)\.."
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010201A0"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010201A0;OBSE_CORE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -468,7 +471,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)\.."
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010201A0"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OBSE_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010201A0;OBSE_CORE"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -593,11 +596,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GameOSDepend.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GameOSDepend.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GameProcess.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\GameProcess.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GameRTTI.h"
 				>
 			</File>
 			<File
@@ -665,11 +680,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Commands_AI.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_AI.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Commands_Console.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Commands_Console.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_Creature.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_Creature.h"
 				>
 			</File>
 			<File
@@ -713,6 +744,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Commands_LeveledList.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_LeveledList.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Commands_Magic.cpp"
 				>
 			</File>
@@ -737,6 +776,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Commands_Menu.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_Menu.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Commands_MiscReference.cpp"
 				>
 			</File>
@@ -753,11 +800,31 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Commands_Script.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_Script.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_String.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Commands_String.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Commands_Weather.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Commands_Weather.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ParamInfos.h"
 				>
 			</File>
 		</Filter>
@@ -788,6 +855,14 @@
 				RelativePath=".\Hooks_Memory.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Hooks_SaveLoad.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Hooks_SaveLoad.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="plugin_api"
@@ -804,66 +879,110 @@
 				RelativePath=".\PluginManager.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Serialization.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Serialization.h"
+				>
+			</File>
 		</Filter>
-		<File
-			RelativePath=".\CommandTable.cpp"
+		<Filter
+			Name="internals"
 			>
-			<FileConfiguration
-				Name="Debug 1_1_0_511|Win32"
+			<File
+				RelativePath=".\CommandTable.cpp"
 				>
-				<Tool
-					Name="VCCLCompilerTool"
-					ExpandAttributedSource="false"
-					AssemblerOutput="4"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release 1_1_0_511|Win32"
+				<FileConfiguration
+					Name="Debug 1_1_0_511|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExpandAttributedSource="false"
+						AssemblerOutput="4"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release 1_1_0_511|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AssemblerOutput="4"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug 1_2_0_214|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExpandAttributedSource="false"
+						AssemblerOutput="4"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release 1_2_0_214|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AssemblerOutput="4"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug 1_2_0_416|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExpandAttributedSource="false"
+						AssemblerOutput="4"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release 1_2_0_416|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AssemblerOutput="4"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\CommandTable.h"
 				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AssemblerOutput="4"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug 1_2_0_214|Win32"
+			</File>
+			<File
+				RelativePath=".\InternalSerialization.cpp"
 				>
-				<Tool
-					Name="VCCLCompilerTool"
-					ExpandAttributedSource="false"
-					AssemblerOutput="4"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release 1_2_0_214|Win32"
+			</File>
+			<File
+				RelativePath=".\InternalSerialization.h"
 				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AssemblerOutput="4"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug 1_2_0_416|Win32"
+			</File>
+			<File
+				RelativePath="..\obse_common\SafeWrite.cpp"
 				>
-				<Tool
-					Name="VCCLCompilerTool"
-					ExpandAttributedSource="false"
-					AssemblerOutput="4"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release 1_2_0_416|Win32"
+			</File>
+			<File
+				RelativePath="..\obse_common\SafeWrite.h"
 				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AssemblerOutput="4"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\CommandTable.h"
-			>
-		</File>
+			</File>
+			<File
+				RelativePath=".\StringVar.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\StringVar.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Utilities.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Utilities.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\dllmain.c"
 			>
@@ -934,26 +1053,6 @@
 		</File>
 		<File
 			RelativePath="..\obse_common\obse_version.rc"
-			>
-		</File>
-		<File
-			RelativePath=".\ParamInfos.h"
-			>
-		</File>
-		<File
-			RelativePath="..\obse_common\SafeWrite.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\obse_common\SafeWrite.h"
-			>
-		</File>
-		<File
-			RelativePath=".\Utilities.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Utilities.h"
 			>
 		</File>
 	</Files>

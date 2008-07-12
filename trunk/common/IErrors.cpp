@@ -1,8 +1,6 @@
-
-#include <cstdlib>
 #include "common/IErrors.h"
 #include "common/IDebugLog.h"
-
+#include <cstdlib>
 
 /**
  *	Report a failed assertion and exit the program

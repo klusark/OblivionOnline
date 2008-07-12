@@ -44,40 +44,15 @@ extern CommandInfo kCommandInfo_IsRaceBonusSkillC;
 extern CommandInfo kCommandInfo_GetRaceSpellCount;
 extern CommandInfo kCommandInfo_GetNthRaceSpell;
 
-extern CommandInfo kCommandInfo_IsCreature;
-extern CommandInfo kCommandInfo_GetCreatureType;
-extern CommandInfo kCommandInfo_GetCreatureCombatSkill;
-extern CommandInfo kCommandInfo_GetCreatureMagicSkill;
-extern CommandInfo kCommandInfo_GetCreatureStealthSkill;
-extern CommandInfo kCommandInfo_GetCreatureReach;
-extern CommandInfo kCommandInfo_GetCreatureBaseScale;
-extern CommandInfo kCommandInfo_GetCreatureSoulLevel;
-extern CommandInfo kCommandInfo_GetCreatureWalks;
-extern CommandInfo kCommandInfo_GetCreatureSwims;
-extern CommandInfo kCommandInfo_GetCreatureFlies;
-extern CommandInfo kCommandInfo_IsCreatureBiped;
-extern CommandInfo kCommandInfo_CreatureHasNoMovement;
-extern CommandInfo kCommandInfo_CreatureHasNoHead;
-extern CommandInfo kCommandInfo_CreatureHasNoLeftArm;
-extern CommandInfo kCommandInfo_CreatureHasNoRightArm;
-extern CommandInfo kCommandInfo_CreatureNoCombatInWater;
-extern CommandInfo kCommandInfo_CreatureUsesWeaponAndShield;
-
 extern CommandInfo kCommandInfo_ParentCellHasWater;
 extern CommandInfo kCommandInfo_GetParentCellWaterHeight;
 extern CommandInfo kCommandInfo_IsUnderWater;
-
-extern CommandInfo kCommandInfo_AddToLeveledList;
-extern CommandInfo kCommandInfo_RemoveFromLeveledList;
-extern CommandInfo kCommandInfo_CalcLeveledItem;
 
 extern CommandInfo kCommandInfo_SetHair;
 extern CommandInfo kCommandInfo_CopyHair;
 extern CommandInfo kCommandInfo_SetEyes;
 extern CommandInfo kCommandInfo_CopyEyes;
 
-extern CommandInfo kCommandInfo_GetNumFollowers;
-extern CommandInfo kCommandInfo_GetNthFollower;
 extern CommandInfo kCommandInfo_GetCellMusicType;
 
 extern CommandInfo kCommandInfo_IsActorRespawning;
@@ -99,12 +74,16 @@ extern CommandInfo kCommandInfo_SetCanCorpseCheck;
 extern CommandInfo kCommandInfo_GetPlayersLastRiddenHorse;
 extern CommandInfo kCommandInfo_GetPlayersLastActivatedLoadDoor;
 extern CommandInfo kCommandInfo_GetHorse;
-extern CommandInfo kCommandInfo_GetRider;
 extern CommandInfo kCommandInfo_IsFemale;
-
-extern CommandInfo kCommandInfo_GetCreatureSoundBase;
-extern CommandInfo kCommandInfo_HasModel;
 
 extern CommandInfo kCommandInfo_GetRace;
 
+extern CommandInfo kCommandInfo_AddSpellNS;
+extern CommandInfo kCommandInfo_RemoveSpellNS;
+extern CommandInfo kCommandInfo_GetHair;
+extern CommandInfo kCommandInfo_GetEyes;
+extern CommandInfo kCommandInfo_GetHairColor;
 
+extern CommandInfo kCommandInfo_GetPCMajorSkillUps;
+extern CommandInfo kCommandInfo_GetPCAttributeBonus;
+extern CommandInfo kCommandInfo_GetTotalPCAttributeBonus;

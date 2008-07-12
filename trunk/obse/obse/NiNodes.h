@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GameTypes.h"
+
 /*** class hierarchy
  *	
  *	yet again taken from rtti information
@@ -419,6 +421,7 @@
  ****/
 
 class NiAVObject;
+class BSFadeNode;
 
 // 8
 struct NiRTTI
@@ -507,6 +510,22 @@ public:
 
 //	void		** _vtbl;		// 000
 	UInt32		m_uiRefCount;	// 004
+};
+
+//10
+class NiBaseObject
+{
+public:
+	NiBaseObject();
+	~NiBaseObject();
+
+	virtual void		Unk_00(void);
+
+	//void**		vtbl;		//000
+	UInt16			unk004;		//004
+	UInt16			unk006;		//006 refcount?
+	UInt32			unk008;		//008 init to c'tr arg0
+	UInt32			unk00C;		//00C init to c'tr arg4
 };
 
 // 100+
@@ -628,6 +647,203 @@ public:
 	NiViewport	m_kPort;				// 264
 };
 
+class NiControllerManager;
+class NiStringPalette;
+class NiTextKeyExtraData;
+
+//068
+class NiControllerSequence : public NiObject
+{
+public:
+	NiControllerSequence();
+	~NiControllerSequence();
+
+	char				* filePath;		//008
+	UInt16				unk00C;			//00C
+	UInt16				unk00E;			//00E
+	UInt16				unk010;			//010
+	UInt16				unk012;			//012
+	void				* unk014;		//014
+	void				* unk018;		//018
+	float				unk01C;			//01C
+	NiTextKeyExtraData	* unk020;		//020
+	UInt32				unk024;			//024
+	float				unk028;			//028
+	UInt32				unk02C[5];		//02C
+	NiControllerManager * controllerManager;	//040
+	UInt32				unk044;			//044
+	float				unk048;			//048
+	float				unk04C;			//04C - unk048 * -1?
+	float				unk050;			//050
+	UInt32				unk054;			//054
+	UInt32				unk058;			//058
+	void				* unk05C;		//05C - bone? (seen "Bip01")
+	NiNode				* niNode060;	//060
+	NiStringPalette		* unk064;		//064
+};
+
+//02C+
+class TESAnimGroup
+{
+public:
+	//derived from NiRefObject
+	TESAnimGroup();
+	~TESAnimGroup();
+
+	virtual void Destructor(bool arg0);
+
+	enum{
+		kAnimGroup_Idle 		=	0,
+		kAnimGroup_DynamicIdle,
+		kAnimGroup_SpecialIdle,
+		kAnimGroup_Forward,	
+		kAnimGroup_Backward,
+		kAnimGroup_Left,
+		kAnimGroup_Right,
+		kAnimGroup_FastForward,
+		kAnimGroup_FastBackward,
+		kAnimGroup_FastLeft,
+		kAnimGroup_FastRight,
+		kAnimGroup_DodgeForward,
+		kAnimGroup_DodgeBack,
+		kAnimGroup_DodgeLeft,
+		kAnimGroup_DodgeRight,
+		kAnimGroup_TurnLeft,
+		kAnimGroup_TurnRight,
+		kAnimGroup_Equip,
+		kAnimGroup_Unequip,
+		kAnimGroup_AttackBow,
+		kAnimGroup_AttackLeft,
+		kAnimGroup_AttackRight,
+		kAnimGroup_AttackPower, 
+		kAnimGroup_AttackForwardPower,
+		kAnimGroup_AttackBackPower,
+		kAnimGroup_AttackLeftPower,
+		kAnimGroup_AttackRightPower,
+		kAnimGroup_BlockIdle,
+		kAnimGroup_BlockHit,
+		kAnimGroup_BlockAttack,
+		kAnimGroup_Recoil,
+		kAnimGroup_Stagger,
+		kAnimGroup_Death,
+		kAnimGroup_TorchIdle,
+		kAnimGroup_CastSelf,
+		kAnimGroup_CastTouch,
+		kAnimGroup_CastTarget,
+		kAnimGroup_CastSelfAlt,
+		kAnimGroup_CastTouchAlt,
+		kAnimGroup_CastTargetAlt,
+		kAnimGroup_JumpStart,
+		kAnimGroup_JumpLoop,
+		kAnimGroup_JumpLand,
+
+		kAnimGroup_Max,
+	};
+
+	//void**	vtbl		//000
+	UInt8		unk004;		//004
+	UInt8		unk005[3];
+	UInt8		animGroup;	//008 init'ed to word arg in c'tor
+	UInt8		unk009;		//009 does what?
+	UInt16		unk00A;
+	UInt32		numFrames;	//00C count of group frames (Start, Detach, Attack, End, etc)
+	float		** frameData;//010 pointer to float array of group frame times (size numFrames)
+	UInt32		unk014;		//014
+	UInt32		unk018;		//018
+	UInt32		unk01C;		//01C
+	UInt8		unk020;		//020
+	UInt8		unk021;
+	UInt8		pad022[2];
+	UInt32		unk024;		//024
+	void		* unk028;	//028
+};
+
+//06C
+class BSAnimGroupSequence : public NiControllerSequence
+{
+public:
+	BSAnimGroupSequence();
+	~BSAnimGroupSequence();
+
+	virtual void Destructor(bool arg0);
+	virtual NiRTTI* GetType(void);
+	virtual void Unk_02(void);
+	virtual void Unk_03(void);
+	virtual void Unk_04(void);
+	virtual void Unk_05(void);
+	virtual void Unk_06(void); //allocates space for a NiControllerSequence
+	virtual void Unk_07(UInt32 arg0);
+	virtual void Unk_08(UInt32 arg0);
+	virtual bool Unk_09(UInt32 arg0);
+	virtual void Unk_0A(void);
+	virtual bool Unk_0B(UInt32 arg0);
+	virtual void Unk_0C(UInt32 arg0);	//prints AccumRoot from pointer at +05C
+	virtual void Unk_0D(void);
+	virtual void Unk_0E(void);
+	virtual void Unk_0F(void);
+	virtual void Unk_10(void);
+	virtual void Unk_11(void);
+	virtual void Unk_12(void);
+
+	TESAnimGroup		* animGroup;	//068;
+};
+
+//03C
+class NiTimeController : public NiObject
+{
+public:
+	NiTimeController();
+	~NiTimeController();
+
+	virtual void		Unk_13(void);
+	virtual void		Unk_14(void);
+	virtual void		Unk_15(void);
+	virtual void		Unk_16(void);
+	virtual void		Unk_17(void);
+	virtual void		Unk_18(void);
+	virtual void		Unk_19(void);
+	virtual void		Unk_1A(void);
+	virtual void		Unk_1B(void);
+	virtual void		Unk_1C(void);
+
+	UInt32				unk008;		//008
+	float				unk00C;		//00C
+	UInt32				unk010;		//010
+	UInt32				unk014;		//014
+	UInt32				unk018;		//018
+	UInt32				unk01C;		//01C
+	UInt32				unk020;		//020
+	UInt32				unk024;		//024
+	UInt32				unk028;		//028
+	UInt32				unk02C;		//02C
+	NiNode				* unk030;	//030 seen BSFadeNode
+	NiObject			* unk034;	//034 seen NiMultiTargetTransformController
+	UInt32				unk038;		//038
+};
+
+//080
+class NiControllerManager : public NiTimeController
+{
+public:
+	NiControllerManager();
+	~NiControllerManager();
+
+	virtual void Unk_1D(void);
+
+	NiTArray <NiControllerSequence*>		array03C;	//03C
+	NiControllerSequence					** unk04C;	//04C appears to be array of pointers to dynamic idles
+	UInt32									unk050;		//050
+	UInt32									unk054;		//054
+	NiTPointerMap <NiControllerSequence>	map058;		//058 NiTStringPointerMap
+	UInt16									unk06C;		//06C
+	UInt16									pad06E;		
+	UInt16									unk070;		//070
+	UInt16									unk072;
+	UInt32									unk074;		//074
+	UInt32									unk078;		//078
+	UInt32									unk07C;		//07C
+};
+
 class ShadowSceneNode : public NiNode
 {
 public:
@@ -647,7 +863,7 @@ public:
 	BSFile();
 	~BSFile();
 
-	virtual void	Destructor(void);							// 00
+	virtual void	Destructor(bool freeMemory);				// 00
 	virtual void	Unk_01(void);								// 04
 	virtual void	Unk_02(void);								// 08
 	virtual void	Unk_03(void);								// 0C
@@ -680,10 +896,51 @@ public:
 	UInt32	m_pos;			// 030
 	UInt32	m_unk034;		// 034
 	UInt32	m_unk038;		// 038
-	char	m_name[0x104];	// 03C
+	char	m_path[0x104];	// 03C
 	UInt32	m_unk140;		// 140
 	UInt32	m_unk144;		// 144
 	UInt32	m_pos2;			// 148 - used if m_pos is 0xFFFFFFFF
 	UInt32	m_unk14C;		// 14C
 	UInt32	m_fileSize;		// 150
 };
+
+class NiCamera;
+class NiCullingProcess;
+
+//F0
+class SceneGraph
+{
+public:
+	SceneGraph();
+	~SceneGraph();
+
+	struct Unk030 {
+		float		unk00;
+		UInt32		unk04;
+		UInt32		unk08;
+		UInt32		unk0C;
+	};
+
+	void ** vtbl;								//000
+	UInt32				unk004[7];				//004 .. 01C
+	float				unk020;					//020
+	float				unk024;					//024
+	UInt32				unk028;					//028
+	UInt32				unk02C;					//02C
+	Unk030				unk030[3];				//030 .. 05C
+	float				unk060;					//060
+	Unk030				unk064[3];				//064 .. 090
+	float				unk094;					//094
+	NiTPointerList<UInt32>	pointerList098;		//098 - NiProperty
+	UInt32				unk0A8;					//0A8
+	NiTArray<UInt32>	tArray;					//0AC - NiAVObject
+	NiTPointerList<UInt32>	pointerList0BC;		//0BC - DynamicEffect
+	UInt32				unk0CC[4];				//0CC .. D8
+	NiCamera			* camera;				//0DC
+	UInt32				unk0E0;					//0E0
+	NiCullingProcess	* cullingProcess;		//0E4
+	UInt32				unk0E8;					//0E8
+	float				unk0EC;					//0EC
+};
+
+STATIC_ASSERT(sizeof(SceneGraph) == 0x0F0);

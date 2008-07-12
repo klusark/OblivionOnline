@@ -1,6 +1,7 @@
 #pragma once
 
 #include "obse/GameForms.h"
+#include "NiNodes.h"
 
 // virtual function analysis
 //	num	arg	ret	B			L			ML			MH			H
@@ -788,7 +789,7 @@ public:
 
 //	void	** _vtbl;	// 000
 	UInt32	unk004;		// 004
-	CombatController	* combatController;	// 008
+	TESPackage	* package;	// 008
 };
 
 // 90
@@ -858,10 +859,10 @@ public:
 	UInt8	unk01F;				// 01F
 	UInt8	unk020;				// 020
 	UInt8	pad021[3];			// 021
-	UInt32	unk024;				// 024
+	TESForm * usedItem;			// 024 for idles like reading book, making potions, etc
 	float	unk028;				// 028
 	TESObjectREFR	* unk02C;	// 02C
-	UInt32	unk030;				// 030
+	TESObjectREFR   * unk030;	// 030 seen XMarkerHeading refs here
 	PathLow	* pathing;			// 034
 	UInt32	unk038;				// 038
 	UInt32	unk03C;				// 03C
@@ -900,6 +901,36 @@ public:
 };
 
 STATIC_ASSERT(sizeof(MiddleLowProcess) == 0xA8);
+
+class bhkCharacterController;
+
+// DC
+class ActorAnimData
+{
+public:
+	ActorAnimData();
+	~ActorAnimData();
+
+	UInt32				unk00;			//00
+	NiNode				* niNode04;		//04 seen BSFadeNode for 3rd Person, NiNode for 1st
+	NiNode				* niNode08;		//08
+	UInt32				unk0C[6];		//0C
+	NiNode				* niNodes24[5];	//24
+	UInt32				unk38[24];		//38
+	NiControllerManager	* manager;		//98
+	NiTPointerMap<UInt32> * map9C;		//9C NiTPointerMap<AnimSequenceBase>
+	BSAnimGroupSequence	* animSequences[5]; //A0
+	UInt32				unkB4;			//B4
+	UInt32				unkB8;			//B8
+	float				unkBC;			//BC
+	float				unkC0;			//C0
+	float				unkC4;			//C4
+	UInt32				unkC8[4];		//C8
+	void				* unkD8;		//D8 looks like struct with idle anim transform data
+
+	bool FindAnimInRange(UInt32 lowBound, UInt32 highBound = -1);
+	bool PathsInclude(const char* subString);
+};
 
 // 18C
 class MiddleHighProcess : public MiddleLowProcess
@@ -973,7 +1004,7 @@ public:
 	UInt8	unk11D;		// 11D
 	UInt8	pad11E;		// 11E
 	UInt8	pad11F;		// 11F
-	UInt32	unk120;		// 120
+	TESObjectREFR * unk120;		// 120 Furniture ref NPC is sitting on (may be used for other things)
 	UInt8	unk124;		// 124 - init'd to 0x7F
 	Unk128	unk128;		// 128
 	UInt16	unk138;		// 138
@@ -1002,11 +1033,13 @@ public:
 	UInt32	unk170;		// 170
 	EffectListNode	* effectList;	// 174
 	UInt32	unk178;		// 178
-	void	* unk17C;	// 17C
+	ActorAnimData	* animData;	// 17C
 	UInt8	unk180;		// 180
 	UInt8	pad181[3];	// 181
 	NiObject	* unk184;	// 184 - seen BSShaderPPLightingProperty
 	NiObject	* unk188;	// 188 - seen BSBound
+
+	bhkCharacterController* GetCharacterController();
 };
 
 STATIC_ASSERT(sizeof(MiddleHighProcess) == 0x18C);
@@ -1029,21 +1062,36 @@ public:
 		kActionType_Max
 	};
 
+	enum {
+		kDetectionState_Lost = 0,
+		kDetectionState_Unseen,
+		kDetectionState_Noticed,
+		kDetectionState_Seen,
+
+		kDetectionState_Max
+	};
+
 	// 8
-	struct Unk18C
+	struct DetectionList
 	{
-		// size is a guess
 		struct Data
 		{
-			TESObjectREFR	* obj;
-			UInt32			unk4;
-			UInt32			unk8;
-			UInt32			unkC;
+			Actor			* actor;
+			UInt8			detectionState;
+			UInt8			pad04[3];
+			UInt8			hasLOS;
+			UInt8			pad08[3];
+			SInt32			detectionLevel;
 		};
 
-		Data	* data;
-		Unk18C	* next;
+		Data			* data;
+		DetectionList	* next;
+
+		Data* Info() const { return data; }
+		DetectionList* Next() const { return next; }
 	};
+
+	typedef Visitor<DetectionList, DetectionList::Data> DetectionListVisitor;
 
 	// this appears to be a common linked list class
 	// 4
@@ -1078,7 +1126,43 @@ public:
 		UInt32	unk8;
 	};
 
-	Unk18C	* unk18C;	// 18C
+	enum{
+		kAction_None			= -1,
+		kAction_EquipWeapon,
+		kAction_UnequipWeapon,
+		kAction_Attack,
+		kAction_AttackFollowThrough,
+		kAction_AttackBow,
+		kAction_AttackBowArrowAttached,
+		kAction_Block,
+		kAction_Recoil,
+		kAction_Stagger,
+		kAction_Dodge,
+		kAction_LowerBodyAnim,
+		kAction_SpecialIdle,
+		kAction_ScriptAnimation,
+	};
+
+	enum
+	{
+		kMovement_Forward =		0x0001,
+		kMovement_Backward =	0x0002,
+		kMovement_Left =		0x0004,
+		kMovement_Right =		0x0008,
+		kMovement_TurnLeft =	0x0010,
+		kMovement_TurnRight =	0x0020,
+
+		kMovement_Walk =		0x0100,
+		kMovement_Run =			0x0200,
+		kMovement_Sneak =		0x0400,	// overridden by kMovementFlag_Swimming
+		kMovement_Swim =		0x0800,
+		kMovement_Jump =		0x1000, //Jump and above appear not to be used.
+		kMovement_Fly =			0x2000,
+		kMovement_Fall =		0x4000,
+		kMovement_Slide =		0x8000,
+	};
+
+	DetectionList	* detectionList;	// 18C
 	Node190	unk190;		// 190
 	UInt32	unk198;		// 198
 	float	unk19C;		// 19C - idle chatter comment timer
@@ -1103,10 +1187,10 @@ public:
 	UInt32	unk1E8;		// 1E8
 	UInt32	unk1EC;		// 1EC
 	UInt32	unk1F0;		// 1F0
-	SInt16	unk1F4;		// 1F4 - related to 1F8
+	SInt16	currentAction;	// 1F4 - related to 1F8. returned by vtbl +2D0
 	UInt8	pad1F6[2];	// 1F6
-	UInt32	unk1F8;		// 1F8 - related to 1F4
-	UInt16	unk1FC;		// 1FC
+	UInt32	unk1F8;		// 1F8 - related to 1F4. Sometimes a BSAnimGroupSequence*
+	UInt16	movementFlags;	// 1FC - returned by vtbl + 2C0
 	UInt8	pad1FE[2];	// 1FE
 	UInt32	unk200;		// 200
 	float	unk204;		// 204
@@ -1172,6 +1256,215 @@ public:
 	TESObjectREFR	* unk2E4;	// 2E4
 	UInt8	unk2E8;		// 2E8
 	UInt8	pad2E9[3];	// 2E9
+
+	bool IsAttacking()
+		{	return currentAction >= kAction_Attack && currentAction <= kAction_AttackBowArrowAttached;	}
+	bool IsBlocking()
+		{	return currentAction == kAction_Block;	}
+	bool IsRecoiling()
+		{	return currentAction == kAction_Recoil;	}
+	bool IsStaggered()
+		{	return currentAction == kAction_Stagger;	}
+	bool IsDodging()
+		{	return currentAction == kAction_Dodge;	}
+	bool IsMovementFlagSet(UInt32 flag)
+		{	return (movementFlags & flag) == flag;	}
 };
 
 STATIC_ASSERT(sizeof(HighProcess) == 0x2EC);
+
+//C
+class bhkRefObject : public NiObject
+{
+public:
+	bhkRefObject();
+	~bhkRefObject();
+
+	virtual void Unk_00(void);
+	virtual void Unk_01(void);
+	virtual void Unk_02(void);
+	virtual void Unk_03(void);
+	virtual void Unk_04(void);
+	virtual void Unk_05(void);
+	virtual void Unk_06(void);
+	virtual void Unk_07(void);
+	virtual void Unk_08(void);
+	virtual void Unk_09(void);
+	virtual void Unk_0A(void);
+	virtual void Unk_0B(void);
+	virtual void Unk_0C(void);
+	virtual void Unk_0D(void);
+	virtual void Unk_0E(void);
+	virtual void Unk_0F(void);
+	virtual void Unk_10(void);
+	virtual void Unk_11(void);
+	virtual void Unk_12(void);
+	virtual void Unk_13(void);
+	virtual void Unk_14(void);
+
+	UInt32		unk008;			//008 hkObject*
+};
+
+//1D0
+class bhkCharacterPointCollector
+{	
+public:
+	bhkCharacterPointCollector();
+	~bhkCharacterPointCollector();
+
+	virtual void Unk_00(void);
+	virtual void Unk_01(void);
+	virtual void Unk_02(void);
+
+	struct Unk01 {
+		float	unk00;
+		float	unk04;
+		float	unk08;
+		UInt32	unk0C;
+		float	unk10;
+		float	unk14;
+		UInt32	unk18;
+		float	unk1C;
+		UInt32	unk20[4];
+	};
+
+	//some of this belongs in bhkCDPointCollector
+
+	//void**	vtbl					  000
+	UInt32		unk004[7];				//004
+	Unk01		unk020[8];				//020
+	UInt32		unk1A0[12];				//1A0
+};
+
+STATIC_ASSERT(sizeof(bhkCharacterPointCollector) == 0x1D0);
+
+//1E0
+class bhkCharacterProxy : public bhkRefObject
+{
+public:
+	bhkCharacterProxy();
+	~bhkCharacterProxy();
+
+	virtual void Unk_00(void);
+	virtual void Unk_01(void);
+	virtual void Unk_02(void);
+	virtual void Unk_03(void);
+	virtual void Unk_04(void);
+	virtual void Unk_05(void);
+	virtual void Unk_06(void);
+	virtual void Unk_07(void);
+	virtual void Unk_08(void);
+	virtual void Unk_09(void);
+	virtual void Unk_0A(void);
+	virtual void Unk_0B(void);
+	virtual void Unk_0C(void);
+	virtual void Unk_0D(void);
+	virtual void Unk_0E(void);
+	virtual void Unk_0F(void);
+	virtual void Unk_10(void);
+	virtual void Unk_11(void);
+	virtual void Unk_12(void);
+	virtual void Unk_13(void);
+	virtual void Unk_14(void);
+	virtual void Unk_15(void);
+	virtual void Unk_16(void);
+	virtual void Unk_17(void);
+	virtual void Unk_18(void);
+	virtual void Unk_19(void);
+	virtual void Unk_1A(void);
+	virtual void Unk_1B(void);
+	virtual void Unk_1C(void);
+	virtual void Unk_1D(void);
+	virtual void Unk_1E(void);
+	virtual void Unk_1F(void);
+
+	//ahkCharacterProxy	*						//008
+	UInt32						unk00C;			//00C
+	bhkCharacterPointCollector	pointCollecter;	//010
+};
+
+STATIC_ASSERT(sizeof(bhkCharacterProxy) == 0x1E0);
+
+//68+
+class bhkCharacterListener
+{
+public:
+	bhkCharacterListener();
+	~bhkCharacterListener();
+
+	virtual void Unk_00(void);
+	virtual void Unk_01(void);
+	virtual void Unk_02(void);
+	virtual void Unk_03(void);
+	virtual void Unk_04(void);
+	virtual void Unk_05(void);
+
+	//void**			vtbl							//000
+	UInt32				unk004[(0x068 - 0x004) >> 2];	//004
+};
+
+STATIC_ASSERT(sizeof(bhkCharacterListener) == 0x68);
+
+//010
+class hkBaseObject
+{
+public:
+
+	enum{
+		kHKState_OnGround = 0,
+		kHKState_Jumping,
+		kHKState_InAir,
+		kHKState_Climbing,
+		kHKState_Flying,
+		kHKState_Swimming,
+		kHKState_Projectile,
+		kHKState_UserState1,
+		kHKState_UserState2,
+		kHKState_UserState3,
+		kHKState_UserState4,
+		kHKState_UserState5,
+	};
+
+	//not sure about the vtbl layout here...
+	void		** vtbl;		//000
+	UInt32		unk004;			//004
+	UInt32		unk008;			//008
+	UInt32		hkState;		//00C
+
+	bool IsOnGround()
+		{	return (hkState == kHKState_OnGround);	}
+	bool IsJumping()
+		{	return (hkState == kHKState_Jumping);	}
+	bool IsInAir()
+		{	return (hkState == kHKState_InAir);	}
+	bool IsFlying()
+		{	return (hkState == kHKState_Flying);	}
+};
+
+//3C8+
+class bhkCharacterController : public bhkCharacterProxy
+{
+public:
+	bhkCharacterController();
+	~bhkCharacterController();
+
+	virtual void Unk_00(void);
+	virtual void Unk_01(void);
+	virtual void Unk_02(void);
+	virtual void Unk_03(void);
+	virtual void Unk_04(void);
+	virtual void Unk_05(void);
+
+	//bases
+	hkBaseObject			baseObject;						//1E0
+	bhkCharacterListener	characterListener;				//1F0
+
+	UInt32					unk258[(0x320 - 0x258) >> 2];	//258
+	float					fallDamageTimer;				//320
+	UInt32					unk324[(0x3C8 - 0x324) >> 2];	//324
+};
+
+STATIC_ASSERT(sizeof(bhkCharacterController) == 0x3C8);
+STATIC_ASSERT(offsetof(bhkCharacterController, fallDamageTimer) == 0x320);
+
+

@@ -37,5 +37,18 @@ extern CommandInfo kCommandInfo_GetArrowProjectileBowEnchantment;
 extern CommandInfo kCommandInfo_GetArrowProjectilePoison;
 extern CommandInfo kCommandInfo_GetProjectileSource;
 extern CommandInfo kCommandInfo_SetMagicProjectileSpell;
-extern CommandInfo kCommandInfo_SetProjectileSource;
+//extern CommandInfo kCommandInfo_SetProjectileSource;
 extern CommandInfo kCommandInfo_ClearProjectileSource;
+
+extern CommandInfo kCommandInfo_GetRefCount;
+extern CommandInfo kCommandInfo_SetRefCount;
+
+extern CommandInfo kCommandInfo_GetOpenSound;
+extern CommandInfo kCommandInfo_GetCloseSound;
+extern CommandInfo kCommandInfo_GetLoopSound;
+extern CommandInfo kCommandInfo_SetOpenSound;
+extern CommandInfo kCommandInfo_SetCloseSound;
+extern CommandInfo kCommandInfo_SetLoopSound;
+
+extern CommandInfo kCommandInfo_SetPlayerProjectile;
+extern CommandInfo kCommandInfo_SetHasBeenPickedUp;

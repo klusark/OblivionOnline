@@ -82,3 +82,25 @@ ScriptEventList* TESObjectREFR::GetEventList() const
 
 	return 0;
 }
+
+TESForm* TESObjectREFR::GetInventoryItem(UInt32 itemIndex, bool bGetWares)
+{
+	//if getWares == true, looks up info in g_DataHandler->unkCDC
+
+	ExtraContainerChanges::EntryData* data;
+
+#if OBLIVION_VERSION == OBLIVION_VERSION_1_1
+	data = (ExtraContainerChanges::EntryData*)ThisStdCall(0x4CEB10, this, itemIndex, bGetWares);
+#elif OBLIVION_VERSION == OBLIVION_VERSION_1_2
+	data = (ExtraContainerChanges::EntryData*)ThisStdCall(0x4D88E0, this, itemIndex, bGetWares);
+#elif OBLIVION_VERSION == OBLIVION_VERSION_1_2_416
+	data = (ExtraContainerChanges::EntryData*)ThisStdCall(0x4D88F0, this, itemIndex, bGetWares);
+#else
+	#error unsupported Oblivion version
+#endif
+
+	if (data)
+		return data->type;
+	else
+		return NULL;
+}

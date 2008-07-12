@@ -9,6 +9,9 @@ Options::Options()
 ,m_setPriority(false)
 ,m_priority(0)
 ,m_crcOnly(false)
+,m_noSync(false)
+,m_optionsOnly(false)
+,m_waitForClose(false)
 {
 	//
 }
@@ -131,6 +134,19 @@ bool Options::Read(int argc, char ** argv)
 				{
 					m_crcOnly = true;
 				}
+				else if(!_stricmp(arg, "nosync"))
+				{
+					// ### only intended for use on WINE
+					m_noSync = true;
+				}
+				else if(!_stricmp(arg, "h") || !_stricmp(arg, "help"))
+				{
+					m_optionsOnly = true;
+				}
+				else if(!_stricmp(arg, "waitforclose"))
+				{
+					m_waitForClose = true;
+				}
 				else
 				{
 					_ERROR("unknown switch (%s)", arg);
@@ -163,6 +179,7 @@ void Options::PrintUsage(void)
 	_MESSAGE("usage: obse_loader [options]");
 	_MESSAGE("");
 	_MESSAGE("options:");
+	_MESSAGE("  -h, -help - print this options list");
 	_MESSAGE("  -editor - launch the construction set");
 	_MESSAGE("  -old - load oldblivion");
 	_MESSAGE("  -priority <level> - set the launched program\'s priority");
@@ -177,6 +194,11 @@ void Options::PrintUsage(void)
 	_MESSAGE("  -notimeout - wait forever for oblivion to launch");
 	_MESSAGE("               this overrides the default five second timeout");
 	_MESSAGE("  -crconly - just print the crc of the EXE, don't launch anything");
+	_MESSAGE("  -nosync - WARNING: USING THIS OPTION MAY CAUSE BUGS AND OTHER RANDOM BEHAVIOR");
+	_MESSAGE("            disable synchronization when injecting the dll");
+	_MESSAGE("            this is only intended as a compatibility hack for WINE");
+	_MESSAGE("  -waitforclose - wait for the launched program to close");
+	_MESSAGE("                  designed for use with AlacrityPC and similar");
 }
 
 bool Options::Verify(void)

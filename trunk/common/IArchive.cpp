@@ -1,6 +1,8 @@
 #include "IArchive.h"
 #include "IErrors.h"
 
+#if ENABLE_IDYNAMICCREATE
+
 IDynamic * IArchive::iterator::Instantiate(void)
 {
 	IDataSubStream	subStream(owner->theStream, GetDataOffset(), GetDataLength());
@@ -96,3 +98,5 @@ void IArchive::ReadHeader(void)
 		theStream->ReadBuf(nameTable, header.nameTableLength);
 	}
 }
+
+#endif

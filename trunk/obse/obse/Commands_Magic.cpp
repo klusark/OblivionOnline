@@ -888,6 +888,7 @@ static bool Cmd_RemoveNthEffectItem_Execute(COMMAND_ARGS)
 	return true;
 }
 
+
 //static bool RemoveEffectItems_Execute(COMMAND_ARGS, bool bHostile)
 //{
 //	*result = 0;
@@ -1354,6 +1355,33 @@ static bool Cmd_SetMagicItemAutoCalc_Execute(COMMAND_ARGS)
 	return ChangeMagicItem_Execute(PASS_COMMAND_ARGS, kMagic_IsAutoCalc, bForModF);
 }
 
+static bool Cmd_IsSpellHostile_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	SpellItem* spell = NULL;
+
+	if (!ExtractArgs(EXTRACT_ARGS, &spell))
+		return true;
+
+	if (spell)
+		*result = spell->IsHostile() ? 1 : 0;
+
+	return true;
+}
+
+static bool Cmd_SetSpellHostile_Execute(COMMAND_ARGS)
+{
+	*result = 0;
+	SpellItem* spell = NULL;
+	UInt32 bHostile = 0;
+
+	if (!ExtractArgs(EXTRACT_ARGS, &spell, &bHostile))
+		return true;
+
+	if (spell)
+		spell->SetHostile(bHostile ? true : false);
+	return true;
+}
 
 
 #endif // OBLIVION
@@ -2485,3 +2513,20 @@ CommandInfo kCommandInfo_SetMagicItemAutoCalc =
 	0
 };
 
+DEFINE_COMMAND(IsSpellHostile,
+			   returns 1 if the spell is flagged as hostile,
+			   0,
+			   1,
+			   kParams_OneSpellItem);
+
+static ParamInfo kParams_SetSpellHostile[2] =
+{
+	{	"spell",	kParamType_SpellItem,	0	},
+	{	"bool",		kParamType_Integer,		0	},
+};
+
+DEFINE_COMMAND(SetSpellHostile,
+			   changes the hostile flag on the spell,
+			   0,
+			   2,
+			   kParams_SetSpellHostile);

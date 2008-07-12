@@ -107,6 +107,11 @@ static const UInt32 s_ExtraLockSize = 0x10;
 static const UInt32 s_ExtraLockVtbl = 0x00A02210;
 static const UInt32 s_ExtraSoulSize = 0x10;
 static const UInt32 s_ExtraSoulVtbl = 0x00A022C4;
+static const UInt32 s_ExtraCountSize = 0x10;
+static const UInt32 s_ExtraCountVtbl = 0xA02288;
+static const UInt32 s_ExtraQuickKeySize = 0x10;
+static const UInt32 s_ExtraQuickKeyVtbl = 0x00A02330;
+static const UInt32 s_ExtraDataListVtbl = 0x00A01A98;
 
 #elif OBLIVION_VERSION == OBLIVION_VERSION_1_2
 
@@ -124,6 +129,11 @@ static const UInt32 s_ExtraLockSize = 0x10;
 static const UInt32 s_ExtraLockVtbl = 0x00A35820;
 static const UInt32 s_ExtraSoulSize = 0x10;
 static const UInt32 s_ExtraSoulVtbl = 0x00A358E0;
+static const UInt32 s_ExtraCountSize = 0x10;
+static const UInt32 s_ExtraCountVtbl = 0x00A358A4;
+static const UInt32 s_ExtraQuickKeySize = 0x10;
+static const UInt32 s_ExtraQuickKeyVtbl = 0x00A3594C;
+static const UInt32 s_ExtraDataListVtbl = 0x00A35160;
 
 #elif OBLIVION_VERSION == OBLIVION_VERSION_1_2_416
 
@@ -141,6 +151,11 @@ static const UInt32 s_ExtraLockSize = 0x10;
 static const UInt32 s_ExtraLockVtbl = 0x00A357B8;
 static const UInt32 s_ExtraSoulSize = 0x10;
 static const UInt32 s_ExtraSoulVtbl = 0x00A35878;
+static const UInt32 s_ExtraCountSize = 0x10;
+static const UInt32 s_ExtraCountVtbl = 0x00A3583C;
+static const UInt32 s_ExtraQuickKeySize = 0x10;
+static const UInt32 s_ExtraQuickKeyVtbl = 0x00A358E4;
+static const UInt32 s_ExtraDataListVtbl = 0x00A350F8;
 
 #else
 #error unsupported oblivion version
@@ -206,4 +221,25 @@ ExtraSoul* ExtraSoul::Create()
 	ExtraSoul* xSoul = (ExtraSoul*)BSExtraData::Create(kExtraData_Soul, s_ExtraSoulSize, s_ExtraSoulVtbl);
 	memset(xSoul->padding, 0, 3);
 	return xSoul;
+}
+
+ExtraCount* ExtraCount::Create()
+{
+	ExtraCount* xCount = (ExtraCount*)BSExtraData::Create(kExtraData_Count, s_ExtraCountSize, s_ExtraCountVtbl);
+	return xCount;
+}
+
+ExtraQuickKey* ExtraQuickKey::Create()
+{
+	ExtraQuickKey* xQuickKey = (ExtraQuickKey*)BSExtraData::Create(kExtraData_QuickKey, s_ExtraQuickKeySize, s_ExtraQuickKeyVtbl);
+	memset(xQuickKey->pad, 0, 3);
+	return xQuickKey;
+}
+
+ExtraDataList* ExtraDataList::Create()
+{
+	ExtraDataList* xData = (ExtraDataList*)FormHeap_Allocate(sizeof(ExtraDataList));
+	memset(xData, 0, sizeof(ExtraDataList));
+	((UInt32*)xData)[0] = s_ExtraDataListVtbl;
+	return xData;
 }

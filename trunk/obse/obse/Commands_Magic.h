@@ -68,3 +68,6 @@ extern CommandInfo kCommandInfo_IsNthEffectItemScriptHostile;
 extern CommandInfo kCommandInfo_SetNthEffectItemScriptHostile;
 extern CommandInfo kCommandInfo_SetNthEffectItemScriptName;
 extern CommandInfo kCommandInfo_ModNthEffectItemScriptName;
+
+extern CommandInfo kCommandInfo_IsSpellHostile;
+extern CommandInfo kCommandInfo_SetSpellHostile;

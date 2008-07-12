@@ -19,3 +19,14 @@ extern CommandInfo kCommandInfo_MessageBoxEX;
 
 extern CommandInfo kCommandInfo_GetCrosshairRef;
 extern CommandInfo kCommandInfo_IsModLoaded;
+
+extern CommandInfo kCommandInfo_GetModIndex;
+extern CommandInfo kCommandInfo_GetSourceModIndex;
+
+extern CommandInfo kCommandInfo_GetNumLoadedMods;
+extern CommandInfo kCommandInfo_SetMessageIcon;
+extern CommandInfo kCommandInfo_SetMessageSound;
+
+extern CommandInfo kCommandInfo_GetGodMode;
+
+extern CommandInfo kCommandInfo_GetSoundPlaying;

@@ -12,6 +12,13 @@
 #include "Commands_ActiveEffect.h"
 #include "Commands_MiscReference.h"
 #include "Commands_Faction.h"
+#include "Commands_LeveledList.h"
+#include "Commands_Creature.h"
+#include "Commands_Script.h"
+#include "Commands_AI.h"
+#include "Commands_Menu.h"
+#include "Commands_String.h"
+
 #include "ParamInfos.h"
 #include "PluginManager.h"
 #include "Hooks_Memory.h"
@@ -55,6 +62,7 @@ bool Command_GetPos(unk arg0, unk arg1, unk arg2, unk arg3, unk arg4, unk arg5, 
 #include "GameMagicEffects.h"
 #include "GameTiles.h"
 #include "GameData.h"
+#include "GameMenus.h"
 
 #include "common/IFileStream.h"
 
@@ -127,6 +135,12 @@ bool Cmd_GetOBSEVersion_Execute(COMMAND_ARGS)
 	return true;
 }
 
+bool Cmd_GetOBSERevision_Execute(COMMAND_ARGS)
+{
+	*result = OBSE_VERSION_INTEGER_MINOR;
+	return true;
+}
+
 static void DumpExtraDataList(ExtraDataList * list)
 {
 	for(BSExtraData * traverse = list->m_data; traverse; traverse = traverse->next)
@@ -168,7 +182,7 @@ bool Cmd_SaveIP_Execute(COMMAND_ARGS)
 	__asm { mov _esi, esi }
 
 	// make sure this is only called from the main execution loop
-	ASSERT_STR(arg1 == scriptObj->data, SaveIP may not be called inside a set or if statement);
+	ASSERT_STR(arg1 == scriptObj->data, "SaveIP may not be called inside a set or if statement");
 
 	UInt32	idx = 0;
 
@@ -207,7 +221,7 @@ bool Cmd_RestoreIP_Execute(COMMAND_ARGS)
 	__asm { mov _esi, esi }
 
 	// make sure this is only called from the main execution loop
-	ASSERT_STR(arg1 == scriptObj->data, RestoreIP may not be called inside a set or if statement);
+	ASSERT_STR(arg1 == scriptObj->data, "RestoreIP may not be called inside a set or if statement");
 
 	UInt32	idx = 0;
 
@@ -241,6 +255,34 @@ bool Cmd_Test_Execute(COMMAND_ARGS)
 	InterfaceManager	* interfaceManager = InterfaceManager::GetSingleton();
 	if(interfaceManager && interfaceManager->menuRoot)
 	{
+
+#if 0
+		Tile	* textEditTile = interfaceManager->menuRoot->ReadXML("data\\menus\\dialog\\texteditmenu.xml");
+		if(textEditTile)
+		{
+			Tile	* textEditRoot = textEditTile->GetRoot();
+			if(textEditRoot)
+			{
+				TileMenu	* textEditMenuTile = tile_cast <TileMenu>(textEditRoot);
+				DumpClass(textEditMenuTile, 20);
+				if(textEditMenuTile)
+				{
+					Menu	* textEditMenu = textEditMenuTile->menu;
+					TextEditMenu* textEdit = (TextEditMenu*)Oblivion_DynamicCast(textEditMenu, 0, RTTI_Menu, RTTI_TextEditMenu, 0);
+					if (textEdit) {
+						UInt32 x = 0;
+					};
+						
+					if(textEditMenu)
+					{
+						textEditMenu->RegisterTile(textEditMenuTile);
+						textEditMenu->EnableMenu(false);
+					}
+				}
+			}
+		}
+#endif
+
 		interfaceManager->menuRoot->DebugDump();
 	}
 #endif
@@ -261,6 +303,15 @@ bool Cmd_Test_Execute(COMMAND_ARGS)
 			}
 		}
 	}
+#endif
+
+#if 0
+	if(thisObj)
+		_MESSAGE("thisObj->flags = %08X", thisObj->flags);
+	else
+		_MESSAGE("thisObj = NULL");
+
+	_MESSAGE("ShowMessageBox_pScriptRefID = %08X", *ShowMessageBox_pScriptRefID);
 #endif
 
 	return true;
@@ -333,14 +384,14 @@ bool Cmd_DumpVarInfo_Execute(COMMAND_ARGS)
 				Console_Print("%d: %08X %08X %f %016I64X",
 					idx,
 					traverse->var->id,
-					traverse->var->unk1,
+					&traverse->var->nextEntry,
 					traverse->var->data,
 					*((UInt64 *)&traverse->var->data));
 
 				_MESSAGE("%d: %08X %08X %f %016I64X",
 					idx,
 					traverse->var->id,
-					traverse->var->unk1,
+					&traverse->var->nextEntry,
 					traverse->var->data,
 					*((UInt64 *)&traverse->var->data));
 			}
@@ -361,8 +412,10 @@ bool Cmd_Default_Execute(COMMAND_ARGS)
 bool Cmd_Default_Parse(UInt32 arg0, UInt32 arg1, UInt32 arg2, UInt32 arg3)
 {
 #ifdef _DEBUG
+#if 0
 	_MESSAGE("Cmd_Default_Parse: %08X %08X %08X %08X",
 		arg0, arg1, arg2, arg3);
+#endif
 #endif
 
 	#ifdef OBLIVION
@@ -460,6 +513,21 @@ static CommandInfo kCommandInfo_GetOBSEVersion =
 	NULL
 };
 
+static CommandInfo kCommandInfo_GetOBSERevision =
+{
+	"GetOBSERevision",
+	"",
+	0,
+	"returns the numbered revision of the installed version of OBSE",
+	0,
+	0,
+	NULL,
+
+	HANDLER(Cmd_GetOBSERevision_Execute),
+	Cmd_Default_Parse,
+	NULL,
+	NULL
+};
 static CommandInfo kTestCommand =
 {
 	"testcommand",
@@ -1861,18 +1929,208 @@ void CommandTable::Init(void)
 	g_scriptCommands.Add(&kCommandInfo_HasName);
 	g_scriptCommands.Add(&kCommandInfo_HasBeenPickedUp);
 
+
 	// v0015
 
-/*
+
+	g_scriptCommands.Add(&kCommandInfo_GetRefCount);
+	g_scriptCommands.Add(&kCommandInfo_SetRefCount);
 	g_scriptCommands.Add(&kCommandInfo_GetProjectileType);
 	g_scriptCommands.Add(&kCommandInfo_GetMagicProjectileSpell);
 	g_scriptCommands.Add(&kCommandInfo_GetArrowProjectileEnchantment);
 	g_scriptCommands.Add(&kCommandInfo_GetArrowProjectileBowEnchantment);
 	g_scriptCommands.Add(&kCommandInfo_GetArrowProjectilePoison);
-	g_scriptCommands.Add(&kCommandInfo_GetProjectileSource);
 	g_scriptCommands.Add(&kCommandInfo_SetMagicProjectileSpell);
-	g_scriptCommands.Add(&kCommandInfo_SetProjectileSource);
-	g_scriptCommands.Add(&kCommandInfo_ClearProjectileSource);
+	g_scriptCommands.Add(&kCommandInfo_GetProjectileSource);
+
+	g_scriptCommands.Add(&kCommandInfo_GetModIndex);
+	g_scriptCommands.Add(&kCommandInfo_GetSourceModIndex);
+	g_scriptCommands.Add(&kCommandInfo_GetCalcAllLevels);
+	g_scriptCommands.Add(&kCommandInfo_GetCalcEachInCount);
+	g_scriptCommands.Add(&kCommandInfo_GetChanceNone);
+	g_scriptCommands.Add(&kCommandInfo_CalcLeveledItemNR);
+	g_scriptCommands.Add(&kCommandInfo_GetNumLevItems);
+	g_scriptCommands.Add(&kCommandInfo_GetNthLevItem);
+
+	g_scriptCommands.Add(&kCommandInfo_AddItemNS);
+	g_scriptCommands.Add(&kCommandInfo_RemoveItemNS);
+	g_scriptCommands.Add(&kCommandInfo_EquipItemNS);
+	g_scriptCommands.Add(&kCommandInfo_UnequipItemNS);
+	g_scriptCommands.Add(&kCommandInfo_AddSpellNS);
+	g_scriptCommands.Add(&kCommandInfo_RemoveSpellNS);
+	g_scriptCommands.Add(&kCommandInfo_GetHair);
+	g_scriptCommands.Add(&kCommandInfo_GetEyes);
+	g_scriptCommands.Add(&kCommandInfo_GetHairColor);
+	g_scriptCommands.Add(&kCommandInfo_GetOpenSound);
+	g_scriptCommands.Add(&kCommandInfo_GetCloseSound);
+	g_scriptCommands.Add(&kCommandInfo_GetLoopSound);
+	g_scriptCommands.Add(&kCommandInfo_SetOpenSound);
+	g_scriptCommands.Add(&kCommandInfo_SetCloseSound);
+	g_scriptCommands.Add(&kCommandInfo_SetLoopSound);
+	g_scriptCommands.Add(&kCommandInfo_GetNumLoadedMods);
+
+	g_scriptCommands.Add(&kCommandInfo_GetCreatureSound);
+	g_scriptCommands.Add(&kCommandInfo_IsPlayable2);
+	g_scriptCommands.Add(&kCommandInfo_IsFormValid);
+	g_scriptCommands.Add(&kCommandInfo_IsReference);
+	g_scriptCommands.Add(&kCommandInfo_ToggleCreatureModel);
+
+	g_scriptCommands.Add(&kCommandInfo_SetMessageSound);
+	g_scriptCommands.Add(&kCommandInfo_SetMessageIcon);
+
+	g_scriptCommands.Add(&kCommandInfo_GetVariable);
+	g_scriptCommands.Add(&kCommandInfo_GetRefVariable);
+	g_scriptCommands.Add(&kCommandInfo_HasVariable);
+
+	g_scriptCommands.Add(&kCommandInfo_GetFullGoldValue);
+
+	g_scriptCommands.Add(&kCommandInfo_GetNumDetectedActors);
+	g_scriptCommands.Add(&kCommandInfo_GetNthDetectedActor);
+	g_scriptCommands.Add(&kCommandInfo_SetDetectionState);
+
+	g_scriptCommands.Add(&kCommandInfo_GetHotKeyItem);
+	g_scriptCommands.Add(&kCommandInfo_ClearHotKey);
+	g_scriptCommands.Add(&kCommandInfo_SetHotKeyItem);
+
+	g_scriptCommands.Add(&kCommandInfo_OffersWeapons);
+	g_scriptCommands.Add(&kCommandInfo_OffersArmor);
+	g_scriptCommands.Add(&kCommandInfo_OffersClothing);
+	g_scriptCommands.Add(&kCommandInfo_OffersBooks);
+	g_scriptCommands.Add(&kCommandInfo_OffersLights);
+	g_scriptCommands.Add(&kCommandInfo_OffersIngredients);
+	g_scriptCommands.Add(&kCommandInfo_OffersApparatus);
+	g_scriptCommands.Add(&kCommandInfo_OffersMiscItems);
+	g_scriptCommands.Add(&kCommandInfo_OffersMagicItems);
+	g_scriptCommands.Add(&kCommandInfo_OffersSpells);
+	g_scriptCommands.Add(&kCommandInfo_OffersPotions);
+	g_scriptCommands.Add(&kCommandInfo_OffersTraining);
+	g_scriptCommands.Add(&kCommandInfo_OffersRecharging);
+	g_scriptCommands.Add(&kCommandInfo_OffersRepair);
+	g_scriptCommands.Add(&kCommandInfo_OffersServicesC);
+	g_scriptCommands.Add(&kCommandInfo_GetTrainerSkill);
+	g_scriptCommands.Add(&kCommandInfo_GetTrainerLevel);
+
+	g_scriptCommands.Add(&kCommandInfo_SetOffersWeapons);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersArmor);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersClothing);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersBooks);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersIngredients);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersSpells);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersLights);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersMiscItems);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersMagicItems);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersApparatus);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersPotions);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersTraining);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersRecharging);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersRepair);
+	g_scriptCommands.Add(&kCommandInfo_SetOffersServicesC);
+	g_scriptCommands.Add(&kCommandInfo_GetServicesMask);
+	g_scriptCommands.Add(&kCommandInfo_SetTrainerSkill);
+	g_scriptCommands.Add(&kCommandInfo_SetTrainerLevel);
+	g_scriptCommands.Add(&kCommandInfo_GetNumPackages);
+	g_scriptCommands.Add(&kCommandInfo_GetNthPackage);
+
+	g_scriptCommands.Add(&kCommandInfo_IsBlocking);
+	g_scriptCommands.Add(&kCommandInfo_IsAttacking);
+	g_scriptCommands.Add(&kCommandInfo_IsRecoiling);
+	g_scriptCommands.Add(&kCommandInfo_IsDodging);
+	g_scriptCommands.Add(&kCommandInfo_IsStaggered);
+
+	g_scriptCommands.Add(&kCommandInfo_IsMovingForward);
+	g_scriptCommands.Add(&kCommandInfo_IsMovingBackward);
+	g_scriptCommands.Add(&kCommandInfo_IsMovingLeft);
+	g_scriptCommands.Add(&kCommandInfo_IsMovingRight);
+	g_scriptCommands.Add(&kCommandInfo_IsTurningLeft);
+	g_scriptCommands.Add(&kCommandInfo_IsTurningRight);
+	g_scriptCommands.Add(&kCommandInfo_GetOBSERevision);
+
+	g_scriptCommands.Add(&kCommandInfo_IsInAir);
+	g_scriptCommands.Add(&kCommandInfo_IsJumping);
+	g_scriptCommands.Add(&kCommandInfo_IsOnGround);
+	g_scriptCommands.Add(&kCommandInfo_IsFlying);
+	g_scriptCommands.Add(&kCommandInfo_GetFallTimer);
+	g_scriptCommands.Add(&kCommandInfo_GetGodMode);
+
+	g_scriptCommands.Add(&kCommandInfo_CompareScripts);
+	g_scriptCommands.Add(&kCommandInfo_IsPowerAttacking);
+	g_scriptCommands.Add(&kCommandInfo_IsCasting);
+	g_scriptCommands.Add(&kCommandInfo_IsAnimGroupPlaying);
+	g_scriptCommands.Add(&kCommandInfo_AnimPathIncludes);
+	g_scriptCommands.Add(&kCommandInfo_ClearLeveledList);
+	g_scriptCommands.Add(&kCommandInfo_GetNthLevItemCount);
+	g_scriptCommands.Add(&kCommandInfo_GetNthLevItemLevel);
+
+	g_scriptCommands.Add(&kCommandInfo_IsSpellHostile);
+	g_scriptCommands.Add(&kCommandInfo_SetSpellHostile);
+	g_scriptCommands.Add(&kCommandInfo_RemoveLevItemByLevel);
+
+	g_scriptCommands.Add(&kCommandInfo_IsModelPathValid);
+	g_scriptCommands.Add(&kCommandInfo_IsIconPathValid);
+	g_scriptCommands.Add(&kCommandInfo_IsBipedModelPathValid);
+	g_scriptCommands.Add(&kCommandInfo_IsBipedIconPathValid);
+	g_scriptCommands.Add(&kCommandInfo_FileExists);
+
+	g_scriptCommands.Add(&kCommandInfo_GetPCMajorSkillUps);
+	g_scriptCommands.Add(&kCommandInfo_GetPCAttributeBonus);
+	g_scriptCommands.Add(&kCommandInfo_GetTotalPCAttributeBonus);
+
+	g_scriptCommands.Add(&kCommandInfo_SetNameEx);
+	g_scriptCommands.Add(&kCommandInfo_SetPlayerProjectile);
+	g_scriptCommands.Add(&kCommandInfo_SetHasBeenPickedUp);
+	g_scriptCommands.Add(&kCommandInfo_GetProcessLevel);
+
+	g_scriptCommands.Add(&kCommandInfo_GetActiveMenuMode);
+	g_scriptCommands.Add(&kCommandInfo_GetEnchMenuEnchItem);
+	g_scriptCommands.Add(&kCommandInfo_GetEnchMenuSoulgem);
+	g_scriptCommands.Add(&kCommandInfo_GetActiveMenuFilter);
+	g_scriptCommands.Add(&kCommandInfo_GetActiveMenuSelection);
+	g_scriptCommands.Add(&kCommandInfo_GetActiveMenuObject);
+	g_scriptCommands.Add(&kCommandInfo_GetActiveMenuRef);
+	g_scriptCommands.Add(&kCommandInfo_IsBarterMenuActive);
+
+	g_scriptCommands.Add(&kCommandInfo_GetSoundPlaying);
+
+	g_scriptCommands.Add(&kCommandInfo_GetAlchMenuIngredient);
+	g_scriptCommands.Add(&kCommandInfo_GetAlchMenuIngredientCount);
+	g_scriptCommands.Add(&kCommandInfo_GetAlchMenuApparatus);
+	g_scriptCommands.Add(&kCommandInfo_GetContainerMenuView);
+	g_scriptCommands.Add(&kCommandInfo_GetAltControl2);
+	g_scriptCommands.Add(&kCommandInfo_GetLevItemByLevel);
+	g_scriptCommands.Add(&kCommandInfo_CloseAllMenus);
+	g_scriptCommands.Add(&kCommandInfo_SetControl);
+	g_scriptCommands.Add(&kCommandInfo_SetAltControl);
+
+//0016
+/*
+	g_scriptCommands.Add(&kCommandInfo_GetFloatMenuTrait);
+	g_scriptCommands.Add(&kCommandInfo_SetFloatMenuTrait);
+	g_scriptCommands.Add(&kCommandInfo_SetMessageMenuFade);
+
+	g_scriptCommands.Add(&kCommandInfo_ShowTextInputBox);
+	g_scriptCommands.Add(&kCommandInfo_GetInputText);
+	g_scriptCommands.Add(&kCommandInfo_CloseTextInputBox);
+	g_scriptCommands.Add(&kCommandInfo_UpdateTextInputBox);
+	g_scriptCommands.Add(&kCommandInfo_IsTextInputBoxInUse);
+
+
+
+	g_scriptCommands.Add(&kCommandInfo_sv_Construct);
+	g_scriptCommands.Add(&kCommandInfo_sv_Compare);
+	g_scriptCommands.Add(&kCommandInfo_sv_Erase);
+	g_scriptCommands.Add(&kCommandInfo_sv_Length);
+	g_scriptCommands.Add(&kCommandInfo_sv_SubString);
+	g_scriptCommands.Add(&kCommandInfo_sv_Count);
+	g_scriptCommands.Add(&kCommandInfo_sv_Find);
+	g_scriptCommands.Add(&kCommandInfo_sv_Replace);
+	g_scriptCommands.Add(&kCommandInfo_sv_ToNumeric);
+	g_scriptCommands.Add(&kCommandInfo_sv_Insert);
+	g_scriptCommands.Add(&kCommandInfo_IsDigit);
+	g_scriptCommands.Add(&kCommandInfo_IsLetter);
+	g_scriptCommands.Add(&kCommandInfo_IsPrintable);
+	g_scriptCommands.Add(&kCommandInfo_IsPunctuation);
+	g_scriptCommands.Add(&kCommandInfo_IsUpperCase);
+	g_scriptCommands.Add(&kCommandInfo_sv_GetChar);
 */
 
 	/* to add later if problems can be solved
@@ -1882,6 +2140,8 @@ void CommandTable::Init(void)
 	g_scriptCommands.Add(&kCommandInfo_FloatFromFile);
 	g_scriptCommands.Add(&kCommandInfo_FloatToFile);
 	g_scriptCommands.Add(&kCommandInfo_PrintToFile);
+	g_scriptCommands.Add(&kCommandInfo_SetProjectileSource);
+	g_scriptCommands.Add(&kCommandInfo_ClearProjectileSource);
 	*/
 
 	/* to be implemented later
@@ -1907,7 +2167,7 @@ void CommandTable::Init(void)
 		_WARNING("couldn't load plugins");
 
 #ifdef _DEBUG
-#if 1
+#if 0
 	_MESSAGE("console commands");
 	g_consoleCommands.Dump();
 	_MESSAGE("script commands");
@@ -1952,7 +2212,7 @@ void CommandTable::Add(CommandInfo * info)
 	}
 	else
 	{
-		HALT(CommandTable::Add: adding past the end);
+		HALT("CommandTable::Add: adding past the end");
 	}
 
 	m_curID++;
@@ -1962,7 +2222,13 @@ void CommandTable::PadTo(UInt32 id, CommandInfo * info)
 {
 	if(!info) info = &kPaddingCommand;
 
-	while(m_baseID + m_commands.size() < id) Add(info);
+	while(m_baseID + m_commands.size() < id)
+	{
+		info->opcode = m_baseID + m_commands.size();
+		m_commands.push_back(*info);
+	}
+	
+	m_curID = id;
 }
 
 void CommandTable::Dump(void)
