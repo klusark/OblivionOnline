@@ -103,11 +103,12 @@ FARPROC WINAPI MyGetProcAddress( HMODULE hModule,LPCSTR lpProcName)
 		
 		OldDirect3DCreate9 = RealGetProcAddress(hModule,lpProcName);		
 	}
+	/*
 	else if(_strnicmp(lpProcName,"DirectInput8Create",15))
 	{
 		retVal = (FARPROC)MyDirectInput8Create;
 		old_DirectInput8Create = (DirectInput8Create_t)RealGetProcAddress(hModule,lpProcName);
-	}
+	}*/
 	else if(_strnicmp(lpProcName,"GetProcAddress",15) == 0)
 	{
 		retVal = (FARPROC) MyGetProcAddress;

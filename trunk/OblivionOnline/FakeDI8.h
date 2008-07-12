@@ -109,10 +109,12 @@ public:
 		static BYTE KeyState[256];
 		BYTE LastMouseButtons[8];
 		HRESULT hr = m_device->GetDeviceState(size, data);
-		if(SUCCEEDED(hr))
+
+		if(SUCCEEDED(hr) && CEGUI::System::getSingletonPtr())
 		{
 			if(bIsKeyboard)
 			{
+				_MESSAGE("Checking Keyboard");
 				BYTE* keys = static_cast<BYTE*>(data);
 				if(memcmp(LastKeyState,data,256))
 				{				
@@ -134,23 +136,38 @@ public:
 						}
 					}
 				}
+				_MESSAGE("Checked Keyboard");
 			}
 			else
 			{
+				_MESSAGE("Checking Mouse");
 				DIMOUSESTATE2 * mousedata = (LPDIMOUSESTATE2)data;
 				DIPROPDWORD AxisMode;
 				int mousewheel = 0;
+				AxisMode.diph.dwHeaderSize	= sizeof(DIPROPHEADER);
+				AxisMode.diph.dwHow			= DIPH_DEVICE;
+				AxisMode.diph.dwObj			= 0;
+				AxisMode.diph.dwSize		= sizeof(DIPROPDWORD);
 				this->GetProperty(DIPROP_AXISMODE,&AxisMode.diph);				
 				if(AxisMode.dwData == DIPROPAXISMODE_ABS)
 				{
+
+					_MESSAGE("Injecting Absolute Data");
 					CEGUI::System::getSingleton().injectMousePosition(mousedata->lX,mousedata->lY);
 					CEGUI::System::getSingleton().injectMouseWheelChange(mousewheel - mousedata->lZ);
 					mousewheel = mousedata->lZ;
 				}
 				else if(AxisMode.dwData == DIPROPAXISMODE_REL)
 				{
+
+					_MESSAGE("Injecting Relative Data");
+					
 					CEGUI::System::getSingleton().injectMouseMove(mousedata->lX,mousedata->lY);
+
+					_MESSAGE("Injecting Mouse Wheel");
 					CEGUI::System::getSingleton().injectMouseWheelChange(mousedata->lZ);
+
+					_MESSAGE("Injected Relative Data");
 				}
 				else
 				{
@@ -158,6 +175,7 @@ public:
 				}
 
 
+				_MESSAGE("Checking Mouse buttons");
 				//mouse buttons
 				if( memcmp(LastMouseButtons,mousedata->rgbButtons,8) )
 				{
@@ -176,7 +194,8 @@ public:
 						}
 					}
 				}
-				
+
+				_MESSAGE("Checked Mouse");
 			}
 		}
 

@@ -115,10 +115,25 @@ HRESULT WINAPI MyDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID rii
 extern "C" int SetInputHooks()
 {
 	_MESSAGE("Setting up Input hooks");
+	/*
 	UINT HookedFunctions;
 	HookImportedFunctionsByNameA(GetModuleHandle(0),"DINPUT8.DLL",1,DirectInput8CreateHook,(PROC *)old_DirectInput8Create,&HookedFunctions);
 	//hook = SetWindowsHookEx(WH_KEYBOARD,kbdhook,hDll,0);
-	return false;
+	return false;*/
+#if OBLIVION_VERSION == OBLIVION_VERSION_1_2_416
+		UInt32	thunkAddress = 0x00A2802C;
+#else
+#error unsupported version of oblivion
+#endif
+	old_DirectInput8Create = (DirectInput8Create_t)*(DWORD*)thunkAddress;
+	UInt32	oldProtect;
+	//from Ian pattersons OBSE 
+	//Here we hack into the code BEFORE OBSE THUNKS IT
+	// THis means that we can modify the calls other plugins receive
+	VirtualProtect((void *)thunkAddress, 4, PAGE_EXECUTE_READWRITE, &oldProtect);
+	*((UInt32 *)thunkAddress) = (DWORD)MyDirectInput8Create;
+	VirtualProtect((void *)thunkAddress, 4, oldProtect, &oldProtect);
+	return EXIT_SUCCESS;
 }
 int UnSetInputHooks()
 {
