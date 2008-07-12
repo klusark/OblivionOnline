@@ -24,8 +24,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServerBrowser", "..\ServerB
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "..\Setup\Setup.vdproj", "{5F7C8062-9DC2-4367-997F-A914B5EA4073}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "curllib", "..\GUI_Server\libcurl\curl-7.18.0\lib\curllib.vcproj", "{87EE9DA4-DE1E-4448-8324-183C98DCA588}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OblivionOnlineServer", "..\OblivionOnlineServer\OblivionOnlineServer.vcproj", "{9CEB2A39-13F4-499A-995C-2077F44177DF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetDebug", "..\NetDebug\NetDebug.vcproj", "{FDEF50CB-0F36-4498-8D26-CAFE350A38A3}"
@@ -63,6 +61,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlibstat", "..\CEGUI\freetype\zlib-1.2.3\contrib\vstudio\vc7\zlibstat.vcproj", "{A7802AE4-E88D-4A41-BA01-885A877686CC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lua", "..\Lua\Lua.vcproj", "{8CEC5F60-CA13-43B5-9F6F-7A548EFA09C4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "curllib", "..\curl\curl-7.18.2\lib\curllib.vcproj", "{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -164,28 +164,6 @@ Global
 		{5F7C8062-9DC2-4367-997F-A914B5EA4073}.ReleaseAxp|Win32.Build.0 = Release
 		{5F7C8062-9DC2-4367-997F-A914B5EA4073}.ReleaseWithSymbols|Win32.ActiveCfg = Release
 		{5F7C8062-9DC2-4367-997F-A914B5EA4073}.ReleaseWithSymbols|Win32.Build.0 = Release
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Debug Multithreaded|Win32.ActiveCfg = Debug|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Debug Multithreaded|Win32.Build.0 = Debug|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Debug Singlethreaded|Win32.ActiveCfg = Debug|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Debug Singlethreaded|Win32.Build.0 = Debug|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Debug_Static|Win32.ActiveCfg = Debug|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Debug_Static|Win32.Build.0 = Debug|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Debug|Win32.ActiveCfg = Debug|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Debug|Win32.Build.0 = Debug|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Release Multithreaded|Win32.ActiveCfg = Release|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Release Multithreaded|Win32.Build.0 = Release|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Release Singlethreaded|Win32.ActiveCfg = Release|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Release Singlethreaded|Win32.Build.0 = Release|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Release_debug|Win32.ActiveCfg = Debug|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Release_debug|Win32.Build.0 = Debug|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Release_Static|Win32.ActiveCfg = Release|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Release_Static|Win32.Build.0 = Release|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Release|Win32.ActiveCfg = Release|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.Release|Win32.Build.0 = Release|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.ReleaseAxp|Win32.ActiveCfg = Release|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.ReleaseAxp|Win32.Build.0 = Release|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.ReleaseWithSymbols|Win32.ActiveCfg = Release|Win32
-		{87EE9DA4-DE1E-4448-8324-183C98DCA588}.ReleaseWithSymbols|Win32.Build.0 = Release|Win32
 		{9CEB2A39-13F4-499A-995C-2077F44177DF}.Debug Multithreaded|Win32.ActiveCfg = Debug|Win32
 		{9CEB2A39-13F4-499A-995C-2077F44177DF}.Debug Multithreaded|Win32.Build.0 = Debug|Win32
 		{9CEB2A39-13F4-499A-995C-2077F44177DF}.Debug Singlethreaded|Win32.ActiveCfg = Debug|Win32
@@ -472,6 +450,28 @@ Global
 		{8CEC5F60-CA13-43B5-9F6F-7A548EFA09C4}.ReleaseAxp|Win32.Build.0 = Release|Win32
 		{8CEC5F60-CA13-43B5-9F6F-7A548EFA09C4}.ReleaseWithSymbols|Win32.ActiveCfg = Release|Win32
 		{8CEC5F60-CA13-43B5-9F6F-7A548EFA09C4}.ReleaseWithSymbols|Win32.Build.0 = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Debug Multithreaded|Win32.ActiveCfg = Debug|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Debug Multithreaded|Win32.Build.0 = Debug|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Debug Singlethreaded|Win32.ActiveCfg = Debug|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Debug Singlethreaded|Win32.Build.0 = Debug|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Debug_Static|Win32.ActiveCfg = Debug|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Debug_Static|Win32.Build.0 = Debug|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Debug|Win32.Build.0 = Debug|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Release Multithreaded|Win32.ActiveCfg = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Release Multithreaded|Win32.Build.0 = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Release Singlethreaded|Win32.ActiveCfg = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Release Singlethreaded|Win32.Build.0 = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Release_debug|Win32.ActiveCfg = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Release_debug|Win32.Build.0 = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Release_Static|Win32.ActiveCfg = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Release_Static|Win32.Build.0 = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Release|Win32.ActiveCfg = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.Release|Win32.Build.0 = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.ReleaseAxp|Win32.ActiveCfg = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.ReleaseAxp|Win32.Build.0 = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.ReleaseWithSymbols|Win32.ActiveCfg = Release|Win32
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}.ReleaseWithSymbols|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -481,6 +481,7 @@ Global
 		{78B079BD-9FC7-4B9E-B4A6-96DA0F00248B} = {4DD4B08F-37B0-4A3D-B800-7DF007556D7E}
 		{0FE12249-B875-4F60-B266-C5E403533802} = {4DD4B08F-37B0-4A3D-B800-7DF007556D7E}
 		{A7802AE4-E88D-4A41-BA01-885A877686CC} = {4DD4B08F-37B0-4A3D-B800-7DF007556D7E}
+		{D398CA15-23DF-4207-9A4B-539BC8C8DFEC} = {4DD4B08F-37B0-4A3D-B800-7DF007556D7E}
 		{278034CC-C2F1-1E48-B109-BEF1A8583264} = {87CD788A-CA2C-41FC-A480-593DF03A8631}
 		{0C1A1D58-4BCC-2342-B88B-15A6CF843820} = {87CD788A-CA2C-41FC-A480-593DF03A8631}
 		{8066A41C-63B1-4245-8EFA-3A67B6918634} = {87CD788A-CA2C-41FC-A480-593DF03A8631}

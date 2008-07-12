@@ -85,13 +85,31 @@ if(ncode>=0)
   //pass control to next hook.
   return ( CallNextHookEx(hook,ncode,wparam,lparam) );
 }
-HRESULT WINAPI MyDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut,
+HRESULT WINAPI MyDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, void ** ppvOut,
 									LPUNKNOWN punkOuter)
 {
+	UInt32 ProtectionBuffer = 0;
+	if(!ppvOut)
+		return DIERR_INVALIDPARAM;
+	
+	VirtualProtect((void *)ppvOut,sizeof(void *),PAGE_EXECUTE_READWRITE,&ProtectionBuffer);
+	VirtualProtect(*ppvOut,sizeof(void *),PAGE_EXECUTE_READWRITE,&ProtectionBuffer);
+	void* temp;
+	*ppvOut = NULL;
 	_MESSAGE( "DirectInput-Hook: MyDirectInput8Create called.\n" );
-	HRESULT hr =old_DirectInput8Create(hinst, dwVersion, riidltf, ppvOut, punkOuter);
-	if(SUCCEEDED(hr))
-		*ppvOut = new MyDirectInput8(reinterpret_cast<IDirectInput8*>(*ppvOut));
+	_MESSAGE( " Address for DirectInput8Create FAR %lu",old_DirectInput8Create);
+	HRESULT hr =old_DirectInput8Create(hinst, dwVersion, riidltf, &temp, punkOuter);
+	_MESSAGE("Created original device");
+	if(SUCCEEDED(hr) && temp)
+	{
+		temp = new MyDirectInput8(temp);	
+		VirtualProtect((void *)ppvOut,sizeof(void *),PAGE_EXECUTE_READWRITE,&ProtectionBuffer);
+		VirtualProtect(*ppvOut,sizeof(void *),PAGE_EXECUTE_READWRITE,&ProtectionBuffer);
+		_MESSAGE("Fixed memory protection");
+		*ppvOut = temp;
+		_MESSAGE("thunked pointer");
+	}
+	_MESSAGE("leaving myDirectInput8Create");
 	return hr;
 }
 extern "C" int SetInputHooks()
@@ -106,7 +124,7 @@ int UnSetInputHooks()
 {
 	UINT HookedFunctions;
 	 HookImportedFunctionsByNameA(GetModuleHandle(0),"DINPUT8.DLL",1,RestoreHook2,(PROC *)old_DirectInput8Create,&HookedFunctions);
-	 UnhookWindowsHookEx(hook);
+	//UnhookWindowsHookEx(hook);
 	return false;
 }
 CEGUI::utf32 keycodeToUTF32( unsigned int scanCode)

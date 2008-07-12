@@ -88,7 +88,11 @@ IDirect3D9* WINAPI MyDirect3DCreate9(UINT sdk_version)
 	OblivionDirect3D9 = nd3d;
 	return nd3d;	
 }
-
+typedef HRESULT (WINAPI *DirectInput8Create_t)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf,
+											   LPVOID * ppvOut, LPUNKNOWN punkOuter);
+extern HRESULT WINAPI MyDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut,
+										   LPUNKNOWN punkOuter);
+extern DirectInput8Create_t old_DirectInput8Create;
 FARPROC WINAPI MyGetProcAddress( HMODULE hModule,LPCSTR lpProcName)
 {
 	FARPROC retVal = NULL;
@@ -98,6 +102,11 @@ FARPROC WINAPI MyGetProcAddress( HMODULE hModule,LPCSTR lpProcName)
 		retVal = (FARPROC)MyDirect3DCreate9;
 		
 		OldDirect3DCreate9 = RealGetProcAddress(hModule,lpProcName);		
+	}
+	else if(_strnicmp(lpProcName,"DirectInput8Create",15))
+	{
+		retVal = (FARPROC)MyDirectInput8Create;
+		old_DirectInput8Create = (DirectInput8Create_t)RealGetProcAddress(hModule,lpProcName);
 	}
 	else if(_strnicmp(lpProcName,"GetProcAddress",15) == 0)
 	{

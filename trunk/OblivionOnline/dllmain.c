@@ -59,7 +59,7 @@ BOOL WINAPI DllMain(
 		{
 			OpenLog(1);
 			D3DHookInit();
-			SetInputHooks();
+			//SetInputHooks();
 		}
 		hEvtSendPacket = CreateEvent(NULL,FALSE,FALSE,NULL); 
 		return TRUE;

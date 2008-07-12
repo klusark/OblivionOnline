@@ -104,6 +104,7 @@ public:
 
 	STDMETHOD(GetDeviceState)(DWORD size, LPVOID data)
 	{
+		_MESSAGE("Fake GetDeviceState called");
 		static BYTE LastKeyState[256];
 		static BYTE KeyState[256];
 		BYTE LastMouseButtons[8];
@@ -304,23 +305,27 @@ private:
 class MyDirectInput8 : public IDirectInput8
 {
 public:
-	MyDirectInput8(IDirectInput8* di) : m_di(di)
+	MyDirectInput8(void* di) : m_di((IDirectInput8 *)di)
 	{
+		_MESSAGE("Fake constructor called");
 	}
 
 	/*** IUnknown methods ***/
     HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppvObj)
 	{
+		_MESSAGE("Fake QueryInterface called");
 		return m_di->QueryInterface(riid, ppvObj);
 	}
 
     ULONG STDMETHODCALLTYPE AddRef()
 	{
+		_MESSAGE("Fake AddRef called");
 		return m_di->AddRef();
 	}
 
     ULONG STDMETHODCALLTYPE Release()
 	{
+		_MESSAGE("Fake Release");
 		ULONG count = m_di->Release();
 		if(0 == count)
 			delete this;
@@ -334,50 +339,60 @@ public:
 		HRESULT hr = m_di->CreateDevice(rguid, device, unknown);
 		if(SUCCEEDED(hr) && rguid == GUID_SysKeyboard)
 		{
+			_MESSAGE("Fake keyboard created");
 			// Return our own keyboard device that checks for injected keypresses
 			*device = new MyDirectInputDevice8(*device,true);
 		}
 		else if(SUCCEEDED(hr) &&rguid == GUID_SysMouse)
 		{
+			_MESSAGE("Fake mouse created");			
 			*device = new MyDirectInputDevice8(*device,false);
 		}
+		_MESSAGE("Leaving Fake CreateDevice");
 		return hr;
 	}
 
     STDMETHOD(EnumDevices)(DWORD devType,LPDIENUMDEVICESCALLBACK callback, LPVOID ref, DWORD flags)
 	{
+		_MESSAGE("Fake EnumDevices called");
 		return m_di->EnumDevices(devType, callback, ref, flags);
 	}
 
     STDMETHOD(GetDeviceStatus)(REFGUID rguid)
 	{
+		_MESSAGE("Fake GetDeviceStatus called");
 		return m_di->GetDeviceStatus(rguid);
 	}
 
     STDMETHOD(RunControlPanel)(HWND owner, DWORD flags)
 	{
+		_MESSAGE("Fake RunControlPanel called");
 		return m_di->RunControlPanel(owner, flags);
 	}
 
     STDMETHOD(Initialize)(HINSTANCE instance, DWORD version)
 	{
+		_MESSAGE("Fake Initialize called");
 		return m_di->Initialize(instance, version);
 	}
 
     STDMETHOD(FindDevice)(REFGUID rguid, LPCTSTR name, LPGUID guidInstance)
 	{
+		_MESSAGE("Fake FindDevice called");
 		return m_di->FindDevice(rguid, name, guidInstance);
 	}
 
     STDMETHOD(EnumDevicesBySemantics)(LPCTSTR username, LPDIACTIONFORMAT action,
 		LPDIENUMDEVICESBYSEMANTICSCB callback, LPVOID ref, DWORD flags)
 	{
+		_MESSAGE("Fake EnumDevices called");
 		return m_di->EnumDevicesBySemantics(username, action, callback, ref, flags);
 	}
 
     STDMETHOD(ConfigureDevices)(LPDICONFIGUREDEVICESCALLBACK callback, LPDICONFIGUREDEVICESPARAMS params,
 		DWORD flags, LPVOID ref)
 	{
+		_MESSAGE("Fake ConfigureDevices called");
 		return m_di->ConfigureDevices(callback, params, flags, ref);
 	}
 
