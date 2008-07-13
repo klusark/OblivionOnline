@@ -39,8 +39,34 @@ This file is part of OblivionOnline.
 #include "D3DHook.h"
 #include "UserInterface.h"
 #include "cegui/CEGUIDefaultResourceProvider.h"
+#include "netsend.h"
 CEGUI::DirectX9Renderer * myRenderer;
 bool bUIInitialized = false;
+bool ConnectButton_Click(const CEGUI::EventArgs& e)
+{
+	SetConnectionMessage("Go to the first edition");
+	return true;
+}
+bool SendButton_Click(const CEGUI::EventArgs& e)
+{
+	if(!bIsConnected)
+	{
+		RegisterChatMessage("It helps to be connected when you chat"); 
+		return true;
+	}
+	CEGUI::Window *chatwin = CEGUI::WindowManager::getSingleton().getWindow("ChatText");
+	CEGUI::Window *messagewin = CEGUI::WindowManager::getSingleton().getWindow("ChatMessage");
+	if(!chatwin || !messagewin)
+	{
+		_ERROR("Windows are not initialized aborting");
+		throw new std::exception("Windows are not initialized aborting");
+	}
+	char Buffer[1033] = "You said:"; //1024 + 8 for "you said"
+	strcat(Buffer,messagewin->getText().c_str());
+	RegisterChatMessage(Buffer);
+	NetSendChat((BYTE*)messagewin->getText().c_str(),messagewin->getText().length());
+	return true;
+}
 DWORD WINAPI InitialiseUI()
 {
 	if(!bUIInitialized)
@@ -81,7 +107,10 @@ DWORD WINAPI InitialiseUI()
 			myRoot = CEGUI::WindowManager::getSingleton().loadWindowLayout("OOChat.layout");
 			CEGUI::System::getSingleton().setGUISheet(myRoot);
 			CEGUI::System::getSingleton().injectMousePosition(320,320);
-
+			CEGUI::Window *sendbutton =  CEGUI::WindowManager::getSingleton().getWindow("SendButton");
+			sendbutton->subscribeEvent(sendbutton->EventMouseClick,CEGUI::Event::Subscriber(SendButton_Click));
+			CEGUI::Window *connectbutton =  CEGUI::WindowManager::getSingleton().getWindow("ConnectButton");
+			connectbutton->subscribeEvent(connectbutton->EventMouseClick,CEGUI::Event::Subscriber(ConnectButton_Click));
 		}
 		bUIInitialized = true;
 		_MESSAGE("Successfully loaded GUI");

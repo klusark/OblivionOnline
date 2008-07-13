@@ -49,6 +49,7 @@ class MyDirectInputDevice8: public IDirectInputDevice8
 public:
 	MyDirectInputDevice8(IDirectInputDevice8* device, bool Keyboard) : m_device(device)
 	{
+		bIsKeyboard = Keyboard;
 	}
 
 	/*** IUnknown methods ***/
@@ -104,43 +105,58 @@ public:
 
 	STDMETHOD(GetDeviceState)(DWORD size, LPVOID data)
 	{
-		_MESSAGE("Fake GetDeviceState called");
 		static BYTE LastKeyState[256];
 		static BYTE KeyState[256];
-		BYTE LastMouseButtons[8];
+		static BYTE LastMouseButtons[8];
+		static bool MaskedMouseButtons[8];
+		static bool MaskedKeys[256];
+		static bool InputEnabled = true;
 		HRESULT hr = m_device->GetDeviceState(size, data);
 
 		if(SUCCEEDED(hr) && CEGUI::System::getSingletonPtr())
 		{
 			if(bIsKeyboard)
 			{
-				_MESSAGE("Checking Keyboard");
-				BYTE* keys = static_cast<BYTE*>(data);
-				if(memcmp(LastKeyState,data,256))
-				{				
-					for(int i = 0;i < 256;i++)
+				BYTE* keys = static_cast<BYTE*>(data);	
+				if(KEYDOWN(keys,DIK_F1))
+					InputEnabled = !InputEnabled;
+				for(int i = 0;i < 256;i++)
+				{
+					//iterate all keys
+					if(KEYDOWN(keys,i) == KEYDOWN(LastKeyState,i))
+						continue;
+					//we detected a change
+					LastKeyState[i] = keys[i];
+					if(KEYDOWN(keys,i)) // Button pressed
 					{
-						//iterate all keys
-						if(KEYDOWN(keys,i) == KEYDOWN(LastKeyState,i))
-							continue;
-						//we detected a change
-						LastKeyState[i] = keys[i];
-						if(KEYDOWN(keys,i)) // Button pressed
+						
+						bool  function = CEGUI::System::getSingleton().injectKeyDown(i);
+						bool  text = false;
+						CEGUI::utf32 temp = keycodeToUTF32(i);
+						_MESSAGE("Key pressed %u as key %u",i,temp);
+						if(temp > 32 || temp < 126)	//ASCII printable characters
+									text     =CEGUI::System::getSingleton().injectChar(temp);
+						if(function || text) //either was processed - do not concenate to prevent tuning from compiler that would break it 
 						{
-							CEGUI::System::getSingleton().injectKeyDown(i);
-							CEGUI::System::getSingleton().injectChar(keycodeToUTF32(i));
-						}
-						else
-						{
-							CEGUI::System::getSingleton().injectKeyUp(i);
+							//Drop the input from the game
+							MaskedKeys[i] = true;
 						}
 					}
+					else
+					{
+						CEGUI::System::getSingleton().injectKeyUp(i);
+						if(MaskedKeys[i] == true)
+							MaskedKeys[i] = false;
+					}
 				}
-				_MESSAGE("Checked Keyboard");
+				for(int i = 0;i<256;i++)
+				{
+					if(MaskedKeys[i])
+						keys[i] = 0;
+				}
 			}
 			else
 			{
-				_MESSAGE("Checking Mouse");
 				DIMOUSESTATE2 * mousedata = (LPDIMOUSESTATE2)data;
 				DIPROPDWORD AxisMode;
 				int mousewheel = 0;
@@ -151,51 +167,51 @@ public:
 				this->GetProperty(DIPROP_AXISMODE,&AxisMode.diph);				
 				if(AxisMode.dwData == DIPROPAXISMODE_ABS)
 				{
-
-					_MESSAGE("Injecting Absolute Data");
 					CEGUI::System::getSingleton().injectMousePosition(mousedata->lX,mousedata->lY);
 					CEGUI::System::getSingleton().injectMouseWheelChange(mousewheel - mousedata->lZ);
 					mousewheel = mousedata->lZ;
 				}
 				else if(AxisMode.dwData == DIPROPAXISMODE_REL)
-				{
-
-					_MESSAGE("Injecting Relative Data");
-					
+				{					
 					CEGUI::System::getSingleton().injectMouseMove(mousedata->lX,mousedata->lY);
-
-					_MESSAGE("Injecting Mouse Wheel");
 					CEGUI::System::getSingleton().injectMouseWheelChange(mousedata->lZ);
-
-					_MESSAGE("Injected Relative Data");
 				}
 				else
 				{
 					_ERROR("Incompatible Mouse Axis Mode detected");
 				}
-
-
-				_MESSAGE("Checking Mouse buttons");
 				//mouse buttons
-				if( memcmp(LastMouseButtons,mousedata->rgbButtons,8) )
-				{
-					for(int i = 0; i < min(CEGUI::MouseButton::MouseButtonCount,8);i++) //hopefully that works
+				/*if( memcmp(LastMouseButtons,mousedata->rgbButtons,8) )
+				{*/
+				/*_MESSAGE("Mouse status : old / %u %u %u %u %u %u %u %u   new / %u %u %u %u %u %u %u %u",
+					LastMouseButtons[1],LastMouseButtons[2],LastMouseButtons[3],LastMouseButtons[4],
+					LastMouseButtons[5],LastMouseButtons[6],LastMouseButtons[7],LastMouseButtons[8],
+					mousedata->rgbButtons[1],mousedata->rgbButtons[2],mousedata->rgbButtons[3],
+					mousedata->rgbButtons[4],mousedata->rgbButtons[5],mousedata->rgbButtons[6],
+					mousedata->rgbButtons[7],mousedata->rgbButtons[8]); */
+					for(int i = 0; i < min(CEGUI::MouseButton::MouseButtonCount,8);i++) 
 					{
-						if(LastMouseButtons[i] == mousedata->rgbButtons[i])
-							continue;
+						if(LastMouseButtons[i] == mousedata->rgbButtons[i]) // no change here
+							continue;						
 						if(LastMouseButtons[i]) // The button was released
 						{
-							CEGUI::System::getSingleton().injectMouseButtonUp((CEGUI::MouseButton)i);	
+							if(MaskedMouseButtons[i])
+								MaskedMouseButtons[i] = false;
+							CEGUI::System::getSingleton().injectMouseButtonUp((CEGUI::MouseButton)i);
 						}
 						else //The button was pressed
 						{
-							_MESSAGE("MouseButton %u pressed",i);
-							CEGUI::System::getSingleton().injectMouseButtonDown((CEGUI::MouseButton)i);
+							if(CEGUI::System::getSingleton().injectMouseButtonDown((CEGUI::MouseButton)i))
+								MaskedMouseButtons[i] = true;
 						}
 					}
-				}
-
-				_MESSAGE("Checked Mouse");
+					memcpy(LastMouseButtons,mousedata->rgbButtons,8);
+					for(int i = 0; i< 8;i++)
+					{
+						if(MaskedMouseButtons[i])
+							mousedata->rgbButtons[i] = 0;
+					}
+				//}
 			}
 		}
 
@@ -373,31 +389,26 @@ public:
 
     STDMETHOD(EnumDevices)(DWORD devType,LPDIENUMDEVICESCALLBACK callback, LPVOID ref, DWORD flags)
 	{
-		_MESSAGE("Fake EnumDevices called");
 		return m_di->EnumDevices(devType, callback, ref, flags);
 	}
 
     STDMETHOD(GetDeviceStatus)(REFGUID rguid)
 	{
-		_MESSAGE("Fake GetDeviceStatus called");
 		return m_di->GetDeviceStatus(rguid);
 	}
 
     STDMETHOD(RunControlPanel)(HWND owner, DWORD flags)
 	{
-		_MESSAGE("Fake RunControlPanel called");
 		return m_di->RunControlPanel(owner, flags);
 	}
 
     STDMETHOD(Initialize)(HINSTANCE instance, DWORD version)
 	{
-		_MESSAGE("Fake Initialize called");
 		return m_di->Initialize(instance, version);
 	}
 
     STDMETHOD(FindDevice)(REFGUID rguid, LPCTSTR name, LPGUID guidInstance)
 	{
-		_MESSAGE("Fake FindDevice called");
 		return m_di->FindDevice(rguid, name, guidInstance);
 	}
 
@@ -411,7 +422,6 @@ public:
     STDMETHOD(ConfigureDevices)(LPDICONFIGUREDEVICESCALLBACK callback, LPDICONFIGUREDEVICESPARAMS params,
 		DWORD flags, LPVOID ref)
 	{
-		_MESSAGE("Fake ConfigureDevices called");
 		return m_di->ConfigureDevices(callback, params, flags, ref);
 	}
 
