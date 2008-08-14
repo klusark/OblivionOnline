@@ -142,6 +142,7 @@ int UnSetInputHooks()
 	//UnhookWindowsHookEx(hook);
 	return false;
 }
+//CEGUI wiki modified
 CEGUI::utf32 keycodeToUTF32( unsigned int scanCode)
 {
 	CEGUI::utf32 utf = 0;
@@ -160,15 +161,7 @@ CEGUI::utf32 keycodeToUTF32( unsigned int scanCode)
 	if (GetKeyboardState(keyboardState) == FALSE)
 		return utf;
 
-	/* 0. Convert virtual-key code into a scan code
-	1. Convert scan code into a virtual-key code
-	Does not distinguish between left- and right-hand keys.
-	2. Convert virtual-key code into an unshifted character value
-	in the low order word of the return value. Dead keys (diacritics)
-	are indicated by setting the top bit of the return value.
-	3. Windows NT/2000/XP: Convert scan code into a virtual-key
-	Distinguishes between left- and right-hand keys.*/
-	UINT virtualKey = MapVirtualKeyEx(scanCode, 3, hklKeyboardLayout);
+	UINT virtualKey = MapVirtualKeyEx(scanCode, MAPVK_VSC_TO_VK, hklKeyboardLayout);
 	if (virtualKey == 0) // No translation possible
 		return utf;
 

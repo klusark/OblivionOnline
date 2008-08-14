@@ -47,12 +47,12 @@ bool ConnectButton_Click(const CEGUI::EventArgs& e)
 	SetConnectionMessage("Go to the first edition");
 	return true;
 }
-bool SendButton_Click(const CEGUI::EventArgs& e)
+bool SendButton_Click()
 {
 	if(!bIsConnected)
 	{
 		RegisterChatMessage("It helps to be connected when you chat"); 
-		return true;
+		return false;
 	}
 	CEGUI::Window *chatwin = CEGUI::WindowManager::getSingleton().getWindow("ChatText");
 	CEGUI::Window *messagewin = CEGUI::WindowManager::getSingleton().getWindow("ChatMessage");
@@ -61,11 +61,19 @@ bool SendButton_Click(const CEGUI::EventArgs& e)
 		_ERROR("Windows are not initialized aborting");
 		throw new std::exception("Windows are not initialized aborting");
 	}
+	if(messagewin->getText().length() == 0)
+		return true;
 	char Buffer[1033] = "You said:"; //1024 + 8 for "you said"
 	strcat(Buffer,messagewin->getText().c_str());
 	RegisterChatMessage(Buffer);
 	NetSendChat((BYTE*)messagewin->getText().c_str(),messagewin->getText().length());
+	messagewin->setText("");
 	return true;
+}
+
+bool SendButton_Click(const CEGUI::EventArgs& e)
+{
+	return SendButton_Click();
 }
 DWORD WINAPI InitialiseUI()
 {
@@ -122,13 +130,17 @@ void DeinitialiseUI()
 {
 	bUIInitialized = false;
 }
-void RegisterChatMessage(char *message)
+void RegisterChatMessage(char *text)
 {
 	if(CEGUI::System::getSingletonPtr() ==NULL)
 		return;
 	CEGUI::Window *chatwin = CEGUI::WindowManager::getSingleton().getWindow("ChatText");
 	if(chatwin)
+	{
+		CEGUI::String message = chatwin->getText();
+		message += text;
 		chatwin->setText(message);
+	}
 	else
 	{
 		Console_Print("Could not find CEGUI Window ChatMessage");

@@ -1,3 +1,63 @@
+0015:
+- Add manifest to obse_loader to request UAC elevation on Vista
+- Add -waitforclose loader option to help programs that watch for process termination
+- Fix bugs in Enable/DisableControl
+- Fix crash in various formatted string functions
+
+0015 beta 2:
+- Fix crash when passing a value of zero to %k format specifier
+- Restore previous behavior of GetAltControl; add GetAltControl2, deprecating GetAltControl
+- GetAlchmenuIngredient/Count/Apparatus
+- Fix non-functional commands IsOnGround, IsInAir, and IsJumping
+- SetNameEx now operates on references as well as base objects. NOTE: The order of parameters has changed.
+- Engine fixes for leveled list saving/loading
+- Fix error reporting bug in the CS
+- Fix kParamType_InventoryObject extraction in ExtractArgsEx
+- Fix plugins not receiving a load callback if they have written no data
+- Replace LL rand() calls with mersenne twister
+
+0015 beta 1:
+- Plugin serialization API
+- Versions of functions such as AddItem which don't generate UI messages when called on the player
+- Projectile functions
+- Functions returning information about the active mod list
+- Sound functions for objects and creatures
+- Functions returning information about an NPC's hair and eyes
+- ToggleCreatureModel
+- Functions to access variables in external scripts by name
+- Functions to test the validity of reference variables
+- SetMessageSound/Icon
+- GetFullGoldValue
+- Hotkey functions
+- Detection state functions
+- Functions to get and set services offered by NPCs including training
+- Functions to iterate over an actor's AI packages
+- Animation-related functions for actors
+- Functions to return information about an actor's Havok state
+- GetGodMode
+- CompareScripts
+- Leveled list functions
+- Input functions are now synced with Oblivion control bindings
+- Get/SetSpellHostile
+- Functions to determine if a file path is valid
+- Functions to return information about the player's level-up progress
+
+0014b:
+- Fix plugin command overwrite bug
+
+0014a: 
+- Fix SetEnchantment to work on arrows
+- %p, %q, %{} specifiers for output functions, fix bug when displaying names containing literal percent signs, increase max string length
+- Fix bug with MessageBoxEx and GetButtonPressed
+- IsOffLimits ignores evil factions
+
+0014: Message extension functions, NPC, Actor and Creature misc functions, Faction functions, Race spell functions, Is/SetHarvested, ActorValue extentions for ActiveEffect and HasEffect functions, IsPersistent, IsOffLimits, GetHorse/GetRider, Get/Mod/SetActorValueC, GetBaseActorValueC, GetCreatureSoundBase, GetNumRanks, HasModel, IsModLoaded, HasName, HasBeenPickedUp, GetRace.
+Flag for ref-walking functions to include inactive references.
+Tweaks to GetSpellMagickaCost to include Luck and skill caps.
+Fix crash when adding a ScriptEffect with no name.
+Fix crash when quest scripts call ref-walking functions during Main Menu.
+All OBSE functions now accept float, long, and short variables defined in external scripts as arguments.
+
 0013a: bug fixes for GetOpenKey, SetNthEIXXX, Ref walking functions
 
 0013:

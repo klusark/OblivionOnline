@@ -25,7 +25,7 @@ bool Cmd_MPDisconnect_Execute (COMMAND_ARGS)
 		bIsConnected = false;
 		Console_Print("You have disconnected");
 		if(bUIInitialized)
-			SetConnectionMessage("You have succesfully disconnected");
+			SetConnectionMessage("You have successfully disconnected");
 	}else{
 		Console_Print("You are not connected");
 	}

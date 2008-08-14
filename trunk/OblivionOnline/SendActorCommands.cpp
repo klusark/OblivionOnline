@@ -39,7 +39,7 @@ forward this exception.
 #include "main.h"
 #include "Entity.h"
 #include "NetSend.h"
-
+#include <math.h>
 extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEquippedFunctor, double* result);
 bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 {
@@ -66,8 +66,11 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		ent->CellID = (*g_thePlayer)->parentCell->refID;
 		NetSendCellID((*g_thePlayer)->refID,STATUS_PLAYER,ent->CellID);
 	}
-	if((*g_thePlayer)->posX != ent->PosX|| (*g_thePlayer)->posY != ent->PosY || (*g_thePlayer)->posZ != ent->PosZ || (*g_thePlayer)->rotZ != ent->RotZ || (*g_thePlayer)->rotX != ent->RotX ||(*g_thePlayer)->rotY != ent->RotY)
+	if(abs((*g_thePlayer)->posX - ent->PosX)> 1 || abs((*g_thePlayer)->posY - ent->PosY) > 1
+		|| abs((*g_thePlayer)->posZ - ent->PosZ) > 1 || abs((*g_thePlayer)->rotZ - ent->RotZ) > 1
+		|| abs((*g_thePlayer)->rotX - ent->RotX)>1 ||abs((*g_thePlayer)->rotY - ent->RotY) > 1)
 	{
+		
 		ent->PosX = (*g_thePlayer)->posX;
 		ent->PosY = (*g_thePlayer)->posY;
 		ent->PosZ = (*g_thePlayer)->posZ;
@@ -195,7 +198,12 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 						ent->CellID = ListIterator->refr->parentCell->refID;
 						NetSendCellID(ListIterator->refr->refID,Status,ListIterator->refr->parentCell->refID);
 					}
-					if(ListIterator->refr->posX != ent->PosX|| ListIterator->refr->posY != ent->PosY || ListIterator->refr->posZ != ent->PosZ || ListIterator->refr->rotZ != ent->RotZ || ListIterator->refr->rotX != ent->RotX ||ListIterator->refr->rotY != ent->RotY)
+					if(abs(ListIterator->refr->posX - ent->PosX) > 1||
+						abs(ListIterator->refr->posY - ent->PosY) > 1 ||
+						abs(ListIterator->refr->posZ - ent->PosZ) > 1 ||
+						abs(ListIterator->refr->rotZ - ent->RotZ) > 1 ||
+						abs(ListIterator->refr->rotX - ent->RotX) > 1 ||
+						abs(ListIterator->refr->rotY - ent->RotY) > 1)
 					{
 						ent->PosX = ListIterator->refr->posX;
 						ent->PosY = ListIterator->refr->posY;

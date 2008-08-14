@@ -16,18 +16,27 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "OutboundNetwork.h"
+#include "UserInterface.h"
 #include "main.h"
 
 bool OutboundNetwork::Send()
 {
-	if(bIsInitialized)
+	if(bIsConnected)
 	{
 		if(*m_Bytes_written <= 3)
 			return false;
 		EnterCriticalSection(&m_criticalsection);
 		if(m_Reliable)
 		{
-			send(ServerSocket,(const char *)m_Data,*m_Bytes_written,0);
+			int retval = send(ServerSocket,(const char *)m_Data,*m_Bytes_written,0);
+			if(retval != *m_Bytes_written)
+				_ERROR("Packet was fragmented: %u instead of %u bytes",retval,*m_Bytes_written);
+			if(SOCKET_ERROR == retval)
+			{
+				_MESSAGE("Error in TCP/IP dropping connection");
+				SetConnectionMessage("Connection Lost");
+				bIsConnected = false;
+			}
 		}
 		else
 		{

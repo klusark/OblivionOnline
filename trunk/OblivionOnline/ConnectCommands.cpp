@@ -52,6 +52,7 @@ bool Cmd_MPConnect_Execute(COMMAND_ARGS)
 			{
 				_ERROR("Couldn't connect to %s:%i %u",IP[i],ClientPort[i],WSAGetLastError());
 				Console_Print("Oblivion not connected to %s",IP[i]);
+				SetConnectionMessage("Not connected");
 			}
 			else 
 			{

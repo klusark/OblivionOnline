@@ -41,7 +41,7 @@ size_t HandleObjectChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormI
 {
 	//DO not advance the header - instead write the object data
 	FormID = pkg->ObjectIDs[GetObject(chunkdata)] = *((UINT32 *)(chunkdata + 2));
-	Status = pkg->Status[GetObject(chunkdata)] = *(chunkdata + 2 +sizeof(UINT32));
+	Status = pkg->Status[GetObject(chunkdata)] = *(unsigned char *)(chunkdata + 2 +sizeof(UINT32));
 	if(Entities.GetEntity(FormID) == NULL)
 	{
 		new Entity(FormID);

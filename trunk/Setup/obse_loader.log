@@ -1,1 +1,6 @@
-Couldn't find Oblivion.exe, make sure you're running this from the same folder as your oblivion.exe.
+crc = 7934C86C
+dll = C:\Program Files (x86)\Bethesda Softworks\Oblivion\obse_1_2_416.dll
+hookBase = 001B0000
+loadLibraryAAddr = 75234DF8
+hook thread complete
+launching oblivion

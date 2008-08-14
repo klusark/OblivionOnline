@@ -1,32 +1,44 @@
-Oblivion Script Extender v0013
-by Ian Patterson and Stephen Abel and Paul Connolly
+Oblivion Script Extender v0015
+by Ian Patterson and Stephen Abel and Paul Connelly
 (ianpatt, behippo and scruggsywuggsy the ferret)
 
 The Oblivion Script Extender, or OBSE for short, is a modder's resource that expands the scripting capabilities of Oblivion. It doesn't make any modifications to oblivion.exe, TESConstructionSet.exe, or any other files in your oblivion install, so don't worry about permanent side effects. It is compatible with the 1.2.0.416, 1.2.0.214, and 1.1.0.511 Oblivion patches, as well as the 1.0 and 1.2 versions of the Construction Set.
 
 This release adds:
-- climate manipulation functions
-- new easier-to-use input functions
-- active magic effect manipulation and querying functions
-- plugin querying API
-- cell water level functions
-- leveled list functions
-- weather manipulation functions
-- get/set travel horse
-- get/set open key
-- get creature reach, soul level and base scale
-- set/copy hair and eyes (changes not saved on NPCs)
-- get owner, get owning faction required rank
-- get parent cell owner, get parent cell owner faction required rank
-- get/set container respawns (changes not saved)
-- IsLoadDoor, GetLinkedDoor, GetTeleportCell
-- RefreshControlMap
-- GetFirstRef, GetNextRef, GetNumRefs
+- Plugin serialization API
+- Projectile Functions
+- Versions of functions such as AddItem which don't generate UI messages when called on the player
+- Functions returning information about the active mod list
+- Sound functions for objects and creatures
+- Functions returning information about an NPC's hair and eyes
+- ToggleCreatureModel
+- Functions to access variables in external scripts by name
+- Functions to test the validity of reference variables
+- SetMessageSound/Icon
+- GetFullGoldValue
+- Hotkey functions
+- Detection state functions
+- Functions to get and set services offered by NPCs including training
+- Functions to iterate over an actor's AI packages
+- Animation-related functions for actors
+- Functions to return information about an actor's Havok state
+- GetGodMode
+- CompareScripts
+- Leveled list functions
+- Input functions are now synced with Oblivion control bindings
+- Get/SetSpellHostile
+- Functions to determine if a file path is valid
+- Functions to return information about the player's level-up progress
+- Functions returning information about active UI menus
+- SetControl/SetAltControl
+- Improved Vista compatibility
 
 [ Installation ]
 
-1. Copy obse_1_1.dll, obse_1_2.dll, obse_1_2_416.dll, obse_editor_1_0.dll, obse_editor_1_2.dll, and obse_loader.exe to your Oblivion directory.
+1. Copy obse_1_1.dll, obse_1_2.dll, obse_1_2_416.dll, obse_editor_1_0.dll, obse_editor_1_2.dll, and obse_loader.exe to your Oblivion directory. This is usually in your Program Files folder, and should contain files called "Oblivion.exe" and "OblivionLauncher.exe".
 2. Run oblivion by running obse_loader.exe from the Oblivion directory.
+
+If you use a desktop shortcut to launch Oblivion normally, just update the shortcut to point to obse_loader.exe instead of oblivion.exe.
 
 Scripts written with these new commands must be written via the TESConstructionSet launched with obse_loader. Open a command prompt window, navigate to your oblivion install folder, and type "obse_loader -editor". The normal editor can open plugins with these extended scripts fine, it just can't recompile them and will give errors if you try.
 
@@ -101,8 +113,13 @@ What is the 'src' folder for?
 
 [ Contact the OBSE Team ]
 
+Before contacting us, make sure that your game launches properly without OBSE first.
+
 Ian (ianpatt) - Designer and lead programmer
 Send email to ianpatt+obse [at] gmail [dot] com. (yes, keep the + symbol, it helps me sort email)
 
 Stephen (behippo)
 Send email to gamer [at] silverlock [dot] org
+
+Paul (scruggsy)
+Send email to scruggsyW [at] comcast [dot] net

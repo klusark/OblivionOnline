@@ -65,9 +65,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib "
+				AdditionalDependencies="ws2_32.lib curllib.lib"
 				OutputFile="$(SolutionDir)\bin\$(ProjectName).exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(SolutionDir)\Lib\"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -145,9 +146,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib "
+				AdditionalDependencies="ws2_32.lib curllib.lib"
 				OutputFile="$(SolutionDir)\bin\$(ProjectName).exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="$(SolutionDir)\Lib\"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -182,28 +184,13 @@
 	<References>
 		<ProjectReference
 			ReferencedProjectIdentifier="{87EE9DA4-DE1E-4448-8324-183C98DCA588}"
-			RelativePathToProject="..\GUI_Server\libcurl\curl-7.18.0\lib\curllib.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{D398CA15-23DF-4207-9A4B-539BC8C8DFEC}"
+			RelativePathToProject="..\curl\curl-7.18.2\lib\curllib.vcproj"
 		/>
 	</References>
 	<Files>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-			<File
-				RelativePath=".\ChatIOProvider.h"
-				>
-			</File>
-			<File
-				RelativePath=".\DefaultSettings.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GlobalDefines.h"
-				>
-			</File>
-		</Filter>
 		<Filter
 			Name="Netcode"
 			>
@@ -276,6 +263,24 @@
 				</File>
 				<File
 					RelativePath=".\ScreenIOProvider.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Header Files"
+				Filter="h;hpp;hxx;hm;inl;inc;xsd"
+				UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+				>
+				<File
+					RelativePath=".\ChatIOProvider.h"
+					>
+				</File>
+				<File
+					RelativePath=".\DefaultSettings.h"
+					>
+				</File>
+				<File
+					RelativePath=".\GlobalDefines.h"
 					>
 				</File>
 			</Filter>

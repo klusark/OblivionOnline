@@ -27,15 +27,19 @@ size_t HandleCellIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormI
 	if(ent == NULL)
 		ent = new Entity(FormID);
 	ent->CellID = Value;
-	
-	TESObjectREFR *obj = (TESObjectREFR *)LookupFormByID(FormID);
-	if(obj != NULL)
-		SafeAddUpdateQueue(ent);
-	obj = (TESObjectREFR *)LookupFormByID(Value);
+	TESObjectREFR *obj = (TESObjectREFR *)LookupFormByID(Value);
 	if(obj == NULL)
 	{
 		Console_Print("Unknown Cell");
 		_ERROR("Changed into unknown cell");
+		return GetMinChunkSize(CellID) + sizeof(unsigned short);
+	}
+	
+	obj = (TESObjectREFR *)LookupFormByID(FormID);
+	if(obj != NULL)
+	{
+		if(obj->parentCell->refID != Value)
+			SafeAddUpdateQueue(ent);
 	}
 	Console_Print("Entity %u changed to cell %u",FormID,Value);
 	//TODO : See if this works

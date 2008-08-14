@@ -44,6 +44,8 @@ CEGUI::utf32 keycodeToUTF32( unsigned int scanCode);
 static const GUID GUID_SysMouse    = { 0x6F1D2B60, 0xD5A0, 0x11CF, { 0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00} };
 static const GUID GUID_SysKeyboard = { 0x6F1D2B61, 0xD5A0, 0x11CF, { 0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00} };
 #define KEYDOWN(name, key) (name[key] & 0x80)
+
+bool SendButton_Click();
 class MyDirectInputDevice8: public IDirectInputDevice8
 {
 public:
@@ -129,8 +131,16 @@ public:
 					LastKeyState[i] = keys[i];
 					if(KEYDOWN(keys,i)) // Button pressed
 					{
-						
+
 						bool  function = CEGUI::System::getSingleton().injectKeyDown(i);
+						if(i == DIK_RSHIFT || i == DIK_LSHIFT || i== DIK_BACKSPACE)
+							continue;
+						if(i == DIK_RETURN)
+						{
+							//Send chat
+							SendButton_Click();
+							continue;
+						}
 						bool  text = false;
 						CEGUI::utf32 temp = keycodeToUTF32(i);
 						_MESSAGE("Key pressed %u as key %u",i,temp);

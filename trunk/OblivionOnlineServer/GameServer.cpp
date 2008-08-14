@@ -73,15 +73,16 @@ GameServer::~GameServer(void)
 
 void GameServer::AdvertiseGameServer()
 {
+	return;
 	string RealmListURI = m_script->GetString("RealmlistURI");
 	string ServerName  = m_script->GetString("Name");
 	char  *EscapedName;
 	if(ServerName.length() != 0)
 	{
-			GetIO() <<"Beginning to list server" << endl;
+		GetIO() <<"Beginning to list server" << endl;
+		CURL *curl = curl_easy_init();
 			while(true){
 				stringstream URL;
-				CURL *curl = curl_easy_init();
 				CURLcode result;
 				if(curl)
 				{
@@ -90,14 +91,14 @@ void GameServer::AdvertiseGameServer()
 					URL << "?name=" << string( EscapedName) << "&port=" <<m_script->GetInteger("ServicePort") <<"&players=" <<
 						m_Netsystem->GetPlayerCount()<<"&maxplayers="<<MAX_PLAYERS <<"&VersionMajor="
 						<< VERSION_MAJOR << "&VersionMinor=" << VERSION_MINOR << "&HasPassword="<<0;
-
+					EscapedName = (char *)calloc(URL.str().length(),sizeof(char));
+					memcpy(EscapedName,URL.str().c_str(),URL.str().length());
 					//TODO:  If I readd passworded servers - remove the false
 					//TODO: Escape string
-					
-					curl_free(EscapedName);
-					curl_easy_setopt(curl,CURLOPT_URL,URL.str().c_str());
+					curl_easy_setopt(curl,CURLOPT_URL,EscapedName);
+					free(EscapedName);
 					result = curl_easy_perform(curl);
-					curl_easy_cleanup(curl);
+					
 				}
 				else
 				{
@@ -105,6 +106,9 @@ void GameServer::AdvertiseGameServer()
 				}
 				Sleep(120000);
 			}
+			curl_easy_cleanup(curl);
+
+			curl_free(EscapedName);
 
 	}
 	else
