@@ -92,6 +92,8 @@ public:
 			return GetMinChunkSize(ClientType);
 		case Version:
 			return HandleVersionChunk(m_GS,this,chunkdata,maxsize,FormID,status);
+		case Animation:
+			return HandleAnimationChunk(m_GS,this,chunkdata,maxsize,FormID,status);
 		default:
 			return 0;
 		}

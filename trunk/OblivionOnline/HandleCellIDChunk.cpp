@@ -26,7 +26,6 @@ size_t HandleCellIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormI
 	Entity * ent = Entities.GetEntity(FormID);
 	if(ent == NULL)
 		ent = new Entity(FormID);
-	ent->CellID = Value;
 	TESObjectREFR *obj = (TESObjectREFR *)LookupFormByID(Value);
 	if(obj == NULL)
 	{
@@ -39,7 +38,10 @@ size_t HandleCellIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormI
 	if(obj != NULL)
 	{
 		if(obj->parentCell->refID != Value)
+		{
+			ent->CellID = Value;
 			SafeAddUpdateQueue(ent);
+		}
 	}
 	Console_Print("Entity %u changed to cell %u",FormID,Value);
 	//TODO : See if this works

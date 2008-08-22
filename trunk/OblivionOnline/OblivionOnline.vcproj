@@ -572,6 +572,10 @@
 				Name="ChunkHandler"
 				>
 				<File
+					RelativePath=".\HandleAnimationChunk.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\HandleAVChunk.cpp"
 					>
 				</File>

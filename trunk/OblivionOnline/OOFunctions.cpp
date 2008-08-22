@@ -37,21 +37,6 @@ This file is part of OblivionOnline.
 
 #include "main.h"
 
-void RunScriptLine(const char *buf, bool IsTemp)
-{
-	// create a Script object
-	UInt8	scriptObjBuf[sizeof(Script)];
-	Script	* tempScriptObj = (Script *)scriptObjBuf;
-
-	void	* scriptState = GetGlobalScriptStateObj();
-
-	tempScriptObj->Constructor();
-	if (IsTemp)
-		tempScriptObj->MarkAsTemporary();
-	tempScriptObj->SetText(buf);
-	tempScriptObj->CompileAndRun(*((void **)scriptState), 1, NULL);
-	tempScriptObj->StaticDestructor();
-}
 UINT32 GetPlayerNumberFromRefID(UInt32 refID) // retrieves a player number from a refID in spawn
 {
 	bool foundID = false;

@@ -1,3 +1,4 @@
+#include "OOFileSystem.h"
 /*
 This file is part of OblivionOnline Server- An open source game server for the OblivionOnline mod
 Copyright (C)  2008   Julian Bangert
@@ -16,30 +17,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#pragma once
-class NetworkSystem;
-class Entity;
-class EntityManager;
-class GameServer;
-class EntityUpdateManager
+
+OOFileSystem::~OOFileSystem(void)
 {
-private:
-	EntityManager *m_mgr;
-	NetworkSystem *m_net;
-public:
-	EntityUpdateManager(EntityManager *mgr,NetworkSystem *netsys)
-	{
-		m_mgr = mgr;
-		m_net = netsys;
-	};
-	void OnPositionUpdate(Entity *ent);//Triggers Events and network code;
-	void OnAVUpdate(Entity *ent,unsigned char AVCode);
-	void GlobalSend(Entity *ent);
-	void OnNameUpdate(Entity *ent);
-	void OnEquipUdate(Entity *ent,unsigned char slot);
-	void OnClassUpdate(Entity *ent);
-	void OnCellChange(Entity *ent);
-	void OnRaceUpdate(Entity *ent);
-	void OnGenderUpdate(Entity *ent);
-	void OnAnimationUpdate(Entity *ent,unsigned char AnimationID);
-};
+}

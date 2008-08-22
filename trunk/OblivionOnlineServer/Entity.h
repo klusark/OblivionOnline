@@ -22,6 +22,7 @@ class Entity
 {
 private:
 	short m_ActorValues[72];
+	bool m_AnimationStatus[43];
 	UINT32 m_Equip[MAX_EQUIPSLOTS]; // Enuf 
 	float m_PosX,m_PosY,m_PosZ,m_RotX,m_RotY,m_RotZ;
 	UINT32 m_RefID,m_CellID,m_Race; 
@@ -55,6 +56,7 @@ public:
 		m_Name = name;
 		m_Class = classname;
 		memset(m_ActorValues,0,72*sizeof(short));
+		memset(m_AnimationStatus,0,72*sizeof(BYTE));
 		m_mgr->RegisterEntity(this);
 		m_mgr->GetEventSystem();
 	}
@@ -128,6 +130,12 @@ public:
 			m_ActorValues[ActorValue] = Value;		
 		m_mgr->GetUpdateMgr()->OnAVUpdate(this,ActorValue);
 	}
+	inline void SetAnimation(BYTE AnimationNo,bool Status)
+	{
+		if(AnimationNo < 43)
+			m_AnimationStatus[AnimationNo] = Status;
+		m_mgr->GetUpdateMgr()->OnAnimationUpdate(this,AnimationNo);
+	}
 	inline std::string Name()
 	{
 		return m_Name;
@@ -200,6 +208,9 @@ public:
 	inline UINT32 Race()
 	{
 		return m_Race;
+	}
+	inline bool AnimationStatus(BYTE Status){
+		return m_AnimationStatus[Status];
 	}
 	~Entity(void)
 	{

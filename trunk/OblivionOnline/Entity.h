@@ -42,6 +42,7 @@ class TESObjectREFR;
 struct Entity
 {
 	UINT32 Equip[MAX_EQUIPSLOTS];
+	bool m_AnimationStatus[43];
 	UINT32 CellID ,RaceID;
 	const UINT32 RefID;
 	TESObjectREFR *refr;
@@ -60,6 +61,7 @@ struct Entity
 		Fatigue = 1;
 		status = 0;
 		memset(EquipChanged,0,MAX_EQUIPSLOTS);
+		memset(m_AnimationStatus,0,43*sizeof(bool));
 		Entities.RegisterEntity(this);
 	}
 	~Entity()

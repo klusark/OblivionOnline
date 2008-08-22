@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 size_t HandleAVChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
 { 
 	signed short Value = *(unsigned short*)(chunkdata + 2);
-	Actor *Npc;// = Oblivion_DynamicCast(LookupFormByID(FormID),0,RTTI_TESObjectREFR,RTTI_TESNPC,0);
+	Actor *Npc = NULL;// = Oblivion_DynamicCast(LookupFormByID(FormID),0,RTTI_TESObjectREFR,RTTI_TESNPC,0);
 	if(Status < STATUS_NPC)
 	{
 		_ERROR("Health packet received for non-actor entity");

@@ -35,4 +35,5 @@ public:
 	}
 };
 
+ActorAnimData* GetActorAnimData(TESObjectREFR* callingObj);
 #endif

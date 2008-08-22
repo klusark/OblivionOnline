@@ -201,3 +201,28 @@ void EntityUpdateManager::OnEquipUdate( Entity *ent,BYTE slot )
 		}
 	}
 }
+
+void EntityUpdateManager::OnAnimationUpdate( Entity *ent,unsigned char AnimationID )
+{
+	BYTE ChunkData[2] = {AnimationID,ent->AnimationStatus(AnimationID)};
+	if(ent->Status() < STATUS_PLAYER)
+	{
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+		{
+			if( i->first != m_net->GetMasterClient())
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Equip),PkgChunk::Equip,(BYTE*)&ChunkData);
+			}
+		}
+	}
+	else
+	{
+		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)
+		{
+			if(i->first != ent->RefID())
+			{
+				m_net->SendChunk(i->second->RefID(),ent->RefID(),ent->Status(),GetMinChunkSize(PkgChunk::Equip),PkgChunk::Equip,(BYTE*)&ChunkData);
+			}
+		}
+	}
+}

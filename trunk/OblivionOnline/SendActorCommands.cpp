@@ -99,8 +99,20 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		ent->Fatigue = ActorValue;
 		NetSendActorValue((*g_thePlayer)->refID,STATUS_PLAYER,10,ActorValue);
 	}	
+	//Now synch animations
+	ActorAnimData *animdata = GetActorAnimData(*g_thePlayer);
+	for(UInt32 i = 0;i < 43u;i++)
+	{
+		bool newValue = animdata->FindAnimInRange(i);
+		if(newValue != ent->m_AnimationStatus[i])
+		{
+			ent->m_AnimationStatus[i] = newValue;
+		}
+		NetSendAnimation((*g_thePlayer)->refID,STATUS_PLAYER,i,newValue);
+	}
 	//player equip
 		
+
 	//TODO: Unroll loop maybe
 	for(i = 0; i <= 20; i++) // traverse Slots
 	{
@@ -235,6 +247,16 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 							ent->Fatigue = ActorValue;
 							NetSendActorValue(ListIterator->refr->refID,Status,10,ActorValue);
 						}	
+						animdata = GetActorAnimData(ListIterator->refr);
+						for(UInt32 i = 0;i < 43u;i++)
+						{
+							bool newValue = animdata->FindAnimInRange(i);
+							if(newValue != ent->m_AnimationStatus[i])
+							{
+								ent->m_AnimationStatus[i] = newValue;
+							}
+							NetSendAnimation((*g_thePlayer)->refID,STATUS_PLAYER,i,newValue);
+						}
 					}
 				}
 			}

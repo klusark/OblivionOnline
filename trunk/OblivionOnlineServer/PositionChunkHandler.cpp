@@ -45,3 +45,18 @@ size_t HandleCellIDChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t le
 	return GetMinChunkSize(PkgChunk::CellID) + sizeof(unsigned short);
 }
 
+size_t HandleAnimationChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)
+{
+	BYTE AnimationID,AnimStatus;
+	AnimationID = *(chunkdata + 2);
+	AnimStatus = *(chunkdata +3);
+	Entity *ent = gs->GetEntities()->GetEntity(status,FormID);
+	if(ent == NULL)
+	{
+		gs->GetIO()<<Error<<"Error handling Animation chunk: Entity not registered"<< endl;
+		return 0;
+	}	
+	ent->SetAnimation(AnimationID,AnimStatus);
+	gs->GetIO()<<LogLevel::SystemMessage<<"Animation State changed Entity : " << FormID<<" Status "<< status<< "animation "<< AnimationID << " On /Off " << AnimStatus;  
+	return GetMinChunkSize(PkgChunk::Animation);
+}

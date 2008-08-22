@@ -46,6 +46,17 @@ bool NetSendPosition( UINT32 FormID,BYTE Status,float PosX,float PosY,float PosZ
 }
 bool NetSendCellID( UINT32 FormID,BYTE Status,UINT32 CellID )
 {
-	outnet.AddChunk(FormID,Status,GetMinChunkSize(PkgChunk::CellID),PkgChunk::CellID,(BYTE *)&CellID);
+	UINT32 Data = CellID;
+	outnet.AddChunk(FormID,Status,GetMinChunkSize(PkgChunk::CellID),PkgChunk::CellID,(BYTE *)&Data);
+	return true;
+}
+bool NetSendAnimation(UINT32 FormID,BYTE Status,BYTE Animation,bool IsPlaying)
+{
+	BYTE Data[2]= 
+	{
+		Animation,
+		(IsPlaying ? 1: 0)
+	};
+	outnet.AddChunk(FormID,Status,GetMinChunkSize(PkgChunk::CellID),PkgChunk::CellID,Data);
 	return true;
 }

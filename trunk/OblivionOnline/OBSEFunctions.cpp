@@ -1,5 +1,5 @@
 #include "main.h"
-
+/* FROM OBSE */
 inline bool IsRingSlot(UInt32 slot)
 {
 	return slot == kSlot_RightRing || slot == kSlot_LeftRing;
@@ -60,4 +60,44 @@ bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEq
 		}
 	}
 	return false;
+}
+
+static MiddleHighProcess* ExtractMiddleHighProcess(TESObjectREFR* thisObj)
+{
+	MiddleHighProcess* proc = NULL;
+	MobileObject* mob = (MobileObject*)Oblivion_DynamicCast(thisObj, 0, RTTI_TESObjectREFR, RTTI_MobileObject, 0);
+	if (mob)
+		proc = (MiddleHighProcess*)Oblivion_DynamicCast(mob->process, 0, RTTI_BaseProcess, RTTI_MiddleHighProcess, 0);
+
+	return proc;
+}
+
+ActorAnimData* GetActorAnimData(TESObjectREFR* callingObj)
+{
+	if (callingObj == *g_thePlayer && (*g_thePlayer)->isThirdPerson == 0)
+		return (*g_thePlayer)->firstPersonAnimData;
+	else
+	{
+		MiddleHighProcess* proc = ExtractMiddleHighProcess(callingObj);
+		if (proc)
+			return proc->animData;
+	}
+
+	return NULL;
+}
+
+void RunScriptLine(const char *buf, bool IsTemp)
+{
+	// create a Script object
+	UInt8	scriptObjBuf[sizeof(Script)];
+	Script	* tempScriptObj = (Script *)scriptObjBuf;
+
+	void	* scriptState = GetGlobalScriptStateObj();
+
+	tempScriptObj->Constructor();
+	if (IsTemp)
+		tempScriptObj->MarkAsTemporary();
+	tempScriptObj->SetText(buf);
+	tempScriptObj->CompileAndRun(*((void **)scriptState), 1, NULL);
+	tempScriptObj->StaticDestructor();
 }

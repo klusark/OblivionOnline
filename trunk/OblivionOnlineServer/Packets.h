@@ -64,6 +64,7 @@ TYPE#	Description
 16		Client Type. BYTE : 0 if passive , 1 if master client. Passive is assumed until further notice ;)
 17		Version .	SUPER , MAJOR AND MINOR as bytes
 18		PlayerID . UINT32 Player ID - sent only by server
+19		Animation. BYTE Animation Group BYTE IsPlaying
 */
 #define PACKET_SIZE 1024
 #define PACKET_HEADER_SIZE 3
@@ -85,7 +86,8 @@ enum PkgChunk
 	Auth	 = 15,
 	ClientType = 16,
 	Version	= 17,
-	PlayerID = 18
+	PlayerID = 18,
+	Animation = 19
 };
 inline bool RequiresReliable(PkgChunk type)
 {
@@ -120,6 +122,8 @@ inline bool RequiresReliable(PkgChunk type)
 		return true;
 	case PlayerID:
 		return true;
+	case Animation:
+		return false;
 	default:
 		return false;
 	}
@@ -154,6 +158,8 @@ inline size_t GetMinChunkSize(PkgChunk type)
 		return 3*sizeof(BYTE);
 	case PlayerID:
 		return sizeof(UINT32);
+	case Animation:
+		return 2*sizeof(BYTE);
 	default:
 		return sizeof(unsigned short);
 	}
