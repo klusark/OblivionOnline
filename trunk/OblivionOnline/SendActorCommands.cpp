@@ -43,6 +43,7 @@ forward this exception.
 extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* foundEquippedFunctor, double* result);
 bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 {
+	
 	if(!bIsInitialized)
 		return true;
 	// A heavy command xD
@@ -61,11 +62,12 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 	BYTE Status;
 	if(ent == NULL)
 		ent = new Entity((*g_thePlayer)->refID);	
-	if((*g_thePlayer)->parentCell->refID != ent->CellID)
+	outnet.Send(); // Prevent Lag
+	/*if((*g_thePlayer)->parentCell->refID != ent->CellID)
 	{
 		ent->CellID = (*g_thePlayer)->parentCell->refID;
 		NetSendCellID((*g_thePlayer)->refID,STATUS_PLAYER,ent->CellID);
-	}
+	} */
 	if(abs((*g_thePlayer)->posX - ent->PosX)> 1 || abs((*g_thePlayer)->posY - ent->PosY) > 1
 		|| abs((*g_thePlayer)->posZ - ent->PosZ) > 1 || abs((*g_thePlayer)->rotZ - ent->RotZ) > 1
 		|| abs((*g_thePlayer)->rotX - ent->RotX)>1 ||abs((*g_thePlayer)->rotY - ent->RotY) > 1)
@@ -78,6 +80,8 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		ent->RotY = (*g_thePlayer)->rotY;
 		ent->RotZ = (*g_thePlayer)->rotZ;
 		NetSendPosition((*g_thePlayer)->refID,STATUS_PLAYER,ent->PosX,ent->PosY,ent->PosZ,ent->RotX,ent->RotY,ent->RotZ);
+		ent->CellID = (*g_thePlayer)->parentCell->refID;
+		NetSendCellID((*g_thePlayer)->refID,STATUS_PLAYER,ent->CellID);
 	}
 	
 	// Health , Magicka , Fatigue
@@ -205,11 +209,12 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 					if(ent == NULL)
 						ent = new Entity(ListIterator->refr->refID);
 					//Sync that object too
+					/*
 					if(ListIterator->refr->parentCell->refID != ent->CellID)
 					{
 						ent->CellID = ListIterator->refr->parentCell->refID;
-						NetSendCellID(ListIterator->refr->refID,Status,ListIterator->refr->parentCell->refID);
-					}
+						NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
+					} */
 					if(abs(ListIterator->refr->posX - ent->PosX) > 1||
 						abs(ListIterator->refr->posY - ent->PosY) > 1 ||
 						abs(ListIterator->refr->posZ - ent->PosZ) > 1 ||
@@ -224,6 +229,8 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 						ent->RotY = ListIterator->refr->rotY;
 						ent->RotZ = ListIterator->refr->rotZ;
 						NetSendPosition(ListIterator->refr->refID, Status,ent->PosX,ent->PosY,ent->PosZ,ent->RotX,ent->RotY,ent->RotZ);
+						ent->CellID = ListIterator->refr->parentCell->refID;
+						NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
 					}
 					
 					if(Status == STATUS_NPC)

@@ -84,3 +84,9 @@ void LuaSystem::DefaultSettings()
 	lua_pushcfunction(m_Lua,oolua_LoadModule);
 	lua_setglobal(m_Lua,"LoadModule");
 }
+
+void LuaSystem::PrintStatistics()
+{
+	lua_gc(m_Lua,LUA_GCCOLLECT,0);
+	m_GS->GetIO()<<SystemMessage<<"Lua Statistics: Total Script Memory used after Garbage Collection in Bytes:"<< lua_gc(m_Lua,LUA_GCCOUNT,0) * 1024 + lua_gc(m_Lua,LUA_GCCOUNTB,0) << std::endl;
+}

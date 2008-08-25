@@ -39,6 +39,7 @@ public:
 	void SetNumeric(std::string Name,lua_Number value);
 	void SetInteger(std::string Name,lua_Integer value);	
 	void SetString(std::string Name,std::string Value);
+	void PrintStatistics();
 private:
 	void DefaultSettings();
 	lua_State *m_Lua;

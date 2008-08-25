@@ -66,7 +66,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib curllib.lib"
-				OutputFile="$(SolutionDir)\bin\$(ProjectName).exe"
+				OutputFile="$(SolutionDir)\bin\$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(SolutionDir)\Lib\"
 				GenerateDebugInformation="true"
@@ -122,10 +122,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="3"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
+				Optimization="0"
+				InlineFunctionExpansion="1"
+				EnableIntrinsicFunctions="false"
+				FavorSizeOrSpeed="0"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;CURL_STATICLIB"
 				RuntimeLibrary="2"
 				OpenMP="true"
@@ -147,7 +147,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib curllib.lib"
-				OutputFile="$(SolutionDir)\bin\$(ProjectName).exe"
+				OutputFile="$(SolutionDir)\bin\$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(SolutionDir)\Lib\"
 				GenerateDebugInformation="true"
@@ -238,52 +238,6 @@
 					>
 				</File>
 			</Filter>
-			<Filter
-				Name="IO"
-				>
-				<File
-					RelativePath=".\ChatIOProvider.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\IOSystem.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\IOSystem.h"
-					>
-				</File>
-				<File
-					RelativePath=".\LogIOProvider.h"
-					>
-				</File>
-				<File
-					RelativePath=".\ScreenIOProvider.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ScreenIOProvider.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Header Files"
-				Filter="h;hpp;hxx;hm;inl;inc;xsd"
-				UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-				>
-				<File
-					RelativePath=".\ChatIOProvider.h"
-					>
-				</File>
-				<File
-					RelativePath=".\DefaultSettings.h"
-					>
-				</File>
-				<File
-					RelativePath=".\GlobalDefines.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="GameServer"
@@ -320,6 +274,10 @@
 				RelativePath=".\LuaSystem.h"
 				>
 			</File>
+			<Filter
+				Name="LuaFunctions"
+				>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Entity"
@@ -613,6 +571,46 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="IO"
+			>
+			<File
+				RelativePath=".\ChatIOProvider.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ChatIOProvider.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IOSystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IOSystem.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LogIOProvider.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ScreenIOProvider.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ScreenIOProvider.h"
+				>
+			</File>
+		</Filter>
+		<File
+			RelativePath=".\DefaultSettings.h"
+			>
+		</File>
+		<File
+			RelativePath=".\GlobalDefines.h"
+			>
+		</File>
 		<File
 			RelativePath=".\main.cpp"
 			>
