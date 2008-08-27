@@ -44,3 +44,4 @@ typedef HANDLE SEMAPHORE
 using namespace std;
 #define MAX_EQUIPSLOTS 18
 #define MAX_PLAYERS 12
+#define RESEND_TICK 50
