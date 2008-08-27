@@ -31,7 +31,7 @@ size_t HandleGenderChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormI
 size_t HandleAVChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
 size_t HandlePlayerIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
 size_t HandleClientTypeChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status);
-
+size_t HandleEquipChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status);
 //TODO:Fix that! An inline function should be somewhere else !
 inline void SafeAddUpdateQueue(Entity * ent)
 {	
