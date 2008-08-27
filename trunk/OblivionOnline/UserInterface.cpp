@@ -66,9 +66,9 @@ bool SendButton_Click()
 	CEGUI::String str("  "); //Hotfick hack  to fix the fix 2 characters disappearing
 	str.append(messagewin->getText());
 	messagewin->setText(str);
-	char Buffer[1033] = "You said:"; //1024 + 8 for "you said"
+	/*char Buffer[1033] = "You said:"; //1024 + 8 for "you said"
 	strcat(Buffer,messagewin->getText().c_str()); 
-	RegisterChatMessage(Buffer);
+	RegisterChatMessage(Buffer);*/
 	NetSendChat((BYTE*)messagewin->getText().c_str(),messagewin->getText().length());
 	messagewin->setText("");
 	return true;
@@ -140,8 +140,8 @@ void RegisterChatMessage(char *text)
 	CEGUI::Window *chatwin = CEGUI::WindowManager::getSingleton().getWindow("ChatText");
 	if(chatwin)
 	{
-		CEGUI::String message = chatwin->getText();
-		message += text;
+		CEGUI::String message(text);			
+		message += chatwin->getText();
 		chatwin->setText(message);
 	}
 	else

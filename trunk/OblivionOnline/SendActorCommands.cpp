@@ -197,7 +197,6 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 
 			while(ListIterator->next) // Iterate the loop
 			{
-				ListIterator = ListIterator->next;
 				if(ListIterator->refr->IsActor())
 					Status = STATUS_NPC; // We ignore player objects - so
 				else 
@@ -266,6 +265,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 						}
 					}
 				}
+				ListIterator = ListIterator->next;
 			}
 		}
 	}

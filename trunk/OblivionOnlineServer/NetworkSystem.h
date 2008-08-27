@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "GlobalDefines.h"
 #include <vector>
 #include <map>
-
+#include <ctime>
 #include "ChunkHandler.h"
 class NetworkSystem
 {
@@ -40,6 +40,7 @@ private:
 	std::map<UINT32,SOCKADDR_IN> m_PlayerAddresses;
 	std::map<u_long,UINT32> m_AddressPlayer; // This is the type of INET_ADDR.sin_addr.s_addr
 	BYTE m_MasterClientDefined;
+	clock_t m_sendtimer;
 	static bool ValidatePacketLength(BYTE *data,size_t reportedSize)
 	{
 		return (*(UINT16 *)((BYTE *)data+1)) < reportedSize;
@@ -57,17 +58,26 @@ public:
 	inline bool SendChunk(UINT32 PlayerID,UINT32 FormID,BYTE status,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
 		OutPacket *packet = m_OutPackets[PlayerID];
+		bool retVal;
 		if(packet == NULL)
 			return false; //TODO: Report bug
-		if(packet->AddChunk(FormID,status,ChunkSize,ChunkType,data) == true)
-			return true;
-		else
+		
+		retVal = packet->AddChunk(FormID,status,ChunkSize,ChunkType,data);
+		if( !retVal|| 
+			clock() <= m_sendtimer )	
 		{
 			if(packet->Reliable())
 				SendReliableStream(PlayerID,packet->Size(),packet->GetData());
 			else
 				SendUnreliableStream(PlayerID,packet->Size(),packet->GetData());
 			packet->Reset();
+		}
+		if(!retVal)
+		{
+			if(packet->AddChunk(FormID,status,ChunkSize,ChunkType,data) == true)
+				return true;
+			else 
+				return false;
 		}
 	}
 	inline bool Send(UINT32 PlayerID)

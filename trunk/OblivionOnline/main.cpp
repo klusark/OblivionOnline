@@ -71,7 +71,10 @@ extern bool FindEquipped(TESObjectREFR* thisObj, UInt32 slotIdx, FoundEquipped* 
 extern  "C" void OpenLog(int bOblivion)
 {
 	if(bOblivion)
+	{
 		gLog.Open("OblivionOnline.log");
+		_MESSAGE("Welcome to OblivionOnline %u.%u.%u \"%s\" %s",VERSION_SUPER,VERSION_MAJOR,VERSION_MINOR,VERSION_CODENAME,VERSION_COMMENT);
+	}
 	else
 		gLog.Open("OblivionOnline_Hook.log");
 }
@@ -82,7 +85,7 @@ int OO_Initialize()
 	WSADATA wsa;
 	rc = WSAStartup(MAKEWORD(2,0),&wsa);
 	ServerSocket = socket(AF_INET,SOCK_STREAM,0);
-	_MESSAGE("Welcome to OblivionOnline");
+	_MESSAGE("OblivionOnline connecting");
 	_MESSAGE("Initializing GUI");
 	InitialiseUI();
 	Entities.DeleteEntities();

@@ -203,6 +203,7 @@ NetworkSystem::NetworkSystem( GameServer *Server )
 	m_TCPSockets.clear();
 	m_UDPSock = socket(AF_INET,SOCK_DGRAM,0);
 	m_MasterClientDefined = 0;
+	m_sendtimer = clock() + RESEND_TICK;
 }
 
 bool NetworkSystem::SendReliableStream( UINT32 PlayerID,size_t length,BYTE *data )

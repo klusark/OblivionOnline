@@ -32,6 +32,10 @@ public:
 	{
 		return m_CurrentEventID++;
 	}
+	GameServer *GetGameServer()
+	{
+		return m_server;
+	}
 protected:
 	GameServer *m_server;	
 private:

@@ -58,7 +58,6 @@ public:
 		memset(m_ActorValues,0,72*sizeof(short));
 		memset(m_AnimationStatus,0,72*sizeof(BYTE));
 		m_mgr->RegisterEntity(this);
-		m_mgr->GetEventSystem();
 	}
 
 	

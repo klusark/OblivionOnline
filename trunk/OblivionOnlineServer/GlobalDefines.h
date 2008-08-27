@@ -21,10 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define _GLOBAL_DEFINES_H
 #include <string>
 #define VERSION_SUPER 0
-#define VERSION_MAJOR 5
-#define VERSION_MINOR 0
+#define VERSION_MAJOR 4
+#define VERSION_MINOR 8
 #define VERSION_CODENAME "Release V"
-#define VERSION_COMMENT "Server Rewrite"
+#define VERSION_COMMENT "Public Beta 1"
 #define VERSION_STREAM VERSION_SUPER<<"."<<VERSION_MAJOR<<"."<<VERSION_MINOR<<" \""<< VERSION_CODENAME << " \" "<< VERSION_COMMENT << " "  
 #ifdef WIN32
 #include <Windows.h>
@@ -44,4 +44,5 @@ typedef HANDLE SEMAPHORE
 using namespace std;
 #define MAX_EQUIPSLOTS 18
 #define MAX_PLAYERS 12
+/* IN CLOCK_TIMERS */
 #define RESEND_TICK 50
