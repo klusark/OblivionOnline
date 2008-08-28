@@ -94,5 +94,5 @@ size_t HandleAnimationChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 Fo
 	{
 		PlayGroup(FormID,AnimationID);
 	}
-	return GetMinChunkSize(Animation);
+	return GetMinChunkSize(Animation) + sizeof(unsigned short);
 }

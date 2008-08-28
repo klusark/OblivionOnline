@@ -537,26 +537,6 @@
 			</Filter>
 		</Filter>
 		<Filter
-			Name="Extendibility"
-			>
-			<File
-				RelativePath=".\Module.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Module.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ModuleManager.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ModuleManager.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Event"
 			>
 			<File
@@ -571,6 +551,26 @@
 				RelativePath=".\EventSystem.h"
 				>
 			</File>
+			<Filter
+				Name="Extendibility"
+				>
+				<File
+					RelativePath=".\Module.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Module.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ModuleManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ModuleManager.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="IO"

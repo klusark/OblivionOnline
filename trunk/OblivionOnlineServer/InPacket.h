@@ -116,7 +116,7 @@ public:
 			
 			if(retval == 0)
 			{
-				//m_GS->GetIO()<<Warning<<"Ignoring rest of packet "<< endl;
+				m_GS->GetIO()<<Warning<<"Ignoring rest of packet : Wasted Chunks " << (unsigned short)ChunkCount - i << " of "<< (unsigned short)ChunkCount << "Bytes : " << (unsigned short)m_streamlen << endl;
 				return;
 			}
 			m_current += retval;

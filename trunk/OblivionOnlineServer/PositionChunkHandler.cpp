@@ -58,5 +58,5 @@ size_t HandleAnimationChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t
 	}	
 	ent->SetAnimation(AnimationID,AnimStatus);
 	//gs->GetIO()<<LogLevel::SystemMessage<<"Animation State changed Entity : " << FormID<<" Status "<< (unsigned short)status<< "animation "<< AnimationID << " On /Off " << AnimStatus;  
-	return GetMinChunkSize(PkgChunk::Animation);
+	return GetMinChunkSize(PkgChunk::Animation) + sizeof(unsigned short);
 }
