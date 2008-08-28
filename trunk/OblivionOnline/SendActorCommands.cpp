@@ -103,6 +103,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		ent->Fatigue = ActorValue;
 		NetSendActorValue((*g_thePlayer)->refID,STATUS_PLAYER,10,ActorValue);
 	}	
+	/*
 	//Now synch animations
 	ActorAnimData *animdata = GetActorAnimData(*g_thePlayer);
 	for(UInt32 i = 0;i < 43u;i++)
@@ -132,6 +133,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 			ent->Equip[i] = *itemRef;
 		}
 	}
+	*/
 	//Health of the other players
 	for(i = 0;i < MAXCLIENTS ;i++)
 	{
@@ -193,77 +195,85 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		for(std::list <TESObjectCELL *>::iterator i = CellStack.begin();i != CellStack.end(); i++)
 		{
 			TESObjectCELL * Cell = *i;
-			TESObjectCELL::ObjectListEntry * ListIterator = &(Cell->objectList);		
+			TESObjectCELL::ObjectListEntry * ListIterator = &Cell->objectList;		
 
-			while(ListIterator && ListIterator->refr) // Iterate the loop
+			while(ListIterator->next) // Iterate the loop
 			{
 				if(ListIterator->refr->IsActor())
-				{
 					Status = STATUS_NPC; // We ignore player objects - so
-				
-					if(GetPlayerNumberFromRefID(ListIterator->refr->refID) == -1) // Do not synchronise objects used by OblivionOnline
+				else
+				{
+					ListIterator = ListIterator->next;
+					continue;
+				}
+
+				if(GetPlayerNumberFromRefID(ListIterator->refr->refID) == -1) // Do not synchronise objects used by OblivionOnline
+				{
+					ent = Entities.GetEntity(ListIterator->refr->refID);
+					
+					if(ent == NULL)
+						ent = new Entity(ListIterator->refr->refID);
+					//Sync that object too
+					/*
+					if(ListIterator->refr->parentCell->refID != ent->CellID)
 					{
-						ent = Entities.GetEntity(ListIterator->refr->refID);
-						
-						if(ent == NULL)
-							ent = new Entity(ListIterator->refr->refID);
-						//Sync that object too
+						ent->CellID = ListIterator->refr->parentCell->refID;
+						NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
+					} */
+					if(abs(ListIterator->refr->posX - ent->PosX) > 1||
+						abs(ListIterator->refr->posY - ent->PosY) > 1 ||
+						abs(ListIterator->refr->posZ - ent->PosZ) > 1 ||
+						abs(ListIterator->refr->rotZ - ent->RotZ) > 1 ||
+						abs(ListIterator->refr->rotX - ent->RotX) > 1 ||
+						abs(ListIterator->refr->rotY - ent->RotY) > 1)
+					{
+						ent->PosX = ListIterator->refr->posX;
+						ent->PosY = ListIterator->refr->posY;
+						ent->PosZ = ListIterator->refr->posZ;
+						ent->RotX = ListIterator->refr->rotX;
+						ent->RotY = ListIterator->refr->rotY;
+						ent->RotZ = ListIterator->refr->rotZ;
+						NetSendPosition(ListIterator->refr->refID, Status,ent->PosX,ent->PosY,ent->PosZ,ent->RotX,ent->RotY,ent->RotZ);
+						ent->CellID = ListIterator->refr->parentCell->refID;
+						NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
+					}
+					
+					if(Status == STATUS_NPC)
+					{
+						actor = (Actor *)LookupFormByID(ListIterator->refr->refID);
+						ActorValue = actor->GetActorValue(8);
+						if(ActorValue != ent->Health)
+						{
+							ent->Health = ActorValue;
+							NetSendActorValue(ListIterator->refr->refID,Status,8,ActorValue);
+						}
+						ActorValue = actor->GetActorValue(9);
+						if(ActorValue != ent->Magicka)
+						{
+							ent->Magicka = ActorValue;
+							NetSendActorValue(ListIterator->refr->refID,Status,9,ActorValue);
+						}
+						ActorValue = actor->GetActorValue(10);
+						if(ActorValue != ent->Fatigue)
+						{
+							ent->Fatigue = ActorValue;
+							NetSendActorValue(ListIterator->refr->refID,Status,10,ActorValue);
+						}	
 						/*
-						if(ListIterator->refr->parentCell->refID != ent->CellID)
+						animdata = GetActorAnimData(ListIterator->refr);
+						if(animdata != NULL)
+						{for(UInt32 i = 0;i < 43u;i++)
 						{
-							ent->CellID = ListIterator->refr->parentCell->refID;
-							NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
-						} */
-						if(abs(ListIterator->refr->posX - ent->PosX) > 1||
-							abs(ListIterator->refr->posY - ent->PosY) > 1 ||
-							abs(ListIterator->refr->posZ - ent->PosZ) > 1 ||
-							abs(ListIterator->refr->rotZ - ent->RotZ) > 1 ||
-							abs(ListIterator->refr->rotX - ent->RotX) > 1 ||
-							abs(ListIterator->refr->rotY - ent->RotY) > 1)
-						{
-							ent->PosX = ListIterator->refr->posX;
-							ent->PosY = ListIterator->refr->posY;
-							ent->PosZ = ListIterator->refr->posZ;
-							ent->RotX = ListIterator->refr->rotX;
-							ent->RotY = ListIterator->refr->rotY;
-							ent->RotZ = ListIterator->refr->rotZ;
-							NetSendPosition(ListIterator->refr->refID, Status,ent->PosX,ent->PosY,ent->PosZ,ent->RotX,ent->RotY,ent->RotZ);
-							ent->CellID = ListIterator->refr->parentCell->refID;
-							NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
+							bool newValue = animdata->FindAnimInRange(i);
+							if(newValue != ent->m_AnimationStatus[i])
+							{
+								ent->m_AnimationStatus[i] = newValue;
+							}
+							NetSendAnimation((*g_thePlayer)->refID,STATUS_PLAYER,i,newValue);
 						}
+						*/
 						
-						if(Status == STATUS_NPC)
-						{
-							actor = (Actor *)LookupFormByID(ListIterator->refr->refID);
-							ActorValue = actor->GetActorValue(8);
-							if(ActorValue != ent->Health)
-							{
-								ent->Health = ActorValue;
-								NetSendActorValue(ListIterator->refr->refID,Status,8,ActorValue);
-							}
-							ActorValue = actor->GetActorValue(9);
-							if(ActorValue != ent->Magicka)
-							{
-								ent->Magicka = ActorValue;
-								NetSendActorValue(ListIterator->refr->refID,Status,9,ActorValue);
-							}
-							ActorValue = actor->GetActorValue(10);
-							if(ActorValue != ent->Fatigue)
-							{
-								ent->Fatigue = ActorValue;
-								NetSendActorValue(ListIterator->refr->refID,Status,10,ActorValue);
-							}	
-							animdata = GetActorAnimData(ListIterator->refr);
-							for(UInt32 i = 0;i < 43u;i++)
-							{
-								bool newValue = animdata->FindAnimInRange(i);
-								if(newValue != ent->m_AnimationStatus[i])
-								{
-									ent->m_AnimationStatus[i] = newValue;
-								}
-								NetSendAnimation((*g_thePlayer)->refID,STATUS_PLAYER,i,newValue);
-							}
-						}
+						
 					}
 				}
 				ListIterator = ListIterator->next;

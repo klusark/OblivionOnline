@@ -38,11 +38,14 @@ forward this exception.
 #include "ChunkHandler.h"
 size_t HandleNameChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
 { 
+	/*
 	std::string Name = ReadANSIString(chunkdata +2,len -2);
 	TESObjectREFR *Npc;
 	if(Status == STATUS_PLAYER)
 		FormID = GetPlayerFormID(FormID); // Get a player representation
 	Npc = (TESObjectREFR *)LookupFormByID(FormID);
 	Npc->SetName(Name.c_str());
-	return 2+Name.length() + sizeof(unsigned short);
+	*/
+	//return 2+Name.length() + sizeof(unsigned short);
+	return 0;
 }

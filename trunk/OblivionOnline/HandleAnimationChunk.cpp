@@ -78,6 +78,7 @@ void PlayGroup(UInt32 FormID,BYTE groupID)
 }
 size_t HandleAnimationChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE Status)
 { 
+	/*
 	TESObjectREFR *obj;
 	BYTE AnimationID,Value;
 	AnimationID = *(chunkdata + 2);
@@ -94,5 +95,6 @@ size_t HandleAnimationChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 Fo
 	{
 		PlayGroup(FormID,AnimationID);
 	}
+	*/
 	return GetMinChunkSize(Animation) + sizeof(unsigned short);
 }
