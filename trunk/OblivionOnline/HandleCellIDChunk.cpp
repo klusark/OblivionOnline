@@ -37,7 +37,9 @@ size_t HandleCellIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormI
 	obj = (TESObjectREFR *)LookupFormByID(FormID);
 	if(obj != NULL)
 	{
-		if(obj->parentCell->refID != Value)
+		
+
+		if(obj->parentCell == NULL || obj->parentCell->refID != Value)
 		{
 			ent->CellID = Value;
 			SafeAddUpdateQueue(ent);

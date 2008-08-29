@@ -67,7 +67,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib curllib.lib"
-				OutputFile="$(SolutionDir)\bin\$(ConfigurationName)\$(ProjectName).dll"
+				OutputFile="$(SolutionDir)\bin\$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(SolutionDir)\Lib\"
 				GenerateDebugInformation="true"
@@ -148,7 +148,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib curllib.lib"
-				OutputFile="$(SolutionDir)\bin\$(ConfigurationName)\$(ProjectName).dll"
+				OutputFile="$(SolutionDir)\bin\$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(SolutionDir)\Lib\"
 				GenerateDebugInformation="true"
