@@ -84,14 +84,39 @@ bool Cmd_MPGetRotZ_Execute (COMMAND_ARGS)
 		return true;
 	if (!thisObj)
 	{
-		Console_Print("Error, no reference given for MPGetPosX");
+		Console_Print("Error, no reference given for MPGetRotZ");
 		return true;
 	}
 	Entity *ent = Entities.GetEntity(thisObj->refID);
-	*result = ent->PosX;
+	*result = ent->RotZ;
 	return true;
 }
-
+bool Cmd_MPGetRotY_Execute (COMMAND_ARGS)
+{
+	if(!bIsInitialized)
+		return true;
+	if (!thisObj)
+	{
+		Console_Print("Error, no reference given for MPGetRotY");
+		return true;
+	}
+	Entity *ent = Entities.GetEntity(thisObj->refID);
+	*result = ent->RotY;
+	return true;
+}
+bool Cmd_MPGetRotX_Execute (COMMAND_ARGS)
+{
+	if(!bIsInitialized)
+		return true;
+	if (!thisObj)
+	{
+		Console_Print("Error, no reference given for MPGetRotX");
+		return true;
+	}
+	Entity *ent = Entities.GetEntity(thisObj->refID);
+	*result = ent->RotX;
+	return true;
+}
 bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 {
 	if(!bIsInitialized)
@@ -102,7 +127,7 @@ bool Cmd_MPGetIsInInterior_Execute (COMMAND_ARGS)
 		return true;
 	}
 	Entity *ent = Entities.GetEntity(thisObj->refID);
-	TESObjectCELL *obj = (TESObjectCELL *)Oblivion_DynamicCast(LookupFormByID(ent->CellID),0,RTTI_TESObjectCELL,RTTI_TESForm,0);	
+	//TESObjectCELL *obj = (TESObjectCELL *)Oblivion_DynamicCast(LookupFormByID(ent->CellID),0,RTTI_TESForm,RTTI_TESObjectCELL,0);	
 	if(obj != NULL)
 	{
 		*result = 0;
@@ -192,7 +217,28 @@ CommandInfo kMPGetRotZCommand =
 	NULL,	// has no param table
 	Cmd_MPGetRotZ_Execute
 };
-
+CommandInfo kMPGetRotYCommand =
+{
+	"MPGetRotY",
+	"MPGRY",
+	0,
+	"Gets an objects Y rotation",
+	0,		// requires parent obj
+	0,		// has no param
+	NULL,	// has no param table
+	Cmd_MPGetRotY_Execute
+};
+CommandInfo kMPGetRotXCommand =
+{
+	"MPGetRotX",
+	"MPGRX",
+	0,
+	"Gets an objects X rotation",
+	0,		// requires parent obj
+	0,		// has no param
+	NULL,	// has no param table
+	Cmd_MPGetRotX_Execute
+};
 CommandInfo kMPGetCellCommand =
 {
 	"MPGetCell",

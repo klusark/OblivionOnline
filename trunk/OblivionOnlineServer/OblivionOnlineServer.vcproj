@@ -123,12 +123,14 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				InlineFunctionExpansion="1"
-				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="0"
+				Optimization="3"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;CURL_STATICLIB"
+				StringPooling="true"
 				RuntimeLibrary="2"
+				FloatingPointModel="2"
 				OpenMP="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"

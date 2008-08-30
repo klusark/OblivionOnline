@@ -29,7 +29,7 @@ size_t HandlePositionChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t 
 		gs->GetIO()<<Error<<"Error handling position chunk: Entity not registered"<< endl;
 		return 0;
 	}	
-	gs->GetIO()<<GameMessage<<"Entity "<<FormID<<" updated its position to "<<floats[0]<<' '<<floats[1]<<' '<<floats[2]<<' '<<floats[3]<<' '<<floats[4]<<' '<<floats[5]<<"in cell "<<ent->CellID()<<endl;
+	//gs->GetIO()<<GameMessage<<"Entity "<<FormID<<" updated its position to "<<floats[0]<<' '<<floats[1]<<' '<<floats[2]<<' '<<floats[3]<<' '<<floats[4]<<' '<<floats[5]<<"in cell "<<ent->CellID()<<endl;
 	ent->MoveNRot(floats[0],floats[1],floats[2],floats[3],floats[4],floats[5]);
 	return GetMinChunkSize(PkgChunk::Position) + sizeof(unsigned short);
 }

@@ -140,7 +140,8 @@ void RegisterChatMessage(char *text)
 	CEGUI::Window *chatwin = CEGUI::WindowManager::getSingleton().getWindow("ChatText");
 	if(chatwin)
 	{
-		CEGUI::String message(text);			
+		CEGUI::String message(text);
+		message += "\n";
 		message += chatwin->getText();
 		chatwin->setText(message);
 	}

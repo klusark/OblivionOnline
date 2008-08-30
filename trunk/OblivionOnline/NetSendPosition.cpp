@@ -47,7 +47,6 @@ bool NetSendPosition( UINT32 FormID,BYTE Status,float PosX,float PosY,float PosZ
 bool NetSendCellID( UINT32 FormID,BYTE Status,UINT32 CellID )
 {
 	UINT32 Data = CellID;
-	_MESSAGE("Sent out CellID FormID %u,Status %u,CellID %u",FormID,Status,CellID);
 	outnet.AddChunk(FormID,Status,GetMinChunkSize(PkgChunk::CellID),PkgChunk::CellID,(BYTE *)&Data);
 	return true;
 }

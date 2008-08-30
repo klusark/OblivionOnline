@@ -133,26 +133,6 @@ DWORD WINAPI RecvThread(LPVOID Params)
 	return 0;
 }
 
-//-----------------------------
-//---Begin Command Functions---
-//-----------------------------
-
-
-
-
-//---------------------------
-//---End Command Functions---
-//---------------------------
-
-//-----------------------------------
-//---Begin CommandInfo Enumeration---
-//-----------------------------------
-
-
-
-//---------------------------------
-//---End CommandInfo Enumeration---
-//---------------------------------
 
 extern "C" {
 
@@ -210,6 +190,8 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	obse->RegisterCommand(&kMPGetPosYCommand);
 	obse->RegisterCommand(&kMPGetPosZCommand);
 	obse->RegisterCommand(&kMPGetRotZCommand);
+	obse->RegisterCommand(&kMPGetRotYCommand);
+	obse->RegisterCommand(&kMPGetRotXCommand);
 	obse->RegisterCommand(&kMPGetCellCommand);
 	obse->RegisterCommand(&kMPGetIsInInteriorCommand);
 	//Debug

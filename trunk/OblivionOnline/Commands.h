@@ -44,6 +44,8 @@ extern CommandInfo kMPGetPosXCommand;
 extern CommandInfo kMPGetPosYCommand;
 extern CommandInfo kMPGetPosZCommand;
 extern CommandInfo kMPGetRotZCommand;
+extern CommandInfo kMPGetRotYCommand;
+extern CommandInfo kMPGetRotXCommand;
 extern CommandInfo kMPGetCellCommand;
 
 extern CommandInfo kMPGetIsInInteriorCommand;

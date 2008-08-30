@@ -53,7 +53,6 @@ bool Cmd_MPSendChat_Execute (COMMAND_ARGS)
 
 bool Cmd_MPGetDebugData_Execute (COMMAND_ARGS)
 {
-	Console_Print("%f %f %f %u",((Actor *)LookupFormByID(SpawnID[0]))->posX,((Actor *)LookupFormByID(SpawnID[0]))->posY,((Actor *)LookupFormByID(SpawnID[0]))->posZ,((Actor *)LookupFormByID(SpawnID[0]))->parentCell->refID);
 	return true;
 }
 

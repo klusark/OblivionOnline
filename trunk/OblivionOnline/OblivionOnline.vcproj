@@ -125,9 +125,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				InlineFunctionExpansion="1"
-				EnableIntrinsicFunctions="false"
+				Optimization="3"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="&quot;$(DXSDK_DIR)\Include\&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(SolutionDir)\..\obse\obse&quot;;&quot;$(SolutionDir)\..\obse\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;DIRECT3DHOOK_EXPORTS;OBLIVION;OBLIVION_VERSION=0x010201A0;CRT_SECURE_NO_WARNINGS;CEGUI_STATIC;$(NOINHERIT)"
@@ -163,7 +163,7 @@
 				ModuleDefinitionFile="exports.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
-				OptimizeReferences="2"
+				OptimizeReferences="1"
 				EnableCOMDATFolding="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
