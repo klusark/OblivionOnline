@@ -72,7 +72,8 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		|| abs((*g_thePlayer)->posZ - ent->PosZ) > 1 || abs((*g_thePlayer)->rotZ - ent->RotZ) > 1
 		|| abs((*g_thePlayer)->rotX - ent->RotX)>1 ||abs((*g_thePlayer)->rotY - ent->RotY) > 1)
 	{
-		
+		ent->CellID = (*g_thePlayer)->parentCell->refID;
+		NetSendCellID((*g_thePlayer)->refID,STATUS_PLAYER,ent->CellID);
 		ent->PosX = (*g_thePlayer)->posX;
 		ent->PosY = (*g_thePlayer)->posY;
 		ent->PosZ = (*g_thePlayer)->posZ;
@@ -80,8 +81,7 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		ent->RotY = (*g_thePlayer)->rotY;
 		ent->RotZ = (*g_thePlayer)->rotZ;
 		NetSendPosition((*g_thePlayer)->refID,STATUS_PLAYER,ent->PosX,ent->PosY,ent->PosZ,ent->RotX,ent->RotY,ent->RotZ);
-		ent->CellID = (*g_thePlayer)->parentCell->refID;
-		NetSendCellID((*g_thePlayer)->refID,STATUS_PLAYER,ent->CellID);
+		
 	}
 	
 	// Health , Magicka , Fatigue
@@ -227,6 +227,8 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 						abs(ListIterator->refr->rotX - ent->RotX) > 1 ||
 						abs(ListIterator->refr->rotY - ent->RotY) > 1)
 					{
+						ent->CellID = ListIterator->refr->parentCell->refID;
+						NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
 						ent->PosX = ListIterator->refr->posX;
 						ent->PosY = ListIterator->refr->posY;
 						ent->PosZ = ListIterator->refr->posZ;
@@ -234,8 +236,6 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 						ent->RotY = ListIterator->refr->rotY;
 						ent->RotZ = ListIterator->refr->rotZ;
 						NetSendPosition(ListIterator->refr->refID, Status,ent->PosX,ent->PosY,ent->PosZ,ent->RotX,ent->RotY,ent->RotZ);
-						ent->CellID = ListIterator->refr->parentCell->refID;
-						NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
 					}
 					
 					if(Status == STATUS_NPC)

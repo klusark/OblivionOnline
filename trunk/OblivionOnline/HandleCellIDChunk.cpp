@@ -33,16 +33,13 @@ size_t HandleCellIDChunk(InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormI
 		_ERROR("Changed into unknown cell");
 		return GetMinChunkSize(CellID) + sizeof(unsigned short);
 	}
-	
 	obj = (TESObjectREFR *)LookupFormByID(FormID);
 	if(obj != NULL)
 	{
-		
-
-		if(obj->parentCell == NULL || obj->parentCell->refID != Value)
+		if(ent->CellID != Value)
 		{
-			ent->CellID = Value;
 			SafeAddUpdateQueue(ent);
+			ent->CellID = Value;	
 		}
 	}
 	Console_Print("Entity %u changed to cell %u",FormID,Value);
