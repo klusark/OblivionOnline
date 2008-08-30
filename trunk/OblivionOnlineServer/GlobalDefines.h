@@ -44,5 +44,6 @@ typedef HANDLE SEMAPHORE
 using namespace std;
 #define MAX_EQUIPSLOTS 18
 #define MAX_PLAYERS 12
-/* IN CLOCK_TIMERS */
-#define RESEND_TICK 50
+/* IN CLOCK_TIMERS 
+1000/60 - (FPS maximum you can get with VSynch) */
+#define RESEND_TICK 16

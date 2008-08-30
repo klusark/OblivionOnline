@@ -49,23 +49,7 @@ public:
 	{
 		return m_Netsystem;
 	}
-	void DisplayBootupMessage()
-	{
-		*m_IO << "\nOblivionOnline Server version "<<VERSION_STREAM << "\n (c) 2008 by Julian Bangert \n\n" <<
-			"This program is free software: you can redistribute it and/or modify\n" <<
-			"it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE as published by the \n" <<
-			"Free Software Foundation, either version 3 of the License, or (at your option) \n" <<
-			"any later version.\n" <<
-
-			"This program is distributed in the hope that it will be useful,\n" <<
-			"but WITHOUT ANY WARRANTY; without even the implied warranty of\n" <<
-			"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" <<
-			"GNU AFFERO GENERAL PUBLIC LICENSE for more details.\n" <<
-			"You should have received a copy of the GNU AFFERO GENERAL PUBLIC LICENSE\n" <<
-			"along with this program.  If not, see <http://www.gnu.org/licenses/>.\n" << endl;
-		*m_IO << "Please note that you have to offer the source codes to this server software on the web for the users to download" << endl;
-
-	}
+	void DisplayBootupMessage();
 	void AdvertiseGameServer();
 protected:
 	LuaSystem *m_script;

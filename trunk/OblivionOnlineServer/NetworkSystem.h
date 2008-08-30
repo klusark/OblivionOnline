@@ -64,7 +64,7 @@ public:
 		
 		retVal = packet->AddChunk(FormID,status,ChunkSize,ChunkType,data);
 		if( !retVal|| 
-			clock() <= m_sendtimer )	
+			clock() <= packet->SendTimer )	
 		{
 			if(packet->Reliable())
 				SendReliableStream(PlayerID,packet->Size(),packet->GetData());

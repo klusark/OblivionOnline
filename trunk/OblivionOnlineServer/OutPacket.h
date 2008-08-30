@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include "GlobalDefines.h"
 #include "Packets.h"
-
+#include <ctime>
 class OutPacket
 {
 private:
@@ -119,6 +119,7 @@ private:
 		return i;
 	}
 public:
+	clock_t SendTimer;
 	OutPacket(UINT32 Player)
 	{
 		memset(m_ObjectID,0xffffffff,sizeof(UINT32)*MAX_OBJECTS_PER_PACKET);
@@ -146,6 +147,7 @@ public:
 		*m_Chunks_written = 0;
 		m_Reliable = false;
 		m_ObjectsWritten = 0;
+		SendTimer = clock() + RESEND_TICK;
 	}
 	inline bool AddChunk(UINT32 FormID,BYTE Status,size_t ChunkSize,PkgChunk ChunkType,BYTE *data)
 	{
