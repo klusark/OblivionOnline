@@ -47,3 +47,14 @@ bool NetSendChat(BYTE *message,size_t len)
 	delete buf;
 	return true;
 }
+bool NetSendName(UINT32 FormID,BYTE Status,BYTE *name,size_t len)
+{
+	byte *buf = new BYTE[len + 2];
+	*(UINT16 *)buf = (UINT16)len;
+	memcpy(buf +2,name,len);
+	outnet.Send(); // We make it 
+	outnet.AddChunk(FormID,Status,len +2,Chat,buf);
+	outnet.Send();
+	delete buf;
+	return true;
+}

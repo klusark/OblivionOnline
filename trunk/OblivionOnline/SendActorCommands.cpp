@@ -73,7 +73,8 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 		|| abs((*g_thePlayer)->rotX - ent->RotX)>1 ||abs((*g_thePlayer)->rotY - ent->RotY) > 1)
 	{
 		ent->CellID = (*g_thePlayer)->parentCell->refID;
-		NetSendCellID((*g_thePlayer)->refID,STATUS_PLAYER,ent->CellID);
+		ent->IsInInterior = (*g_thePlayer)->parentCell->worldSpace == NULL;
+		NetSendCellID((*g_thePlayer)->refID,STATUS_PLAYER,ent->CellID,ent->IsInInterior);
 		ent->PosX = (*g_thePlayer)->posX;
 		ent->PosY = (*g_thePlayer)->posY;
 		ent->PosZ = (*g_thePlayer)->posZ;
@@ -228,7 +229,8 @@ bool Cmd_MPSendActor_Execute (COMMAND_ARGS)
 						abs(ListIterator->refr->rotY - ent->RotY) > 1)
 					{
 						ent->CellID = ListIterator->refr->parentCell->refID;
-						NetSendCellID(ListIterator->refr->refID,Status,ent->CellID);
+						ent->IsInInterior = ListIterator->refr->parentCell->worldSpace == NULL;
+						NetSendCellID(ListIterator->refr->refID,Status,ent->CellID,ent->IsInInterior);
 						ent->PosX = ListIterator->refr->posX;
 						ent->PosY = ListIterator->refr->posY;
 						ent->PosZ = ListIterator->refr->posZ;

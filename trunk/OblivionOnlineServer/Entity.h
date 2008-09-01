@@ -27,7 +27,7 @@ private:
 	float m_PosX,m_PosY,m_PosZ,m_RotX,m_RotY,m_RotZ;
 	UINT32 m_RefID,m_CellID,m_Race; 
 	bool m_Actor,m_GlobalSynch,m_Female;//Player : is a player , Actor: is an actor , GlobalSynch: Is important for quests and must therefore always be synched
-	bool m_TriggerEvents;
+	bool m_TriggerEvents,m_IsInInterior;
 	BYTE  m_Status;
 	EntityManager *m_mgr;
 	Entity *m_MoveEvent,*m_ActorValueEvent,*CellChangeEvent,*m_DeathEvent;
@@ -37,7 +37,7 @@ public:
 	Entity(EntityManager *mgr,UINT32 refID,BYTE Status,bool TriggerEvents = false,bool GlobalSynch= false,
 		float posX = 0 , float posY = 0 , float posZ = 0,UINT32 CellID = 0,
 		float rotX = 0 , float rotY = 0 , float rotZ = 0,short health = 0,short magicka = 0 , short fatigue = 0 ,
-		bool female = false,UINT32 race = 0,std::string name = std::string(""),std::string classname = std::string(""))
+		bool female = false,UINT32 race = 0,std::string name = std::string("Unnamed"),std::string classname = std::string(""),bool IsInInterior = false)
 	{
 		m_mgr = mgr;
 		m_RefID = refID;
@@ -55,6 +55,7 @@ public:
 		m_Race = race;
 		m_Name = name;
 		m_Class = classname;
+		m_IsInInterior = IsInInterior;
 		memset(m_ActorValues,0,72*sizeof(short));
 		memset(m_AnimationStatus,0,72*sizeof(BYTE));
 		m_mgr->RegisterEntity(this);
@@ -92,9 +93,10 @@ public:
 		m_Female = value;
 		m_mgr->GetUpdateMgr()->OnGenderUpdate(this);
 	}
-	inline void SetCell(UINT32 value)
+	inline void SetCell(UINT32 value,bool IsInInterior)
 	{
 		m_CellID = value;
+		m_IsInInterior = IsInInterior;
 		m_mgr->GetUpdateMgr()->OnCellChange(this);
 	}
 	inline void SetGlobalSynch(bool value)
@@ -156,6 +158,10 @@ public:
 	inline UINT32 RefID()
 	{
 		return m_RefID;
+	}
+	inline bool IsInInterior()
+	{
+		return m_IsInInterior;
 	}
 	inline UINT32 Equip(UINT32 slot)
 	{

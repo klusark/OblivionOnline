@@ -50,6 +50,7 @@ struct Entity
 	bool EquipChanged[MAX_EQUIPSLOTS]; //TODO: CHANGE THAT 
 	BYTE status;
 	double PosX,PosY,PosZ,RotX,RotY,RotZ;
+	bool IsInInterior; /* Had to carry that over */
 	Entity(UINT32 refID)
 		:RefID(refID)
 	{
@@ -60,6 +61,7 @@ struct Entity
 		Magicka = 1;
 		Fatigue = 1;
 		status = 0;
+		IsInInterior = false;
 		memset(EquipChanged,0,MAX_EQUIPSLOTS);
 		memset(m_AnimationStatus,0,43*sizeof(bool));
 		Entities.RegisterEntity(this);

@@ -41,7 +41,7 @@ size_t HandleCellIDChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t le
 		gs->GetIO()<<Error<<"Error handling CellID chunk: Entity not registered"<< endl;
 		return 0;
 	}	
-	ent->SetCell(*(UINT32*)(chunkdata +2));
+	ent->SetCell(*(UINT32*)(chunkdata +2),(*(chunkdata + 6)) == 1);
 	return GetMinChunkSize(PkgChunk::CellID) + sizeof(unsigned short);
 }
 

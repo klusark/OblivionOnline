@@ -47,7 +47,8 @@ TYPE#	Description
 0		Bad packet
 1		ObjectID chunk - contains a single UINT32 field which specifies the FormID of this object. After that 1 byte to specify the type: 0 object, 1 actor , 2 player
 2		Position . 6 floats : PosX, PosY, PosZ ,RotX,RotY,RotZ
-3		CellID . One UINT32
+3		CellID . One UINT32. BYTE IsInInterior ( is that a worldspace or a cell? )
+
 		EMPTY(old Health)
 		EMPTY(old Magicka)
 		EMPTY(old Fatigue)
@@ -137,7 +138,7 @@ inline size_t GetMinChunkSize(PkgChunk type)
 	case	Position:
 		return 6*sizeof(float);
 	case CellID:
-		return sizeof(UINT32);
+		return sizeof(UINT32) + sizeof(BYTE);
 	case Gender:
 		return sizeof(BYTE);
 	case Race:

@@ -39,6 +39,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_5C29697357C547069FCD9D6617819020"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7B4D0ECF81CB41B98A8FEFBF63053182"
+        "OwnerKey" = "8:_DB4E0A0AD1A349658CB58B64B693F1C5"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_896BA777CEA0402A83B452039F542FFB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -87,20 +99,14 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_EBAA06C4BACE4494AA7A75CF4403F3BB"
+        "OwnerKey" = "8:_7B4D0ECF81CB41B98A8FEFBF63053182"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_EC172A4081FA4025A36F93FD8A820CD4"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_ECFD872E5DBB4CA49E5B52AC40718D4B"
-        "OwnerKey" = "8:_DB4E0A0AD1A349658CB58B64B693F1C5"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F09E70FA799849E288DA10D1CEAC1935"
-        "OwnerKey" = "8:_ECFD872E5DBB4CA49E5B52AC40718D4B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -260,6 +266,26 @@
             {
             "SourcePath" = "8:realmlist.wth"
             "TargetName" = "8:realmlist.wth"
+            "Tag" = "8:"
+            "Folder" = "8:_DC58B7A30A9345F186E102386A49AB33"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5C29697357C547069FCD9D6617819020"
+            {
+            "SourcePath" = "8:OOLauncher.bat"
+            "TargetName" = "8:OOLauncher.bat"
             "Tag" = "8:"
             "Folder" = "8:_DC58B7A30A9345F186E102386A49AB33"
             "Condition" = "8:"
@@ -523,7 +549,7 @@
                                 {
                                     "{9EF0B969-E518-4E46-987F-47570745A589}:_22F17A3109964124B89168AAC4CB4DEA"
                                     {
-                                    "Name" = "8:ConsoleServer"
+                                    "Name" = "8:OblivionOnlineServer"
                                     "AlwaysCreate" = "11:FALSE"
                                     "Condition" = "8:"
                                     "Transitive" = "11:FALSE"
@@ -653,15 +679,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:OblivionOnline"
-        "ProductCode" = "8:{3BEFB4E1-5F43-497F-8DAC-980947D7A00F}"
-        "PackageCode" = "8:{02D2AD96-A306-47D9-9D71-A9367AF21390}"
+        "ProductCode" = "8:{E1F4D02D-341E-4AE5-B984-0A612EFA99D2}"
+        "PackageCode" = "8:{BF96DC36-D014-4AA5-9D34-A2930C0EEE3A}"
         "UpgradeCode" = "8:{75CB2856-DAF1-4317-BD19-A84910A0AAFB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
-        "DetectNewerInstalledVersion" = "11:TRUE"
+        "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.5.0"
-        "Manufacturer" = "8:OblivionOnline Team"
+        "ProductVersion" = "8:0.4.8"
+        "Manufacturer" = "8:Julian Bangert"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
         "Title" = "8:OblivionOnline"
@@ -773,6 +799,34 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_8C72331328734167957F8D3C6BC53E48"
+            {
+            "Name" = "8:Launch OblivionOnline"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_5C29697357C547069FCD9D6617819020"
+            "Folder" = "8:_E13C9CD858304F49B709803826BD1E21"
+            "WorkingFolder" = "8:_DC58B7A30A9345F186E102386A49AB33"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_E7A9C0B1C6F74B35A5AF7BB63C4F3BDD"
+            {
+            "Name" = "8:Launch OblivionOnline"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_5C29697357C547069FCD9D6617819020"
+            "Folder" = "8:_877EEAE0F3364A939A55877E21867F63"
+            "WorkingFolder" = "8:_DC58B7A30A9345F186E102386A49AB33"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
         }
         "UserInterface"
         {
@@ -1169,7 +1223,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_ECFD872E5DBB4CA49E5B52AC40718D4B"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_7B4D0ECF81CB41B98A8FEFBF63053182"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1183,7 +1237,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F09E70FA799849E288DA10D1CEAC1935"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_EBAA06C4BACE4494AA7A75CF4403F3BB"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1314,7 +1368,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DB4E0A0AD1A349658CB58B64B693F1C5"
             {
-            "SourcePath" = "8:..\\OblivionOnline\\bin\\OblivionOnline.dll"
+            "SourcePath" = "8:..\\OblivionOnline\\bin\\Release\\OblivionOnline.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_2EA12E733C5F4F699EB2DE6858B2D7BA"
@@ -1335,6 +1389,34 @@
             "OutputConfiguration" = "8:Release|Win32"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{D4DDA734-7E93-4581-8F82-32BB738F69FE}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_EC8945E934C7411190279F04FF6DCEDC"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_22F17A3109964124B89168AAC4CB4DEA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:SourceFiles"
+            "OutputProjectGuid" = "8:{9CEB2A39-13F4-499A-995C-2077F44177DF}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

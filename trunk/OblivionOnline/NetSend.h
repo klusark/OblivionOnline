@@ -38,6 +38,7 @@ forward this exception.
 bool NetSendEquip( UINT32 FormID,BYTE Status,BYTE Slot,UINT32 EquipID );
 bool NetSendChat(BYTE *message,size_t length);
 bool NetSendPosition( UINT32 FormID,BYTE Status,float PosX,float PosY,float PosZ,float RotX,float RotY,float RotZ );
-bool NetSendCellID( UINT32 FormID,BYTE Status,UINT32 CellID );
+bool NetSendCellID( UINT32 FormID,BYTE Status,UINT32 CellID,bool IsInInterior );
 bool NetSendActorValue( UINT32 FormID,BYTE Status,BYTE Slot,short Value);
 bool NetSendAnimation(UINT32 FormID,BYTE Status,BYTE Animation,bool IsPlaying);
+bool NetSendName(UINT32 FormID,BYTE Status,BYTE *name,size_t len);

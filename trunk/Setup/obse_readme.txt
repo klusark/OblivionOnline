@@ -1,4 +1,4 @@
-Oblivion Script Extender v0015
+Oblivion Script Extender v0015a
 by Ian Patterson and Stephen Abel and Paul Connelly
 (ianpatt, behippo and scruggsywuggsy the ferret)
 

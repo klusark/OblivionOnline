@@ -1,3 +1,9 @@
+0015a:
+- Fix crash when biped model path functions called on an object for which the specified model is not defined
+- Update GetMagicProjectileSpell to return staff enchantment for projectiles fired from a staff
+- Fix incorrect return value for GetPluginVersion when specified plugin is not installed
+- Plugin manager now offers some protection against misbehaving plugins
+
 0015:
 - Add manifest to obse_loader to request UAC elevation on Vista
 - Add -waitforclose loader option to help programs that watch for process termination

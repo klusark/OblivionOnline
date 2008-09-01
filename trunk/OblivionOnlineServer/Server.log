@@ -1,0 +1,75 @@
+Mon Sep 01 20:36:56 2008	Opened Log FileMon Sep 01 20:36:56 2008[BootMessage]Starting receive threads
+
+Mon Sep 01 20:36:56 2008[BootMessage]TCP Bound to port 41805
+
+Mon Sep 01 20:36:56 2008[BootMessage]TCP Bound to port 41805
+UDP Bound to port 41805
+
+Mon Sep 01 20:36:56 2008[BootMessage]TCP listening
+
+Mon Sep 01 20:37:20 2008[GameMessage]New player0joined from address195.252.48.152:10326
+
+Mon Sep 01 20:37:20 2008[GameMessage]Selected new master client0
+
+Mon Sep 01 20:37:20 2008[SystemMessage]Spawning Entity 0
+
+Mon Sep 01 20:37:20 2008Unnamed :Unnamed :
+
+Mon Sep 01 20:37:24 2008[SystemMessage]Spawning Entity 1
+
+Mon Sep 01 20:37:24 2008[SystemMessage]Spawning Entity 2
+
+Mon Sep 01 20:37:24 2008[SystemMessage]Spawning Entity 3
+
+Mon Sep 01 20:37:24 2008[SystemMessage]Spawning Entity 4
+
+Mon Sep 01 20:37:24 2008[SystemMessage]Spawning Entity 5
+
+Mon Sep 01 20:37:24 2008[SystemMessage]Spawning Entity 6
+
+Mon Sep 01 20:37:24 2008[SystemMessage]Spawning Entity 7
+
+Mon Sep 01 20:37:24 2008[SystemMessage]Spawning Entity 8
+
+Mon Sep 01 20:37:24 2008[SystemMessage]Spawning Entity 9
+
+Mon Sep 01 20:37:24 2008[SystemMessage]Spawning Entity 10
+
+Mon Sep 01 20:37:24 2008[SystemMessage]Spawning Entity 119128
+
+Mon Sep 01 20:37:24 2008[SystemMessage]Spawning Entity 16782763
+
+Mon Sep 01 20:37:24 2008Unnamed :Unnamed :
+
+Mon Sep 01 20:38:30 2008[GameMessage]New player1joined from address127.0.0.1:54046
+
+Mon Sep 01 20:38:30 2008Unnamed :Unnamed :
+
+Mon Sep 01 20:38:32 2008Unnamed :Unnamed :
+
+Mon Sep 01 20:38:34 2008[SystemMessage]Spawning Entity 16931185
+
+Mon Sep 01 20:38:37 2008Unnamed :Unnamed :heya
+
+Mon Sep 01 20:38:43 2008Unnamed :Unnamed :success
+
+Mon Sep 01 20:38:55 2008Unnamed :Unnamed :yay
+
+Mon Sep 01 20:39:00 2008Unnamed :Unnamed :go outside - meet in dungeon opposite the ic sewers
+
+Mon Sep 01 20:39:12 2008Unnamed :Unnamed :orn o
+
+Mon Sep 01 20:39:29 2008[SystemMessage]Spawning Entity 115810
+
+Mon Sep 01 20:39:29 2008[SystemMessage]Spawning Entity 115537
+
+Mon Sep 01 20:39:29 2008[SystemMessage]Spawning Entity 256302
+
+Mon Sep 01 20:39:29 2008[SystemMessage]Spawning Entity 89776
+
+Mon Sep 01 20:39:29 2008[SystemMessage]Spawning Entity 121488
+
+Mon Sep 01 20:39:40 2008[SystemMessage]Spawning Entity 119133
+
+Mon Sep 01 20:40:53 2008[Warning]Ignoring rest of packet : Wasted Chunks 15 of 15Bytes : 55
+

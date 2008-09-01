@@ -152,7 +152,9 @@ void EntityUpdateManager::OnPositionUpdate( Entity *ent ) /*Triggers Events and 
 }
 void EntityUpdateManager::OnCellChange( Entity *ent )
 {
-	UINT32 ChunkData = ent->CellID();
+	BYTE ChunkData[5];
+	*((UINT32 *)ChunkData) = ent->CellID();
+	ChunkData[4] = ent->IsInInterior() ? 1 : 0;
 	if(ent->Status() < STATUS_PLAYER)
 	{
 		for(map<UINT32,Entity *>::const_iterator i =  m_mgr->GetPlayerList().begin(); i != m_mgr->GetPlayerList().end() ; i++)

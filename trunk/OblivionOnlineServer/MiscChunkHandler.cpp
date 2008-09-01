@@ -25,19 +25,23 @@ size_t HandleChatChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len 
 {
 	size_t retval;
 	UINT16 supposedlength = *(unsigned short *)(chunkdata + 2);
-	std::string *chatmessage;
+	Entity *ent = gs->GetEntities()->GetEntity(status,FormID);
+	std::string message = ent->Name();
 	if(supposedlength > len - 4)
 		retval = len;
 	else
 		retval = supposedlength;
-	
-	chatmessage = new std::string((char *)(chunkdata + 4),retval);
-	gs->GetIO()<<PlayerChat<<FormID<<" :"<<*chatmessage<<endl;
+	message.append(" :");
+	message.append((char *)(chunkdata + 4),retval);
+	BYTE *buf = (BYTE *)malloc(message.length() + 2);
+	*(UINT16 *) buf = retval;
+	memcpy(buf + 2,message.c_str(),message.length());
+	gs->GetIO()<<PlayerChat<<ent->Name()<<" :"<<message<<endl;
 	for(map<UINT32,Entity *>::const_iterator i =  gs->GetEntities()->GetPlayerList().begin(); i != gs->GetEntities()->GetPlayerList().end() ; i++)
 	{
-		gs->GetNetwork()->SendChunk(i->second->RefID(),FormID,status,chatmessage->length() + 2,PkgChunk::Chat,(BYTE*)chatmessage->c_str());		
+		gs->GetNetwork()->SendChunk(i->second->RefID(),FormID,status,message.length() + 2,PkgChunk::Chat,buf);		
 	}
-	delete chatmessage;
+	free(buf);
 	return retval + sizeof(unsigned short);
 }
 size_t HandleVersionChunk(GameServer *gs,InPacket *pkg, BYTE* chunkdata,size_t len ,UINT32 FormID,BYTE status)

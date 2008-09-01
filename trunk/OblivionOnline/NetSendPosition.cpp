@@ -44,9 +44,11 @@ bool NetSendPosition( UINT32 FormID,BYTE Status,float PosX,float PosY,float PosZ
 	outnet.AddChunk(FormID,Status,GetMinChunkSize(Position),Position,(BYTE *)&Data);
 	return true;
 }
-bool NetSendCellID( UINT32 FormID,BYTE Status,UINT32 CellID )
+bool NetSendCellID( UINT32 FormID,BYTE Status,UINT32 CellID,bool IsInInterior )
 {
-	UINT32 Data = CellID;
+	BYTE Data[5];
+	*((UINT32 *)Data) = CellID;
+	Data[4] = IsInInterior ? 1 : 0;
 	outnet.AddChunk(FormID,Status,GetMinChunkSize(PkgChunk::CellID),PkgChunk::CellID,(BYTE *)&Data);
 	return true;
 }
